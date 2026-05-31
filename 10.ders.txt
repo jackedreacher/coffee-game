@@ -1,0 +1,141 @@
+We want them to face the QSpacing that we have in here, the QSpacing,
+
+but along the opposite direction. So we want them to face vector3, minus vector3.right,
+
+so minus QSpacing. So we can pass that value when initializing the customer.
+
+Where is our initialize method? Initialize method, I'm going to drop it at the top here,
+
+just after the update method. Yeah, that's better. So we can initialize our customers
+
+with the target position and vector3.finalFacing, let's say. We can store that value, settings,
+
+private, vector3.finalFacing, okay. And in here, let's store that, this.finalFacing
+
+equals finalFacing, let's go. And once we reach that destination,
+
+this one, not all of the destinations, because later on the reachDestination method is going
+
+to be called even when we go towards a table or when we leave a table, okay.
+
+So here is what we can do. Instead of calling the goto method, and it comes in really handy because
+
+this is going to be super useful later on, we can do gotoThen. So we are not going to call the
+
+goto method, but the gotoThen, which will allow us to pass in a callback to call or to trigger
+
+after we've reached the destination. So in our case, what do we want to do? We want to go towards
+
+the target position, and after that, we want to call the, let's turn it into a method actually,
+
+faceFinalFacing, okay. So let's create that, private void faceFinalFacing, okay.
+
+There you go. So now let's create the gotoThen method. Let's jump towards the goto method,
+
+private void gotoThen, vector3 targetPosition, and action maybe reachedDestinationCallback,
+
+something like that. Or let's just call it callback actually. There you go. So now this
+
+should be working properly, perfect. And in here, what we want to do is quite simple. We want to
+
+store this callback to be called whenever we reach the destination. So let's do something like
+
+settings, actions here, private action reachedDestinationCallback, nice. We can now go
+
+back to our gotoThen method. We are first going to store our callback, so equals callback, perfect,
+
+and then call the goto method with the destination, perfect. Now what we can do is,
+
+in our reachedDestination method, we are going to start the idle state, and then if we've got
+
+a reachedDestinationCallback, so if this one is different than null, we want to trigger it, so
+
+reachedDestinationCallback invoke, and then reachedDestinationCallback equals null, nullify it,
+
+so we can only call it once if it's not null, okay. And the final thing to do here is to face
+
+the final facing. So in our case, we can simply do animator.face our final facing here, cool,
+
+because the animator is responsible for orienting our boy here, got it? So let's create the face
+
+method, public void faceVector3Facing, let's say, okay. And in here we can do animator.transform.forward
+
+equals facing, thank you. And finally, is it going to work correctly? Because we are reaching the
+
+destination, starting the idle state, so the last velocity should be null. Do we set it to zero? Yeah,
+
+I think we call the stop method in our customer, you see, we start the idle state here. When we
+
+reach the destination, I wanted to explain that, we call startIdleState, so we call the stop method
+
+on our animator, and then trigger the callback. So in our customer animator here, the stop method
+
+will be called before the face method, which is really cool, because the magnitude will not be
+
+greater than zero, it will be zero, and we are going to call playIdleAnimation, and in here we do
+
+not alter the forward vector of our animator, which is really cool. So this method right here, or this
+
+line of code, should be called after this has happened. Let's have a look at that. Let's jump
+
+back here, we've got an error, oh, of course, we need the facing here, so minusQueueSpacing, perfect.
+
+Maybe let's normalize it, just in case it's not normalized. Yeah, I'm sorry, this lesson is a bit
+
+too long, but now we should be set up correctly. So let's hit play. Okay, where is our thingy? Okay,
+
+they are moving. Okay, okay, let's go, let's go, hurry up, boys, hurry up. Now the rotation speed is a bit
+
+faster, which is nice. Okay, we can call it angular velocity, by the way. There you go, and the facing
+
+is now correct. Okay, really cool. Now they do face, oh, come on, no, no, no, you must be kidding me.
+
+What the heck are you doing, you, you right here? Why? So what happened here? This boy is not facing
+
+correctly. There is one thing we need to take into account. The navmesh agent controls the movement,
+
+but it also controls the rotation of our renders here. So instead of setting the forward vector of
+
+our renders, we need to set the forward vector of the customer, or what we can try to is set the
+
+angular speed here to zero, so that the navmesh agent does not take into account the rotation of
+
+our customers. Let's try this first method. So we are going to grab the character's customer,
+
+set the angular speed to zero, hit play, and see how it goes. Let's jump back to our scene. Okay,
+
+so now they are going, the rotation seems correct, perfect. If we select one of these, we can see that
+
+the y rotation here is zero, but the renderer's rotation is perfect. This is the one we are
+
+controlling here. Okay, there you go, and now it's perfect. The other method, if you, should we try it?
+
+Do you want us to try it? Maybe it can be nice. I like this method to be honest. So anyway, let's try
+
+the other one. In here, let's change this one back to 120. Let's jump back to our customer animator here.
+
+We can comment this because we're not going to handle it right here, and what we can do instead
+
+of setting the forward vector of our animator's transform, we can simply do something like
+
+transform.forward equals facing. Okay, so let's now jump back to Unity. By the way, the customer
+
+animator's component or script is attached to the customer, which has the navmesh agent. If the
+
+customer animator was attached to the hypercasual character v2 game object, this would not work.
+
+So let's hit play. All right, let's have a look at this. Okay, so now the rotation you see is quite
+
+slower. Yeah, that's not optimal here. We might need to increase our angular speed.
+
+Okay, nice, nice, nice, nice, nice, and nice. Oh, no, no, no, he's still rotating, you see?
+
+Navmesh can have some weird behaviors from time to time. I can't tell you or stress out enough
+
+how many issues I had when creating this game just regarding navmesh. This is why it took more
+
+than one month. But anyway, what we are going to do here is set the angular speed to zero.
+
+That way, we control the rotation. We are not going to let navmesh do so. So let's change this back
+
+and this too.

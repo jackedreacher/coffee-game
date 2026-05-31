@@ -7,6 +7,39 @@ public class NavigationAbility : MonoBehaviour
     [Header(" Components ")]
     private NavMeshAgent agent;
 
+    public Vector3 Velocity => agent.velocity;
+
+    public bool IsMoving
+    {
+        get
+        {
+            if (agent.pathPending)
+                return true;
+
+            if (agent.hasPath && agent.remainingDistance > agent.stoppingDistance)
+                return true;
+
+            return agent.velocity.sqrMagnitude > 0;
+        }
+    }
+
+    public bool HasReachedDestination
+    {
+        get
+        {
+            if (agent.pathPending)
+                return false;
+
+            if (agent.remainingDistance > agent.stoppingDistance)
+                return false;
+
+            if (agent.hasPath && agent.velocity.sqrMagnitude != 0)
+                return false;
+
+            return true;
+        }
+    }
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();

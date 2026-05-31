@@ -16,6 +16,21 @@ public class Customer : MonoBehaviour
     [Header(" State ")]
     private State state;
 
+    private void Update()
+    {
+        switch (state)
+        {
+            case State.Idle:
+                HandleIdleState();
+                break;
+            case State.Walking:
+                HandleWalkingState();
+                break;
+            case State.Drinking:
+                break;
+        }
+    }
+
     public void Initialize(Vector3 targetPosition)
     {
         GoTo(targetPosition);
@@ -29,9 +44,44 @@ public class Customer : MonoBehaviour
             StartWalkingState();
     }
 
+    private void HandleIdleState()
+    {
+        if (navigationAbility.IsMoving)
+            StartWalkingState();
+    }
+
+    private void HandleWalkingState()
+    {
+        if (navigationAbility.HasReachedDestination)
+        {
+            ReachDestination();
+            return;
+        }
+
+        if (navigationAbility.IsMoving)
+        {
+            animator.ManageAnimations(navigationAbility.Velocity);
+        }
+        else
+        {
+            StartIdleState();
+        }
+    }
+
     private void StartWalkingState()
     {
         state = State.Walking;
         animator.StartWalking();
+    }
+
+    private void StartIdleState()
+    {
+        state = State.Idle;
+        animator.Stop();
+    }
+
+    private void ReachDestination()
+    {
+        StartIdleState();
     }
 }
