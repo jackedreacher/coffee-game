@@ -1,0 +1,168 @@
+Unity Editor API Dokümantasyonu: Arayüz ve Sahne ManipülasyonuBu doküman, Unity Editor arayüzünde fare (mouse) ve klavye ile manuel olarak yaptığınız sürükle-bırak, hiyerarşi düzenleme, asset taşıma ve nesneye odaklanma gibi görsel işlemleri tamamen C# koduyla nasıl otomatikleştireceğinizi açıklar.📌 Genel Kurallar ve GereksinimlerKlasör Yapısı: Bu dokümandaki tüm kodlar projenizdeki Assets/Editor/ klasörünün altında yer almalıdır. Bu klasör dışındaki kodlar oyun derlenirken (Build) hata verir.Kütüphaneler: Kodların en üstünde using UnityEditor; ve arayüz nesneleri için using UnityEngine; tanımlı olmalıdır.Geri Alma (Undo) Sistemi: Arayüzde yapılan işlemlerin Ctrl + Z ile geri alınabilmesi ve Unity'nin sahneyi "değiştirildi (dirty)" olarak algılaması için Undo sınıfı kullanılmalıdır.1. Project (Proje) Paneli ve Dosya İşlemleri (AssetDatabase)Fareyle Proje panelinde klasör açma, dosyaları sürükleyip taşıma veya silme işlemlerinin kod karşılıklarıdır.csharpusing UnityEngine;
+using UnityEditor;
+
+public static class ProjectPanelController
+{
+    /// <summary>
+    /// Proje panelinde yeni klasör oluşturur ve mevcut bir asset'i içine taşır.
+    /// </summary>
+    public static void ManageProjectFiles()
+    {
+        // 1. Sağ tık -> Create -> Folder işlemini simüle eder
+        if (!AssetDatabase.IsValidFolder("Assets/KodlaOlusanKlasor"))
+        {
+            AssetDatabase.CreateFolder("Assets", "KodlaOlusanKlasor");
+        }
+
+        // 2. Bir dosyayı tutup başka klasöre sürüklemeyi simüle eder
+        string eskiYol = "Assets/EskiMateryal.mat";
+        string yeniYol = "Assets/KodlaOlusanKlasor/YeniMateryal.mat";
+        
+        string hataMesaji = AssetDatabase.MoveAsset(eskiYol, yeniYol);
+        
+        if (string.IsNullOrEmpty(hataMesaji))
+        {
+            Debug.Log("Asset başarıyla taşındı.");
+        }
+
+        // 3. Değişikliklerin Project panelinde anında görünmesi için arayüzü yeniler
+        AssetDatabase.Refresh();
+    }
+}
+Kodu dikkatli kullanın.2. Sahneye Asset Yerleştirme (PrefabUtility)Proje panelindeki bir .prefab veya 3D modeli (FBX) farenizle tutup Scene (Sahne) veya Hierarchy (Hiyerarşi) paneline bırakma işlemini simüle eder. Bu yöntem, hiyerarşideki mavi prefab bağlantısını korur.csharpusing UnityEngine;
+using UnityEditor;
+
+public static class ScenePlacementController
+{
+    /// <summary>
+    /// Projedeki bir Prefab'ı sahneye sürükleyip bırakır.
+    /// </summary>
+    public static void DropPrefabToScene()
+    {
+        string prefabYolu = "Assets/KodlaOlusanKlasor/LambaPrefab.prefab";
+        
+        // 1. Proje panelindeki dosyayı hafızaya yükler (Mouse ile üstüne tıklamak gibi)
+        GameObject prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabYolu);
+
+        if (prefabAsset != null)
+        {
+            // 2. Sahneye sürükleyip bırakma eylemini gerçekleştirir
+            GameObject sahnedekiObje = (GameObject)PrefabUtility.InstantiatePrefab(prefabAsset);
+            
+            // 3. Sahnedeki konumunu ayarlar
+            sahnedekiObje.transform.position = new Vector3(0, 0, 0);
+
+            // 4. İşlemi Undo (Geri Al) sistemine kaydeder
+            Undo.RegisterCreatedObjectUndo(sahnedekiObje, "Prefab Sahneye Atildi");
+        }
+    }
+}
+Kodu dikkatli kullanın.3. Hierarchy Paneli Düzenleme ve Parent Verme (Undo)Hiyerarşi panelinde bir nesneyi farenizle tutup diğer nesnenin üzerine bırakarak alt nesne (child) yapma veya listede yukarı/aşağı sürükleyerek sıralama işlemlerini simüle eder.csharpusing UnityEngine;
+using UnityEditor;
+
+public static class HierarchyController
+{
+    /// <summary>
+    /// İki nesneyi hiyerarşide sürükle-bırak ile birbirine bağlar ve sıralar.
+    /// </summary>
+    public static void StructureHierarchy()
+    {
+        GameObject anaKarakter = GameObject.Find("Ana Karakter");
+        GameObject silah = GameObject.Find("Silah");
+
+        if (anaKarakter != null && silah != null)
+        {
+            // 1. Silahı tutup Ana Karakter'in içine sürükleme işlemini simüle eder (Ctrl+Z destekli)
+            Undo.SetTransformParent(silah.transform, anaKarakter.transform, "Silahi Karaktere Bagla");
+
+            // 2. Hiyerarşi listesinde sürükleyip en üste taşımak (Sıralama değiştirme)
+            silah.transform.SetAsFirstSibling(); 
+            
+            // En alta taşımak için: silah.transform.SetAsLastSibling();
+            // Belirli bir sıraya koymak için: silah.transform.SetSiblingIndex(1);
+        }
+    }
+}
+Kodu dikkatli kullanın.4. Mouse Tıklaması ve Klavyeden Odaklanma (Selection & SceneView)Hiyerarşide bir nesneye sol tıklayıp onu mavi renkli (seçili) hale getirmeyi ve ardından klavyeden "F" tuşuna basarak kamerayı o nesneye kilitlemeyi simüle eder.csharpusing UnityEngine;
+using UnityEditor;
+
+public static class InputSimulationController
+{
+    /// <summary>
+    /// Bir nesneye tıklar (Inspector'da açar) ve Scene kamerasını ona odaklar.
+    /// </summary>
+    public static void SelectAndFocus(GameObject hedefNesne)
+    {
+        if (hedefNesne != null)
+        {
+            // 1. Nesneye mouse ile sol tıklanmış gibi seçili yapar (Inspector paneli güncellenir)
+            Selection.activeGameObject = hedefNesne;
+
+            // 2. Klavyeden "F" (Focus) tuşuna basma eylemini simüle eder
+            if (SceneView.lastActiveSceneView != null)
+            {
+                SceneView.lastActiveSceneView.FrameSelected();
+            }
+        }
+    }
+}
+Kodu dikkatli kullanın.5. Inspector Panelinde Eleman Gizleme ve Kilitleme (HideFlags)Arayüzde bir nesnenin hiyerarşide görünmesini engellemek veya Inspector panelinde bileşenlerinin (Component) değiştirilmesini/silinmesini mouse tıklamalarına kapatmak için kullanılır.csharpusing UnityEngine;
+using UnityEditor;
+
+public static class InspectorInterfaceController
+{
+    /// <summary>
+    /// Nesnenin editör arayüzündeki erişim izinlerini kodla kilitler.
+    /// </summary>
+    public static void LockObjectInInterface(GameObject hedefNesne)
+    {
+        if (hedefNesne != null)
+        {
+            // SEÇENEK A: Nesneyi Hiyerarşi panelinden tamamen gizler (Arayüzde görünmez olur)
+            hedefNesne.hideFlags = HideFlags.HideInHierarchy;
+
+            // SEÇENEK B: Inspector'da görünür ama değerleri değiştirilemez/kilitli yapar
+            // hedefNesne.hideFlags = HideFlags.NotEditable;
+
+            // SEÇENEK C: Her şeyi sıfırlar (Normal arayüz moduna döndürür)
+            // hedefNesne.hideFlags = HideFlags.None;
+
+            // Değişikliğin arayüze anında yansıması için panelleri yeniden çizmeye zorlar
+            EditorApplication.RepaintProjectWindow();
+        }
+    }
+}
+Kodu dikkatli kullanın.🚀 Örnek Kullanım: Hepsini Birleştiren Tek Tuş MakrosuYukarıdaki tüm arayüz hareketlerini tek bir menü butonuna bağlayarak sırasıyla çalıştıran örnek bir makro scripti:csharpusing UnityEngine;
+using UnityEditor;
+
+public class EditorMacroAutomation
+{
+    [MenuItem("Editor Makroları/Komple Sahne Düzenini Kur")]
+    public static void RunFullAutomation()
+    {
+        // 1. Proje panelinde klasör aç
+        AssetDatabase.CreateFolder("Assets", "OtomatikBölüm");
+        
+        // 2. Sahneye boş bir harita yöneticisi koy
+        GameObject haritaYonetici = new GameObject("Harita Yoneticisi");
+        Undo.RegisterCreatedObjectUndo(haritaYonetici, "Yonetici Olusturuldu");
+
+        // 3. Sahneye hazır prefab yerleştir
+        GameObject evPrefab = (GameObject)AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Ev.prefab");
+        if (evPrefab != null)
+        {
+            GameObject sahneEvi = (GameObject)PrefabUtility.InstantiatePrefab(evPrefab);
+            
+            // 4. Hiyerarşide tutup yöneticinin altına sürükle
+            Undo.SetTransformParent(sahneEvi.transform, haritaYonetici.transform, "Eve Parent Ver");
+            
+            // 5. Nesneye tıkla ve kamerayı "F" ile oraya kaydır
+            Selection.activeGameObject = sahneEvi;
+            SceneView.lastActiveSceneView?.FrameSelected();
+        }
+        
+        AssetDatabase.Refresh();
+        Debug.Log("Arayüz makrosu başarıyla tamamlandı!");
+    }
+}
+Kodu dikkatli kullanın.Bu dokümandaki metotları birleştirerek Unity içerisinde kendinize özel "Tek tıkla tüm bölümü/sahneyi arayüze dizen" araçlar (Level Design Tools) inşa edebilirsiniz.

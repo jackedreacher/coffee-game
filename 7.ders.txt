@@ -1,0 +1,153 @@
+Welcome back guys, in this lesson we are going to try and move the customers towards the
+
+cashier station and we are not going to move them, they are going to move on their own.
+
+So for this lesson please, I will ask you to be particularly focused because we might tackle
+
+something new. If you're not used to NavMesh or using NavMesh in general, please focus with me.
+
+I'm going to go a little bit slower on this one. So, our dear boy customer, where is my boy
+
+customer, customer, customer, so prefabs, characters, customer. Okay, so to move this boy we are not
+
+going to use transform.position equals blah blah blah or so on because we might go into walls and
+
+so on. So for that we're going to use Unity's included navigation system, NavMesh. The first
+
+thing we are going to do is add a NavMesh agent to our customer. Okay, so now this boy can move on
+
+something. Anyway, now it has a brain, let's say. It can calculate a path on a certain surface
+
+and move towards a point if he can. Okay, so I'm gonna be...
+
+Sherlock Holmes, I'm talking like I'm giving you enigmas here. But anyway, here is our NavMesh
+
+agent. Now we can make it move on something. What's that something? That something is a surface. Keep
+
+in mind that a NavMesh agent can only move on a NavMesh surface. It can't move anywhere else.
+
+So let's try something. If we now hit play, I don't think we're going to have
+
+some issues because we are not telling the NavMesh. Oh, we might, we might.
+
+Wait, spawning the agent. Yeah, perfect. That is perfect. That's exactly what I wanted to.
+
+That's exactly what I wanted to happen. Failed to create agent because there is no valid
+
+NavMesh. A NavMesh agent can only be placed on a NavMesh surface. Okay, so now if we select
+
+our customer, it's at y equals zero with no offset related to the parents. Okay, so now what we are
+
+going to create is a place for him to walk. So let's right click and create an empty game object.
+
+Let's call it NavMesh surface. Let's reset the transform and maybe I'm going to drop it
+
+under the gameplay game object right here. Perfect. So now I can add a NavMesh surface
+
+component to this one. Again, next important thing, a NavMesh surface should not compulsorily be
+
+attached to a plane or a quad or the actual surface you want the player to walk on. Okay,
+
+so you can attach it to a random game object and bake the surface. So once you bake the surface,
+
+you will be able to spot this blue area. The blue area is the area where the player or the
+
+NavMesh agent can walk on. Got it? I hope this is clear. If you can't see this blue area,
+
+you can select navigation right here. So it's that icon. It's a compass, I think.
+
+And you can enable or disable the NavMesh gizmos. Cool. The surfaces where the NavMesh agent cannot
+
+walk on are marked as normal. They don't have any blue overlay. Okay, so in here you can see that
+
+we've got a wall. So the players, oh come on, the NavMesh agents cannot walk towards these walls.
+
+And you've got a bunch of settings to set these up however you want it to be.
+
+Just don't forget to bake your surface and your baked data will be attached to your scene. So
+
+right now our scene is called joystickController. We now have a folder called joystickController
+
+with the baked data of our NavMesh surface. Okay, if we remove this data, boom, we can't
+
+spot our NavMesh anymore. So I'm going to select it again and bake the surface. Perfect.
+
+Now if we keep it as is and hit play, we might see it working and we might not see it work.
+
+In our case, it's working. So that's perfect. Later on we might run through some issues but
+
+we're going to tackle them one by one. So I want you to understand that, again, a NavMesh agent can
+
+only be placed on a NavMesh surface. This is really important. Okay, perfect. So now let's configure
+
+our NavMesh surface a little bit more. Just a tiny bit. We're going to go step by step again. Don't
+
+worry. So let's open the window menu here, AI navigation. We can grab this window and dock it
+
+somewhere around here. This is where you set up the settings for your different agent types because
+
+we can have multiple agent types here. Okay, in our case we are only going to use humanoid. You
+
+can imagine having some birds agent types that can go over these walls right here and so on.
+
+So for our agents right here, we don't have any steps whatsoever in our game. So we are going to
+
+set this one to the minimum. So zero can't be applied. So we're going to set 0.001. And the
+
+slope will also be zero because our ground is flat. Flat, flat. Human fall flat. Okay.
+
+Next, what are we going to change in here? Well, the radius and the height later on, but for now
+
+we can keep it as is. One thing that is really important again, because we've changed some values
+
+in the navigation settings, we need to bake our NavMesh once again. So let's select the NavMesh
+
+surface and bake it again. Boom, nothing has changed. That's cool because the walls were
+
+already too high to be climbed and we have no slope in our game. But if we change the radius
+
+of our players or agents, let's say 0.1, we can now select the NavMesh surface again, bake it,
+
+and boom, you can see that now we've got some places where the players or the NavMesh agents
+
+can go. So for instance, right here, even though we don't want them to go in here, the walls
+
+obstacles are now thinner and same thing for the trees. So again, this is really important.
+
+Now, I want to specify something else. Right now, the NavMesh surface uses render meshes to
+
+create the geometry, but you can decide to only use the physics colliders. And if we bake again,
+
+now what happens? Only this area right here is marked as a NavMesh surface. And now if we hit
+
+play, normally I think that the customers will snap to the NavMesh. So let's have a look and
+
+boom, yeah, they snap to the NavMesh. But what if we grab the customer spawn point and move it quite
+
+far away? If we hit play, yeah, now it doesn't work. So there is a certain distance where it's
+
+going to try and snap to the NavMesh. Okay, this is another important point that we need to keep in
+
+mind. Okay, I think that I've tackled everything that I wanted to tell you here. And by the way,
+
+yeah, let's switch that to render meshes again. Let's bake. And this area right here is okay
+
+because the player won't be able to reach that point. The step is too high for it to climb it or
+
+go over there. Perfect. So now that we are aware of this, what we can do is add another script to
+
+our customer in the next one. I'm just going to explain what we're going to do, but we're going
+
+to do that in the next one. We are going to add another script to our customer to handle the
+
+communication between our NavMesh agent and our customer. Okay, just before that, what we can do
+
+is uncheck this, uncheck this because we don't want the NavMesh agent to repath. We want to be
+
+the ones calculating the path. And also remove auto-breaking. We don't want the NavMesh agent
+
+to break by itself if it's overshooting. We are going to set up the destination and he's going to
+
+move towards there. Okay, but I invite you to have fun and play with these settings, experiment,
+
+and you might find something that suits your needs. So see you in the next one!

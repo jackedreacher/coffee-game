@@ -1,0 +1,251 @@
+Welcome back guys! In this lesson, we are finally going to tell our customers to
+
+queue before or in front of the cashier station right here. So for that we need a starting
+
+position for our queue. We can add it to the coffee cashier station. So let's right click,
+
+create an empty, queue, start, point, something like that. And what I want to do is drop it
+
+somewhere around here, maybe one and a half. Yep, somewhere around here. Yeah, one and a half. Nice!
+
+Should be a good starting point. So now let's try and tell our customers to reach that point or to
+
+go towards there. So first off, we need a reference to that point. So let's add it. Settings, elements,
+
+maybe right here. Queue, start, point. Alright, now we can go down in here and find the target
+
+position for that customer. So imagine that we've got a queue of customers and we spawn them one by
+
+one. So the first one should go towards the queue start point, but then we should have some spacing
+
+for the other customers, right So we need to specify that spacing too. Let's do that. So in
+
+our settings right here, maybe just before the max customers or after. Maybe before. So serialize
+
+field, private, vector three. Okay, vector three. Let's say queue spacing. And in here, why did I use
+
+a vector three Just because we might imagine, if you want, I'm not going to do that in the course,
+
+but if you want, you can have some cashier stations that are oriented in a different direction. So
+
+maybe this one can be oriented like that and you've got customers coming from this direction.
+
+So I think it's, yeah, so vector three dot right or minus vector three dot right. Okay, what you can
+
+also do is use the forward transform of the station renderer here as the direction.
+
+You decide. That way you can use a floating value for the queue spacing or a float.
+
+Another thing that I want to note here is that because we've got some elements here, you see,
+
+our player has been marked as an obstacle. So if we move our player, boom, this zone or area
+
+is marked as an obstacle. So navmesh agents won't be able to reach or go through this point.
+
+This is really bad. We don't want that. So here's what we're going to do. We're going to grab our
+
+player and put it on a different layer. Yeah, player, different layer. So let's add a new layer
+
+and call it something like, I don't know, maybe ignore navmesh. Maybe with a space here. Okay,
+
+so let's select our player and ignore the navmesh. Okay, let's change the children too. Perfect.
+
+Oh, we can't spot it. Why can't we see it Because we've got some render settings. So we are going
+
+to select tiny coffee shop, settings, settings, settings. I think the settings are here. Yeah.
+
+Mobile renderer and let's add the ignore navmesh here and here. Oh, are we using the mobile renderer
+
+or the PC renderer Oh, we're using the PC renderer. Okay. Gotcha. Okay. So we can change that.
+
+You know how to do that quality in the project settings and you decide if you want to use mobile
+
+or PC. Okay. So in our case, we're using PC right here and that's okay. Fine. Perfect. Now what we
+
+can do is select our navmesh surface and select the object collection, not to everything, but let's
+
+ignore navmesh. Let's now bake. Boom. And the player is not considered as an obstacle anymore.
+
+Cool. So now what we can do is rotate this again, bake the navmesh one more time. Perfect. Thank you.
+
+And later on, I'm going to show you a way not to bake every time if you change stuff because
+
+later on we are going to have locked. These are going to be locked. The cashier station,
+
+the coffee station. So they should not be considered as obstacles right away.
+
+Some of you already know we are going to use navmesh obstacles. Spoiler. So where were we
+
+Yeah. Our queue. So let's select our coffee cashier station and reference our point and our
+
+spacing will be, let's say, one along the X-axis. Perfect. So let's now jump back to our code.
+
+Nice. And in here, what we want to do is grab the target position for our customer.
+
+So let's say vector3 targetPosition will be equal to getLastCustomerPosition. Okay.
+
+So let's now create this method. Boom. Inside of here, what we want to do is really simple.
+
+We are going to grab our QueueStartPoint. So let's return our QueueStartPoint.Position
+
+and we are going to add the spacing multiplied by, oh what the heck, multiplied by the amount
+
+of customers minus one. Okay. So customers.count minus one. There you go. This will return the
+
+target position for the customer we've just created. When we create our first customer,
+
+we add it to the queue. So we have one customer in our queue. So customers.count equals one,
+
+one minus one equals zero, zero times anything equals zero. So we are going to move it or the
+
+target position will be our QueueStartPoint. After the first customer, so customer number two,
+
+minus one, one times queue spacing equals vector3.right. Okay. Because we are using
+
+vector3.right here. Added to the QueueStartPoint.Position. Perfect. I hope this is clear.
+
+Again, if not, please leave a comment in the comment section. Once we've got that target
+
+position, we can give it to the customer and the customer will try and move there.
+
+So newCustomer.initialize. We are going to initialize that boy with the food count,
+
+so the amount of cups he needs, but later on, not right now. But for now, we just want to
+
+initialize it with the target position so that he can try and move towards that position.
+
+So let's create that method. Okay. Thank you. So public initialize with the target position.
+
+In our initialize method, we are simply going to tell the customer to go towards a certain position.
+
+So let's tell him to go to target position. Okay. Later on, of course, we are going to have
+
+more added to this, but for now, let's keep things simple. So private void, go to vector3.target
+
+position. There you go. Inside of here, I already told you that, but we are not going to handle the
+
+movement right here. Instead, I want to use the same logic used for our abilities. HoldFoodAbility,
+
+later on, holdDishAbility, and now, navigationAbility. So here is what we're going to do
+
+in here. bool canReachDestination will be equals to navigationAbility.tryGoTo, that destination,
+
+so target position. And for now, let's keep it simple. Then if we can reach this destination,
+
+so if we can reach the destination, we are going to start the walking state. Okay. So we've already
+
+tackled state machines in some other courses. You should be familiar with enums and states at this
+
+point. I hope. Please, if it's not the case, tell me, and I might try and add a lesson for that.
+
+So yeah. At start, we're going to have some states here. So enum state
+
+idle equals zero, and walking equals one. And finally, consuming food. I'm just going to call
+
+this one drinking. Drinking equals two. But yeah, keep in mind that we can actually
+
+consume different types of food. So private state states. There you go.
+
+So now what we can do is create this method, startWalkingState. And in here,
+
+let's keep things simple. We are simply going to do state equals state.walking,
+
+and animator dot, oh, come on, animator with a lowercase a dot startWalking. So of course,
+
+we will need a reference to our animator. Components. Serialized field. Private.
+
+Customer. Animator. Animator. There you go. And let's also create the startWalking method.
+
+There you go. We can handle this one later on. Right now, we are dealing with the navigation.
+
+Okay. So let's do something like this. Public. And yeah. Let's just remove the error. Okay.
+
+So let's now create our navigation ability, because we don't know what this is.
+
+So in our scripts folder. So scripts. Abilities. Right here. Let's right-click and create a new
+
+MonoBehaviour script. Navigation. Ability. Let's open this script now. Perfect. So let's go step
+
+by step. Our navigation ability will handle a NavMesh agent. So we want to use UnityEngine
+
+dot AI here. Okay. Boom. Okay. Perfect. Next, our navigation ability will require a NavMesh agent.
+
+Otherwise, it doesn't make sense on its own. So require component. Type of NavMesh agent. Perfect.
+
+So we can now store this agent. So components. Private. NavMesh agent. Agent, let's say. And in
+
+Awake, agent equals get component of type NavMesh. NavMesh agent. There you go. Super cool.
+
+After that, we can go back to our customer script here and tell our navigation ability. Yeah, we need
+
+to reference that boy first. So we are going to duplicate this. Navigation. Ability. Navigation.
+
+Ability. Nice. Now we need to create our try-go-to method. So let's create it. And here it is.
+
+Public bool try-go-to. So in here, what can we do Well, first off, we are going to set the target
+
+position's Y value to zero, just in case it's not on the Y plane. So target position dot Y equals
+
+zero. Next, we are going to try and calculate a path to that position. We should check if the
+
+agent can reach that position or not. Otherwise, we might get an error. So this is something we
+
+need to take into account when dealing with NavMesh agents. So NavMesh path, let's call it
+
+path, will be equals to new NavMesh path. This is where we are going to store the result of our
+
+calculation. Then bool reachable will be equals to agent dot calculate path towards a target position
+
+and store the path right here. This is where we are going to know if we can reach that position
+
+or not. So if the destination is not reachable, we're going to do something. Else, we can do
+
+something else. Here is what we're going to do. First off, we are not going to do anything except
+
+maybe debugging an error. Let's debug an error here. So debug dot log error. Let's say agent
+
+plus name cannot reach the target position or destination
+
+plus target position. Then we can return false. Otherwise, what are we going to do Well,
+
+we can reach that destination. So let's try and moving towards that destination.
+
+For that, what we are going to do is agent dot set path, the path that we've just calculated,
+
+and also set agent to is stopped to false. The agent is not stopped. It can move. Later on,
+
+we're going to stop the agent for some reason. So then we can return true because we can reach
+
+that destination. Okay. So I think that we can already give that a shot and we can call it a
+
+lesson after that because it's starting to get a bit too long in my opinion. So let's select our
+
+customer, customer, customer, customer. Here we go. Now let's add a navigation ability. There you go.
+
+We already have the navmesh agent, which is really cool. Let's reference our navigation
+
+ability and the customer animator. Perfect. So we should be good for this. Should we reference
+
+something else or not Cashier station, everything seems set up correctly. So let's hit play. Okay.
+
+Where are our agents Right here. There you go. They are moving. Perfect. And they are going
+
+towards the target destination. Okay. Okay. Boop, boop, boop. Okay. They are sliding a bit. We still
+
+need to animate these boys, but at least we can now reach the target destination. Let's try
+
+something else. If we grab our customer spawn point right here and put it over there. Let's
+
+hit play. Now they should go towards this point, this corner here. And then, yeah, that's exactly
+
+what's happening. Perfect. So they can find a path to the target destination. Really cool. I hope that
+
+you can spot the advantages of having abilities attached to your characters. It makes your
+
+gameplay and your architecture way cleaner, in my opinion. So I highly encourage you to do so.
+
+If you've got any questions, please leave them in the comment section. If you've enjoyed this lesson,
+
+I would love if you could leave a review. It always helps. Thank you so much. And yeah,
+
+in the next one, let's animate these customers and maybe give them some coffee. See you there.
