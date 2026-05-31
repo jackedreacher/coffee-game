@@ -83,7 +83,7 @@ public class Plateau : MonoBehaviour
         return null;
     }
 
-    private FoodPosition GetFirstFullPosition()
+    public FoodPosition GetFirstFullPosition()
     {
         for (int i = 0; i < foodPositionsParent.childCount; i++)
         {

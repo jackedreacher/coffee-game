@@ -19,9 +19,12 @@ public class Customer : MonoBehaviour
 
     [Header(" Settings ")]
     private Vector3 finalFacing;
+    private int foodNeededCount;
 
     [Header(" Actions ")]
     private Action reachedDestinationCallback;
+
+    public int FoodNeededCount => foodNeededCount;
 
     private void Update()
     {
@@ -38,8 +41,9 @@ public class Customer : MonoBehaviour
         }
     }
 
-    public void Initialize(Vector3 targetPosition, Vector3 finalFacing)
+    public void Initialize(int foodNeededCount, Vector3 targetPosition, Vector3 finalFacing)
     {
+        this.foodNeededCount = foodNeededCount;
         this.finalFacing = finalFacing;
         GoToThen(targetPosition, FaceFinalFacing);
     }

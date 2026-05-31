@@ -11,4 +11,9 @@ public class FoodDropZone : MonoBehaviour
     {
         plateau.Push(food);
     }
+
+    public FoodPosition GetFirstFullPosition()
+    {
+        return plateau.GetFirstFullPosition();
+    }
 }

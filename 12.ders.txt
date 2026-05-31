@@ -1,0 +1,171 @@
+Welcome back guys! In this lesson, we are finally going to serve our customers.
+
+Okay, I can promise that to you, even if the lesson takes one hour. No, just kidding.
+
+Okay, so let's jump back to our food serving station in here.
+
+Inside of here, we've called the actually serve food method.
+
+We are going to serve them, of course. So first off, let's set the serving timer to zero. Okay.
+
+Next, what we are going to do is grab the customer that needs to be served.
+
+So customer to serve
+
+will be equals to customerManager.pickFirstCustomer. There you go.
+
+So let's create this method really quickly. It should be quite straightforward. So public
+
+and in here return customers.pick. Thank you. We can now jump back to our food serving station
+
+script and serve this customer. So to serve him, we need to pop or grab the food that we need to
+
+give him. So spawnableFood will be equals to, or maybe foodToServe will be equals to pop.
+
+This pop method here needs to be implemented. We are going to grab a food from the drop zone.
+
+So let's do private spawnableFood pop.
+
+Should we implement that right away or tell the customer to grab the food? Yeah, that's quite
+
+similar. So let's actually give the food to the customer. So customerToServe.collectFood,
+
+or maybe we can use push. You decide here. FoodToServe. There you go. Once the customer
+
+has been served, what should we do in your opinion? Well, we should check if he has enough
+
+food. So if we've given him as many food as the food needed count, and if that's the case,
+
+we should dequeue him. So if customerToServe.needsMoreFood, we can simply return,
+
+because we still need to give him more food. Otherwise, he doesn't need any more food.
+
+So we can safely dequeue him. So dequeueCustomer. Later on, we are not going to dequeue him right
+
+away. We are going to check if there is any available table, because if there is no table
+
+available, it should not be the case. And that's why I've told you that we will need to abstract
+
+this class later on, because the cashier station will need to check if there is any available table
+
+to dequeue the customer. But the pickup station, the one that's serving pizzas, for example,
+
+will not need to do that. It will need to dequeue the customers and maybe move them to outside of
+
+the shop or outside of the restaurant. So these are different logics here. That's why abstraction
+
+makes sense. If you don't want to use abstraction, if you're afraid of it, don't first. And you can
+
+definitely duplicate this script and change some pieces of logic. It will just take a little bit
+
+more time, but it will work. Remember, abstraction and all of those principles are just here to make
+
+your code easier to maintain, easier to expand, but you can certainly make fun games without
+
+applying all of those principles. They just make our job easier and maybe will allow you to find
+
+the job in game development. Okay, so let's dequeue our customer. Customer to serve. So let's do private
+
+void dequeueCustomerCustomerCustomerCustomerCustomer. Okay, so let's pop the food that we need to serve
+
+first. It's going to be quite simple. We simply need to return our DropZone.pop. Let's implement
+
+this one because, again, the DropZone is the one that contains all of the food that needs to be
+
+given to the customers. And inside of here, we can just return Plateau.pop. Thank you. So now let's
+
+jump back to our food serving station and implement the collectFood method along with the needsMoreFood
+
+method. So to make sure that... let's just rerun these. Public and public. Perfect. Let's start
+
+with the collectFood method, but what I want is to grab these and drop them maybe after these
+
+ones. Yeah, right here. Perfect. So let's start with this one. It's quite simple. We will need another
+
+value here, another integer, because I don't want to touch the initial amount of food the customer
+
+needs in case we need it later on. So we are going to grab this, drop it here, and let's rename this
+
+one FoodTakenCount. Okay, and boom, we've got the field and the property. So whenever the customer
+
+collects a food, we can do something like FoodTakenCount++. And to know if we need more food,
+
+we can simply return FoodTakenCount is less than the FoodNeededCount. If we need more food,
+
+then we need to return true. And to collect the food, again, it's going to be quite simple. We are
+
+going to grab the plateau. If it's not active yet, we are going to enable it. We are going to push
+
+the food that needs to be taken and just update the animation. Remember, update this animation
+
+right here to play the idle animation again, but this time it's going to play it with the plateau
+
+because we would have enabled the plateau. So let's do that after. So plateau.gameObject.set
+
+active true. And of course, we need a reference to our plateau here, and game object should be
+
+lowercase. Components, not comments. SerializedField, private, plateau, plateau.
+
+Okay. So now we can go down here. We can push the food. So push the food to serve. Okay. And as I've
+
+said previously, what we are going to do is also animate the customer. So animator.manageAnimations
+
+vector3.0. It's just a null velocity, just to tell him to update the idle animation, for say.
+
+Even though, wait, I'm thinking about it now, but it should update automatically because we call
+
+this constantly if we are not sitting. So yeah, it should actually be automatic. So let's just
+
+comment that and check it out. Okay. There is still one thing, by the way, that we need to
+
+check, but for now, let's give it a shot. It's going to be weird. We are going to notice the
+
+issue. Boom. And maybe you can think about it before it happens. Oh, nice exercise. So let's
+
+hit play. I've just referenced the plateau, by the way, and I might need to set up this
+
+thingy right here. Okay. Oh, wait. Before I forget, again, I'm going to grab the customer spawn point
+
+and spawn them right here so that we don't have to wait that much. Okay. So let's grab some cups.
+
+Customers are coming. Boom. Let's drop the cups in here. Let's grab more. Drop them here. Thank you.
+
+And let's try and serve them. Okay. They're grabbing the cups, but look at how many cups
+
+the customer has grabbed here. Wait one second. Boom, boom, boom. One, two, three, four, five, six,
+
+seven. The customer has grabbed seven cups, even though if we select him, customer 322,
+
+switch to debug mode, boom, we can see that the needed count is four, but he has taken seven cups,
+
+which is not good at all. So it causes an issue here because the capacity of the plateau of the
+
+customer here is only seven. He can't create more spawn positions. We have not allowed the plateau
+
+to do so. Okay. So what we need to do here, and this is the issue I told you to try and
+
+imagine that it would happen, but yeah. Let's jump back to our food serving station and actually
+
+serve food. In here, we want to make sure that the customer does not need any more food. So if
+
+customerManager.peek firstCustomer.needsMoreFood, if it doesn't need any more food, we can simply
+
+return. Got it? And later on, we might add some text like, oh, all of the seats are taken and so on.
+
+So let's try that. Okay. Here we go. Let's grab some cups, drop them here. This boy needs, needs,
+
+needs, needs, needs three cups. One, two, three. There you go. He now has his three cups. So yeah,
+
+you can leave. Come on, just leave, please. Thank you. Okay. Nice. So at this point, the customers
+
+are now able to grab the coffee cups or any kind of food. If we try and add the pizza here, it's
+
+going to work as expected. It can be a nice exercise. Try that. Try and add the pizza. And for me,
+
+that's all. So in the next one, let's add our tables and try and move the customers towards
+
+these tables. Actually, I think it's going to take more than one lesson. One lesson for creating
+
+the tables and the scripts that come with these tables. And finally, we can try and move the
+
+customers towards the tables and tell them to sit and so on. Anyway, bye-bye.

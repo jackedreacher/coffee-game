@@ -11,6 +11,7 @@ public class FoodServingCustomerManager : MonoBehaviour
     [Header(" Settings ")]
     [SerializeField] private int maxCustomers;
     [SerializeField] private Vector3 queueSpacing;
+    [SerializeField] private Vector2Int minMaxCustomerFoodCount;
     private Queue<Customer> customers = new Queue<Customer>();
 
     private void Start()
@@ -33,12 +34,27 @@ public class FoodServingCustomerManager : MonoBehaviour
 
         customers.Enqueue(newCustomer);
 
+        int foodCount = Random.Range(minMaxCustomerFoodCount.x, minMaxCustomerFoodCount.y + 1);
         Vector3 targetPosition = GetLastCustomerPosition();
-        newCustomer.Initialize(targetPosition, -queueSpacing.normalized);
+        newCustomer.Initialize(foodCount, targetPosition, -queueSpacing.normalized);
     }
 
     private Vector3 GetLastCustomerPosition()
     {
         return queueStartPoint.position + queueSpacing * (customers.Count - 1);
+    }
+
+    public bool IsCustomerReadyToTakeFood()
+    {
+        if (customers.Count <= 0)
+            return false;
+
+        Customer firstCustomer = customers.Peek();
+
+        float distance = Vector3.Distance(
+            firstCustomer.transform.position.With(y: 0),
+            queueStartPoint.position.With(y: 0));
+
+        return distance < .1f;
     }
 }
