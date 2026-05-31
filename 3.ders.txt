@@ -1,0 +1,263 @@
+Welcome back guys! In this lesson, we are going to allow our player to collect these coffee cups
+
+spawned by the coffee station. By the way, it's now a pizza station so let's switch that to coffee
+
+cups again. Thank you. Let's just make sure that everything is still working as expected.
+
+Okay, so one, two, three, four, five, six, seven. Thank you. Perfect! So, here is what we're gonna
+
+do. We can move the player whenever we move it near the coffee station. So, we will need another
+
+box collider for the coffee station and this one is going to be trigger. But when we trigger that
+
+coffee station, we are going to try and collect cups or spawnable foods. So, it means that our
+
+player also needs a plateau. So, let's add a plateau to our character. We want the plateau
+
+to rotate with the character so we're going to turn it into a child of the hyper casual character
+
+V2. Okay, at start, by the way, we can just reset the position. Where is our player? Thank you.
+
+Here is the plateau so it should be somewhere around here, I guess. What we can do is just do
+
+this. Boom! Let's play the idle with plateau maybe. Okay, just a little bit above this position
+
+somewhere around here. Nice! Cool! Okay, so now the platter... the platter... Come on! The player has a
+
+plateau. So, the next step is going to be to disable the plateau for now. Select our coffee station
+
+which is right here. Thank you. And we are going to add a box collider. This one is going to be a trigger
+
+and we can switch to a top view to set this collider correctly. So, we can say that whenever
+
+the player gets close to these positions or this box enters this box actually. Okay, so maybe
+
+something like this. Yeah, cool! Nice! I like it. Maybe you can move it up even though it doesn't
+
+matter the player is still going to trigger that box. So, yeah, whenever we trigger that box we want
+
+to try and collect the cups that we have in the plateau here. So, for that we will need a player
+
+detector. So, let's open our scripts folder. Player, right click, create a new script, player detector
+
+flower. All right, so let's attach our script to our player. There you go and open it. Boom!
+
+Inside of this script we are going to remove the start and update method. I don't think we are
+
+going to need them and add the onTriggerStay method. Inside of here we want to check if we
+
+are triggering a spawner station. So, if other.tryGetComponent.outFoodSpawnerStation, let's call it
+
+station. HandleFoodSpawnerStationTriggered. Again, you know me, I'm so bad at finding names but
+
+so they are going to be quite long throughout this whole course. But yeah, I think that you
+
+can do better than me. Okay, so whenever we are triggering a food spawner station we call
+
+this method. Inside of here what do we want to do? Well, let me explain quickly. Our characters
+
+right here, so we're gonna have a bunch of characters. So the player and the workers
+
+mainly actually, will work on abilities. So we are gonna have multiple abilities for
+
+each one of the players. Let's say the player can hold cups, so we will have a hold coffee or hold
+
+food ability. He can hold dishes, hold dish ability. He can pay, so pay ability and so on. The workers
+
+will be handled by AI, so they will have a navigation ability, for instance, to be able to
+
+move them. The customers will also have a navigation ability but no
+
+hold dishes ability, neither hold coffee or food ability, because the platform is going to handle
+
+that. Okay, so yeah, this is what I wanted to explain really quickly. So let's create an ability
+
+maybe in the abilities folder. So abilities, boom, right click, create a new script, hold food
+
+ability. Once it's compiled we can select our player and give it that script. So now in our
+
+player detector we can do something like get component hold food ability dot handle in food
+
+spawner station and pass in the station. Okay, so the hold food ability is going to try and grab the
+
+cups or the specific food that we want to grab and put it in the plateau. So we can press alt
+
+enter and generate the method. Boom, thank you. Let's turn this one into a public method, remove this
+
+and as I've just said that the hold food ability will be responsible for putting food in the plateau
+
+we definitely need a reference to the plateau, of course. So components or elements, serialize field
+
+private plateau, plateau. There you go. Inside of here what are we gonna check? We need to check
+
+multiple things. I'm gonna give you like three seconds. One, two, three. So we first need to
+
+check if the plateau is full or not. So if plateau dot is full we're gonna return. We can't put
+
+anything else in the plateau. After that we know that we can grab that food. Of course there are
+
+gonna be more checks later on because you know that there are dishes so we can't put food
+
+if we have if we already have dishes in the plateau and so on. But for now let's keep it simple and we
+
+can just expand later on. So at this point we need to grab the food from the station. So the spawnable
+
+food food or let's say food to grab will be equals to station dot not push but pop. Okay, so we are
+
+going to use the push and pop methods all along the course. We need to ask the food station to
+
+pop or give us the upper food in the plateau or the top one. Okay, but there is one catch. Maybe
+
+the station is empty. So if the food to grab equals null we are simply going to return. Okay,
+
+it means that there is nothing to grab. Otherwise we can actually enable the plateau. So plateau
+
+dot game object dot set active true. Okay, because if it's empty we actually want to hide it so it
+
+might be hidden before grabbing this food. And after that plateau dot push food to grab.
+
+We push the food that we've just extracted from the station. And we are going to have a timer but
+
+for now let's just dismiss that timer. We just want to make this work first. So let's create the
+
+pop method inside of the food spawner station. So public and remove this. This pop method is going
+
+to be quite simple. You're going to start noticing a pattern here because we are kind of having a
+
+top-down hierarchy. We've got the station that has a plateau. So when popping from the station we are
+
+actually going to tell the plateau to pop. And the plateau again is going to tell the food position
+
+to pop. The upper one. So it's going to make things so much easier to handle. So the spawnable
+
+food that we want to return here is going to be plateau dot pop. And again we can check if
+
+food equals null. We can just return null or we can actually return food. But otherwise
+
+we want to return food. So now let's create the pop method inside of our plateau. So public
+
+boom. Let's remove this. And inside of here we want to grab the last full position. So the upper one.
+
+So food position. Let's call it food position. It's going to be let's say something like get last
+
+full position. Okay. Like we've done previously for get first empty position and so on.
+
+We can already create this boy. But then let's create the logic after. And then we can
+
+implement that get last full position. If the food position equals null. What does that mean?
+
+Why can it happen? It can happen if all of the positions are empty. Okay. This can be possible.
+
+Maybe the plateau has no food. Normally we should have tried tried tried that. Yeah.
+
+The right here actually. So we do not check for this. So if the food position is null. So it
+
+means that the plateau is empty. The plateau of the station is empty. There is nothing to grab. So
+
+let's return null. Otherwise it means that we've got a food position that has something. A food that
+
+we can return. So because we're going to return that food we can already mark is full to false.
+
+As false. Sorry. Because we're going to pop that food from the food position. So we are at least
+
+going to have one empty food positions. Food position. Sorry. So after that we can simply
+
+return food position dot pop. Okay. Pop. Pop culture. And again implement that one. Boom. Open it.
+
+Public. Remove this. And because we know that there is something in here. Because we were able to
+
+grab it from the plateau. Is empty is now going to be true. Okay. The plateau the food position
+
+sorry is now empty. Spawnable food. Spawnable food. Let's say food to return is going to be
+
+equals to food. So what is this food right here? Well it's the food that we've pushed earlier. So
+
+we can store it somewhere around here. Maybe elements. Private. Spawnable food. Food. In here
+
+we can say this dot food equals food instance. So now it is stored. Actually you can remove the
+
+this keyword. When making the course I think I called this one food. And now it's food instance.
+
+So food to return is going to be equals to food. And food is now equal to null then. Okay.
+
+Is that good? Now the food is null. The food that we want to return. And after that we can return
+
+the food to return. There you go. So now we should be good-ish. I think that the only thing we need
+
+to do is getting the the first yeah the last full position right here in the plateau. So inside of
+
+here again it's going to be quite simple. We're just going to loop through all of the food positions
+
+parent dot child count. If the food positions parent dot get child dot index i dot try get
+
+component out food position. Food position. Let's call this one food position. If we can't find
+
+anything like that or that component we are going to continue. Otherwise if the food position that
+
+we've grabbed is not empty. So if it's full. So if food position dot is empty or is not empty
+
+we're going to return food position. Otherwise we can return null. It means that we have not found
+
+any full position. Okay. So let's now jump back to Unity and hopefully it should be good. Please
+
+if you've got some questions leave them in the comments section. I'm going to try and answer
+
+ASAP. So the food ability hold food ability here sorry needs the plateau and while we are here we
+
+are also going to reference the plateau in the player animator. That way we can actually see
+
+the player holding the plateau and so on. It can be nice. So let's now hit play. Okay so we've got
+
+the station spawning food. Let's try and see if we can grab that food. Yay! Awesome! And again
+
+the plateau is full because it has the seven positions occupied. Oh by the way we've got an
+
+error in here. We are going to tackle this right now. But let's try and select the plateau and
+
+increase that to 10 maybe. Okay if I exit maybe come back. No it's now fixed. The max capacity
+
+is fixed and we've got an error in here. So let's tackle this error. Why do we have this?
+
+Let's see. Boom! Null referenced exception. So it means that our food position here is
+
+null. We are trying to put to push. Okay plateau. So the plateau is full.
+
+We are not able to find an instance here. I'm going to debug.log this right really quickly. So plateau
+
+food position plus food position let's say dot name. No, no dot name. Let's see if we've got a
+
+null value in here. So let's hit play. Okay so we've got cups. Boom! Okay we've got the error again.
+
+Boom! Okay. Okay so we need to fix that error here. What did happen? Let's pause.
+
+Okay food position and here. Okay let's not collapse. Here is the error. The food position is
+
+null here. Okay but does it happen after the first cup has been grabbed? No I don't think so.
+
+It happens after that. So let's see. Let's keep creating these. So the issue does not come from
+
+the station. Okay if I come closer. Boom! Okay maybe we can check here. Okay plateau food position.
+
+Okay seems like we don't have any food position in the player's plateau at start. But we do have
+
+one here. Let's try that again. Yeah we do have one food position. Maybe it has not been initialized.
+
+Yeah maybe we need to wait for that to be initialized. So the is empty here you know what
+
+we're not going to put it at start or on start. We're going to put it in awake so that we make
+
+sure that we call this before trying and grabbing a food position from the plateau. It's going to
+
+make it easier. And again you could have used is full instead of is empty. Okay so now hopefully
+
+we should not see that error. Okay so the station is creating cups. Boom! And yep of course this
+
+was the error. Perfect! Nice! So I think we are good for this lesson. I want you to realize now
+
+you've just created a station creating cups or any specific food. You've created a player
+
+with a hold ability that can hold any food. Now the only step left is to drop the food
+
+somewhere. This is already a huge achievement. Well done! I think we can applaud you. You can
+
+applaud yourself

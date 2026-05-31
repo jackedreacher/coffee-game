@@ -1,0 +1,283 @@
+ This is the main scene of our game. So as I've told you in the introduction video we are
+
+not going to start the game from scratch. We've already tackled the player controller in the hybrid
+
+casual game, hybrid casual course I think if I remember well. We've tackled the cash and currency
+
+manager in the kawaii survivor course so it would be a waste of time to try and do it again from
+
+scratch. This is why I've provided everything in the starter pack. If you want to explore the
+
+starter pack you can do so. But for now let's keep going. So in the environment or under the environment
+
+game object you can see the Cinemachine cameras. The player follow camera will follow the player
+
+but we don't have Cinemachine right now installed in our project. So we are going to do window,
+
+package management, package manager, unity registry and search for Cinemachine. Let's install it.
+
+Once it's done everything should be set up correctly. So we can right away hit play and we
+
+are now able to move our character around. Awesome! So again the character, the joystick and the control
+
+are all inside of my hybrid casual course if you want to give it a look. But again it's really
+
+simple you can have a look at it right here. So gameplay, player and joystick player controller.
+
+Let me actually open the script and show you what's inside. So first off the joystick player
+
+controller inherits from the player controller class that we can open by clicking here. We've got
+
+a player animator, a move speed, we do save the last position of the player. We can remove this and
+
+add it later on but it's quite simple. The saving system used in here is Sigil. Again this
+
+is a course that I've made where I teach you how to create your own versatile save system. And we've
+
+got some really simple stuff like setting the move speed of the player depending on the
+
+method we are using to move it and so on. The joystick player controller is again quite
+
+simple. We've got a reference to the joystick, a reference to the character controller and we just
+
+calculate the isometric move vector depending on the move vector of the joystick because our
+
+joystick has a value along the x-axis and y-axis. We need to convert that into an isometric
+
+kind of movement because our camera right here is tilted by 45 degrees around the x-axis and minus
+
+45 around the y-axis. This is why we need this conversion right here. But that's quite simple.
+
+So again you can experiment with this. Next we manage our animations like this. We've got a
+
+plateau that we're actually going to add in this lesson normally and an animator. So if the magnitude
+
+of the move vector is greater than zero we manage the walk animation. We basically have two walk
+
+animations here. A simple walk animation and an animation with the player holding the plateau or
+
+the serving tray. Same thing for the idle animations. We've got a simple idle animation and an idle
+
+animation with the plateau. So you are gonna hear me say plateau a lot because serving tray is
+
+plateau in French and I've used this term when making the game. So if we select our player right
+
+here we can actually expand it, select the hyper casual character and select animation. So let me
+
+just press F to focus it, switch to orthographic view and we can spot the four main animations
+
+right here. So the idle animation like so. We've got an idle animation with the plateau.
+
+A simple walk animation and walking with the plateau. Our sitting animation will be used for
+
+our customers later on. It's a simple one. Of course I'm sure that you are going to use better animations
+
+than I've used right here. So we've got our player set up. The first thing we are going to
+
+add here is the coffee station. The station that is spawning coffee cups. But to be able to spawn
+
+coffee cups of course we need those coffee cups. So let's first create our coffee cup.
+
+We are going to go to tiny coffee shop, models, props and cup right here. Can I see it please?
+
+Thank you. Another note that I want to add here is that all of the models that I use in this game,
+
+I think almost all there, use the same material that is right here. It's the palette material.
+
+So it's a basic material with one texture and then in blender or your 3d editor you can set up
+
+the uvs to select the colors that you want. I might show that in a further lesson. Please if I forgot
+
+to do that remind me. So models, props, cup. Boom! This is our first cup. Yay! We've got it. So let's assign
+
+the material to that cup. So let's click on here, palettes. There you go. This is our first cup. Awesome.
+
+After that we are going to reset the transform and create an empty parent. This is going to
+
+be our actual cup. This is only going to be the renderer. Okay. So let's press f. Here it is next
+
+to the feet of our player. Okay. So now we are going to create our first script that we are
+
+going to attach to this cup. It's going to be super helpful because later on cups or spawnable foods
+
+will become dirty after customers have consumed these spawnable foods. We will also need to know
+
+how far the next element should be placed above the first one because we can have multiple elements.
+
+I'm going to show you how to make it or create the game with coffee cups but later down the course I
+
+might also add pizzas just to show you the variety of things you can make from this game. So let's
+
+remove these and create our first script. On scripts, right click, create a new folder for our
+
+gameplay elements. Okay. And we're going to call this one spawnable food. Okay. This is going to
+
+be an abstract class that all of our spawnable foods will inherit from. So we can right away
+
+create a coffee cup food. So boom coffee cup that will inherit from this spawnable food. Let's try
+
+and make our architecture a bit clean from the beginning. So let's assign our coffee cup script
+
+to our coffee cup. Perfect. Let's open it and inherit from this spawnable food class. For now
+
+we can remove the start and update method from here and open our spawnable food class. This one
+
+again needs to be abstract because we can't spawn a spawnable food. We need to spawn a specific class
+
+that inherits from it. Coffee cups, pizzas, anything you want to add. So let's jump back to our spawnable
+
+food and as you've seen in the intro video coffee cups or spawnable food in general will be stacked
+
+on top of the other in all of the stations. The coffee station, the cashier station, on the player's
+
+serving tray or plateau and so on. So we will definitely need to know how far away each coffee
+
+cups should be. Okay so for that we're going to create a new serialized field. Actually let's do
+
+something like settings serialized field private float clean y offset on plateau and we also want
+
+to create a property for that field. So public loads. I'm just going to copy this boom and return
+
+this value, the field value. Perfect. So you can already imagine that if we've got a clean y offset
+
+for the plateau we are also going to have a dirty y offset when the cup is dirty or when the pizza
+
+is dirty. We are going to change the mesh later on but for now let's keep it simple. Okay perfect.
+
+So let's remove this start and update method and start spawning these cups. Now we have stuff to
+
+spawn. So we can select our cup here duplicate it and move it up by a certain amount. Okay so how
+
+far how far should it be sorry to stack properly somewhere around here dot 23 I would say dot 23
+
+okay no that's too much so what we are going to do is dot 22 dot dot 22 eight okay dot 22 eight
+
+okay yeah should be nice anyway you can edit this value so let's remove this one dot 22 eight
+
+and let's save this as a prefab so we can create a new folder
+
+gameplay grab the cup and drop it here boom okay so we've got our first prefab that is awesome
+
+so now let's create our coffee station we are going to grab it from the models
+
+cashier station and grab the first one but yeah of course it's dropping everything so we need to
+
+unpack this boom grab the first one extract it from there and remove the other cashier stations
+
+this is the model that we are going to use right here okay so we can rename this one renderer or
+
+maybe station render station renderer something like that we will need to rotate it I think we
+
+are going to move it around but let's first change the palette material there you go that's
+
+way better I want to make it a bit smaller yeah should do the trick something like that is nice
+
+okay so let's now create a parent for this station perfect so let's call it coffee station and now we
+
+can call it coffee station because it's going to create coffee and we're going to place it
+
+somewhere around minus two and a half I'm going to grab some values that I've used when creating
+
+the course that way we can go faster and I'm not wasting your time so we can place it somewhere
+
+around here let's press f there you go this is our coffee station to make things a bit prettier we can
+
+add the coffee machine this one yep can be nice so let's add it right here we are going to rotate it
+
+by 90 degrees move it up okay it's a bit too big in my opinion so we can scale it down um too small
+
+definitely move it somewhere around here maybe scale it up okay we can place it somewhere around
+
+here we are also going to use the palette material there you go and that's already way better to
+
+prevent the player from colliding with this coffee station we are going to add a box collider right
+
+here boom and the size is already yeah it's decent I like it perfect so let's now create
+
+our cups we are going to create a new script for that so scripts um we can do something like
+
+stations okay and right click create a new mono behavior and call it food spawner station again
+
+I'm not calling this one coffee spawner station because I wanted to make I want to make it as
+
+generic as possible again we're going to create pizzas and blah blah blah and so on perfect um
+
+let's select the coffee station attach the script and open it perfect so the first thing we will
+
+need here is the element the thing the food that we want to spawn of course so let's add a reference
+
+to it elements serialize field private coffee cup nope because we want the food spawner station to
+
+be able to spawn anything so spawnable food let's call it spawnable food perfect so now that we know
+
+what we want to spawn we need to know where we want to spawn it so of course we are going to
+
+spawn the coffee cups somewhere around here but not in a random way as I've told you we've got
+
+the plateau this is going to be the core of our game everything is going to have a plateau the
+
+coffee station will have a plateau the player will have a plateau the customers will have a plateau
+
+to take the coffee cups or special food and go towards the table tables are also going to have
+
+a plateau um cashier stations are going to have a plateau workers are going to have a
+
+everything is a plateau any anyway I'm going crazy uh yeah so to sum up we need a plateau
+
+or a serving tray if you don't like the term plateau but yeah I'm going to say plateau a lot
+
+again so for that let's create our serving tray okay so let's create an empty no I'm going to
+
+grab it from the models right away so props plateau yay here is our plateau so let's give
+
+it the palette material too and move it somewhere around here ish yep this makes sense somewhere
+
+around here is good noise noise let's now right click um create an empty parent not an empty
+
+child let's call this one anim in case we want to animate the plateau we are not going to edit
+
+the scale rotation and so on we're going to edit the anim's uh properties or transform okay this
+
+will make it uh easier to handle let's again right click create an empty parent and call this one
+
+plateau perfect so make sure that these are set at 0000 for the position and rotation uh yeah
+
+nice so we've got our plateau now we need to know where to put our coffee cups or spawnable foods
+
+so for that we're going to create a new child um for anim actually we can call this one renderer
+
+yeah thank you then we are going to right click and create an empty game object let's call this
+
+one positions okay this is going to be our food positions and after that we can create our first
+
+food position so the food position that we can see right here is going to be a prefab and we are
+
+going to attach a script why because this is going to make it so much easier to handle when adding
+
+coffee cups to those food positions we will be able to ask every food position if it's empty
+
+if it's dirty if it's full and so on moreover it's going to be a breeze to animate the cups or the
+
+food that we are serving later on so let's create that right away along with the plateau script okay
+
+so let's open our scripts folder gameplay right click create a new uh script food position
+
+let's again right click create a new mono behavior script and call it plateau we can attach our
+
+scripts so here is the first one and food position right here nice so now we can turn this plateau
+
+into a prefab because as i've told you everybody is gonna have a plateau so prefabs gameplay plateau
+
+ish plateau boom prefab nice we can then turn it into a child of our coffee station right here
+
+and while we are here we can also specify oh come on let's lock this one um gameplay
+
+cup because we want this station to spawn cups now the last thing we are going to do for this lesson
+
+okay i don't want to be too uh i don't want to this lesson to be like half an hour so what we
+
+can do is just add a reference to the plateau boom we can now jump back to unity reference the plateau
+
+and bye bye okay so let's reference the plateau and we are good for this lesson in the next one
+
+you can imagine that we are definitely going to spawn the coffee cups so see you there bye

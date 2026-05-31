@@ -1,0 +1,329 @@
+Welcome back guys! In this lesson we are going to spawn our first coffee cups. So let's open our
+
+food spawner station script here, the one attached to the coffee station. The first thing we are
+
+going to do is add a timer because we don't want to spawn coffee cups like on each frame. We
+
+definitely need a timer for that and we also have a limited amount of coffee cups we can spawn.
+
+The plateau is going to limit that amount. So let's add a new header and call it settings.
+
+This is going to hold our private float spawn delay. And of course we are also going to have
+
+a timer so private float spawn timer. Cool! Next in our update method we are going to call the
+
+handle spawn timer method. Let's create it really quickly. Boom! Thank you! And inside of here we
+
+are going to increment our timer on each frame. So spawn timer plus equals time dot delta time.
+
+And if the spawn timer is greater or equals to the spawn delay we are going to try spawn food
+
+and then spawn timers equals zero. As simple as it gets. It's a really basic timer here.
+
+So let's create our try spawn food method. There you go. And inside of here we need to try
+
+and spawn the food. Come on! The name suggests it. So why can't we spawn food? Or what are the
+
+conditions required to be able to spawn food? Well the plateau should be either empty or it should
+
+not have reached its maximum capacity. So we can do something like if plateau dot is full
+
+then return. We can't spawn. Okay? And if that's not the case we can spawn our food.
+
+Oh come on! There you go. So let's create this method. Spawn food. Perfect. And we can already
+
+create the property here. IsFull. So let's jump right in our plateau script. We are going to
+
+create a settings header and we are going to tackle this later. Okay? To know if the the thingy
+
+is full. So by default it should be false. So we should be able to spawn our cups. So let's jump
+
+back to our food spawner station and spawn a food. One thing I want to do here is call this one
+
+prefab. I did not do that in the previous lesson but that's okay. So spawnable food instance
+
+will be equals to instantiate. So instantiate. Ah come on! Instantiate our food prefab and where do
+
+we want to instantiate it? Well it doesn't matter for now. We are just going to turn it into a child
+
+of the food spawner station. Because right after that we are going to push that food to the plateau
+
+and the plateau is going to handle dropping it at the correct position and reparenting and so on.
+
+Okay? So right away what we can do is plateau.push and we are going to push the food instance. The
+
+food that we've just created. Let's now implement the push method. Boom! So let's open our script.
+
+Let's turn this into a public void push method. Quick note here. If we are able to push some food
+
+in the plateau we already know that it is not full because we've checked that right here. If it's full
+
+we cannot push any food to it. So here is what we're going to do. Inside of here we want to grab
+
+our food position. The food position we are going to use to push that food into. So food position
+
+food position is going to be equals to get first empty food position. Okay? So let's create this
+
+method right here. Boom! Private food position. Thank you. And inside of here we are going to loop
+
+through all of the positions parent or the food positions we have. But we are not going to store
+
+the food positions because we will have a kind of trick later on where we can add more food positions
+
+for the dirty items. Like a player should have a maximum of let's say seven cups that he can hold
+
+at start before upgrading it. But he can only grab seven clean cups but should be able to grab like
+
+as many dirty cups as he can or as he wants. Okay? Just to make the gameplay a little bit smoother.
+
+So for that we are going to reference, I think I'm going to drop it into elements,
+
+our food positions parent. So private transform food positions parent. There you go. Now let's
+
+jump back to our get first empty food position method. And we can do for i from zero to food
+
+positions parent dot child count. What we want to do is if the food positions parent at index i
+
+dot try that get component. First off let's just make sure that we can grab, oh it should not be
+
+either, it should be get child. Food positions parent dot get child, yeah, dot, ah come on,
+
+dot get child at index i, there you go, dot try get component out food position. So if we are
+
+not able to grab a food position component from the child, it's not normal. So we are going to
+
+continue. Or in here we can actually log an error. Because all of the children of the food
+
+positions parent should be food positions. So they should have that component. So in here you can
+
+log something but I'm going to make sure that it does never happen. So after that if the food
+
+position dot is empty, if the food position is empty, we can return that food position. So return
+
+food position. If we ever reach that point it means that we did not find any food position.
+
+This should not happen again. Why? Because we've made sure that we were able to push
+
+food to the plateau right here. It should not be full, okay. But again if you want to make sure
+
+you can log something like debug, debug.log error, something like this should not happen
+
+with the name of the script. So plateau, what happened? No food position found,
+
+no empty food position found, three dots, this should not happen. Okay, something like that.
+
+And then you can return null. So now what we can do is add this property. So let's press alt enter
+
+and add the property. Thank you, it has been added. We can do something like settings in here.
+
+Again we are going to do that later but just in a moment, not that later. So we were in the plateau.
+
+Okay, so we've got our food position and we've now been able to grab a food position, okay.
+
+Once it's done we can push the food that we've created right here to that position. So food
+
+position dot push food instance, there you go. And again the food position will handle the food
+
+instance. It will reparent it and put it at the right position. Later on we will animate these but
+
+for now we just want to make sure that the food instance is a child of the position. So remember
+
+earlier when we've set the clean y offset on the plateau, this is where it's going to be super
+
+helpful because again you can have multiple kinds of food. So in here we need to rearrange
+
+our food positions and for that we will need the food instance or you can actually pass in
+
+food instance dot clean y offset on plateau, okay. But I'm going to pass in the food instance.
+
+So let's create this method, we're also going to create the push method, there you go.
+
+We can rearrange, should we rearrange them right now or later on? Anyway for now let's just say
+
+that we are going to rearrange the food positions depending on the clean y offset and after pushing
+
+a food to the plateau what we need to do is check if we are full or not. So again there are multiple
+
+conditions as I've told you. All the dirty stuff it's gonna be different than the clean ones
+
+but for now let's work on the clean spawnable foods. So we rearrange the positions and then
+
+we want to check if we've reached the max capacity of the plateau, of course. So if
+
+getFirstEmptyFoodPosition equals null, it means that we haven't been able to find
+
+any food position. So for the next food let's say. So what should happen in that case? The plateau
+
+is either going to be full if we've reached the max capacity but if we haven't reached the max
+
+capacity yet we need to create a new food position. So if the foodPositionsParent
+
+dot childCount is less than the max capacity, the max capacity that we are going to add right now.
+
+So serializeField private int maxCapacity. So the maximum amount of cups or food that we can put
+
+on this plateau. It means that we need to create a new food position to accept the food instance
+
+that has been created by the coffee station or whatever other station. So create new foodPosition.
+
+Otherwise it means that we've reached the max capacity so we should mark the plateau as full.
+
+So isFull equals true. Not with a capital I but with a lowercase i. So this one should return
+
+isFull and of course we need to create that. So private bool isFull and at start isFull equals false.
+
+It's already false but it's just a precaution here.
+
+So let's now create this createNewFoodPosition method. The first thing we are going to do is
+
+create a new GameObject. Then we are going to add the foodPosition component and then place it
+
+correctly. So foodPosition, let's call it foodPositionInstance, is going to be a new GameObject.
+
+GameObject. Okay we're going to give it a name and we're going to give it the component right
+
+away. So .addComponent of type foodPosition and we are good to go. So let's call it something like
+
+foodPosition plus the amount of food positions that we already have. So positionsParents or
+
+foodPositionsParent.childCount just to keep track of the index. Once this foodPosition has
+
+been created, we need to turn it into a child of the foodPositionsParent. So foodPositionInstance.
+
+transform.setParent foodPositionsParent. Perfect. So now what's left is placing that foodPosition.
+
+So foodPositionInstance.transform.localPosition will be equals to. So let's think a bit about
+
+this. Where do we want to place it? We want to place it just above the last foodPosition
+
+with a Y offset of the thing that we are going to declare right here, depending on the food
+
+instance. So we need to store the current offset we are using depending on the food instance,
+
+all the spawnable food that this plateau holds. So I'm going to use it and then reference it later
+
+on. So first off, let's grab the index of the element we have just before this one. So let's
+
+call this one bottomChildIndex. This is going to be foodPositionInstance.getSiblingIndex
+
+minus one. At start, every plateau will have one child as we've made sure right here. Yeah, we
+
+have one foodPosition. So we need to use minus one in here. Then we're going to grab the position
+
+of that child. So foodPositionsParent.getChild at index bottomChildIndex.localPosition
+
+plus the offset I told you about previously. So vector3.up times the position's Y offset.
+
+Let's create this position's Y offset somewhere around here. So private float positions
+
+Y offset. And we're going to set the value of this boy right here when rearranging our positions.
+
+Cool? Sounds fair? Nice. So we've set the local position. Let's also set the rotation. So
+
+foodPositionInstance.transform.localRotation equals quaternion.identity. And finally,
+
+we can set isFull to false because we've created a food position here. Nice.
+
+Let's now rearrange our food positions. So inside of the rearrange food positions, we can do
+
+positionsYOffset equals foodInstance.cleanYOffsetOnPlateau. Again, later on, we are going
+
+to check if the food is clean or dirty. If it's clean, we are going to use this one. If it's dirty,
+
+we are going to use the dirty offset. Nice. Then what should we do? We should place the
+
+the food positions. So for i from zero to foodPositionsParent.childCount,
+
+we are simply going to do something like foodPositionsParent.getChild.indexI.localPosition
+
+is going to be equal to vector3.up times i times positionsYOffset. As simple as it gets.
+
+Okay. So I think that we are now good to go. FoodPosition. Okay. Pushing. Yeah. We need to
+
+implement this too. Okay. Now let's turn that into a public method, remove this, and implement
+
+this boy. And after that, we can spawn our food and end this lesson. Okay. So for now, we are
+
+going to keep this simple. We are just going to turn this food into a child of the current position.
+
+So foodInstance.transform.setParentTransform. There you go. That's the first step. Then we are
+
+just going to set its local position to zero. We are not going to animate it right now. Later on.
+
+Okay. So localPosition equals vector3.zero. There you go. And this should not be empty anymore
+
+because we've got something in here now. So here's what we're going to do. isEmpty equals false
+
+with a lowercase i because in here we want to return isEmpty private bool isEmpty. Okay.
+
+And at start, of course, isEmpty should be true. So isEmpty equals true. There you go. It should not
+
+be full. So yeah, sometimes you're going to see me use isEmpty. Sometimes I'm going to use isFull.
+
+I like variety. If you want, you can actually use isFull here so that it's false by default at start.
+
+Okay. This is something you can do here. Okay. So let's now jump back to Unity. No more errors,
+
+which is super cool. The spawn delay here can be something like half a second. We still need
+
+to reference our cups because we've changed its name. Boom. Cup. There you go. Then what do we
+
+need to reference? The plateau. Yeah. We need to reference the food positions thingy and the max
+
+capacity at start can be seven. We can also apply these changes to the prefab, by the way.
+
+Food position. Yeah. Cool. So let's now hit play and we're seeing cups. Let's go. Awesome.
+
+How many do we have? 1, 2, 3, 4, 5, 6, 7. The maximum capacity that we've referenced
+
+or set up right here. Nice. So what are these errors about? Okay. So get first empty food
+
+position. Okay. No empty food position found. This should not happen. It can happen actually
+
+in here because yeah, we are actually going to create that. So let's actually just remove this
+
+line and jump back to Unity. Now we should not have this error anymore. So cool. This is already
+
+so versatile because right now we can create another kind of food. So let's say we want to
+
+create pizzas. We can just duplicate this one, call it pizza, create a new pizza script. I'm going
+
+to do it really quickly just to show you how versatile it is, but you're not obliged to follow
+
+along because the lesson is already quite long. I'm sorry for that. But yeah, the good thing now
+
+is that we've already set up almost, let's say, 50% of the plateau, which is really important
+
+and again, a core feature of this game. So let's now open our prefabs, gameplay, pizza. Let's remove
+
+this. Let's add the pizza script. Let's open it. Inherit from spawnable food. There you go. We can
+
+remove these. Let's jump back to Unity. We can actually set them. Yeah. We're going to open
+
+the prefab pizza. There you go. And change the renderer. So boom, right here we can look for a
+
+pizza. Yeah. Not the pizza dirty. So here it is. Awesome. So it's quite thin. What we want to do is
+
+increase the Y render ish. Yeah. Something like that maybe. Just for demonstration purposes.
+
+If we duplicate it and move it up, we can see that the offset is going to be something like .0547.
+
+Yeah. We can just increase that even though we've got some space in here. So .0...
+
+Wait. The renderer should be at zero in here. Thank you. And we should move the prefab.
+
+So something like that..063. Okay. So let's remove this one. Set the offset. Grab our coffee
+
+station. And it's now going to be a pizza station. So let's hit play. And awesome. We can now spawn
+
+pizzas with a super, again, versatile plateau. But I'm so proud of this. Come on. Okay. So just
+
+to recap, I know that I've gone a bit fast on this because I assume that you've taken some of
+
+my previous courses. I think that it would be a lack of respect to go slowly again, waste your time,
+
+because we are now in the era of fast, fast, fast. Everything is so fast. AI can help you create
+
+stuff like that maybe really quickly. I don't know. But yeah, the thing is that I'm not going
+
+to create another 12, 30 hour course to teach you this. I

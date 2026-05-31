@@ -1,0 +1,573 @@
+Welcome back guys.
+
+In this lesson, we are now ready to create
+
+our first customer.
+
+So let's jump right in. Okay.
+
+So for that, we are going to grab our player right here
+
+and duplicate it.
+
+This is going to be our first customer.
+
+So let's rename this boy, customer. Okay.
+
+We can move it a little bit.
+
+Sorry, somewhere around here. Perfect.
+
+Let's remove the hat from this boy.
+
+This is not the player, it's a customer.
+
+So he should not have the hat.
+
+It's specific to us.
+
+Anyway, no fluff.
+
+So our customer will not have a character controller,
+
+but we can't remove it
+
+because the joystick player controller depends on it.
+
+So first off, we need to remove this one
+
+and now we can remove the character controller. Perfect.
+
+We are also going to remove
+
+the hold food ability right here. Thank you.
+
+But the player detector again, depends on it.
+
+So let's remove it and remove the player animator.
+
+We are going to add a customer animator.
+
+What we can do is also change its color.
+
+So let's duplicate this one, customer,
+
+and maybe something yellow-ish, yeah?
+
+Like I have in the video.
+
+Something like that. Perfect.
+
+So this is our customer.
+
+We can turn that boy into a prefab, by the way.
+
+So let's open our prefabs folder, characters, customer. There you go. Okay.
+
+So now let's remove it from here
+
+and open the customer prefab.
+
+The first thing we are going to do here is add two scripts,
+
+a customer script and a customer animator.
+
+The customer animator will be useful
+
+to move or play animations to our customer
+
+when he's moving, holding the plateau and so on.
+
+And the customer script will be useful for so many things.
+
+The general control of our customer, actually.
+
+So let's open our scripts folder,
+
+managers, gameplay, maybe characters, or maybe customer,
+
+because this is customer related. So customer.
+
+So let's right-click, create a new script.
+
+Oh no, customer. No!
+
+Anyway, we are going to rename that.
+
+And let's also create another one for the customer animator. No typo. There you go.
+
+All right, so let's open these two. There you go.
+
+I'm first going to rename the customer script, customer. Perfect.
+
+And open the customer animator.
+
+So the customer animator will have almost the same logic
+
+that we've used in our player animator.
+
+So for that, we can jump back to Unity,
+
+open the player animator script, and copy the same logic.
+
+We are going to have more added to it later on
+
+because the customer can sit, but the player can't sit.
+
+So let's select the player, player animator. There you go.
+
+I'm going to grab all of these, like so,
+
+and drop them in our customer animator.
+
+So let's remove the start and update method,
+
+and we should be good to go for now.
+
+So again, this is just a starting point.
+
+We are going to add more to it later on,
+
+but it should be good for now
+
+because when spawning the customer,
+
+it's going to walk towards the cashier station
+
+or food serving station,
+
+then hold the plateau and afterwards go towards the table.
+
+We don't have tables yet.
+
+We're going to add them. Don't worry.
+
+So let's jump back to our customer prefab right here. Thank you.
+
+So now we can add the customer script
+
+and a customer animator. Thank you.
+
+So let's reference the animator along with the plateau. Perfect.
+
+So now our customer can hold a plateau
+
+and can also be animated.
+
+So now let's try and spawn some of these customer.
+
+For that, we're going to create a new manager.
+
+So let's create a new game object, customer manager. There you go.
+
+Let's create a script that we're going to attach to it.
+
+So boom, boom, customer manager.
+
+And in here, I'm going to create the customer
+
+or spawn them from the customer manager
+
+because we can imagine multiple stations spawning customers.
+
+We've got the coffee cashier station right here,
+
+but as you've seen in the demo later on,
+
+we might have a pizza station.
+
+And in my opinion, it's a good architectural choice
+
+to spawn the customers from one point.
+
+That way you can definitely use pooling
+
+if you want later on.
+
+We're not going to do that in that course
+
+because we've tackled that in one of the previous ones
+
+in Kauai's Arrival, for instance.
+
+But yeah, I highly encourage you to do that as an exercise. Okay.
+
+So let's attach our customer manager and open it.
+
+We are only going to have one customer manager in our script,
+
+and we are going to turn that one into a singleton
+
+so that we can call methods easily.
+
+So public static customer manager instance.
+
+Awake and Insta. Okay. Boom. Like so.
+
+Just like that, we've got our singleton. And by the way,
+
+if you want to learn how to create these code snippets really quickly,
+
+I highly encourage you to go check out my Code Ninja course.
+
+So, so, so, now that we've got this set up,
+
+what we can do is add a reference to our customer.
+
+So elements, serialize field, private customer,
+
+customer prefab. Okay.
+
+And this customer manager is not going to spawn customer
+
+on its customer, sorry, on its own.
+
+It's going to wait for someone to tell him
+
+if they want a customer and then spawn the customer.
+
+So in our case, the food spawner station or another script
+
+can call the customer manager and tell him,
+
+hey, I want a customer, please create one for me.
+
+So what we are going to do is create a method for that.
+
+Public customer pop.
+
+We are going to pop a customer, but at a certain position.
+
+The station that needs customers is going to specify
+
+the position to the customer manager. Okay.
+
+So for that, what we can do, if you're using pooling,
+
+you can grab a customer from the pool,
+
+but again, we are not going to do that in that course.
+
+It's not the point here, but in here we can return,
+
+instantiate a customer prefab at that specific
+
+spawn position with a identity rotation, let's say,
+
+and turn it as a child of the customer manager
+
+of this transform. Okay.
+
+So now let's jump back to Unity, reference this customer
+
+and add a script to our coffee cashier station
+
+to be able to spawn the customers that we want to serve. Come on.
+
+So on customer manager, let's lock it,
+
+or we can actually right click and select properties
+
+to have a floating window of that script,
+
+prefabs, characters, and customer. Boom.
+
+So now let's select our coffee cashier station.
+
+We can lock it while we create the script.
+
+Go back to our scripts folder, stations,
+
+yeah, food spawner station.
+
+And again, in here, we are going to use abstraction.
+
+You should be familiar with it now,
+
+because as I've told you,
+
+we are going to have a coffee cashier station
+
+that is going to send customers to the tables
+
+and a pizza station that is going to tell customers
+
+to leave with the pizza and the plateau.
+
+The plateau is free. Okay. So, yep.
+
+So yeah, let's use abstraction right away.
+
+So let's create a new mono behavior, food serving station.
+
+And we are going to have another one
+
+to handle the customers, so spawn them.
+
+So let's create another one,
+
+food serving customer manager. Yep.
+
+Something like that.
+
+We can now attach our two scripts to our,
+
+not the spawner, to our coffee cashier station. Okay.
+
+Maybe move this one below them. Thank you.
+
+And open the food serving customer manager
+
+to spawn our customers. There you go.
+
+So let's do things step-by-step.
+
+At start, we want to start spawning customers.
+
+So let's call startSpawningCustomers. Okay.
+
+Let's create that method. Okay.
+
+Maybe we can move it just after the update method.
+
+In my opinion, it's cleaner. Okay. Thank you.
+
+And inside of here,
+
+we are going to invoke repeating a certain method.
+
+So spawn a new customer.
+
+Maybe after one second and every second.
+
+Actually, you can set this to zero,
+
+but let's wait for one second
+
+in case we need to initialize stuff
+
+or set up some other elements.
+
+So let's now create this method,
+
+private void spawn new customer.
+
+If we leave it like this,
+
+we can imagine that we are going to spawn customers
+
+every second and it's infinite.
+
+So I like to have a maximum amount of customers,
+
+the cashier station
+
+or the food serving customer manager can handle.
+
+And for that, we are going to create a variable.
+
+So settings, let's say, yep.
+
+Serialize field, private integer max customers.
+
+Or you can call it max customer amount.
+
+So before spawning a customer,
+
+we want to check if we've got the maximum of,
+
+or if we've reached the maximum amount of customers.
+
+If that's the case, we should not spawn any more customer.
+
+So to keep track of how many customers we have,
+
+we are not going to use an integer
+
+because it would be too simple.
+
+And we also need references to our customers.
+
+So you can use a list.
+
+In my case, I'm going to use a queue
+
+because I find it easier to handle in this specific case.
+
+But keep in mind that lists would work perfectly too.
+
+So private queue,
+
+and we need to add the system.collections.generic,
+
+maybe two, yeah.
+
+I think we need to add the generic ones too.
+
+But anyway, we're going to add them.
+
+So customer, and we are getting an error
+
+because we need to add the generics.
+
+So let's do this.generic, thank you.
+
+Let's call this one customers,
+
+equals new queue of customer, perfect.
+
+So now we can check.
+
+If customers.count is greater
+
+or equals to the max amount of customers,
+
+we're going to return, okay?
+
+We don't want to spawn a new one.
+
+Otherwise, we can definitely spawn a new one.
+
+So our customer will be on, let's call it new customer.
+
+And in here, we can tell the customerManager.instance.pop
+
+to get a new customer, pop, thank you.
+
+Along with a spawn position, of course.
+
+So let's add our spawn position in the, let's say, elements.
+
+Serialize field, private vector3,
+
+spawn position, or maybe customer.
+
+Yeah, we know that we are handling customers here.
+
+So let's do spawn position, perfect.
+
+Just to keep track of our customers,
+
+we are just going to give them a name.
+
+So name will be equal to customer
+
+plus maybe a random.range.
+
+Oh, I can't do that because we are using system.random.
+
+So using random equals UnityEngine.random, okay?
+
+So now we can use random.range from zero,
+
+let's say, to 1,000, okay?
+
+Or between zero and 1,000.
+
+And after creating the customer,
+
+we are going to add it to our queue right here.
+
+So customers.enqueue, and if you're using a list,
+
+you would add the customer to the list.
+
+So customers.add newCustomer, boom.
+
+So at this point,
+
+we should already have our customers spawning.
+
+And you know what?
+
+We can actually give that a shot really quickly
+
+because it's quite simple.
+
+Let's say that we want a maximum of 10 customers
+
+and spawn them, oh, I said that way, vector3, no.
+
+Instead, I want a transform for the spawn position.
+
+So transform spawnPoint,
+
+and in here, spawnPoint.position, okay?
+
+That way, it will be easier to set up in our scene.
+
+So we can unlock this, select the coffee cashier station.
+
+By the way, it happens a lot to me.
+
+Sometimes I lock something, but I select something else,
+
+and I think that these values are linked
+
+to the thing I've selected.
+
+So please make sure that you don't fall in the same trap.
+
+Either right-click and select properties
+
+or unlock your inspector, okay?
+
+What you can also do is have a security inspector.
+
+So something like this, maybe, I don't know,
+
+you can drop it somewhere around here.
+
+And if you select something else,
+
+you can spot on the corner of your eye
+
+that something has changed.
+
+So you're not selecting the right thing.
+
+You can see it here, okay?
+
+That's just a quick tip, but yeah, it happens to forget.
+
+So we've got 10 maximum customers,
+
+and we need to set up our point here.
+
+So let's zoom out, and let's say that the customers
+
+are gonna spawn from somewhere around here, okay?
+
+So let's right-click, create an empty GameObject,
+
+and CustomerSpawnPoint, thank you.
+
+And maybe we can move it somewhere around here,
+
+so move to view, okay?
+
+So right-click and move the object to the view
+
+if you wanna drop it at that position.
+
+The only thing that we're gonna change is the Y value here.
+
+I need to set it to zero because everything happens
+
+on the same plane in the game, okay?
+
+Cool, let's now reference this boy and hit play.
+
+Hopefully, we should see customers spawning now.
+
+Okay, one, two, three.
+
+I'm counting, but I'm not seeing them.
+
+So one, two, three, four, five, six, seven,
+
+eight, nine, and 10, perfect.
+
+We've got our 10 customers set up
+
+and ready to drink some coffee.

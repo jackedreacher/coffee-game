@@ -1,0 +1,8 @@
+{
+	"data": {
+		"JoystickPlayerController_LAST_POSITION": {
+			"dataType": "Tabsil.Sijil.SerializableObject`1[[UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": 2.53217483,\r\n\t\t\"y\": 5.96046448E-08,\r\n\t\t\"z\": -3.10060358\r\n\t}\r\n}"
+		}
+	}
+}

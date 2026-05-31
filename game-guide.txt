@@ -1,0 +1,103 @@
+== COOKED-FAST GAME DEV GUIDE ==
+Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
+Last updated: Lesson 4 complete
+
+== ARCHITECTURE ==
+- Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
+- Plateau system: universal stacking tray used everywhere (stations, player, drop zones, future: customers, tables, workers)
+- Push/Pop pattern: Station.Pop() -> Plateau.Pop() -> FoodPosition.Pop() (top-down delegation chain)
+- Ability system: player/workers have modular abilities (HoldFoodAbility, future: HoldDishAbility, PayAbility, NavigationAbility)
+- PlayerDetector: OnTriggerStay routes to correct ability via TryGetComponent
+
+== FILE STRUCTURE ==
+Scripts/Gameplay/     -> SpawnableFood.cs, CoffeeCup.cs, Pizza.cs, Plateau.cs, FoodPosition.cs
+Scripts/Stations/     -> FoodSpawnerStation.cs, FoodDropZone.cs
+Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
+Scripts/Abilities/    -> HoldFoodAbility.cs
+Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs
+Scripts/UI/           -> MobileJoystick.cs
+Prefabs/Gameplay/     -> Cup, Pizza, Plateau, CoffeeStation
+Existing libs: Sijil(save system), NaughtyAttributes, LeanTween, TotalJSON, Tabsil utilities
+
+== KEY CLASSES ==
+
+SpawnableFood (abstract MonoBehaviour):
+  - float CleanYOffsetOnPlateau (serialized, per-food stacking height)
+  - future: dirty offset, dirty mesh swap
+
+FoodPosition (MonoBehaviour):
+  - bool IsEmpty (init in Awake, not Start - critical for runtime-created positions)
+  - SpawnableFood food (stored reference)
+  - Push(SpawnableFood): reparent + localPos=zero, set isEmpty=false
+  - Pop(): return food, null ref, set isEmpty=true
+
+Plateau (MonoBehaviour):
+  - Transform foodPositionsParent (serialized)
+  - int maxCapacity (serialized)
+  - bool IsFull, bool IsEmpty (properties)
+  - float positionsYOffset (set from food.CleanYOffsetOnPlateau)
+  - Push(food): find first empty pos -> push -> rearrange -> check full -> create new pos or mark full
+  - Pop(): get last full pos -> pop -> check empty -> return food
+  - GetFirstEmptyFoodPosition(): loop 0->n
+  - GetLastFullPosition(): loop n->0 (grab from top)
+  - GetFirstFullPosition(): loop 0->n (empty check after pop)
+  - RearrangeFoodPositions(food): set all positions to Vector3.up * i * offset
+  - CreateNewFoodPosition(): new GameObject + AddComponent, parent to foodPositionsParent, calc position from bottom sibling
+
+FoodSpawnerStation (MonoBehaviour):
+  - SpawnableFood spawnableFoodPrefab (serialized)
+  - Plateau plateau (serialized)
+  - float spawnDelay (serialized), float spawnTimer
+  - Update -> HandleSpawnTimer -> TrySpawnFood -> SpawnFood
+  - SpawnFood(): Instantiate prefab as child of station, then plateau.Push
+  - Pop(): delegates to plateau.Pop()
+
+FoodDropZone (MonoBehaviour):
+  - Plateau plateau (serialized)
+  - IsFull -> plateau.IsFull
+  - Push(food) -> plateau.Push(food)
+
+PlayerDetector (MonoBehaviour, RequireComponent HoldFoodAbility):
+  - caches HoldFoodAbility in Awake
+  - OnTriggerStay: TryGetComponent for FoodSpawnerStation or FoodDropZone, routes to ability
+
+HoldFoodAbility (MonoBehaviour):
+  - Plateau plateau (serialized, player's plateau)
+  - grab/drop timers with 0.1s delay
+  - HandleFoodSpawnerStation: check full -> timer -> station.Pop -> enable plateau -> plateau.Push
+  - HandleFoodDropZone: check plateau active -> check dropzone full -> timer -> plateau.Pop -> dropZone.Push -> if empty disable plateau
+
+PlayerAnimator:
+  - switches between Idle/Walk and IdleWithPlateau/WalkWithPlateau based on plateau.activeInHierarchy
+
+== SCENE HIERARCHY ==
+Joystick Controller
+--- ENVIRONEMENT --- (cameras, lights, ground, decorations)
+--- GAMEPLAY --- (Main Ground, Service Ground, Player, Walls)
+--- UI --- (Main Canvas, Joystick, Currency)
+--- MANAGERS --- (Sijil, Game Manager, Currency Manager)
+Coffee Station (FoodSpawnerStation + BoxCollider + trigger BoxCollider)
+  |- Station Renderer, Coffee_Machine
+  |- Plateau (maxCap:7) -> Anim -> Renderer + Positions -> FoodPosition
+Cashier Station (BoxCollider for future customer service)
+  |- Station Renderer, Cashier Machine
+  |- Drop Zone (FoodDropZone + trigger BoxCollider)
+       |- Plateau (maxCap:500) -> Anim -> Renderer + Positions -> FoodPosition
+Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
+  |- Plateau (child of character model, starts disabled)
+
+== PATTERNS & GOTCHAS ==
+- Awake vs Start: FoodPosition uses Awake for isEmpty init (runtime AddComponent needs immediate init)
+- Plateau starts disabled on player, enabled on first food grab, disabled when empty
+- All models use single "palette" material with UV color selection
+- Trigger colliders need: one side has Collider+Rigidbody(or CharacterController), other has trigger Collider
+- Prefab renderer localPosition must be zero (asset imports may have offset - always check)
+- Timer pattern: if(timer < delay) { timer += deltaTime; return; } timer = 0; // proceed
+- Start() sets grabFoodTimer = delay so player can grab immediately on game start
+
+== PROGRESS ==
+[x] Lesson 1: Project setup, Cinemachine, Cup prefab, SpawnableFood/CoffeeCup, FoodSpawnerStation stub, Plateau/FoodPosition stubs
+[x] Lesson 2: Spawn timer, Plateau Push/full/dynamic position creation, FoodPosition Push, Pizza variant
+[x] Lesson 3: PlayerDetector, HoldFoodAbility, Pop chain (Station->Plateau->FoodPosition), player collects cups
+[x] Lesson 4: Grab/drop timers, FoodDropZone, Cashier Station, Plateau IsEmpty, player drops cups at drop zone
+[ ] Lesson 5: (next) Customer spawning and serving

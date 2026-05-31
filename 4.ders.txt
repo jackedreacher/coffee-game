@@ -1,0 +1,279 @@
+Welcome back guys! In this lesson we are going to try and drop the cups that we were able to grab
+
+previously in the drop zone we are going to create. But first off we want or I want actually
+
+because it's just me, I want to add a delay whenever the player collects cups. So for that
+
+let's open our hold food ability. Inside of here we're going to add a new header for our timer or
+
+maybe grab timers thingies. Yeah so private let's do a constant float. It can be constant or not
+
+you decide here. I'm just going to set it as a constant so that I don't edit it in the inspector.
+
+Can grab food delay is going to be something like .1f. I'm also going to have a timer so private
+
+float collect timer or grab food timer something like that. Grab food timer with a lowercase g.
+
+Okay perfect and inside of here if the grab food timer is less than the delay
+
+then oh come on not this one the grab food delay. Then what we want to do is increase the timer so
+
+grab food timer plus equals time the delta time and return because we can't grab any food.
+
+Otherwise we are just going to set the grab food timer to zero. Boom as simple as it gets and to
+
+be able or to allow the player to collect cups right when he starts the game let's say
+
+something like that. In the start method what we can do is set the timer to be equals to the delay.
+
+So delay perfect now we can jump back to unity and give this a shot. So let's hit play.
+
+All right let's wait for the coffee station to spawn the seven cups. Boom yeah there you go.
+
+That's so much better but there is something I don't like here. As you can see we are grabbing
+
+the bottom position instead of the top one. Let me just show that to you again. Okay so let's wait
+
+for it to full. Okay there you go yeah this is really weird. So we need to change this behavior
+
+here. So let's open our hold food ability food this one so pop here what food do we grab plateau
+
+dot pop okay so get last full position all right right here we grab okay so we grab the first one
+
+indeed oh yeah so we need to start from the food positions parent dot child count minus one not
+
+from zero we are going to invert this so you can either invert it like so so minus one is greater
+
+equals to zero i minus minus or if you want something automatic in visual studio you can do
+
+four but with two r's and there is a snippet for that okay perfect so let's now jump back to unity
+
+and we should be good all right let's wait for the coffee station again and by the way we can
+
+remove this uh debug line boom perfect thank you yeah that's way better nice so now we are finally
+
+ready to create our drop zone the drop zone is going to be a child of the cashier station the
+
+station we've got right here in the intro video all the promo video so for that what we can do
+
+is uh we've got coffee stations in here by the way i can drop the stations in a game object here
+
+so stations coffee station thank you i'm just going to should we duplicate it we are going to
+
+have a plateau too with a drop zone so maybe you can just duplicate this one call it cashier station
+
+okay so maybe coffee cashier station thank you we can remove the food spawner station um we might
+
+as well have a box collider to serve the customers later on so we can keep it as is for now okay
+
+and let's move this one to something like 3.37 and minus three and a half okay or maybe we can
+
+keep it on the same z value here so the station renderer here is going to be the same one but
+
+the value of the x-axis or along the x-axis will be uh one okay um that's way better we can remove
+
+the coffee machine for now let's keep the plateau but what i want to add here is the the thingy the
+
+cashier machine here this one there you go so we can rotate it by 90 so minus 90 degrees move it
+
+up a tiny bit okay so it's going to be somewhere around here and let's move it maybe right there
+
+somewhere in the middle okay so at x equals zero cool let's change the material perfect
+
+and that's already way better awesome so we've got our cashier machine we've got the coffee station
+
+what else do we need we need to set up our drop zone here so this is going to be the drop zone
+
+not the actual um trigger for the cashier station the cashier station's trigger is going to be used
+
+to serve the customers so it's going to be somewhere around here we can actually move that
+
+um like so can we no we can't i think we can do something like this um oh come on thank you
+
+hurry up i've got no time here okay so we can serve the customers if we stand somewhere around
+
+here okay yep feels correct feels good so then we can create our drop zone so let's create the
+
+drop zone the drop zone will be somewhere around minus one um maybe dot five and dot five
+
+dot five thank you so this is where the drop zone is going to be or maybe we can drop it
+
+somewhere around here it might make more sense okay so the drop zone is going to have a box
+
+collider that is going to be a trigger because as i've told you we're going to use this to drop
+
+the cups somewhere on the plateau so let's allow the player to um trigger the drop zone in this
+
+zone uh yep cool something like that yeah then we can increase the size if we don't like it
+
+okay maybe we can do something like this too nice um now that we've got our drop zone the plateau
+
+needs to be a child of the drop zone and we are also going to add our drop zone script so let's
+
+open the scripts folder we can drop that in the station oh i should have added in an s here
+
+anyway so let's create our drop zone um script actually i'm going to rename that one food drop
+
+zone just to stay consistent in my namings so let's open it perfect i'm going to hit ctrl r twice
+
+and call it food drop zone there you go so the food drop zone right here will need a reference
+
+to our plateau of course so elements serialize field private plateau plateau okay perfect then
+
+let's do things step by step so we want the player to drop the cups or any food that he
+
+has on his plateau in the drop zones plateau whenever we trigger so we are going to select
+
+the player open the player detector right here and apply some logic if we are triggering a drop
+
+zone so else if other the try get component out drop zone drop zone handle in drop zone or maybe
+
+in food drop zone you get my point here drop zone okay let's create the method there you go
+
+let's remove this and inside of here same thing the hold food ability is going to be the one
+
+responsible for transferring the food to the drop zone so we can do something like get component of
+
+type hold food ability and by the way we can store the hold food ability in the start method if we
+
+don't want to call it every time we enter the zone and so on so maybe we can do something like that
+
+start and we are also going to require that so type of hold food ability
+
+components private hold food ability hold food ability thank you and in here or maybe in the
+
+awake method yeah i would rather add it to the awake method i think it's cleaner
+
+so hold food ability equals get component of type hold food ability thank you so in here we can do
+
+this bam and this dot handle in drop zone and passing the drop zone perfect so now let's press
+
+alt enter to create the method public there you go okay so let's handle whenever the player or
+
+the one that has a hold food ability is in the drop zone first off what do we want to do well
+
+if our plateau is empty we don't want to do anything so if plateau dot game object dot
+
+active in hierarchy or active self in our case it it's the same let's return okay it means that
+
+the plateau is empty hopefully um then we might apply the same logic that we've applied here
+
+uh yeah maybe with a timer yeah adding a timer can be nice so i think i'm going to add it so
+
+let's duplicate this line drop food timer okay and we can copy these drop them here
+
+um drop food timer is less than the delay i think we can use the same delay here
+
+and drop food timer equals zero perfect after that uh we can check if the drop zone is full
+
+and by the way we can check it before the timer if drop zone dot is full we can return
+
+and you can already imagine how we are going to implement this one i'm going to let you do that
+
+as an exercise so if the drop zone is full we can return um later on we might have multiple uh
+
+foods so we can we should check if the drop zone contains something if it contains a food we need
+
+to check if we've got the same type of food in our plateau or in the player's plateau to drop it
+
+because we can't mix and match coffee cups with pizzas on the plateau right we need to put the
+
+same thing on the plateau so yeah let's add that later on but otherwise if all of these conditions
+
+are met so we can grab our spawnable food food will be equals to plateau dot pop we grab the
+
+food from the player's plateau and give it to the drop zone so as a reminder we check if the plateau
+
+is active first so if it's not active we're going to return if it's active we must have something
+
+but you can check if the food equals null in here okay i'm not going to do that because it should
+
+not happen but i just want you to keep that in mind so then what we want to do is push that food
+
+in the drop zone so drop zone dot push food as simple as it gets and at that point we might have
+
+an empty plateau so if plateau dot is empty then we want to disable the plateau so plateau dot game
+
+object dot set active false so let's press alt enter for this one to generate the method and
+
+alt enter in here to generate the property cool um i think i'm going to start from the plateau
+
+is empty yes so private pool is empty in here we should return is empty thank you
+
+do we do that or not push pop because we pop in here so we grab the food from the plateau
+
+what we need to do here is check maybe if the plateau is empty um we should set it to
+
+empty so if get last full position equals null is empty equals true okay because we've popped
+
+the last available food nice and then what we need to do is add a private bool is full in here
+
+okay is full thank you food drop zone and in here i think that instead of doing this we are just
+
+going to return plateau dot is full thank you because the drop zone basically just contains
+
+the plateau and uh yeah let's push that food so let's remove this okay and in here because we've
+
+set up a really versatile architecture what we can do is simply set plateau dot push
+
+food there you go and the plateau is going to give that to the uh first empty food position
+
+which is super cool so i think that we should be good to give that a shot uh we can just go
+
+back to unity uh where is our drop zone here it is so let's add the drop zone scripts let's
+
+reference the plateau and for the capacity here it's going to be a bit more maybe 500 just a tiny
+
+bit more let's hit play okay so we've got food spawning right here let's grab it thank you let's
+
+try and drop it yay awesome we've got some errors really cool okay so what's that but at least it's
+
+working so um food instance dot transform let's hit parent transform okay so maybe here the food
+
+instance is null we are trying to push something that is null maybe uh-huh plateau dot push where
+
+does it come from it comes from hold food ability line 65 we are trying to push yeah okay okay okay
+
+i see is our plateau still active it is it should be disabled here okay yeah it should definitely be
+
+disabled uh let's have a look at our players plateau yeah we've got no child whatsoever
+
+so we should definitely disable the plateau so let's double check in here when we pop
+
+get last full position equals null is empty equals true okay so if it is empty we should set it to
+
+false so get last full position oh we are popping it here i see i see i see i see so instead yeah
+
+because it happens afterwards yeah my bad my bad my bad so what we should do instead uh in here to
+
+check if it is empty we should simply get the uh last full position in here okay or instead of
+
+getting the last full position because when we pop it uh the last full position is still going to
+
+contain something so instead i think i'm going to return get first full position okay we need
+
+to return the first full position here not the last one so we are just going to copy this code
+
+drop it here and rename this one first okay so as long as we've got one cut and it here it should be
+
+four not four with two r's not the opposite um in the opposite direction not the full loop in the
+
+opposite direction actually okay i hope this makes sense so as long as we can get the first full
+
+position so as long as this is not null uh no if the first one is null actually this is empty okay
+
+if the first full position is null the plateau is empty so let's now hit play all right let's grab
+
+some cups there you go let's drop them here yeah that is way better so one two three four five six
+
+seven we've dropped all of the cups that we had if we try and grab more cups so seven cups again
+
+there you go we now have 141234567891011121314 perfect and by the way we can
+
+do that with pizzas again guys so let's grab the pizza let's hit play and just like that we should
+
+be able to grab the pizzas from here okay seven and drop them here oh that is so good these are
+
+some mini pizzas just for kids but at least we can drop them here that is awesome nice so i think that
+
+we are now ready to spawn customers and serve them so this is what we're gonna do in the next one see you there
