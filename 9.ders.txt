@@ -1,0 +1,259 @@
+Welcome back guys! In this lesson, we are going to tackle the customer animations. So let's jump
+
+right in. In our customer animator script here, we've implemented, not implemented, but we've
+
+created the start walking method in the previous lesson. So now let's implement it. As said
+
+previously, the customer will have three main animations. The idle animation, the walk animation
+
+and the sitting animation or eating animation. Okay? So then you can implement your own ones.
+
+I'm aware that the ones I've used here are not perfect, so I invite you to create ones or
+
+grab ones from Mixamo or anything like that. Okay, so when we start walking in here, we want
+
+to set isSitting to false. So this is how I've decided to do it here. So in here, let's create
+
+that setting. So settings private bool isSitting. Boom! Next, we are going to add the update method
+
+and if the player is not sitting, so isSitting, then we can handle the animations.
+
+What does that mean, handle animations? Let's create that. private void handleAnimations.
+
+Not like that, like so. Perfect. Handling the animations here means playing the walk animation,
+
+for instance, setting the moveSpeedMultiplier, setting the rotationSpeed of our player,
+
+for instance, or orienting or rotating our customer here. Okay? So it's basically like
+
+managing the animations for the player but with some slight differences. Because we are not going
+
+to call the moveVector from here, we will have something different here. We are going to use
+
+the velocity from the navigation AI or from the navmesh agent, but more specifically from our
+
+navigation ability here, the one controlling the agent. Okay? So let's do it in a way that it makes
+
+sense. For that, we are going to open our customer script and inside of the update method, we are
+
+going to handle the state machine. Okay? Boom boom. So in here, depending on our state, so this state
+
+right here, so switch on the state, let's implement it. Add missing cases, thank you. Let's add the
+
+curly bracket and reformat this correctly. Okay. It should be good. Nice. We are not going to tackle
+
+the drinking state but inside of here, what we can do is handle the idle state
+
+and in here, handle the walking state.
+
+Perfect. So let's now create these two. Boom and boom. Perfect. Handling the idle state will be
+
+quite straightforward. If our navigation ability.isMoving, like so, we are going to start the
+
+walking state. Okay? So we ask the navigation ability if we are moving, we are going to implement this
+
+one later on, but let's just generate the method right now. We are going to switch to the walking
+
+state and then handle the walking state. Let's now handle the walking state. So inside of here, what do
+
+we want to do? So we want to check if the navigation ability has reached its destination
+
+and if it can reach the destination, I am going to explain that later on, but we are basically
+
+going to check if we've reached the destination and if that's the case, we are going to reach the
+
+destination. So it means something like starting the idle state and more stuff. Other than that,
+
+we are going to check if the navigation ability is still moving. If that's the case, we are going to
+
+manage the animation, so play the walk animation. If that's not the case, we are going to start the
+
+idle state and then handle the idle state. Okay? So if navigation ability.hasReachedDestination,
+
+what are we going to do? We are just going to reach the destination, so apply some logic and
+
+then return. But if that's not the case, we are going to check if the navigation ability.isMoving
+
+If it is moving, then we are going to handle the animations, so manage animations
+
+with our velocity, so navigationability.velocity.
+
+Otherwise, let's start the idle state. Okay, so we've got a bunch of things that we need to
+
+implement right here. Let's start by the startIdleState method because it should be quite
+
+simple to implement. Oh, we do have an additional curly bracket in here. Really weird,
+
+but anyway. So private void startIdleState. Okay, state equals state.idle and we should
+
+also tell the animator to play the idle animation in some way. So let's say animator.stop.
+
+Stop. Yeah, something like that. Let's create the method and let's implement it later on.
+
+Let's now tackle our hasReachedDestination and the velocity. These ones are going to be
+
+quite straightforward, so let's implement not the method, but the property here. And in here,
+
+we want to generate the method. Okay, so let's open this. The velocity of our agent here is quite
+
+easy to grab. We can just write agent.velocity, as simple as it gets. And just like that, we've
+
+got our velocity here. So we can now jump back to our customer script and edit our ManageAnimations
+
+method in the CustomerAnimator, of course. So this one should only grab a Vector3. We are passing the
+
+velocity. No moveVector, no moveSpeed. So let's do something like that. public void ManageAnimations
+
+with the Vector3.velocity. And in here, we can store that velocity to be used in the HandleAnimations
+
+method. Okay, so lastVelocity equals velocity. Let's create that one somewhere around here.
+
+Thank you. And we can already imagine that when calling this stop method in here,
+
+we should set the velocity to zero, right? That way, we are going to play the idle animation
+
+using this that we're going to drop in here in the HandleAnimations method. So in the stop method,
+
+let's do something like lastVelocity equals Vector3.zero. Okay, public. Thank you.
+
+And we can now handle our animations in here using the lastVelocity vector that we've stored.
+
+So let's grab these. Boom! Let's remove this ManageAnimations method.
+
+Place these here. And in here, I'm going to use the lastVelocity. So if the lastVelocity's
+
+magnitude is greater than zero, we need to set the animator's velocity to lastVelocity.magnitude,
+
+maybe multiplied by a certain multiplier. We can tackle this later on. Let's just check if
+
+this works correctly first. Play the walk animation in here, and we need to set these two.
+
+So in here, to orient the animator, which contains the renderer, we can either set the
+
+forward vector to be the lastVelocity's direction or normalized direction,
+
+or we can lerp just to smooth out the rotation of our player. I'm going to lerp here just for
+
+the game to be a bit cleaner. So let's do lerp between the current one, so animator.transform.forward
+
+and our lastVelocity.normalized. And the lerp value or t here will be something like
+
+time.deltaTime times 60 times .1f. So if we run or try and run at 60 frames per second,
+
+time.deltaTime times 60 should give us something around one second or one. And yeah, we can
+
+multiply this by .1 just to smooth out. And you can again experiment with this. Later on, we might
+
+change that. Okay, so we should now have our customer. Oh, we still need to implement this
+
+one, by the way. Boom. Yep. And then we can implement this. Yeah, let's just remove this.
+
+Maybe you can just debug something. So debug.log customer plus name has reached its case destination.
+
+Okay, but I think we still need to implement the navigation ability that has reached destination
+
+and is moving, of course. So let's turn these into public methods, remove the exception,
+
+and implement them. Let's start with our hasReachedDestination method. So there are
+
+multiple things we can check to make sure that the navigation agent has reached the destination.
+
+The first thing we are going to check is if the agent has a path pending. So if agent.pathPending,
+
+if the agent has a path in the process of being computed but not yet ready,
+
+then we are going to return false because he has not reached this destination. The path is still
+
+being calculated and we've got stuff going on. Okay, that's the first step. Next, we are going
+
+to check for the remaining distance. So if the agent.remainingDistance is greater than the
+
+agent.stoppingDistance, again, we did not reach the destination yet because our remaining distance
+
+here is the distance between the agent's position, the current one, and the destination on the
+
+current path. Okay, so it means that we've got a path, the path is not pending anymore, but we
+
+haven't reached the destination. Okay, so let's return false in that case too. And the third thing
+
+we are going to check is if the agent has a path and the velocity is greater or different than zero.
+
+So if agent.hasPath and agent.velocity.magnitude is different than zero, and if you want to make
+
+it faster you can use the square magnitude here, it's actually quite similar, we are going to
+
+return false. Otherwise, we can return true. It means that we've reached the destination. The
+
+agent has no path pending, no remaining distance, and no current path associated with it,
+
+or any non-null velocity. Okay, so this is how you can safely check if a NavMesh agent has reached
+
+its destination or not. Cool? Fine. So now let's check or implement the isMoving method. In here,
+
+same thing. If the agent has a path pending, we can return true because he has a path pending,
+
+he wants to move, there is something going on. If the agent.hasPath and the agent.remainingDistance
+
+is greater than the agent.stoppingDistance, return true again. Otherwise, we are going to return
+
+agent.velocity.squareMagnitude is greater than zero. Okay, this is how you can check if a NavMesh
+
+agent is moving. These two methods are super useful in our case, and I think that in quite
+
+all of the games you will use the Unity's NavMesh system in. So you can definitely grab this
+
+navigation ability script, add more stuff to it to improve it, maybe you can improve it, I'm sure
+
+you can do so, and store it somewhere so that you can reuse it. Okay, fine. So we've got our isMoving
+
+and hasReachedDestination scripts. Now no more errors should pop up in here and our customers
+
+should safely walk and play the idle animation. So let's just make sure that we don't need to
+
+reference anything. I don't think so. So let's hit play and track our customers. Not with cookies.
+
+Okay, let's have a look. Where's the first customer? Oh, here they are. Perfect. They do start walking.
+
+The rotation is quite nice. I might increase the lerp value here and when they reach
+
+their destination they are still walking. Perfect. This is exactly what we need. No, not at all.
+
+So we've got some weird rotations here when they reach the destination. I think that all of them
+
+have reached the destination. We've got 10 logs in here, so it means that they've all
+
+reached their destination, which is really cool. So yeah, let's improve that a tiny bit.
+
+What's the issue here? If we jump to our customer script, reachDestination. Oh, we have not
+
+implemented the reachDestination. Come on. So when they reach the destination, what we are going to do
+
+is start the idle state. Oh, come on, not start the coroutine. So startIdleState. There you go.
+
+And now we should be good. I'm just going to set the customer spawn point a bit closer so that we
+
+don't have to wait that much. And there is something I want to improve too. I think it was
+
+here. Yeah, let's set this to .2 so that they rotate a bit faster. Okay, all right. There is
+
+something I want to show you, but should I show it now or not? I think you've noticed it. When they
+
+got a bit closer to the cashier station here, it seems like their velocity did change. So to fix
+
+that, I'm going to improve the acceleration to 800 because I want them to start moving right away.
+
+And if you don't like it, make sure that you keep this value at 8 or increase it or
+
+decrease it. Anyway, you're free to experiment with this. Let's now hit play. Oh, I did not get
+
+this closer customer spawn point. Let's spawn them here. Yeah, but this one should not be the first
+
+one. So here's going to stop. Yeah, okay. There you go. Okay, here's the first one, second one,
+
+third one, and fourth one. Yep, cool. So everything seems to be working correctly now, which is
+
+perfect. One thing that is bothering me is that they are not facing the right direction here.
+
+Some of them are facing towards the z-axis. Some of them do face the cashier station correctly.
+
+So yeah, let's hotfix that and we can call it a day.

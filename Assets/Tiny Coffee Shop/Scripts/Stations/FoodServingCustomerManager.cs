@@ -6,9 +6,11 @@ public class FoodServingCustomerManager : MonoBehaviour
 {
     [Header(" Elements ")]
     [SerializeField] private Transform spawnPoint;
+    [SerializeField] private Transform queueStartPoint;
 
     [Header(" Settings ")]
     [SerializeField] private int maxCustomers;
+    [SerializeField] private Vector3 queueSpacing;
     private Queue<Customer> customers = new Queue<Customer>();
 
     private void Start()
@@ -30,5 +32,13 @@ public class FoodServingCustomerManager : MonoBehaviour
         newCustomer.name = "Customer " + Random.Range(0, 1000);
 
         customers.Enqueue(newCustomer);
+
+        Vector3 targetPosition = GetLastCustomerPosition();
+        newCustomer.Initialize(targetPosition);
+    }
+
+    private Vector3 GetLastCustomerPosition()
+    {
+        return queueStartPoint.position + queueSpacing * (customers.Count - 1);
     }
 }

@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 6 complete
+Last updated: Lesson 8 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -14,7 +14,7 @@ Scripts/Gameplay/     -> SpawnableFood.cs, CoffeeCup.cs, Pizza.cs, Plateau.cs, F
 Scripts/Stations/     -> FoodSpawnerStation.cs, FoodDropZone.cs, FoodServingStation.cs, FoodServingCustomerManager.cs
 Scripts/Customer/     -> Customer.cs, CustomerAnimator.cs
 Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
-Scripts/Abilities/    -> HoldFoodAbility.cs
+Scripts/Abilities/    -> HoldFoodAbility.cs, NavigationAbility.cs
 Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs, CustomerManager.cs
 Scripts/UI/           -> MobileJoystick.cs
 Prefabs/Gameplay/     -> Cup, Pizza, Plateau, CoffeeStation
@@ -73,7 +73,15 @@ PlayerAnimator:
   - switches between Idle/Walk and IdleWithPlateau/WalkWithPlateau based on plateau.activeInHierarchy
 
 Customer (MonoBehaviour):
-  - empty for now, will hold customer logic (navigation, ordering, sitting)
+  - enum State { Idle=0, Walking=1, Drinking=2 }
+  - CustomerAnimator animator, NavigationAbility navigationAbility (serialized)
+  - Initialize(targetPosition): calls GoTo
+  - GoTo(targetPosition): navigationAbility.TryGoTo -> StartWalkingState
+  - StartWalkingState(): state=Walking, animator.StartWalking()
+
+NavigationAbility (MonoBehaviour, RequireComponent NavMeshAgent):
+  - NavMeshAgent agent (cached in Awake)
+  - TryGoTo(targetPosition): y=0, CalculatePath, if reachable SetPath+isStopped=false, return bool
 
 CustomerAnimator (MonoBehaviour):
   - same as PlayerAnimator (copied), will add sitting animation later
@@ -89,11 +97,13 @@ FoodServingStation (MonoBehaviour):
   - empty for now, will handle serving food to customers
 
 FoodServingCustomerManager (MonoBehaviour):
-  - Transform spawnPoint (serialized)
+  - Transform spawnPoint, Transform queueStartPoint (serialized)
   - int maxCustomers (serialized)
+  - Vector3 queueSpacing (serialized, e.g. (1,0,0) for X-axis spacing)
   - Queue<Customer> customers
   - Start -> InvokeRepeating SpawnNewCustomer every 1s
-  - SpawnNewCustomer: check count < max -> CustomerManager.Instance.Pop -> enqueue
+  - SpawnNewCustomer: check count < max -> Pop -> enqueue -> GetLastCustomerPosition -> Initialize
+  - GetLastCustomerPosition: queueStartPoint.position + queueSpacing * (count-1)
 
 == SCENE HIERARCHY ==
 Joystick Controller
@@ -129,4 +139,6 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 4: Grab/drop timers, FoodDropZone, Cashier Station, Plateau IsEmpty, player drops cups at drop zone
 [ ] Lesson 5: (skipped in session)
 [x] Lesson 6: Customer prefab, CustomerAnimator, CustomerManager singleton, FoodServingStation, FoodServingCustomerManager with Queue, spawn customers at cashier station
-[ ] Lesson 7: (next) Customer navigation and serving
+[x] Lesson 7: NavMesh Surface, NavMesh Agent on customer, navigation settings, ignore navmesh layer for player
+[x] Lesson 8: NavigationAbility, Customer state machine, queue system (spacing + start point), customer walks to cashier
+[ ] Lesson 9: (next) Customer animations and serving

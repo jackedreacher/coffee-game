@@ -46,4 +46,9 @@ public class CustomerAnimator : MonoBehaviour
                 animator.Play("Idle");
         }
     }
+
+    public void StartWalking()
+    {
+        // Will be expanded later with animation logic
+    }
 }

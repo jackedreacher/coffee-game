@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3747214211344218302}
   - component: {fileID: 3092904414902379689}
   - component: {fileID: 6341119373617744436}
+  - component: {fileID: 6268596529370123240}
   m_Layer: 0
   m_Name: Customer
   m_TagString: Untagged
@@ -47,6 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77812b39f79ddad4b9eaecbb6df3441c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Customer
+  animator: {fileID: 3092904414902379689}
+  navigationAbility: {fileID: 6268596529370123240}
 --- !u!114 &3092904414902379689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,6 +86,18 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &6268596529370123240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677759999505551656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32da51b0dd0fe0041b1475ab773de3e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NavigationAbility
 --- !u!1001 &4119933761193358370
 PrefabInstance:
   m_ObjectHideFlags: 0
