@@ -12,6 +12,11 @@ public class FoodDropZone : MonoBehaviour
         plateau.Push(food);
     }
 
+    public SpawnableFood Pop()
+    {
+        return plateau.Pop();
+    }
+
     public FoodPosition GetFirstFullPosition()
     {
         return plateau.GetFirstFullPosition();

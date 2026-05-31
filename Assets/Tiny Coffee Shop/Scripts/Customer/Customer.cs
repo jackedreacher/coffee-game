@@ -13,6 +13,7 @@ public class Customer : MonoBehaviour
     [Header(" Components ")]
     [SerializeField] private CustomerAnimator animator;
     [SerializeField] private NavigationAbility navigationAbility;
+    [SerializeField] private Plateau plateau;
 
     [Header(" State ")]
     private State state;
@@ -20,11 +21,13 @@ public class Customer : MonoBehaviour
     [Header(" Settings ")]
     private Vector3 finalFacing;
     private int foodNeededCount;
+    private int foodTakenCount;
 
     [Header(" Actions ")]
     private Action reachedDestinationCallback;
 
     public int FoodNeededCount => foodNeededCount;
+    public int FoodTakenCount => foodTakenCount;
 
     private void Update()
     {
@@ -60,6 +63,18 @@ public class Customer : MonoBehaviour
     {
         reachedDestinationCallback = callback;
         GoTo(targetPosition);
+    }
+
+    public void CollectFood(SpawnableFood food)
+    {
+        plateau.gameObject.SetActive(true);
+        plateau.Push(food);
+        foodTakenCount++;
+    }
+
+    public bool NeedsMoreFood()
+    {
+        return foodTakenCount < foodNeededCount;
     }
 
     private void FaceFinalFacing()

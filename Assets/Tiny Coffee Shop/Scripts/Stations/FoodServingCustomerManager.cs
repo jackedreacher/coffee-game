@@ -44,6 +44,16 @@ public class FoodServingCustomerManager : MonoBehaviour
         return queueStartPoint.position + queueSpacing * (customers.Count - 1);
     }
 
+    public Customer PeekFirstCustomer()
+    {
+        return customers.Peek();
+    }
+
+    public void DequeueCustomer(Customer customer)
+    {
+        customers.Dequeue();
+    }
+
     public bool IsCustomerReadyToTakeFood()
     {
         if (customers.Count <= 0)

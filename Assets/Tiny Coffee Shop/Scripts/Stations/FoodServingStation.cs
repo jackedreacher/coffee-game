@@ -53,6 +53,9 @@ public class FoodServingStation : MonoBehaviour
         if (!customerManager.IsCustomerReadyToTakeFood())
             return;
 
+        if (!customerManager.PeekFirstCustomer().NeedsMoreFood())
+            return;
+
         if (GetFirstFullPosition() == null)
             return;
 
@@ -65,8 +68,25 @@ public class FoodServingStation : MonoBehaviour
         return dropZone.GetFirstFullPosition();
     }
 
+    private SpawnableFood Pop()
+    {
+        return dropZone.Pop();
+    }
+
     private void ServeFood()
     {
-        Debug.Log("Serving first customer");
+        Customer customerToServe = customerManager.PeekFirstCustomer();
+        SpawnableFood foodToServe = Pop();
+        customerToServe.CollectFood(foodToServe);
+
+        if (customerToServe.NeedsMoreFood())
+            return;
+
+        DequeueCustomer(customerToServe);
+    }
+
+    private void DequeueCustomer(Customer customer)
+    {
+        customerManager.DequeueCustomer(customer);
     }
 }
