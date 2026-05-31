@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 8 complete
+Last updated: Lesson 11 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -11,7 +11,7 @@ Last updated: Lesson 8 complete
 
 == FILE STRUCTURE ==
 Scripts/Gameplay/     -> SpawnableFood.cs, CoffeeCup.cs, Pizza.cs, Plateau.cs, FoodPosition.cs
-Scripts/Stations/     -> FoodSpawnerStation.cs, FoodDropZone.cs, FoodServingStation.cs, FoodServingCustomerManager.cs
+Scripts/Stations/     -> FoodSpawnerStation.cs, FoodDropZone.cs, FoodServingStation.cs(RequireComponent FoodServingCustomerManager), FoodServingCustomerManager.cs
 Scripts/Customer/     -> Customer.cs, CustomerAnimator.cs
 Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
 Scripts/Abilities/    -> HoldFoodAbility.cs, NavigationAbility.cs
@@ -58,6 +58,24 @@ FoodDropZone (MonoBehaviour):
   - Plateau plateau (serialized)
   - IsFull -> plateau.IsFull
   - Push(food) -> plateau.Push(food)
+  - GetFirstFullPosition() -> plateau.GetFirstFullPosition() (public)
+
+FoodServingStation (MonoBehaviour, RequireComponent FoodServingCustomerManager):
+  - FoodDropZone dropZone (serialized)
+  - float servingDelay (serialized, ~0.3), float servingTimer
+  - int workerCount (tracks how many workers/players inside trigger)
+  - OnTriggerEnter/Exit: check PlayerDetector, increment/decrement workerCount (min 0)
+  - OnTriggerStay: if workerCount>0 -> HandleFoodServing
+  - HandleFoodServing: timer check -> IsCustomerReadyToTakeFood -> GetFirstFullPosition -> ServeFood (debug log for now)
+
+FoodServingCustomerManager (MonoBehaviour):
+  - Transform spawnPoint, Transform queueStartPoint (serialized)
+  - int maxCustomers, Vector3 queueSpacing (serialized)
+  - Vector2Int minMaxCustomerFoodCount (serialized, e.g. (1,4))
+  - Queue<Customer> customers
+  - SpawnNewCustomer: Random.Range(min, max+1) foodCount, Initialize(foodCount, targetPos, -queueSpacing.normalized)
+  - IsCustomerReadyToTakeFood(): customers.Count>0, Peek first, distance check <0.1f (y=0 both sides)
+  - GetLastCustomerPosition: queueStartPoint.position + queueSpacing * (count-1)
 
 PlayerDetector (MonoBehaviour, RequireComponent HoldFoodAbility):
   - caches HoldFoodAbility in Awake
@@ -75,9 +93,13 @@ PlayerAnimator:
 Customer (MonoBehaviour):
   - enum State { Idle=0, Walking=1, Drinking=2 }
   - CustomerAnimator animator, NavigationAbility navigationAbility (serialized)
-  - Initialize(targetPosition): calls GoTo
-  - GoTo(targetPosition): navigationAbility.TryGoTo -> StartWalkingState
-  - StartWalkingState(): state=Walking, animator.StartWalking()
+  - int foodNeededCount (property FoodNeededCount), Vector3 finalFacing, Action reachedDestinationCallback
+  - Initialize(foodCount, targetPos, finalFacing): stores values, calls GoToThen(pos, FaceFinalFacing)
+  - GoToThen(pos, callback): stores callback, calls GoTo
+  - GoTo: TryGoTo -> StartWalkingState
+  - ReachDestination: StartIdleState -> invoke+null callback
+  - FaceFinalFacing: animator.Face(finalFacing)
+  - HandleWalkingState: HasReachedDestination->ReachDestination, IsMoving->ManageAnimations(velocity), else->StartIdleState
 
 NavigationAbility (MonoBehaviour, RequireComponent NavMeshAgent):
   - NavMeshAgent agent (cached in Awake)
@@ -141,4 +163,7 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 6: Customer prefab, CustomerAnimator, CustomerManager singleton, FoodServingStation, FoodServingCustomerManager with Queue, spawn customers at cashier station
 [x] Lesson 7: NavMesh Surface, NavMesh Agent on customer, navigation settings, ignore navmesh layer for player
 [x] Lesson 8: NavigationAbility, Customer state machine, queue system (spacing + start point), customer walks to cashier
-[ ] Lesson 9: (next) Customer animations and serving
+[x] Lesson 9: Customer animations, velocity-based walk/idle, NavMesh hasReachedDestination/isMoving, Lerp rotation
+[x] Lesson 10: GoToThen callback, finalFacing, Face(), angular speed=0 fix
+[x] Lesson 11: FoodServingStation trigger/worker/timer, foodNeededCount, IsCustomerReadyToTakeFood distance check, FoodDropZone.GetFirstFullPosition, Plateau.GetFirstFullPosition public
+[ ] Lesson 12: (next) Actually serve food to customer (pop from drop zone, push to customer plateau)
