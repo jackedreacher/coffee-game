@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 4 complete
+Last updated: Lesson 6 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -11,12 +11,14 @@ Last updated: Lesson 4 complete
 
 == FILE STRUCTURE ==
 Scripts/Gameplay/     -> SpawnableFood.cs, CoffeeCup.cs, Pizza.cs, Plateau.cs, FoodPosition.cs
-Scripts/Stations/     -> FoodSpawnerStation.cs, FoodDropZone.cs
+Scripts/Stations/     -> FoodSpawnerStation.cs, FoodDropZone.cs, FoodServingStation.cs, FoodServingCustomerManager.cs
+Scripts/Customer/     -> Customer.cs, CustomerAnimator.cs
 Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
 Scripts/Abilities/    -> HoldFoodAbility.cs
-Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs
+Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs, CustomerManager.cs
 Scripts/UI/           -> MobileJoystick.cs
 Prefabs/Gameplay/     -> Cup, Pizza, Plateau, CoffeeStation
+Prefabs/Characters/   -> Customer
 Existing libs: Sijil(save system), NaughtyAttributes, LeanTween, TotalJSON, Tabsil utilities
 
 == KEY CLASSES ==
@@ -70,6 +72,29 @@ HoldFoodAbility (MonoBehaviour):
 PlayerAnimator:
   - switches between Idle/Walk and IdleWithPlateau/WalkWithPlateau based on plateau.activeInHierarchy
 
+Customer (MonoBehaviour):
+  - empty for now, will hold customer logic (navigation, ordering, sitting)
+
+CustomerAnimator (MonoBehaviour):
+  - same as PlayerAnimator (copied), will add sitting animation later
+  - Animator animator, GameObject plateau (serialized)
+  - ManageAnimations(moveVector, moveSpeed)
+
+CustomerManager (Singleton MonoBehaviour):
+  - static Instance (set in Awake)
+  - Customer customerPrefab (serialized)
+  - Pop(Vector3 spawnPosition): Instantiate customer at position, child of manager
+
+FoodServingStation (MonoBehaviour):
+  - empty for now, will handle serving food to customers
+
+FoodServingCustomerManager (MonoBehaviour):
+  - Transform spawnPoint (serialized)
+  - int maxCustomers (serialized)
+  - Queue<Customer> customers
+  - Start -> InvokeRepeating SpawnNewCustomer every 1s
+  - SpawnNewCustomer: check count < max -> CustomerManager.Instance.Pop -> enqueue
+
 == SCENE HIERARCHY ==
 Joystick Controller
 --- ENVIRONEMENT --- (cameras, lights, ground, decorations)
@@ -79,10 +104,12 @@ Joystick Controller
 Coffee Station (FoodSpawnerStation + BoxCollider + trigger BoxCollider)
   |- Station Renderer, Coffee_Machine
   |- Plateau (maxCap:7) -> Anim -> Renderer + Positions -> FoodPosition
-Cashier Station (BoxCollider for future customer service)
+Coffee Cashier Station (FoodServingStation + FoodServingCustomerManager + BoxCollider)
   |- Station Renderer, Cashier Machine
   |- Drop Zone (FoodDropZone + trigger BoxCollider)
        |- Plateau (maxCap:500) -> Anim -> Renderer + Positions -> FoodPosition
+Customer Manager (singleton, spawns customers on demand)
+CustomerSpawnPoint (empty transform, where customers appear)
 Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
   |- Plateau (child of character model, starts disabled)
 
@@ -100,4 +127,6 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 2: Spawn timer, Plateau Push/full/dynamic position creation, FoodPosition Push, Pizza variant
 [x] Lesson 3: PlayerDetector, HoldFoodAbility, Pop chain (Station->Plateau->FoodPosition), player collects cups
 [x] Lesson 4: Grab/drop timers, FoodDropZone, Cashier Station, Plateau IsEmpty, player drops cups at drop zone
-[ ] Lesson 5: (next) Customer spawning and serving
+[ ] Lesson 5: (skipped in session)
+[x] Lesson 6: Customer prefab, CustomerAnimator, CustomerManager singleton, FoodServingStation, FoodServingCustomerManager with Queue, spawn customers at cashier station
+[ ] Lesson 7: (next) Customer navigation and serving
