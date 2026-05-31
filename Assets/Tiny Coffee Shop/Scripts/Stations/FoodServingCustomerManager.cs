@@ -34,7 +34,7 @@ public class FoodServingCustomerManager : MonoBehaviour
         customers.Enqueue(newCustomer);
 
         Vector3 targetPosition = GetLastCustomerPosition();
-        newCustomer.Initialize(targetPosition);
+        newCustomer.Initialize(targetPosition, -queueSpacing.normalized);
     }
 
     private Vector3 GetLastCustomerPosition()

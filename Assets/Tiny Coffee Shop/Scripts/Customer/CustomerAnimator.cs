@@ -74,4 +74,9 @@ public class CustomerAnimator : MonoBehaviour
                 animator.Play("Idle");
         }
     }
+
+    public void Face(Vector3 facing)
+    {
+        animator.transform.forward = facing;
+    }
 }

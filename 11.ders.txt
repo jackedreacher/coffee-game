@@ -1,0 +1,259 @@
+Welcome back guys! In this lesson, we are going to try and serve our dear customers.
+
+Let's jump right in. Okay, so first off, what we need to know is how many cups or food the
+
+customers need. Okay, so for that we are going to open our customer script right here and set
+
+this as a setting in here. So let's create a private integer foodNeededCount and I'm also
+
+going to create a property just so that we can grab it from the food serving customer manager.
+
+Okay, so foodNeededCount, foodNeededCount. Perfect. Now what we need to do is configure this value
+
+and who does configure the customers? The food serving customer manager using the initialize
+
+method. So inside of the initialize method, what we are going to do is set the target position
+
+but just before that let's also add the food needed by the customer. So foodNeededCount
+
+this.foodNeededCount equals foodNeededCount. Perfect. So now let's do shift f12
+
+and check where it's called right here in the food serving customer manager.
+
+The amount of food that is going to be needed by the customer here is going to be random. We are
+
+going to set a random value between two numbers. So let's create this value at the top right here
+
+serialized field private integer no vector two min max customer food count. Thank you.
+
+And inside of this pawn customer method we want to grab a random value between these two values.
+
+So it food count not eat but int. Am I hungry? It will be equals to random that runs
+
+between min max customer food count dot x and min max dot y. This should return an integer so
+
+we are going to do vector two int here. Now it should be good but the range here is exclusive
+
+so we might add one because if we set this value between one and three it's going to pick a random
+
+value between one and two. So let's make sure that we pick a value between one and three.
+
+Then we can initialize our customer so food count. Perfect. So now we know how many pieces of
+
+food or food amount I don't know how many food count the player the customer wants.
+
+Let's try and serve him now. For that we are going to jump back to Unity and create our food
+
+serving station script. So let's create it somewhere around here. We already have it.
+
+We've created it in one of the previous lessons which is super convenient. Now we have it here
+
+but this is going to be an abstract class. Should I abstract it right now?
+
+Okay I'm gonna go step by step. I'm not gonna turn it into an abstract class right now.
+
+I'm gonna be kind to you. Okay so what do we need in here? Well the player grabbed the food
+
+from the serving station not the serving station from the coffee station and dropped it in the
+
+drop zone. This drop zone that we've got right here. So we are first going to need a reference
+
+to our drop zone. Elements, serialize field, private drop zone, drop zone. Next what do we need?
+
+Later on each food serving station will be able to serve one type of food. So we will need a
+
+reference to that food that is served. It will also help us check if we can push some food in
+
+the drop zone here. Okay but yeah let's tackle that later on. For now we are going to assume
+
+that this is the case. But we want to check if there is someone, a worker or a player
+
+that can serve customers in the box collider that we've specified earlier. So this one,
+
+this box collider. If the player triggers this drop zone he can put food on the plateau but
+
+to serve customers we need to enter this trigger right here. So we will need to check if the
+
+trigger is being triggered. Let's reference the drop zone. Boom! Let's open our food serving station
+
+and add the three onTriggerEnter, onTriggerEnter, onTriggerStay and onTriggerExit.
+
+There you go. So why do we need these three methods? Because we want to check if we've got a worker
+
+inside of here. Later on we might have a worker that's coming to serve customers and we should
+
+not assign two workers to the same task. So it's going to be super important. We're going to
+
+keep track of the worker count of this station. This is also super relevant when adding an expert
+
+later on. A worker specifically attached to this station. Anyway we can keep that for later on.
+
+But for now what we want to check is onTriggerEnter. Who did enter this trigger? So if
+
+other.tryGetComponent out PlayerDetector, PlayerDetector. If someone that has a PlayerDetector
+
+component entered this trigger it's cool. Otherwise it's not cool. So we are simply going to return.
+
+In the opposite case we are going to set the worker count plus plus. Increment the worker count.
+
+We've got a worker that just entered the trigger. So private int workerCount and this can be dropped
+
+as a setting. So settings. Perfect. Whenever someone exits the trigger right here. That's
+
+quite the same logic right? But we are just going to diminish the worker count and we want to make
+
+sure that the worker count is never negative. So workerCount equals mathf.maximum between zero
+
+and the worker count. All right. Perfect. And finally if we've got a collider that is staying
+
+inside of this trigger right here we want to check if we've got a worker or not. So if workerCount
+
+is greater than zero what we can do is handle the food serving. Okay. As simple as it gets.
+
+So let's create this method. Boom. Private void handleFoodServing. Nice. And inside of here like
+
+we've done in our food spawner station we are going to have a delay because we don't want to
+
+serve the customers like 10 cups in less than one second or stuff like that. We don't want it to
+
+happen too fast. So let's grab these two settings right here. Jump back to our food serving station.
+
+We can drop them here. SpawnDelay. No it's going to be ServingDelay. So ServingDelay
+
+and ServingTimer. Okay. Thank you. Now in the food serving station what we can do is
+
+later on we are going to have some upgrades but for now let's keep it simple. If the serving
+
+timer is less than the serving delay, ServingTimer plus equals time.deltaTime. Okay.
+
+And we are going to return. Otherwise we've passed the serving timer so we are going to try
+
+and serve the customers. So we need to make sure that we've got some customers in here.
+
+So if the CustomerManager.isCustomerReadyToTakeFood
+
+then we are going to return. If the CustomerManager.isCustomerReadyToTakeFood
+
+tells us that no customer is currently ready to take any food.
+
+So let's add a reference to our FoodServingCustomerManager here. RequireComponent type of
+
+FoodServingCustomerManager. We can drop it under the components.
+
+Private FoodServingCustomerManager.CustomerManager and inside of the Awake method
+
+we can do CustomerManager equals GetComponent of type FoodServingCustomerManager. Nice.
+
+So now we need to create this method right here. Let's create it. Boom. Public.
+
+And remove this. Okay. Let's jump back to our food serving station. We can check that
+
+later on. Okay. Then if the timer is greater than the delay, we can serve. If the CustomerManager
+
+tells us that the first customer is ready to take the food, we can go on. If we've got some cups,
+
+we need to check if we've got some food available to be served to. Right. And I will let you decide
+
+the order you want to use for these conditions here. Okay. So if GetFirstFullPosition equals
+
+null, let's just return. And this is a method, so let's add some parentheses.
+
+Finally, we can definitely serve the food. So actually serve food. Nice. So let's create this
+
+one. Let's create this one. We can actually, in here, we need to return a food position.
+
+Let's remove the exceptions. I think I'm going to reorder these. Like so. Perfect.
+
+So how can we know if we've got a food position? And by the way, we should not be returning an
+
+object here. We are going to return a food position. And who's responsible for that?
+
+The DropZone, of course. So let's return DropZone.GetFirstFullPosition.
+
+Let's create that. Okay. And we can handle that right now, hopefully. So let's turn that into
+
+a public method and check if our DropZone has something. In here, again, top-down hierarchy.
+
+We are just going to ask the Plateau for that. So we are just going to return Plateau.GetFirstFullPosition.
+
+Okay. So let's implement that. No, not like that. Sorry. Return public food position.
+
+Yep. Let's just return here. Okay. Thank you. Let's do not this. Come on. Oh, it's private.
+
+Let's turn it into a public method here. Thank you. Now that's better. Perfect. So let's jump
+
+back to our food serving station here. Now we can know if we've got some food available to be served.
+
+Let's implement the IsCustomerReadyToTakeFood here. How can we check if the customer is ready
+
+to take any food or not? I will give you three seconds to think about it. One, two, three.
+
+You can actually pause if you want more seconds, of course. But here is how we are going to do it.
+
+If we've got no customers, we should return false. So if customers.count is less or equals to zero,
+
+we are just going to return false. Then at this point, we've got customers. But has our customer
+
+or first customer reached the destination that he's supposed to reach, which is the queue start
+
+point that we have right here? We don't know. So let's ask him. Customer will be equals to
+
+customers.peek. And peek in here lets you check the first element of a queue without removing it
+
+from the queue. Keep in mind that we are not dequeuing it here. It's still in the queue,
+
+but we are just going to ask him. So then we have multiple solutions here. We can either
+
+do a distance check, which is what I'm going to do, or maybe inside of the customer here,
+
+check if he has reached his destination. We can check if he's currently in the idle state
+
+and close to the queue start point. These are things we can do. In my case, I'm just going to
+
+do something like float distance will be equals to vector3.distance between our firstCustomer.transform.position
+
+and the queue.startPoint.position. And we want to check if this distance, so return distance,
+
+is less than .1f. What does that change? It makes the game a bit smoother. Why? We are not waiting
+
+for the customer to reach the position exactly. If it's close enough, we're going to start giving
+
+him some food, and then he can reach the destination if he wants, and finally move towards
+
+any available table later on. So again, you can decide here. You can either stop the customer or
+
+wait for him to reach the destination to serve him, or just use this distance check here.
+
+And to make sure that this is possible here, because it might not be possible,
+
+keep that in mind. Imagine that your customer's transform position is like
+
+on the start point, but with a different y value. It would mess things up. So we want to make sure
+
+that both of these points we are checking or comparing are on the same y level. So .with
+
+y equals 0. Again, this is an extension method. You can go have a look at it.
+
+So now I think that we are good to go, go, go, go. Yeah, we have no way to check if it's working,
+
+but yeah, maybe we can do debug.log serve first customer, or maybe serving first customer.
+
+Because yeah, and in the next lesson, we can hopefully give them food or coffee cups in our
+
+case. For now, let's just check that out. Okay, where is our customer? He's coming, he's coming.
+
+Yeah, I definitely need to move this closer. Come on. Anyway, okay, okay, boom. So there is no cup.
+
+So now I need to grab some cups. If I trigger this, nothing happens. By the way, did we forget
+
+something? Yeah, serving delay. I'm going to set this to .5, maybe .3. And yeah, I will need to
+
+change the value outside of the play mode. So let's drop the cups here. Thank you. And if I try
+
+and serve them, boom, serve first customer. So this is working perfectly. Nice. So let's, oh,
+
+come on, why did it change? So .3 for the serving delay. And the customers will grab between one
+
+and five cups, maybe four cups. Okay, perfect. Okay, so, so, so, so, so in the next one,
+
+let's try and serve these boys. Come on, we are almost there, almost there, boys, almost there.
