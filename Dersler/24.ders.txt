@@ -1,0 +1,275 @@
+Welcome back guys! In this lesson, I'm going to ask you to be as focused as you can be because
+
+we are going to tackle a super important topic here, the requests. This is the heart of our
+
+worker manager or how the worker manager will handle workers, okay? So let's first open our
+
+worker manager. Inside of here, first off, we are only going to have one worker manager in our game,
+
+so let's turn it into a singleton. So public static worker manager instance. There you go.
+
+I'm also going to initialize the singleton. Perfect. And the first thing we are going to do
+
+is a way to register requests, okay? So public static void register requests, okay?
+
+Then we are going to specify the request that we want to register, so task request request.
+
+You should have seen or watched the YouTube video, so you should know what a task request is here.
+
+And in here, instance.pendingRequest.add the request. This is going to be a list of all of
+
+the pending requests that we've specified right here in the comment, okay? So let's create that
+
+list. private list of task request pending requests equals new list of task requests, okay? Cool.
+
+So now we need to create this task request because we still don't know what it is. So let's create
+
+that script. So worker, yeah, we can drop it here. Actually, create a new MonoBehaviour script,
+
+task request. Let's open it. And this class is going to be abstract because we can't create
+
+a task request as is. We need to create something specific, like the coffee serving station that
+
+we've got right here. We'll create, again, if you've watched the video, you should get that point,
+
+but we'll create a task request that's going to be sent to the worker manager asking for cups.
+
+If we need cups, hey, worker manager, here is a task request. Fill the plateau with
+
+cups or pizzas or food. Hey, worker manager, I need a worker to serve the customers, okay? I hope
+
+this is clear. So we can create as many requests as we want, depending on what we want to achieve,
+
+and each request can have a set amount of parameters. So let's create our task request
+
+right here. Boom, we can remove this too. What do we need inside of here? Well, first off, we will
+
+need a sender. Who sent this task request? Just to keep track of the task request here. So public
+
+task requester, task, or maybe sender. Yeah, let's just call it sender. That's the first thing we
+
+need in here. Next, we are going to use global unique identifiers, GUIDs, okay? This is going
+
+to be super important to keep track or cancel or complete requests. So we can do something like
+
+protected, because this should be accessed only by the task requests. String, GUID. And inside of
+
+here, public string, GUID. Let's just return our GUID in here, okay? Nice. Then, every task
+
+request will have a priority. Some requests might be more important than others. For instance,
+
+cleaning a table might be more important than filling the plateau with cups or serving the
+
+customers. You will decide that, because if you can't find any empty table, you can't send
+
+customers to that table. So maybe that can be more important. And if you want to add more stations
+
+later on to the game, you can decide if that station has a higher priority as the serving
+
+station or cleaning the tables or anything else. So protected int priority. Public int priority.
+
+Let's return our priority. Finally, we are going to create two constructors. So public
+
+task request with curly brackets. There you go. And another one, public task request. And in this
+
+one, we are going to specify the sender. So task requester, sender. This dot sender equals sender.
+
+Nice. I think we can just do something like that. An expression bodied statement.
+
+Perfect. So this is everything we need in our task requests. All of the information we need to make
+
+the game work properly. And of course, if you can think about more things or stuff to add in here
+
+that you think should be important, please feel free to add them. And maybe you can leave a comment
+
+under this lesson. Okay. So now that we've got our task request, let's create the task requester.
+
+So let's copy this name, jump back to Unity, create a new script, task requester. Okay. So
+
+instead of requesting, instead of doing this or implementing this script, what I want to do here
+
+for it to make more sense is open our food serving station. Okay. This one. So let's open the
+
+stations, coffee cashier station and food serving station. Okay. Because this is where we handle
+
+the cups. This is where we handle serving the customers. So our food serving station is the one
+
+that's going to emit requests. Okay. So every time you want to request something, you are going to
+
+attach a task requester to the station or to the thing that's going to emit the request.
+
+So it means that in here we need a task requester. So serialize field, private, task requester,
+
+task requester. There you go. And remember the task requester, no, the task request, sorry, here
+
+needs a GUID. So we are going to add a GUID generator to our script right here. Okay. So again,
+
+require component type of GUID generator. We can store that somewhere. So maybe here, private,
+
+GUID generator, GUID generator. Boom. And in here, GUID generator is going to be equals to get
+
+component of type GUID generator. Flower power. Okay. So let's remove this for now. Oh no, we are
+
+going to need the update method here. Why? Because we are going to check on a regular basis if we
+
+need cups or if we need to serve customers or anything else. So inside of our update method,
+
+let's handle the requests, requests timer or requests timer. I think I'm just going to call
+
+it request timer. Yeah. Boom. Of course, we will need a request timer. We will need a delay to know
+
+at which frequency we want to check if we need to emit or send some requests. I'm going to let you
+
+decide how often you want to send requests. So let's just set up our code here. Request check
+
+timer is less than the request check delay. Then we want to increment our timer. So request check
+
+timer plus equals time dot delta time and return. Otherwise, we can check our requests. So check
+
+requests and we can simply reset our timer. So request check timer equals zero. There you go.
+
+So we need to create our timer and delay. Maybe we can do another header for that. Yeah. Request
+
+timer. Something like that. Private float timer and the delay.
+
+There you go. This one can be serialized field. Okay. So that we can set up the value in the
+
+inspector. I think we are going to check for our requests each or every second. So if it's every
+
+second, maybe we can just do a constant. Yeah. Constant float equals one f. Okay. Nice. So let's
+
+now check our requests in here. Boom. Boom. And boom. So let's now check for requests. Inside of here,
+
+what can we do? Let's just write some comments first. First off, we want to check if we have
+
+enough cups. So do we have enough cups? If not, send a request. If we have enough cups and we can
+
+serve the customers. So maybe can we serve customers? If that's the case, send a serve
+
+customers request. Okay. And in here, it's going to be a send a field plateau request. So again,
+
+we will have different types of requests. I hope this is clear. So let's implement these one by one.
+
+We are just going to implement this one and yeah, we are going to see and go as far as we can get.
+
+So do we have enough cups? We are going to write something like if we don't have enough cups, so has
+
+enough food and not cups, we are going to emit the request. So let's just write emit requests. Yep.
+
+Let's now create this method. Boom. And in here, again, you're free to decide
+
+how you're going to handle this condition. In my case, I'm just checking if we've got more than
+
+four food elements or pieces in the drop zone. So we are just going to return
+
+dropzone.foodCount is greater than four. Again, this is a value that I've used. You can use a
+
+higher one, a lower one. If you want to wait for the food serving station to empty before refilling
+
+it, you decide. But I think that a value higher than zero will improve the flow of the game.
+
+So let's create this property here. Boom. Okay. And this can return the plateau because
+
+all of our food is in the plateau. So getFoodCount. Something like that. Okay.
+
+Let's now implement this method. Boom. Public. Remove the exception. There you go.
+
+I'm also going to drop it maybe at the end of our script. Okay. Yep. Somewhere around here. Cool.
+
+And inside of here, we are going to check or ask all of our food positions if they are empty or
+
+not. If they are empty, we can just continue. If not, we can increase a counter. But keep in mind
+
+that you can also store this value or keep track of this value every time you push or pop a food.
+
+You can have the counter that's running every time. That's another solution here. So in my case,
+
+I'm just going to have a simple counter because we just want to make things work now. We can
+
+actually refactor later down the road. We are free to do that. But always take into account
+
+your goals when making a game. Okay. Just a small parenthesis here. You should not refactor your
+
+game or think about refactoring from the beginning. If you want to make a game, first off,
+
+the main focus you should have is to make your game fun, is to make your game work actually.
+
+And then you can refactor. So you can either make a big game and refactor later on. It's going to
+
+be quite difficult. Or make systems and when the system works, you can refactor it. But there is
+
+no goal in learning all of the programming patterns and so on. If you have a look at here,
+
+we mainly use the observer pattern with our actions and the singleton pattern. So both of
+
+these are already a big start to make successful games in my opinion. So yeah, let's make things
+
+work first. Okay. So int counter equals zero. There you go. Then for i from zero to food,
+
+positionsParent.childCount++. Okay. There you go. After that, if our foodPositionsParent.getChild.index
+
+i.getComponentOfType foodPosition is empty, if it is empty, we can simply continue.
+
+If not, we can increase our counter. And finally, we can return our counter.
+
+Got it? Fine. Super simple. So now we can jump back to our, I think it was the food serving
+
+station. Yeah, this one. So now we are able to determine if we need more food or not.
+
+Okay. So let's now emit a request. For that, we are going to ask the task requester to create
+
+a request for us. And we need to pass in all of the data that we need in order to accomplish
+
+or process that request for the worker manager actually. So taskRequester.createTaskRequest.
+
+And here we are going to process step by step. First off, let's create this method because we
+
+know that we are going to send a task request in here. So public void createTaskRequest.
+
+And this is going to accept a task request. Let's call it request. Perfect. That's the first step.
+
+We are then going to create our different requests. So in here, we now need to pass in
+
+a request. Before thinking about that, let's think about what we are going to need to send
+
+with our request. The worker right here will need to know what type of food we need so that
+
+the worker manager can then determine which station we need to go to grab that type of food.
+
+So that's the first step. Then what we need to pass into is where do we want the food to be put
+
+or served. And this is going to be our serving station, our drop zone, sorry, somewhere around
+
+here. If we select our coffee cashier station in here, we've got the drop zone. So we can
+
+definitely interact with it within this bounding box. And the thing that we are going to do is not
+
+send the position of the drop zone. Remember what we've done with the tables right here?
+
+Huh? Remember? Well, we are going to apply the same logic here. We need to send a position
+
+nearby the drop zone but inside of the bounding box. But it should also be inside of the nav
+
+mesh surface. So somewhere around here, maybe. Or somewhere around here. Or maybe here. You decide.
+
+Okay? So what I'm going to do is select our drop zone, right-click, and create an empty
+
+game object. This is going to be our worker target point. I'm going to use the same color
+
+that I've used for the table here. So blue. And move it somewhere around here. So maybe a bit
+
+down. Yeah. The Y value should be zero. So somewhere around here. I think it's minus 5. Yep.
+
+Cool. So now our target point here is within the bounding box of our drop zone and also on the nav
+
+mesh. Or really close to the nav mesh at least. Got it? This is really important here. So this
+
+is where our worker is going to go. So in our request, we need to pass in the target position
+
+for our worker and the food that we need. Two super important things. The third thing is going
+
+to be sent with all of the requests and it's going to be our GUID. The GUID of the station
+
+that sent that. Okay? I think we're going to do that in the next lesson because this one
+
+is getting a bit too long. See you in the next one!

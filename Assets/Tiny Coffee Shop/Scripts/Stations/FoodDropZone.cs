@@ -6,6 +6,7 @@ public class FoodDropZone : MonoBehaviour
     [SerializeField] private Plateau plateau;
 
     public bool IsFull => plateau.IsFull;
+    public int FoodCount => plateau.GetFoodCount();
 
     public void Push(SpawnableFood food)
     {

@@ -202,6 +202,22 @@ public class Plateau : MonoBehaviour
         return foods.ToArray();
     }
 
+    public int GetFoodCount()
+    {
+        int count = 0;
+
+        for (int i = 0; i < foodPositionsParent.childCount; i++)
+        {
+            if (!foodPositionsParent.GetChild(i).TryGetComponent(out FoodPosition foodPosition))
+                continue;
+
+            if (!foodPosition.IsEmpty)
+                count++;
+        }
+
+        return count;
+    }
+
     public void MarkAsDirty(int count)
     {
         int marked = 0;

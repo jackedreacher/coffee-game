@@ -3,8 +3,22 @@ using UnityEngine;
 
 public class WorkerManager : MonoBehaviour
 {
+    public static WorkerManager Instance;
+
     [Header(" Elements ")]
     [SerializeField] private List<Worker> workers = new List<Worker>();
+
+    private List<TaskRequest> pendingRequests = new List<TaskRequest>();
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    public static void RegisterRequest(TaskRequest request)
+    {
+        Instance.pendingRequests.Add(request);
+    }
 
     private void Update()
     {
