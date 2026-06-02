@@ -10,6 +10,7 @@ public class Plateau : MonoBehaviour
     private bool isFull;
     private bool isEmpty;
     private float positionsYOffset;
+    private SpawnableFood lastFoodPushed;
 
     public bool IsFull => isFull;
     public bool IsEmpty => isEmpty;
@@ -22,10 +23,12 @@ public class Plateau : MonoBehaviour
 
     public void Push(SpawnableFood foodInstance)
     {
+        lastFoodPushed = foodInstance;
+
         FoodPosition foodPosition = GetFirstEmptyFoodPosition();
         foodPosition.Push(foodInstance);
 
-        RearrangeFoodPositions(foodInstance);
+        RearrangeFoodPositionsPerFood();
 
         isEmpty = false;
 
@@ -99,15 +102,86 @@ public class Plateau : MonoBehaviour
 
     private void RearrangeFoodPositions(SpawnableFood foodInstance)
     {
-        positionsYOffset = foodInstance.CleanYOffsetOnPlateau;
+        positionsYOffset = foodInstance.IsDirty
+            ? foodInstance.DirtyYOffsetOnPlateau
+            : foodInstance.CleanYOffsetOnPlateau;
 
         for (int i = 0; i < foodPositionsParent.childCount; i++)
             foodPositionsParent.GetChild(i).localPosition = Vector3.up * i * positionsYOffset;
     }
 
-    public void MarkAsDirty()
+    // Her cup kendi offset'ini kullanır; gizli (hidden) cup'lar yığına dahil edilmez
+    private void RearrangeFoodPositionsPerFood()
     {
-        // Next lesson: swap food meshes to dirty variants
+        float yPos = 0f;
+
+        for (int i = 0; i < foodPositionsParent.childCount; i++)
+        {
+            Transform child = foodPositionsParent.GetChild(i);
+
+            if (!child.TryGetComponent(out FoodPosition foodPosition) || foodPosition.IsEmpty)
+            {
+                child.localPosition = Vector3.up * yPos;
+                continue;
+            }
+
+            if (!foodPosition.IsFoodVisible)
+            {
+                // Gizli cup: görünmez, yığına yer açma
+                child.localPosition = Vector3.zero;
+                continue;
+            }
+
+            child.localPosition = Vector3.up * yPos;
+            yPos += foodPosition.FoodYOffset;
+        }
+    }
+
+    // Tepeden başlayarak bir sonraki görünür cup'ı gizle
+    public void HideNextFood()
+    {
+        for (int i = foodPositionsParent.childCount - 1; i >= 0; i--)
+        {
+            if (!foodPositionsParent.GetChild(i).TryGetComponent(out FoodPosition foodPosition))
+                continue;
+
+            if (foodPosition.IsEmpty)
+                continue;
+
+            if (!foodPosition.IsFoodVisible)
+                continue;
+
+            foodPosition.HideFood();
+            RearrangeFoodPositionsPerFood();
+            break;
+        }
+    }
+
+    // count: kaç cup dirty yapılacak — zaten dirty olanları atla, clean olanlardan say
+    public void MarkAsDirty(int count)
+    {
+        int marked = 0;
+
+        for (int i = 0; i < foodPositionsParent.childCount; i++)
+        {
+            if (marked >= count)
+                break;
+
+            if (!foodPositionsParent.GetChild(i).TryGetComponent(out FoodPosition foodPosition))
+                continue;
+
+            if (foodPosition.IsEmpty)
+                continue;
+
+            if (foodPosition.IsFoodDirty)  // zaten dirty → atla, sayma
+                continue;
+
+            foodPosition.DisplayFood();
+            foodPosition.MarkAsDirty();
+            marked++;
+        }
+
+        RearrangeFoodPositionsPerFood();
     }
 
     private void CreateNewFoodPosition()

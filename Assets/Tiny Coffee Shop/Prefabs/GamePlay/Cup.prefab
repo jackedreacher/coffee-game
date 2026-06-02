@@ -45,7 +45,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27e0be28bbe7726459c30a330757a960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoffeeCup
+  filter: {fileID: 1287054011463407538}
+  meshRenderer: {fileID: 3907012881691206520}
   cleanYOffsetOnPlateau: 0.228
+  dirtyYOffsetOnPlateau: 0.025
+  dirtyMesh: {fileID: 8460344067172420054, guid: 9f4f29f83464e23478d4f396b9fbe4de, type: 3}
 --- !u!1001 &2448245320588918780
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -107,8 +111,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
+--- !u!33 &1287054011463407538 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
+  m_PrefabInstance: {fileID: 2448245320588918780}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2770649836105209879 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
+  m_PrefabInstance: {fileID: 2448245320588918780}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &3907012881691206520 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
   m_PrefabInstance: {fileID: 2448245320588918780}
   m_PrefabAsset: {fileID: 0}

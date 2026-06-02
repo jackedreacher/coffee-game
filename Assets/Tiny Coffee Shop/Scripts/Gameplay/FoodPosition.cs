@@ -9,6 +9,11 @@ public class FoodPosition : MonoBehaviour
     private bool isEmpty = true;
 
     public bool IsEmpty => isEmpty;
+    public bool IsFoodDirty => food != null && food.IsDirty;
+    public bool IsFoodVisible => food != null && food.IsVisible;
+    public float FoodYOffset => food != null
+        ? (food.IsDirty ? food.DirtyYOffsetOnPlateau : food.CleanYOffsetOnPlateau)
+        : 0f;
 
     private void Awake()
     {
@@ -32,5 +37,21 @@ public class FoodPosition : MonoBehaviour
         food = null;
 
         return foodToReturn;
+    }
+
+    public void DisplayFood()
+    {
+        food?.Display();
+    }
+
+    public void HideFood()
+    {
+        food?.Hide();
+    }
+
+    public void MarkAsDirty()
+    {
+        if (food != null)
+            food.MarkAsDirty();
     }
 }

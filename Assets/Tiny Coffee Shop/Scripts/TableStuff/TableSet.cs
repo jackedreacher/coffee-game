@@ -12,6 +12,11 @@ public class TableSet : MonoBehaviour
     [Header(" Settings ")]
     private bool isFull;
     private bool isDirty;
+    private int activeCustomerCount;
+
+    [Header(" Food Timer ")]
+    private float foodTimer;
+    private int foodConsumed;
 
     public bool IsFull => isFull;
     public bool IsDirty => isDirty;
@@ -23,9 +28,36 @@ public class TableSet : MonoBehaviour
         chairs = GetComponentsInChildren<Chair>();
     }
 
+    private void Update()
+    {
+        if (activeCustomerCount > 0)
+            HandleFoodTimer();
+    }
+
+    private void HandleFoodTimer()
+    {
+        foodTimer += Time.deltaTime;
+
+        if (foodTimer > (foodConsumed + 1) * Constants.TimeToConsumeFood)
+            HideNextFood();
+    }
+
+    private void HideNextFood()
+    {
+        foodConsumed++;
+        plateau.HideNextFood();
+    }
+
+    public void MarkPlateauDirty(int foodCount)
+    {
+        plateau.MarkAsDirty(foodCount);
+    }
+
     public void OnCustomerLeft()
     {
-        // Check if all chairs are empty → mark table dirty
+        activeCustomerCount--;
+        activeCustomerCount = Mathf.Max(0, activeCustomerCount);
+
         for (int i = 0; i < chairs.Length; i++)
         {
             if (!chairs[i].IsEmpty)
@@ -34,7 +66,8 @@ public class TableSet : MonoBehaviour
 
         isDirty = true;
         isFull = false;
-        plateau.MarkAsDirty();
+        foodTimer = 0;
+        foodConsumed = 0;
     }
 
     public void AcceptCustomer(Customer customer, TableManager tableManager)
@@ -83,6 +116,8 @@ public class TableSet : MonoBehaviour
 
     private void HandleCustomerReachedChair(Customer customer, Chair targetChair)
     {
+        activeCustomerCount++;
+
         for (int i = 0; i < customer.FoodTakenCount; i++)
         {
             SpawnableFood food = customer.Pop();

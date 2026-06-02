@@ -1,0 +1,241 @@
+Welcome back guys! In this lesson, we are going to go one step further regarding our tables
+
+and hide the food as it is being consumed. Okay? So let's open our table set script.
+
+Inside of here, we are going to have another timer. Why a timer? Because if you remember well,
+
+whenever we grab a food, we increment our timer by constants.timeToConsumeFood. Okay?
+
+So what we are going to do is have another timer that is going to check every time we pass this
+
+value and hide a cup in our case here or any kind of food. Okay? So for that, let's create
+
+some other values here. So I'm just going to call this one foodTimer and the other value we are
+
+going to need is an integer for the food consumed. Okay? Just to keep track of how many cups we have
+
+hidden. Then inside of our customers.count condition here, we are going to handle the food
+
+timer. There you go. Let's create this method. Perfect. Let's remove the exception. And inside
+
+of here, we are simply going to increment our food timer for now. So plus equals time.deltaTime.
+
+There you go. Then what do we want to check? We want to check each time our food timer is greater
+
+than our constants. So constants.timeToConsumeFood. But if the food timer is greater than this one,
+
+than this value, we need to hide a food. But we also need to check for the double value of this
+
+one. So now it needs to be greater than two times this. After that, three times this. And so on.
+
+As many times as we have cups available. Okay? So this is where our food consumed value comes
+
+in handy here. So every time our food timer is greater than the food consumed...
+
+By the way, it's not a timer yet. The food consumed integer. Plus one in here. Because
+
+if we start at zero, it's going to be zero. So it's going to hide the first food even
+
+before we've consumed it. And that's not what we want. We can hide the next food.
+
+There you go. By the way, I'm just going to grab the timer here, maybe. Drop it here. Okay. And
+
+maybe the fireCustomers method too. Because it's quite linked to the handleTimer method. Okay.
+
+Perfect. So now let's implement this method here. There you go. What are we going to do
+
+when hiding the next food? Well, if we want to hide the next one, we need to increment this
+
+foodConsumed counter here. So foodConsumed++. Then we simply need to tell the plateau to hide
+
+the next food. Okay? So we are going to implement this one in one moment. But the thing I want to
+
+do first is reset these whenever we fire the customers or whenever we accept the first customer.
+
+Okay? So in our case, I'm just going to reset them when firing the customers. So let's do
+
+foodTimer equals zero and foodConsumed equals zero. Perfect. So now let's implement our
+
+hideFood method. So let's Alt-Enter, generate the method. Boom. Public. And remove the exception.
+
+There you go. So how are we going to hide the food? Please think about it. We need to hide it
+
+not from the bottom up, but from the top down. So we'll need to have an inverted loop like we've
+
+used... I don't remember... Oh, right here. Okay? So let's copy this. Boom. Let's add the curly
+
+brackets. There you go. And here is what we are going to do here. We are going to grab the food
+
+position component as usual. So let's grab this. Boom. Okay. Now that we've got this, we want to
+
+check if the position is empty or not. So again, we are going to have a bunch of conditions. So if
+
+the food position is empty, we are just going to continue. Nothing in there. If the foodPositions.
+
+isFoodVisible. So if the food is visible, or should I say if it's not visible, it means that
+
+it has already been hidden. So again, we are going to continue. And finally, we can hide the food.
+
+So foodPosition.hideFood. And after that, don't forget to break, because we don't want to go on
+
+and hide any other food possible. So we just want to hide one at a time. So let's create this method
+
+and create this property here. So let's first implement this property. How can we know if a
+
+food is visible or not? Well, first off, we need to have a food. So we need to make sure that food
+
+is different than null. And we need to make sure that the food is visible. And the food is going
+
+to be responsible for itself, hiding the renderers and so on. So food.isVisible.
+
+isVisible. Like that. Perfect.
+
+What we can do, should we start with this one or with the hideFood one? I think I'm
+
+going to keep that as an error, just so that I don't forget about it. And start with the
+
+hideFood method here. This one is going to be quite simple, actually. So food.hide.
+
+Really cool. Why does it... what? For hide. Okay, that's okay, that's all right, we're gonna add it.
+
+And by the way, we can also add the displayFood, food.display, because the food again is going to
+
+be responsible for itself. So one thing I don't know here is why is this one an error and now
+
+this one error? Is it because this one is not visible? Yeah, I think that's the case. We should
+
+have the hide. No, we don't have the hide method. So yeah, public void display. And again, I'm too
+
+used to that. Come on. Control Z, boom. And public void hide. There you go. Is that better now?
+
+Yep, it's perfect. And we are also going to add the isVisible property, by the way. Boom.
+
+Okay, so in here, really simple to display and hide the spawnable food. We are simply going to
+
+display and hide the renderer. So for that, what we can do is either hide the filter, it should have a
+
+mesh renderer attached to it, or you can add a reference to the renderer. I think I'm just going
+
+to use the filter here. So filter.getComponentOfType.meshRenderer, or maybe simply renderer,
+
+actually. Yeah, renderer.enabled equals false. And I can grab this line. Boom. Control C, control V,
+
+and true. Again, you can decide to use or reference the renderer here if you don't
+
+want to use getComponent every time. In this case, it should be quite simple because the
+
+game object doesn't have a bunch of components, so it should be fast enough for our game.
+
+Okay, so isVisible, we should simply return a filter.getComponentOfType.renderer.enabled.
+
+But now that I'm thinking about it, I don't like this syntax. So you don't even know what.
+
+You know what? Hey, there you go. Perfect. So let's now jump back to Unity and reference this
+
+renderer. All right, let's open our Prefabs folder, Gameplay, Cup, and specify the renderer,
+
+which is right here. Perfect. So now we can just jump back to Unity, hit play, and we are going to
+
+have a bug. Come on. Otherwise, it would not be fun. Anyway, so here's what we're going to do.
+
+Again, grab cups, drop them here. I'm just going to zoom out a bit here on the scene so that we can
+
+spot the issue really well. Yeah, this view should be nice. So let's grab more cups. Okay, so first,
+
+I'm going to try and show you the bugless version. So boom, boom, boom. He's going to the table.
+
+There you go. The cups are being consumed. Everything is going all right. Let's go, let's go,
+
+let's go. Boom. Perfect. So at this point, it's really cool. Oh, I still can't grab the cups,
+
+the dirty cups. Fine. Let's now try and make it buggy because there is something we need to take
+
+into account or consideration. Imagine this case again. The first customer comes to this chair,
+
+and he puts three cups in here. So he's going to start consuming one, two, and we've got one
+
+more cup left. Then we send the second customer. We've got one cup in here. So it means that we
+
+have two cups that are hidden, but the food positions are still there, right? We still have
+
+two food positions. So what is going to happen is that the second customer is going to drop
+
+his cups on top of the hidden positions, which is quite bad because we are going to have
+
+floating cups or floating pizzas. Is that what you want? Well, if that's the case, just skip to
+
+the next video. But if that's not the case, we are going to fix that right now. Okay, so let me just
+
+display what's going to happen. He only has one cup. So what I'm going to do
+
+is grab our customer, not customer manager, but the station. Where is the station?
+
+Stations, cashier station, and please let's do four cups. Every customer is going to need
+
+four cups so that we can spot that error in the best way possible.
+
+Okay, so I'm going to think about how I'm going to do that now. How many cups do I have here?
+
+One, two, three, four, five, six, seven. So I need at least eight so that I can send the first one.
+
+Okay, so one, two, three, four. There you go. Two, three. Okay, let's wait for it a little bit.
+
+There you go. Nice! That's exactly what I wanted to display. So as you can see here, we've got one,
+
+two, three empty positions. We can actually duplicate the renderer. One, two, and three.
+
+We've got three hidden food positions. So the other cups are put above and that's bad.
+
+So let's fix that and we can call it a day. Do you have an idea on what we need to do
+
+to fix that issue or not? It can be a nice exercise. Please try and think just a tiny bit.
+
+Even if it takes like 15 minutes, 20 minutes, try and do this exercise on your own. Thank you.
+
+So here is the solution. We are going to update our rearrange food positions because this is where
+
+we put the food positions at their correct position. We need to keep track of how many
+
+food are hidden. So let's have an integer here. So hidden food count and initialize it at zero.
+
+Then in our loop in here, what we are going to do is check if the food position is hidden or not.
+
+So let's do if foodPositionParent.getChild
+
+at index i.getComponentOfType foodPosition.isFoodVisible, but we want to check if the
+
+food is not visible, exclamation mark. We are going to increment that hidden food count. Boom.
+
+What we could have done too is maybe increment the counter in the hideFood method. This would be
+
+another possibility here. You can increment the counter in here and then reset it when we
+
+pop everything. Maybe when we pop everything you can reset that.
+
+Or you would have to check if that's the first element we add or the first food we add to the
+
+plateau. Anyway, here is what I came up with. So hidden food count inside of here. Then we are
+
+going to use that value inside of here to set up the local position of our food position.
+
+So instead of using the index i, we are going to use i minus hidden food count. So if we've got
+
+two hidden food, let's say, we are going to put the new or rearrange the food positions,
+
+taking that into account. So two steps lower. I hope this makes sense. If it doesn't, please leave
+
+a comment in the comment section and I'm going to try and explain in another way. So let's now
+
+hit play and see how it goes. We're going to try and apply the same logic here or have the same
+
+case. So let's fill this plateau. Boom. Okay. Again, one more time. So one, two, three, four,
+
+one, two, three, up. No, no, no. Come on. Okay. I'm going to try again. Or maybe I can time lapse this.
+
+There you go. Perfect. Everything is now working perfectly. Nice. As you've seen, the cups are now
+
+put at the correct position. Awesome. Nice. So I think that we are now good for this step. And the
+
+next thing to do here will be to clean the table. So we will need to add the trash and add another
+
+ability to the player so that he can collect dishes and we are good to go. See you in the next one.

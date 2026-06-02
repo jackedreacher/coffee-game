@@ -1,0 +1,569 @@
+Welcome back guys! In this lesson, we are going to allow the player to collect dishes to actually
+
+clean the table here.
+
+So, what are we going to need? First off, here is what we are going to do.
+
+We are going to grab our table here and add a trigger to that table.
+
+That way the player can actually trigger a table set.
+
+When we trigger a table set, we are going to check if that table is dirty or not.
+
+And if the player has the hold dish ability.
+
+If both conditions are met and the player can collect dishes.
+
+Because there are situations where the player won't be able to collect dishes.
+
+For instance, we can have cups in our plateau and we can't put dishes with cups.
+
+And by dishes, I mean dirty cups.
+
+You are going to hear me say that a lot.
+
+So, we are going to manage all of these things one by one.
+
+First off, let's add a trigger to our table.
+
+So, box collider. Boom!
+
+Let's put it as a trigger right away so that we don't forget about it.
+
+Okay, so we are going to set up our collider.
+
+Oh, where is the table? Come on!
+
+Let's press F. There you go.
+
+Let's edit the bounding box of our trigger here.
+
+Something like that should be good.
+
+And from the top view, we are going to expand this a tiny bit.
+
+Maybe something like that.
+
+Something like that should make sense.
+
+But of course, feel free to edit this as you wish.
+
+Okay, so we now have our box collider.
+
+Which is cool because we can now select our player detector right here.
+
+And add another condition in our OnTriggerStay method.
+
+So, what we can do in here is else if other.tryGetComponentOutTableSet
+
+or maybe just table.
+
+What we are going to do is handle table triggered with the table.
+
+Okay, so we can now create this method.
+
+Okay, let's grab it and maybe drop it after the other ones.
+
+Boom! Boom! There you go.
+
+So, whenever a player detector triggers a table, what should we do?
+
+Well, we are first going to check if the table is dirty.
+
+Because if it's not dirty, there is nothing to clean in here.
+
+So, if table.isDirty, if it's not dirty actually, we are going to return. Okay? Perfect.
+
+Next, we want to check if this player detector,
+
+or I should have called it character detector actually,
+
+has the holdDish ability.
+
+Okay, to hold dirty food.
+
+So, if tryGetComponentOutHoldDish ability,
+
+let's call it holdDish ability,
+
+then we are going to return again.
+
+Because our character do not have this component attached to it.
+
+And of course, we are going to create that, don't worry.
+
+But then, what can happen here?
+
+So, the table is dirty, we've got the holdDish ability,
+
+but can we collect those dishes or not?
+
+If the plateau has clean cups, we can't collect dishes.
+
+So, if holdDish ability.canCollectDishes,
+
+so if we can't collect dishes, let's not clean that table.
+
+Otherwise, all of the conditions are met for us to clean the table,
+
+or for the character to clean the table.
+
+So, table.getCleanedBy this holdDish ability.
+
+Nice, so let's now create our holdDish ability script.
+
+Let's jump back to Unity.
+
+Player, do we have abilities? Yep.
+
+So, let's create a new script.
+
+Boom, holdDish ability.
+
+Let's open it, perfect.
+
+And what we can do is add the canCollectDishes.
+
+What did we have in here?
+
+Boom, canCollectDishes.
+
+Okay, so let's do that.
+
+Boom, public void canCollectDishes.
+
+It should return a boolean, by the way, not void.
+
+And what else? getCleanedBy.
+
+Okay, so let's just generate the method in here.
+
+public void and getCleanedBy. Nice.
+
+So, let's jump back in our player detector,
+
+and what we are going to do is implement the canCollectDishes method first.
+
+So, let's think about in what cases we cannot collect dishes.
+
+Okay, of course, I've already told that.
+
+So, we are going to need a reference to the plateau.
+
+So, private plateau, plateau.
+
+So, if the plateau is disabled, it means that we can't see it,
+
+so we have nothing on the plateau.
+
+So, if plateau.gameObject.activeInHierarchy,
+
+let's just return true, okay?
+
+It means that we don't have anything on the plateau,
+
+so we can definitely collect dishes. What else?
+
+If the plateau is not empty, so if the plateau.isEmpty,
+
+so if it's not empty but it's not dirty,
+
+so if it's not empty but has clean cups or clean food,
+
+we should return false.
+
+We cannot collect dishes.
+
+So, and plateau.is, do we have isDirty? We don't.
+
+So, let's do isDirty, and we are going to implement that, return false.
+
+Otherwise, we can return true,
+
+because the plateau is either disabled or active,
+
+not empty, but dirty, okay?
+
+Let's implement the isDirty.
+
+Boom, this should return isDirty,
+
+but with a lowercase i, private pool isDirty,
+
+and when is it going to be dirty?
+
+If we push dirty food.
+
+So, we are either going to do that here or here mark as dirty.
+
+I think that I'm going to put it in the push method,
+
+somewhere around here, yeah.
+
+So, food instance, maybe at the top here.
+
+If the food instance, or I can rename it the foodToGrab,
+
+it makes more sense.
+
+If the foodToGrab is dirty, then isDirty equals true, okay? Perfect.
+
+We could have done something like isDirty equals
+
+foodToGrab.isDirty.
+
+Yeah, it would have the same effect. Nice.
+
+So, now we know when our plateau is dirty.
+
+We will need to clean it later on,
+
+but yeah, we can keep that for later, I think.
+
+We are still going to add more food positions
+
+if needed in our plateau.
+
+Yep, because there is one thing in here that is different
+
+from grabbing clean cups or clean food.
+
+When grabbing clean food, we have a maximum amount
+
+of seven, I think.
+
+I think that we've set it to seven for the player.
+
+But when grabbing dishes or dirty food,
+
+it should not be clumped, okay?
+
+So, we will need more food positions in our plateau,
+
+and we should bypass that amount if the food
+
+that we are grabbing is dirty.
+
+But yeah, let's do things step-by-step.
+
+I just want to put that here.
+
+Okay, so we now know canCollectDishes,
+
+plateau is dirty.
+
+So, we now know if we can collect dishes or not.
+
+Now, what we need to do is implement
+
+the getCleanedBy method, okay?
+
+All right, so let's think about this.
+
+How are we going to clean our table?
+
+Well, we've got different things here,
+
+but the first thing is grabbing all of the dirty food
+
+that we have on our plateau.
+
+Once that's done, we can hide the plateau,
+
+the table's plateau, and put all of our dishes,
+
+the table's dishes, in the holdDish ability right here, okay?
+
+Just send the dirty food to that holdDish ability.
+
+The holdDish ability will then put the food on the plateau,
+
+the dishes on the plateau, and so on.
+
+But for the table set here,
+
+we'll need to fix the chairs,
+
+and also mark it as clean, or isDirty should be false,
+
+isFull should also be false,
+
+and I think, yeah, this one is just a precaution
+
+because we've fired the customers, but just in case.
+
+And we should be good for now.
+
+So, let's do things step by step.
+
+SpawnableFood, dirtyFoods, let's say, or dishes,
+
+will be equal to plateau.pop,
+
+but I'm going to implement or create a new method
+
+to pop everything, okay, at once.
+
+Then we want to hide our plateau,
+
+so plateau.gameObject.setActive, false.
+
+So this is the table's plateau, by the way.
+
+After that, we can call the holdDish ability
+
+and tell it to collect dishes with our dishes. Nice!
+
+Finally, we can clean the table,
+
+so for i from zero to chairs.length.
+
+We've got chairs at index i.clean or fix, yeah.
+
+We can call the fix method that we're going to create.
+
+We've got the messUp function or method already,
+
+so that's nice, and isDirty equals false.
+
+Now the table is not dirty anymore,
+
+and isFull equals false just as a precaution
+
+because we already have it here.
+
+Okay, so let's start by fixing the chairs
+
+because it's quite simple. Boom, public.
+
+Messing them up was rotating them by a certain amount.
+
+Now we're just going to do quaternion.identity.
+
+Okay, now they are fixed, perfect.
+
+Next, we are going to implement the popAll method
+
+because it's quite simple to implement here. public popAll.
+
+Let's create a list.
+
+Okay, we need the system.collections.generic
+
+of spawnableFood, let's call it foods,
+
+equals newList of spawnableFood.
+
+Then we are going to loop through all of our positions,
+
+so for i from zero to foodPositionsParent.childCount,
+
+we're going to grab the food position as usual, boom.
+
+And this is why I told you that it might have been a good idea
+
+to store these food positions,
+
+but I'm just placing that here.
+
+Again, you can do it.
+
+If the food position is empty, we are going to continue.
+
+There is nothing in here, so let's just continue.
+
+Otherwise, we've got something in there
+
+and we know that the plateau is dirty
+
+because we need it to be cleaned, okay? So it is dirty.
+
+No need to check if the food position is dirty or not.
+
+So we can simply do foods.addFoodPosition.food.
+
+Oh, we don't have it.
+
+So I think, yeah, we've got the pop method, sorry.
+
+I thought it was a property, but yeah, pop.
+
+So that we can clean it and so on at the same time. Yep, true.
+
+So at this point, we should have a list
+
+of all of the dirty foods or the dishes, okay?
+
+So what we are going to do is also set isFull to false.
+
+Because the plateau is now empty.
+
+isDirty calls false.
+
+We've cleaned the plateau
+
+and we are going to return our foods.toArray. Perfect.
+
+I hope it makes sense.
+
+So now, what else do we need to implement?
+
+The collectDishes, and that's the last step here.
+
+Almost there, we are almost there, guys.
+
+Okay, so public void collectDishes.dishes.
+
+Remember, we've got a clean architecture in here
+
+with our plateau and so on.
+
+So collecting dishes is as simple
+
+as putting the dishes on the plateau.
+
+And the plateau is going to handle them correctly.
+
+So what we are going to do is for i from 0 to dishes.length,
+
+we could have done something like pushAll in our plateau.
+
+I did not do that.
+
+I've got popAll, but no pushAll.
+
+Maybe you can try and implement that method if you want.
+
+plateau.gameObject.setActive true,
+
+just in case it was disabled,
+
+and plateau.push dishes at index i. There you go.
+
+And that's everything we need in here.
+
+So let's now give that a shot.
+
+Okay, boom, boom, boom.
+
+Do we need to reference anything?
+
+The plateau player should have the...
+
+Oh, we need to add the holdDish ability
+
+and reference the plateau, of course. So boom.
+
+And now I think that we are good to go.
+
+So let's hit play.
+
+Okay, so let's grab some food.
+
+Drop it here.
+
+So let's just check if we've got an error here
+
+when triggering the table here.
+
+So boom, we can enter that trigger, which is nice.
+
+We are at the limit, actually,
+
+because we've got the collider preventing us from doing so,
+
+but that's nice.
+
+Let's grab more cups.
+
+Okay, okay, okay, okay.
+
+Boom, boom, boom.
+
+Here is the first customer.
+
+Here is the second one.
+
+Okay, consume your cups.
+
+Hurry up, please.
+
+Hey!
+
+Okay, so now let's try and collect those dishes. Yay! It's working.
+
+We've got an error, but it's working.
+
+We've cleaned the table.
+
+We've fixed the chairs,
+
+and the player now has dishes in the plateau,
+
+and we can't collect any more food.
+
+But what happened here?
+
+We put some dirty cups in the plateau, which is bad. Why? Anything.
+
+We are going to fix that in the next one. Don't worry.
+
+But first off, let me check this error here.
+
+Plateau.pushFoodToGrab.
+
+A food position.
+
+Sorry, .pushFoodToGrab.
+
+So maybe, just maybe the food position is empty here.
+
+Wait, oh, that's what I told you.
+
+Yeah, that's exactly what I told you earlier.
+
+So we are not going to fix that in this lesson.
+
+We are going to fix it in the next one,
+
+because we had eight cups, right?
+
+I think that's what happened.
+
+We had eight cups, but the plateau,
+
+our player's plateau only have seven positions.
+
+So we are going to miss one food position.
+
+Let's try that again,
+
+so that we can make sure that this is the error we are getting.
+
+Okay, thank you.
+
+So let's drop these.
+
+Okay, so one, two, three, four, six, seven, eight, or five.
+
+Maybe after four, we've got five, not six. Come on.
+
+Okay, so now we should have eight dishes.
+
+So one, two, three, four, five, six, seven, eight. Perfect.
+
+And if we grab them, error.
+
+Because now in the player's plateau,
+
+where is the player? Here we go.
+
+So one, two, three, four, five, six, seven.
+
+That's what I told you. Yep.
+
+So we definitely need to add more food positions
+
+to collect dishes correctly.
+
+Okay, so I think we are going to do that in the next one.

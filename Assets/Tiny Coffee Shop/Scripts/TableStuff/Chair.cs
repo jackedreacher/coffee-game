@@ -1,10 +1,12 @@
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Chair : MonoBehaviour
 {
     [Header(" Elements ")]
     [SerializeField] private Transform customerTargetPoint;
     [SerializeField] private Transform customerTargetWalkPoint;
+    [SerializeField] private Transform render;
 
     [Header(" Components ")]
     private TableSet tableSet;
@@ -61,7 +63,17 @@ public class Chair : MonoBehaviour
         if (firedCustomer != null)
             CustomerManager.Instance.HandleFiredCustomer(firedCustomer);
 
+        int foodCount = firedCustomer != null ? firedCustomer.FoodTakenCount : 0;
+
+        Messup();
+        tableSet.MarkPlateauDirty(foodCount);
         tableSet.OnCustomerLeft();
+    }
+
+    public void Messup()
+    {
+        float sign = Mathf.Sign(Random.Range(-1f, 1f));
+        render.localRotation = Quaternion.Euler(0, 60 * sign, 0);
     }
 
     public Customer Pop()
