@@ -1,0 +1,135 @@
+Welcome back guys! In this lesson we are going to add the trash or the bin so that we can clean
+
+our plateau after collecting dishes. It's going to be a quick lesson, really fast, so stick around
+
+and put on your belts. Okay, so first off let's add our trash. Props, bin, there you go, here it
+
+is on top of the wall. I don't know why it's there. So let's put it at zero, let's press F,
+
+focus it, thank you. Let's add the palette material, boom, come on, hurry up, I need to
+
+take my daughters to school, I've got 10 minutes for this lesson. So we've got the render, right
+
+click, create an empty parent, this is going to be our trash. Let's unpack the prefab here,
+
+thank you. Let's grab it and maybe drop it somewhere around there, along with the wall
+
+here. We are also going to rotate it, so maybe 90 degrees, thank you. You can either rotate this or
+
+the renderer, you decide. I think I'm going to rotate the renderer here, yeah, nice. So then we
+
+are going to add a box collider so that we can trigger this trash and we are also going to add
+
+a box collider to the bin to prevent the player from entering the trash, because come on, yeah,
+
+we are better than that. Let's increase the size here to two by two maybe, something like that
+
+should be decent. And we also need to set it as a trigger, boom, there you go, nice, I like it.
+
+You can maybe make it higher if you want, it's not compulsory. Okay, so we now have our trigger, so
+
+let's add a logic to that trash. So UI, maybe gameplay, right click, new script, trash, boom.
+
+And the logic is going to be put inside of the trash here, no pun intended, I'm not going to
+
+put it inside of the player detector, but you could have done that, okay. So let's open our brand new
+
+script in here. The first thing we are going to do here is remove the start and update method, because
+
+the logic is going to be applied after we enter the trigger, so on trigger enter. We want to check
+
+if the thing that has entered this trigger has a Dish ability, so if other.tryGetComponent out
+
+Dish ability, let's say hold Dish ability. If we don't find this component, we are simply going
+
+to return, doesn't make sense to continue. Other than that, we want to check if the hold Dish
+
+ability has Dishes, so do we have Dishes in our plateau or not. So if the hold Dish ability.hasDishes
+
+let's say, not cups, boom, we are going to return, because we don't have any Dish.
+
+Let's, should we go on and implement this one? I think we're going to implement the hasDishes
+
+one, because it should be quite straightforward. So let's remove this, public, there you go, let's
+
+put it maybe after collecting the Dishes here. So after collecting the Dishes, we enable the plateau
+
+and we push some dirty food. So to know if we've got Dishes, we are simply going to check or return
+
+the plateau is not empty and the plateau is dirty, okay? Both of these conditions, if both of these
+
+conditions are met, we can also check if the plateau is enabled, by the way. I think, should we,
+
+are we doing that somewhere? We are not, but you can check that. If the plateau is disabled, well,
+
+we have no Dishes, but there are so many ways you can implement that. So now we can jump back to our
+
+trigger right here, to the Trash script and go on. So now that we know that we've got Dishes,
+
+we want to collect them. So SpawnableFood Dishes will be equal to holdDishAbility.popAll.
+
+Okay, and again, this popAll method, we've already implemented it in another script. I think it was
+
+in the plateau. So maybe, can we do plateau.popAll? Oh, I think we can do that. We are so good.
+
+So we should return this, return plateau.popAll. But hey, is that everything we need to do?
+
+When popping everything, we are never disabling the plateau. So at one point,
+
+the plateau is still going to be active. So here's what we're going to do. SpawnableFood
+
+Dishes is going to be equal to plateau.popAll. Now that we have stored them, we can disable
+
+the plateau. So plateau.gameObject.setActiveFalse. Ah, there you go, false, thank you. And yeah,
+
+we can simply return our dishes. So dishes with a space, and of course, I've messed up everything,
+
+as usual. Thank you, TabSeal, semicolon, and boom, there you go. Let's remove the update
+
+and start method for now. I don't think we need them. Okay, so now let's return to our Trash here.
+
+We've got our dishes. So the only thing left here is to animate the dishes, but we are going to do
+
+that later on. I don't want to do that right here. But yeah, just destroy the dishes one by one. So
+
+for i, but yeah, we need an inverted loop. So for, with two Rs, dishes.length minus one until it's
+
+greater or equal to zero, minus minus, perfect. We can just destroy it. So dishes at index i,
+
+yeah, boom, destroy. Let's do something like this. Destroy dishes at index i.gameObject,
+
+because if we don't add .gameObject, we are going to destroy the spawnable food component
+
+and not the game object. Perfect. I think we should be good now. So should we give that a shot? Let's try that.
+
+Okay, Trash, we don't need to reference anything else. Yep, I think we are good to go. Okay,
+
+so as usual, let's collect cups. Yeah, I think again, I'm going to time lapse this.
+
+But what I want to do is also grab some clean cups and see if we can destroy them.
+
+Okay, so we can't destroy them. Okay, later on, we are going to add this possibility,
+
+the possibility to throw some clean cups too, because I don't know, maybe we might just pass
+
+by the station, we don't want to collect cups. Oh no, oh, let's drop them here,
+
+because we want to collect dishes. You still have the possibility to drop them here in the drop zone,
+
+but yeah. Okay, so I'm grabbing these, let's drop them in the bin. Boom, yay, awesome. So now we
+
+should be able to collect clean cups again and drop them here. Perfect. And we've got the call
+
+loop working. We can now serve the customers again. They are eating or drinking, I don't know what the
+
+heck they are doing in there, but they are performing, let's say. So yep, we've got everything
+
+working perfectly. We can clean the dishes, we can serve them again. Like if we add more tables,
+
+oh, the tables are stored at start, so we can't add them right now. But anyway,
+
+we can add more tables now. That's perfect. Okay, so now that the player can do all of these things,
+
+we need to get some rest, by the way. We definitely need some rest. So we are going
+
+to hire some workers in the next section. We are going to implement workers. See you there.

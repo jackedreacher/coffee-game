@@ -19,6 +19,8 @@ public class HoldDishAbility : MonoBehaviour
         return true;
     }
 
+    public bool HasDishes => !plateau.IsEmpty && plateau.IsDirty;
+
     public void CollectDishes(SpawnableFood[] dishes)
     {
         for (int i = 0; i < dishes.Length; i++)
@@ -26,5 +28,12 @@ public class HoldDishAbility : MonoBehaviour
             plateau.gameObject.SetActive(true);
             plateau.Push(dishes[i]);
         }
+    }
+
+    public SpawnableFood[] PopAll()
+    {
+        SpawnableFood[] dishes = plateau.PopAll();
+        plateau.gameObject.SetActive(false);
+        return dishes;
     }
 }
