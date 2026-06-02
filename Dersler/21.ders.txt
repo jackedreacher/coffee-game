@@ -1,0 +1,135 @@
+Welcome back guys! In this lesson, we are going to fix the error we had in the previous one,
+
+hopefully. So the error was that we've got seven positions in our player's plateau, right here,
+
+where is the plateau, plateau, Mr. Plateau, thank you, seven positions. But if we have more than
+
+seven dishes to collect, we are going to get an error due to a missing food position. So for that,
+
+let's open our plateau script. Inside of here, we are going to check something else.
+
+If we are dirty, we need to go wash ourselves. No, if the plateau is dirty and is full,
+
+then we are going to create a new food position in this case. So create,
+
+new food position. This is going to fix the dishes error. But what will happen in this case?
+
+Well, we now have eight positions in our plateau, so we are going to be able to push a new food,
+
+even though we should not be able to. Let's give that a shot, just so that we can see it correctly,
+
+spot the issue correctly actually. So let's hit play. Okay, let's collect eight cups in here,
+
+seven actually, we can only grab seven right now. Let's just make sure again, so that we can
+
+see all of the errors. One, two, three, four, five, six, seven. Okay, perfect. Let's drop eight cups,
+
+because we need eight cups. Okay, boom, boom, thank you. Hurry up, please customers, hurry up, hurry up,
+
+hurry up, hurry up. Boom, boom, boom, okay. So now they're almost done. We can go to the table,
+
+grab the dishes. Okay, so no more error. That's one thing. How many dishes do we have here? One,
+
+two, three, four, five, six, seven, eight. Perfect. So now, what am I going to do? I just want to display
+
+that. So now the plateau is dirty. We need to empty it here. Can we put the vase right here?
+
+Just for now, just for now. It's okay, it's okay. Now let's try and grab some clean cups.
+
+So one, two, three, four, five, six, seven. How many? One, two, three, four, five, six, seven,
+
+eight. So now the player
+
+is able to collect eight clean cups, even though the plateau has a max capacity of seven, which is
+
+really bad. We don't want that to happen. So you have multiple possibilities here. Maybe we can have
+
+another plateau for the dirty cups. Yeah, that could be a possibility. You can have two plateaus,
+
+one referenced on the hold food ability, and one for the hold dish ability. And each one of these
+
+plateaus can have different capacities. That's, yeah, I did not think about that, actually, when making
+
+the course. But yeah, you can try and do that. That could be a nice exercise again. Oh, I'm coming up
+
+with ideas. Okay, so in our case, I'm going to follow what I've done when making the course,
+
+which is using one plateau, using the same one. So we will need more conditions, yeah.
+
+If you want to take the easy route, I think it would be better to have another plateau, to be
+
+honest. And maybe I might create another lesson in the future to show you how to apply that. Please,
+
+if I forget, remind me, because I'm going to try and finish that course before adding this lesson.
+
+Anyway, here is what I've done in here. After pushing a food, so if we now have the case where
+
+we have eight food positions, but the max capacity is at seven, so we should be able to only grab
+
+seven clean cups. We are going to check, after putting the seventh cup, we are going to check
+
+how many occupied positions we have. So int occupiedPositions equals zero. OccupiedPositions,
+
+there you go. And we want to check how many positions we've got that are full. So for i
+
+from zero to the foodPositionsParent.childCount,
+
+childCount, there you go. We are going to grab the foodPosition, so foodPosition,
+
+foodPositions will be equal to foodPositionsParent.getChild.index i.getComponent
+
+of type foodPosition, there you go. But we've got an error because we've already grabbed that
+
+foodPosition here, so let's call it fp. So now we've got our foodPosition. Is it empty or not?
+
+If the foodPosition.isEmpty, if it's not empty, we are going to increment our occupiedPositions
+
+so that we know how many cups we are holding right now. If the occupiedPositions is greater
+
+or equal to our maxCapacity, then the plateau is full, right? So isFull equals true. And then
+
+we are going to break because we don't need to go for any further. We know that we should be full
+
+and we should not accept any more clean cups. So here is what we're going to do, boom, and break.
+
+All right, let's give that a shot now. So let's jump back to Unity. Okay, so let's collect some
+
+cups. One, two, three, four, five, six, seven. Un, deux, trois, quatre, six, sept. Donc là, on a sept
+
+tasses de café. Okay. Est-ce que vous voulez que je continue en français ou je repasse en anglais?
+
+Non, allez, let's continue in English. Come on. So we've now served... Oh, come on, you see when I
+
+talk too much? Okay, let's try again. Let's grab the cups again. One, two, three, four, five, six, seven.
+
+Okay, boom, boom, boom. Now we can serve the customers. Okay, I'm going to zoom out a bit more.
+
+Thank you. Okay. Okay, there you go. So now let's collect these dishes. No errors. So we should have
+
+eight dishes. We can count them. One, two, three, four, five, six, seven, eight. Perfect. Let's drop
+
+them here. Thank you. Now let's collect cups. One, two, three, four, five, six, seven. Awesome. It's now
+
+working as expected. Really nice. We've got a special tower. Yay! So of course we need to prevent
+
+the player from putting dishes on the plateau here. You know what? We're going to do that right now.
+
+So let's open our... I think we should open the hold food ability. Let's do the
+
+path one more time. So when we are triggering a drop zone in here, we handle in food drop zone.
+
+Then we call the food ability handle in drop zone. If we are in the drop zone, we check if the
+
+plateau is enabled. Yeah, I think we are going to drop the logic right here. So if the plateau is
+
+dirty, we should not go any further. So if plateau.isDirty, let's just return and not continue.
+
+Okay. Yeah, I think this should do the trick here. Let's give that a shot. Okay, so let's hit play.
+
+I'm going to time-lapse this because you know the song now. Okay.
+
+Okay, so we've now collected dishes. Can we drop them here? Nope, we can't. Awesome. So it's now
+
+working perfectly. So the next step here will be to add the bin so that we can drop these dishes
+
+and collect new cups, of course. Nice. Awesome. So in the next one, let's implement the bin. See you there.

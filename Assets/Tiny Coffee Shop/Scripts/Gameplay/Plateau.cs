@@ -40,10 +40,26 @@ public class Plateau : MonoBehaviour
 
         if (GetFirstEmptyFoodPosition() == null)
         {
-            if (foodPositionsParent.childCount < maxCapacity)
+            if (foodPositionsParent.childCount < maxCapacity || isDirty)
                 CreateNewFoodPosition();
             else
                 isFull = true;
+        }
+
+        int occupiedPositions = 0;
+        for (int i = 0; i < foodPositionsParent.childCount; i++)
+        {
+            if (!foodPositionsParent.GetChild(i).TryGetComponent(out FoodPosition fp))
+                continue;
+
+            if (!fp.IsEmpty)
+                occupiedPositions++;
+
+            if (occupiedPositions >= maxCapacity)
+            {
+                isFull = true;
+                break;
+            }
         }
     }
 

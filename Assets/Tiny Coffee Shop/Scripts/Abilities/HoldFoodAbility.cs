@@ -43,6 +43,9 @@ public class HoldFoodAbility : MonoBehaviour
         if (!plateau.gameObject.activeSelf)
             return;
 
+        if (plateau.IsDirty)
+            return;
+
         if (dropZone.IsFull)
             return;
 

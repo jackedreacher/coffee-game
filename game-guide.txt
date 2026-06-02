@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 20 complete
+Last updated: Lesson 21 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -197,4 +197,5 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 18: SpawnableFood(MeshFilter+dirtyMesh+dirtyYOffset+IsDirty+MarkAsDirty), FoodPosition(DisplayFood,MarkAsDirty->food.MarkAsDirty), Plateau(lastFoodPushed, MarkAsDirty(count) skip dirty, RearrangeFoodPositionsPerFood per-food offset), Chair(render Transform+Messup random ±60Y)
 [x] Lesson 19: SpawnableFood(MeshRenderer+IsVisible+Display+Hide), FoodPosition(IsFoodVisible,HideFood,DisplayFood->food.Display), Plateau(HideNextFood top-down+rearrange, RearrangeFoodPositionsPerFood handles hidden cups at zero), TableSet(activeCustomerCount, foodTimer, foodConsumed, HandleFoodTimer, HideNextFood, reset on all-left)
 [x] Lesson 20: HoldDishAbility(plateau,CanCollectDishes,CollectDishes), PlayerDetector+TableSet trigger->HandleTableTriggered(IsDirty+HoldDishAbility+CanCollect->GetCleanedBy), TableSet.GetCleanedBy(PopAll+disable plateau+CollectDishes+Fix chairs+isDirty=false), Plateau(IsDirty, Push sets isDirty if food dirty, PopAll returns array+resets), Chair.Fix()->render.localRotation=identity
-[ ] Lesson 21: (next) Dirty dishes limit bypass (no maxCapacity for dirty food), washing station
+[x] Lesson 21: Plateau.Push dirty bypass (isDirty||childCount<maxCap -> CreateNewPosition), occupiedPositions cap (count full positions; if >=maxCap -> isFull=true), HoldFoodAbility.HandleFoodDropZone: if plateau.IsDirty return (can't drop dirty at drop zone)
+[ ] Lesson 22: (next) Washing station / bin for dirty dishes
