@@ -17,6 +17,8 @@ public class PlayerDetector : MonoBehaviour
             HandleFoodSpawnerStationTriggered(station);
         else if (other.TryGetComponent(out FoodDropZone dropZone))
             HandleFoodDropZoneTriggered(dropZone);
+        else if (other.TryGetComponent(out TableSet table))
+            HandleTableTriggered(table);
     }
 
     private void HandleFoodSpawnerStationTriggered(FoodSpawnerStation station)
@@ -27,5 +29,19 @@ public class PlayerDetector : MonoBehaviour
     private void HandleFoodDropZoneTriggered(FoodDropZone dropZone)
     {
         holdFoodAbility.HandleFoodDropZone(dropZone);
+    }
+
+    private void HandleTableTriggered(TableSet table)
+    {
+        if (!table.IsDirty)
+            return;
+
+        if (!TryGetComponent(out HoldDishAbility holdDishAbility))
+            return;
+
+        if (!holdDishAbility.CanCollectDishes())
+            return;
+
+        table.GetCleanedBy(holdDishAbility);
     }
 }

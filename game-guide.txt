@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 19 complete
+Last updated: Lesson 20 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -15,7 +15,7 @@ Scripts/Stations/     -> FoodSpawnerStation.cs, FoodDropZone.cs, FoodServingStat
 Scripts/TableStuff/   -> TableSet.cs, Chair.cs
 Scripts/Customer/     -> Customer.cs, CustomerAnimator.cs
 Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
-Scripts/Abilities/    -> HoldFoodAbility.cs, NavigationAbility.cs
+Scripts/Abilities/    -> HoldFoodAbility.cs, NavigationAbility.cs, HoldDishAbility.cs
 Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs, CustomerManager.cs, TableManager.cs
 Scripts/Utilities/    -> Constants.cs (TimeToConsumeFood=1f)
 Scripts/UI/           -> MobileJoystick.cs
@@ -196,4 +196,5 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 17: Constants(TimeToConsumeFood=1f), per-chair timer (eatTimer=foodCount*TimeToConsumeFood in Chair), Chair.FireCustomer->Pop+HandleFiredCustomer+Messup+OnCustomerLeft, TableSet.OnCustomerLeft(all empty?->isDirty+MarkAsDirty), CustomerManager(customerExitPoint,HandleFiredCustomer->GetUpAndGo->Destroy), Customer.GetUpAndGo(Enable+GoToThen), NavigationAbility.Enable(+warp commented), TableManager.GetFirstCleanEmptyTable checks IsDirty
 [x] Lesson 18: SpawnableFood(MeshFilter+dirtyMesh+dirtyYOffset+IsDirty+MarkAsDirty), FoodPosition(DisplayFood,MarkAsDirty->food.MarkAsDirty), Plateau(lastFoodPushed, MarkAsDirty(count) skip dirty, RearrangeFoodPositionsPerFood per-food offset), Chair(render Transform+Messup random ±60Y)
 [x] Lesson 19: SpawnableFood(MeshRenderer+IsVisible+Display+Hide), FoodPosition(IsFoodVisible,HideFood,DisplayFood->food.Display), Plateau(HideNextFood top-down+rearrange, RearrangeFoodPositionsPerFood handles hidden cups at zero), TableSet(activeCustomerCount, foodTimer, foodConsumed, HandleFoodTimer, HideNextFood, reset on all-left)
-[ ] Lesson 20: (next) Player cleans table (collect dirty food, wash)
+[x] Lesson 20: HoldDishAbility(plateau,CanCollectDishes,CollectDishes), PlayerDetector+TableSet trigger->HandleTableTriggered(IsDirty+HoldDishAbility+CanCollect->GetCleanedBy), TableSet.GetCleanedBy(PopAll+disable plateau+CollectDishes+Fix chairs+isDirty=false), Plateau(IsDirty, Push sets isDirty if food dirty, PopAll returns array+resets), Chair.Fix()->render.localRotation=identity
+[ ] Lesson 21: (next) Dirty dishes limit bypass (no maxCapacity for dirty food), washing station

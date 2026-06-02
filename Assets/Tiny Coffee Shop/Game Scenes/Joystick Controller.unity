@@ -5952,6 +5952,7 @@ GameObject:
   - component: {fileID: 8846610949512914323}
   - component: {fileID: 8846610949512914324}
   - component: {fileID: 8846610949512914325}
+  - component: {fileID: 8846610949512914326}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -6174,7 +6175,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -3.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6765,6 +6766,26 @@ PrefabInstance:
       propertyPath: plateau
       value: 
       objectReference: {fileID: 350185276}
+    - target: {fileID: 7744481195672356412, guid: f7c730482c2bc3f4faf4d7a3cceebc5c, type: 3}
+      propertyPath: m_Size.x
+      value: 2.2234879
+      objectReference: {fileID: 0}
+    - target: {fileID: 7744481195672356412, guid: f7c730482c2bc3f4faf4d7a3cceebc5c, type: 3}
+      propertyPath: m_Size.z
+      value: 2.0603223
+      objectReference: {fileID: 0}
+    - target: {fileID: 7744481195672356412, guid: f7c730482c2bc3f4faf4d7a3cceebc5c, type: 3}
+      propertyPath: m_Center.x
+      value: -0.051916122
+      objectReference: {fileID: 0}
+    - target: {fileID: 7744481195672356412, guid: f7c730482c2bc3f4faf4d7a3cceebc5c, type: 3}
+      propertyPath: m_Center.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7744481195672356412, guid: f7c730482c2bc3f4faf4d7a3cceebc5c, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8913200399770555680, guid: f7c730482c2bc3f4faf4d7a3cceebc5c, type: 3}
       propertyPath: customerTargetPoint
       value: 
@@ -6934,6 +6955,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28dd9f3ee2894bb4aaa6d986e75e4011, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDetector
+--- !u!114 &8846610949512914326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4107974914264454011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1236dc6f9cb733d45b351fe4aff8050b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HoldDishAbility
+  plateau: {fileID: 986421148}
 --- !u!65 &9072917428604284444
 BoxCollider:
   m_ObjectHideFlags: 0

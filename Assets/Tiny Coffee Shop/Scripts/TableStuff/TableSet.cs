@@ -48,6 +48,20 @@ public class TableSet : MonoBehaviour
         plateau.HideNextFood();
     }
 
+    public void GetCleanedBy(HoldDishAbility holdDishAbility)
+    {
+        SpawnableFood[] dishes = plateau.PopAll();
+        plateau.gameObject.SetActive(false);
+
+        holdDishAbility.CollectDishes(dishes);
+
+        for (int i = 0; i < chairs.Length; i++)
+            chairs[i].Fix();
+
+        isDirty = false;
+        isFull = false;
+    }
+
     public void MarkPlateauDirty(int foodCount)
     {
         plateau.MarkAsDirty(foodCount);

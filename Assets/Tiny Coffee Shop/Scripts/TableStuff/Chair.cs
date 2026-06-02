@@ -76,6 +76,11 @@ public class Chair : MonoBehaviour
         render.localRotation = Quaternion.Euler(0, 60 * sign, 0);
     }
 
+    public void Fix()
+    {
+        render.localRotation = Quaternion.identity;
+    }
+
     public Customer Pop()
     {
         isEmpty = true;

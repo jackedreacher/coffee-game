@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Plateau : MonoBehaviour
@@ -9,11 +10,13 @@ public class Plateau : MonoBehaviour
     [SerializeField] private int maxCapacity;
     private bool isFull;
     private bool isEmpty;
+    private bool isDirty;
     private float positionsYOffset;
     private SpawnableFood lastFoodPushed;
 
     public bool IsFull => isFull;
     public bool IsEmpty => isEmpty;
+    public bool IsDirty => isDirty;
 
     private void Start()
     {
@@ -24,6 +27,9 @@ public class Plateau : MonoBehaviour
     public void Push(SpawnableFood foodInstance)
     {
         lastFoodPushed = foodInstance;
+
+        if (foodInstance.IsDirty)
+            isDirty = true;
 
         FoodPosition foodPosition = GetFirstEmptyFoodPosition();
         foodPosition.Push(foodInstance);
@@ -158,6 +164,28 @@ public class Plateau : MonoBehaviour
     }
 
     // count: kaç cup dirty yapılacak — zaten dirty olanları atla, clean olanlardan say
+    public SpawnableFood[] PopAll()
+    {
+        List<SpawnableFood> foods = new List<SpawnableFood>();
+
+        for (int i = 0; i < foodPositionsParent.childCount; i++)
+        {
+            if (!foodPositionsParent.GetChild(i).TryGetComponent(out FoodPosition foodPosition))
+                continue;
+
+            if (foodPosition.IsEmpty)
+                continue;
+
+            foods.Add(foodPosition.Pop());
+        }
+
+        isFull = false;
+        isEmpty = true;
+        isDirty = false;
+
+        return foods.ToArray();
+    }
+
     public void MarkAsDirty(int count)
     {
         int marked = 0;
