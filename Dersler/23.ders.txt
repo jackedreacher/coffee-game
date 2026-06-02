@@ -1,0 +1,281 @@
+Welcome back guys! In this lesson we are going to start working on the workers.
+
+Let's jump right in! Okay so this lesson is going to be a bit chill. The first thing we are going
+
+to do is create the worker that the model actually the character and after that I'm
+
+going to explain the whole principle behind the worker manager and how we are going to handle
+
+them. I'm also going to use a YouTube video I made as a support so yeah I hope that you will
+
+enjoy this one. All right so let's create our guy. Prefabs, characters, I'm going to duplicate
+
+the customer because it already has the navmesh agent and the navigation ability. You might know
+
+that our workers we will use these. So worker. Boom! Let's open it. We're going to change the
+
+color of the worker here. We can remove the customer script by the way. Let's keep the
+
+customer animator script because we're kind of going to have the same animations so we can keep
+
+that one. What else? We can add the worker script by the way but let's first change the material.
+
+Customer, let's use another one for worker. There you go. Let's assign it and change the color to
+
+something blue-ish maybe like the character yeah something like that. Anyway it's not super
+
+important. So then what I want to do is enable the apron that I don't have here. Do I have the cap
+
+here or not? Nope. So I need to grab the apron from the models here. So yeah I think it's somewhere
+
+around here. Models, where is my guy here? So we've got the cap. We can already grab the cap here and
+
+put it as a child of the head. So we can just expand everything in here and drop it as a child
+
+of the head and right here. Cool. Let's reset the transform. Where is it? Boom. What the heck?
+
+Why is it so high? Anyway I think I need to put it as a child of... let's first switch that one to pivot.
+
+Let's press F on this one. Yep, still too far. Maybe this one? Okay let's put it as a child of the
+
+head. Okay not the end here. So we've got our cap. Let's reset the transform. Thank you. We are going
+
+to move it up maybe rotate it a bit. No the rotation seems correct. So let's move it just a tiny bit
+
+more. Okay we can play with the scale too if we want. So something like that is decent. Okay so
+
+let's now give this a material. Boom. I think that the palette material should do the trick. Nice.
+
+Well done. Okay so at this point we are going to add the apron that we can find. Let me just
+
+check this one. Boom. Oh it's in animations. Oh got it. So where is our apron here?
+
+Robe. I called it robe. Okay that's cool. So in here we've got two solutions. We can either grab
+
+this, drop it here, reset the transform, remove the hair and change the color of that boy.
+
+Yeah we can change its color. That way we already have the apron. We can just add
+
+the hat. Okay I think we are going to do something like that. So apron. Okay let's just assign our
+
+player animator. Thank you. We are also going to select this boy because we want to grab the
+
+same material. So worker. Let's assign it to this boy. We are going to grab the palette material
+
+and assign it to the apron and this cap right here will be moved as a child of the armature now but
+
+we are going to drop it as a child of the head. So we can now remove this one. Okay that's the
+
+previous one. Let's keep this one. Reset the transform. Reference it right here. So animator
+
+and plateau. Oh I've removed the plateau. Oh sorry. Let's hit ctrl z a bunch of time. Here
+
+is the plateau. Let's put it as a child of our new character and we can now remove this boy.
+
+Let's rename it. Reset the transform. Thank you. Let's reference the plateau and the animator.
+
+Cool. So now we just need to place our cap. Where is the head? Spine. Spine. Neck. Head.
+
+So boom. So let's select the cap and reset the transform. Move it up and we should be set.
+
+Awesome. So this is our worker. That's cool. We are now going to add the worker script. Okay we are
+
+not going to implement anything right now but I just want to have it. So let's drop it in
+
+gameplay maybe. Customer. Or maybe worker stuff. So let's create a new folder. Boom. Worker.
+
+Right click. Create a new script. Worker. We can now assign this script to the worker. There you go.
+
+Let's put it as the first script at the top. Nice. And the next thing that we are going to do now is
+
+create our worker manager. But first off you know what? We are going to grab our worker here and
+
+drop it in the scene. Let's reset its transform and move it along the z-axis. Maybe somewhere
+
+around here. Perfect. So now managers. Let's right click. Create a new game object. Worker. Manager.
+
+Okay. We can create the script. Boom. Managers. Or maybe we can drop it with the worker. Yeah.
+
+You decide here. I told you it's going to be a chill lesson. So worker. Manager. But we need to go
+
+through these steps. Let's now grab the script. Attach it. And open it. Boom. I'm not going to code
+
+that much in this lesson. I told you it was going to be chill. But I just want to explain how it's
+
+going to work. How the worker manager is going to handle the workers. So I have just said it. The
+
+worker manager is going to handle workers. So we need a list of workers in here. So private. Maybe
+
+elements by the way. So elements. Private. List. Oh come on. I always need to add the collections.generic.
+
+So worker. Workers equals new list of worker in here. Okay. What we can do for now. Later on we
+
+are not. But we can serialize the field. So we can spot it in the inspector. Later on we are not going
+
+to do so. But for now we are just going to try and make one worker work. So we are going to reference
+
+it instead of instantiating it. So now that we've got our list of workers. Here is what we're
+
+going to do. On each frame we are going to handle the requests. So all of the other stations are
+
+going to emit requests. Don't worry. I'm going to put the YouTube video just after explaining.
+
+Then you can watch it and have a better understanding. So let's do handle requests.
+
+There you go. So just with comments we are going to explain what's going to happen in here.
+
+First off we are going to check if we've got pending requests. So do we have
+
+pending requests. If that's the case we are going to check if we've got idle workers.
+
+So workers that are not doing anything right now. Do we have idle workers?
+
+Again if that's the case later on we will have more to it. But for now we are just going to
+
+assign the pending request to the idle worker. So assign the pending request to the idle worker.
+
+And we can also remove this request from the pending requests. Because it's going to be
+
+handled by the worker. That's as simple as it gets. So it should be quite straightforward.
+
+Now I'm going to put the YouTube video that you can watch to have a better understanding
+
+on how we are going to proceed. And in the next lesson we can create our first request.
+
+See you in the next one. Have a good watch. In this video I'm going to show you how I handle
+
+workers in my tiny coffee shop template. Let's jump right in. Let's forget about coding for a
+
+moment and think about it from a logical standpoint. Imagine you are a food serving station.
+
+You've got customers coming in but nothing to serve. What should you do? Wait for the first
+
+customer to come to ask for coffee cups? Ask them right away? Well it's a good thing to have stuff
+
+to sell before any customer has arrived. So that they wait for the less amount of time. So as a
+
+food serving station you ask for coffee cups right away. Remember you are a serving station.
+
+You don't have legs. So somebody needs to bring those cups over to you. Do you want to deal with
+
+the workers by yourself? No. I've never seen any food serving station do that. So you ask the worker
+
+manager. He's more skilled for that job. Here is our first step. The food serving station emits a
+
+request to the worker manager to get cups. Okay now you're no longer a food serving station. You're
+
+a manager with a bunch of workers under your wing. How are you going to handle that request?
+
+Are you going to randomly pick a worker or should you have some kind of logic in your nitpicking?
+
+Well if I were you here is what I would do. I would check if I have any worker that's sleeping
+
+to wake him up. I'm not paying them to take naps in my restaurant. And if I find one I would tell
+
+him to fulfill that request. Oh but I forgot my workers are not the smartest. So they don't
+
+understand the food serving station wants cups. I need to explicitly tell them hey you there stop
+
+wandering go to the coffee station and fill your tray with cups. Once it's done go to the food
+
+serving station and empty your tray there. That's not a request anymore. It's a task. That's our
+
+second step. The worker manager converts requests into actual tasks given directly to the workers.
+
+This happens if we can find an idle worker. But what if we can't? Priorities. Let's give each one
+
+of our requests a priority. If no worker is currently available we can compare the priority
+
+of his current task to the priority of one of the pending tasks. If he's accomplishing a higher
+
+priority task well let him complete it. Otherwise should we tell him to stop come over and assign
+
+him this new task? If only it was that simple. Imagine this. You are working at a restaurant
+
+serving people. You've got your serving tray full of various dishes on your way to place it on the
+
+client's table. Will your manager tell you to stop right now and go clean table 9? Are you going to
+
+throw that serving tray? Nope. You first need to place that food on the table and only then you'll
+
+be able to go clean table 9. So some tasks cannot be stopped at any time. They must be completed.
+
+So the worker manager also needs to take that into account. Okay let's recap our situation here.
+
+The food serving station emits a request to the worker manager with a priority. The worker manager
+
+looks for idle workers and if he finds one he creates a task then give it to that worker.
+
+There's one last small bit of information we need to make the system more efficient. Cost. In our
+
+case distance. If we have more than one idle worker available for a specific request how are we going
+
+to choose the right worker? Randomly? Certainly not. In this template I've decided to go with
+
+distance. The closest worker will accomplish the task that needs to be accomplished. There's more
+
+to it of course. I've oversimplified some aspects of the situation but having a clear idea without
+
+writing code of what should happen in every situation helps tremendously create a working
+
+and scalable architecture. Okay so enough logical standpoint thingy right now. Let's have a look at
+
+the code. We can start from our dear food serving station. Every second we check if we need to fill
+
+the serving tray or the plateau. I called it a plateau because it's plateau in French.
+
+In French yes of course. Or serve the customers. So if that's the case we emit a request to the task
+
+requester. In the template every station that needs a worker to work properly has a task requester.
+
+The coffee serving station, the coffee machine, the tables and more. To prevent sending two times
+
+the same request we check if we've already registered it or not. For that we use a global
+
+unique identifier or GUID attached to each request along with a request type. The previous method
+
+shows why we also need the request type. A station can emit multiple distinct requests like serving
+
+customers or filling the serving tray. But we could have created those separately so that each
+
+station can only do one thing. Yep I think that would still work. In that case the GUID would be
+
+enough. Anyway after making sure we've avoided duplicate requests we can store that request and
+
+send it to the worker manager to be processed. The worker manager adds it to the pending requests
+
+and on each frame handles those requests. If there is no pending request no need to go further.
+
+We then store our idle workers. If none was found as stated previously we check if we can cancel a
+
+task. But I won't go over this in this video. In the template you can actually choose if you want
+
+the worker manager to cancel the requests or not. You can experiment and decide if you better like
+
+the flow of the game like that. So let's jump back to our thingy. If we did find an idle worker we
+
+pick the highest priority pending request, look for the closest idle worker, which is the cost right
+
+here, and handle the request. There are different types of requests as you can imagine. Each request
+
+represents an action or a series of actions the worker can perform. Let's take a look at the clean
+
+table request for instance. The request contains some essential information such as the table that
+
+needs cleaning and the priority of that request. You can change the priorities in the template too
+
+and experiment by the way. But the request is not enough right? We've seen previously that the worker
+
+manager converts requests into tasks. Exactly! We've got a twin task for each request with more
+
+information on the sub steps the worker needs to take. So for instance cleaning a table has four
+
+sub tasks. Moving to the dirty table, cleaning it, moving to the trash, emptying the serving tray.
+
+After that the task is complete. Hooray! And the worker can be given another task. That's it! I hope
+
+this gave you some ideas on how to implement a not so complicated task system without going deep
+
+into goal-oriented action planning. If you've enjoyed the video consider checking my template.
+
+I've got a link in the description and have an amazing day! Peace!
