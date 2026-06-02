@@ -50,6 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Customer
   animator: {fileID: 3092904414902379689}
   navigationAbility: {fileID: 6268596529370123240}
+  plateau: {fileID: 8709479648126017161}
 --- !u!114 &3092904414902379689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,7 +78,7 @@ NavMeshAgent:
   m_Speed: 3.5
   m_Acceleration: 800
   avoidancePriority: 50
-  m_AngularSpeed: 400
+  m_AngularSpeed: 0
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 0
   m_AutoBraking: 0
@@ -257,3 +258,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3906761520693569502, guid: ff03059b274abe649aaf46246faebc06, type: 3}
   m_PrefabInstance: {fileID: 7868291434250692021}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8709479648126017161 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1580623587671898940, guid: ff03059b274abe649aaf46246faebc06, type: 3}
+  m_PrefabInstance: {fileID: 7868291434250692021}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572486187115431395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c2337c4aae742441bfaca988af8f0b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Plateau

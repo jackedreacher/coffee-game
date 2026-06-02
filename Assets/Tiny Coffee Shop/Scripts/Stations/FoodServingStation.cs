@@ -8,6 +8,7 @@ public class FoodServingStation : MonoBehaviour
 
     [Header(" Elements ")]
     [SerializeField] private FoodDropZone dropZone;
+    [SerializeField] private TableManager tableManager;
 
     [Header(" Settings ")]
     [SerializeField] private float servingDelay;
@@ -87,6 +88,10 @@ public class FoodServingStation : MonoBehaviour
 
     private void DequeueCustomer(Customer customer)
     {
-        customerManager.DequeueCustomer(customer);
+        if (!tableManager.IsAnyTableAvailable())
+            return;
+
+        customerManager.Dequeue();
+        tableManager.HandleCustomerServed(customer);
     }
 }

@@ -75,6 +75,13 @@ public class CustomerAnimator : MonoBehaviour
         }
     }
 
+    public void PlaySitDownAnimation(Vector3 facing)
+    {
+        isSitting = true;
+        animator.Play("Sit");
+        Face(facing);
+    }
+
     public void Face(Vector3 facing)
     {
         animator.transform.forward = facing;

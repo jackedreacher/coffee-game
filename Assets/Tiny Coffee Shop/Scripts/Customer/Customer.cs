@@ -51,7 +51,7 @@ public class Customer : MonoBehaviour
         GoToThen(targetPosition, FaceFinalFacing);
     }
 
-    private void GoTo(Vector3 targetPosition)
+    public void GoTo(Vector3 targetPosition)
     {
         bool canReachDestination = navigationAbility.TryGoTo(targetPosition);
 
@@ -59,7 +59,7 @@ public class Customer : MonoBehaviour
             StartWalkingState();
     }
 
-    private void GoToThen(Vector3 targetPosition, Action callback)
+    public void GoToThen(Vector3 targetPosition, Action callback)
     {
         reachedDestinationCallback = callback;
         GoTo(targetPosition);
@@ -75,6 +75,52 @@ public class Customer : MonoBehaviour
     public bool NeedsMoreFood()
     {
         return foodTakenCount < foodNeededCount;
+    }
+
+    public SpawnableFood Pop()
+    {
+        SpawnableFood food = plateau.Pop();
+
+        if (food == null)
+        {
+            plateau.gameObject.SetActive(false);
+            return null;
+        }
+
+        if (plateau.IsEmpty)
+            plateau.gameObject.SetActive(false);
+
+        return food;
+    }
+
+    public void SitDown(Vector3 targetPosition, Vector3 facing)
+    {
+        DisableNavigation();
+        transform.position = targetPosition.With(y: 0);
+        StartDrinkingState(facing);
+    }
+
+    public void GetUpAndGo(Vector3 targetPosition, Action callback)
+    {
+        EnableNavigation();
+        GoToThen(targetPosition, callback);
+    }
+
+    private void EnableNavigation()
+    {
+        navigationAbility.Enable();
+    }
+
+    private void DisableNavigation()
+    {
+        navigationAbility.Disable();
+    }
+
+    private void StartDrinkingState(Vector3 facing)
+    {
+        state = State.Drinking;
+        plateau.gameObject.SetActive(false);
+        animator.PlaySitDownAnimation(facing);
     }
 
     private void FaceFinalFacing()

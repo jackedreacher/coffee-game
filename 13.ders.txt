@@ -1,0 +1,265 @@
+Welcome back guys in this lesson. We are going to chill out a bit and create the first table Okay
+
+So let's jump right in
+
+Let's right-click and create an empty game object. This is going to be our simple table set
+
+Okay, let's reset the transform and see where it is. It's somewhere around here. So we are gonna
+
+move it right there
+
+Perfect so a simple table set will have three core elements
+
+Let's say two chairs and one round table. So let's add these right away
+
+We are going to grab our models round table. Here it is. Perfect
+
+So it should be at 0 on the x-axis and 0 on the z-axis same thing for the y-axis actually
+
+Okay, so it should be at the center. Perfect
+
+For the round table
+
+What should we do first? I think I'm gonna add the chairs and then we can set up the renderers and so on
+
+So props do we have the chair in here? Where is my chair my chair?
+
+I don't think I have it here. So chair
+
+Okay lounge maybe. Oh
+
+Where is the chair? And of course, I forgot to add it to the starter pack. That's right. That's fine
+
+So we can do window package management package manager and I'm gonna try and make sure to add it
+
+But if you want to grab it
+
+I'm gonna search for it in my assets and I think it's in the furniture free from it happy
+
+so I invite you to go check the
+
+Page on the asset store. Here is the chair that we are gonna use. Okay, so the package is free
+
+I invite you to support it happy for his work. Thanks. So let's now jump back to unity
+
+Okay, and import this in the project. We need to upgrade the post processing package. No, I don't want to do so
+
+So let's not select everything. We are just going to grab our kitchen chair
+
+No, the lounge chair zero zero one this one, but of course you can grab more
+
+Models if you want, let's also grab the material and the prefab maybe so lounge chair Okay
+
+What else do we need the texture, of course, okay, let's import everything
+
+Let's now close the package manager and we can grab our chair model from here
+
+So prefabs lounge chair. Boom. There you go. Yeah, that's our chair
+
+Okay, so I'm gonna put it at zero along the x-axis and for the z-axis
+
+I'm gonna grab the value I've set up in the course. So minus dot
+
+67 somewhere around here. Perfect for the other one
+
+We are simply going to duplicate rotate by 180 degrees and move it on the other side
+
+So like so remove the minus sign. Perfect
+
+The next thing we are going to do is add the palette material to this to the table, thank you
+
+That's way better. And I think we should be quite good for now nice
+
+So just keeping in mind that adding this other chair is not relevant in our case
+
+I've just added it but we're going to remove it because the chair is going to be a prefab
+
+Okay. So the next thing we need here for our roundtable is a plateau
+
+So we're gonna grab the plateau from our prefabs folder
+
+Prefabs gameplay plateau. Boom. Let's put it at a child out of the roundtable
+
+Reset the transform and maybe drop it somewhere around here. Yeah, perfect
+
+All right. Nice. I like it
+
+So, of course, you can already imagine that our simple table set will reference this plateau to grab
+
+the cups from the customers
+
+So when a customer comes and sits at a table
+
+He's actually going to give his cups or food to the simple table set. Okay, but let's not think
+
+about this logic right now
+
+I just wanted to put that here
+
+Okay, so our roundtable here should be quite set up
+
+The only the next thing sorry that we are going to add because we don't want any
+
+Customer to pass through the table or any worker to do so is a navmesh obstacle
+
+I told you that we were going to do so because remember our navmesh has been baked here so we can't Use
+
+Wait, let me just show you
+
+If we select the navmesh surface and bake it again, boom now
+
+These are obstacles
+
+But later on our table set will be disabled and we are going to enable it when unlocking it, right?
+
+So we should not bake it as is
+
+So we are going to remove it and actually that's the same thing for these for the cashier station
+
+and the coffee station
+
+But yeah, we are going to tackle these later on. Don't worry
+
+Let's bake that again. Okay. Thank you
+
+Let's now enable our simple table set and what we are going to do is add a navmesh obstacle. Boom
+
+Now what we can do is carve the navmesh
+
+For this table and now our agents won't be able to go through the table
+
+This is super important and super cool
+
+Then you've got some more settings here that you can play with so the move threshold and the time to stationary
+
+The move threshold is if the table moves by 0.1 or more than the 0.1
+
+Unity is going to consider that it has moved and then try and recalculate its
+
+Effect on the navmesh surface after it has been set as stationary
+
+Okay, so here is what we can do. We can hit play and if I move it just here
+
+It's not gonna have any effect on the oh
+
+I've moved more than 0.1 here. You can see the values right here. But if we move more than
+
+0.1 then it's going to consider that it has moved
+
+But if we place it boom, we need half a second for it to affect the navmesh surface. Okay, perfect
+
+So at this point it will affect the navmesh surface, which is cool for any navmesh agent
+
+But remember our character is not a navmesh agent
+
+So we can still go through this table. So we are also going to add a box collider. Boom
+
+So, let's check if the box collider has the same
+
+What we are gonna do is this yeah. Yeah, that's quite nice. I like it. Okay, cool
+
+Let's do the same thing for our
+
+Chairs so instead of having a mesh collider, I want to remove it and just add a box collider
+
+It's simpler and actually works quite well
+
+The same thing we are going to do is right-click and create an empty parent
+
+Okay, and this is the parent that we are going to move at minus
+
+.67 so let's reset this to 0 and put that value in here
+
+This is going to be a chair and that right here is going to be the render. Okay the chair render
+
+Next what we can do is add a navmesh obstacle. Boom and play with these values. So maybe half of it
+
+Let's keep that to one move it up maybe Okay by .5
+
+Boom. Yep, that's decent and here we can do .6 and .6 maybe a bit more
+
+.7.7. Okay, so let's carve the navmesh and yep, that's way better in here
+
+Okay. So what we are going to do right now is remove this chair and turn this one into a prefab. So
+
+In the prefabs folder what we can do is create a new folder table stuff
+
+Okay. So in here we are going to have the chair which is going to be a prefab
+
+We can actually unpack the render in here. So let's unpack it by the way
+
+Can we? No, we can't. Oh prefab. No, we need to open the chair. Yeah prefab first
+
+So let's right-click prefab unpack. Nice. I
+
+Think I should have
+
+Yeah, unpacking completely is way better. Okay. Now what we can do is duplicate this chair and place
+
+it on the other side So 180. Nice
+
+Okay, I think that we are quite done in here
+
+We might as well increase the capacity of the plateau here so that we can put more food in it
+
+And then let's create the scripts that we are going to attach to these
+
+So scripts right-click create a new folder table
+
+Stuff okay, let's open it right-click create a new script simple table set or
+
+Actually, I should have named that table set. I'm gonna rename that
+
+Let's also right-click create another one for the chair. Thank you
+
+Let's open this script ctrl R twice and rename it table set
+
+Perfect. So now what we can do is select our simple table set here grab the table set script
+
+Put it here or attach it to our table set and same thing for the chair
+
+We are going to add the chair script and apply it to the prefab. Okay, boom
+
+So now the other chair also has the chair script, okay, the final thing here will be to
+
+Set this as a prefab or turn it into a prefab and we are now done
+
+Perfect. So just to end this lesson
+
+I'm going to grab this table set and move it somewhere around here so that it
+
+Messes up with the customers and see what happens might be fun
+
+Okay, so what will happen in this case, of course, we're not going to apply this logic in the real game, okay
+
+Let's move the tables here. No. No, no, you're not going. No. No. No, I don't want customers. No Go leave
+
+Nice everything is working nicely. Perfect
+
+Why is this boy here watching in this direction? Oh
+
+Come on, don't start don't start please
+
+Let's play again and see if that issue
+
+Occurs one more time. Okay, so let's select the table set move it out of the way
+
+Just to make sure that we don't have that issue. So nice nice
+
+Okay, cool, cool
+
+Okay, everybody's good nice good boys, okay perfect
+
+So in the next one, let's implement these scripts that we've just created here
+
+The table set script and the chair script. Okay, we're gonna try and move some customers to these tables
+
+We are also going to create the table manager, by the way
+
+You know what? I'm gonna create it right now. So scripts managers create a new monobehavior table manager
+
+Okay, let's create a new game object here
+
+Table manager and attach the table manager. Perfect. This is all for this time
+
+See you in the next one

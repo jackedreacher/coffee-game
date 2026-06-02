@@ -45,6 +45,21 @@ public class NavigationAbility : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
     }
 
+    public void Disable()
+    {
+        agent.enabled = false;
+    }
+
+    public void Enable()
+    {
+        // Warp agent to nearest NavMesh point before enabling
+        // Prevents "agent not on NavMesh" errors after sitting off-mesh
+        // if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 0.5f, NavMesh.AllAreas))
+        //     agent.Warp(hit.position);
+
+        agent.enabled = true;
+    }
+
     public bool TryGoTo(Vector3 targetPosition)
     {
         targetPosition.y = 0;

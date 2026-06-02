@@ -1,0 +1,237 @@
+Welcome back guys! In this lesson, we are going to hopefully move the customers
+
+towards or to the table now instead of a random position. Okay, so let's jump right in. All right,
+
+so we can comment our debug line in here in the handleCustomerServed method in our table manager
+
+and instead we're going to grab the table that we've found earlier. Okay, so let's also comment
+
+this. Bam! Thank you. Yep, like so. So let's grab our table. So table set table equals get first
+
+clean empty table. Nice! And if the table equals null, it should not happen. This is not normal.
+
+So what we are going to do is debug an error. So dl log error no clean table found. This should not
+
+happen. Okay, run the table manager and let's also return.
+
+Okay, but if we happen to find a table, by the way, this is just a precaution here in case
+
+we mess up in our code, but it should definitely not happen because we've made sure that we had
+
+a table before calling this method. So then what we are going to do is tell the table to handle
+
+the customer. So table.acceptCustomer or handleCustomer, the customer we need to serve.
+
+And you know what? We are also going to pass in this, the table manager, so that we can store it
+
+at least once. What we could have done is also in the in the awake method do something like
+
+tables at index i dot initialize with the table manager. But no, we are going to do it that way.
+
+So let's create this method. Boom. Okay, perfect. So it's going to be a public void
+
+acceptCustomer, customer table manager. We are going to reference the table manager. So elements
+
+private table manager table manager. And in here this dot table manager equals table manager.
+
+Then we can handle our customer. Okay, so how are we going to handle the customer? The table set
+
+needs to move the customer towards a certain chair. So the chair that we've created earlier
+
+needs to have a position where we want to put our customer in, right? So first off, the table set
+
+needs to be aware of the chairs that we've got. So let's do that. Private chair array chairs.
+
+And again, it implies that the amount of chairs for a specific table set will not change over time.
+
+Okay, so inside of here, chairs equal get components in children. Okay, of type chair. Nice.
+
+So inside of here, we want to grab the first empty chair and try and move the customer there.
+
+So we can do chair target chair will be equals to get first empty chair. Okay,
+
+let's create this method. Boom. This is going to be quite simple. So we are going to loop through
+
+all of our chairs dot length and grab the first empty one. So if chairs at index i dot is empty
+
+or is full, I told you sometimes I'm going to use is empty, sometimes I'm going to use is full. I
+
+like variety. We are going to return that boy. So return chairs at index i chairs. Yeah. Otherwise,
+
+we're going to return no. So let's create this property in here. Boom is empty. I'm going to try
+
+and not repeat the same mistake here with a lowercase i. Private bool is empty. And again,
+
+at start, awake is empty equals true. Okay, these are the settings. Nice.
+
+So let's jump back to our table set here. At this point, we should have found an empty chair.
+
+If that's not the case, it means that we've got an error because the table should not be full again.
+
+So we can handle that case if target chair equals null, return. But first, we are going to debug
+
+that log error table set. No empty chair was found. This should not happen. Come on. Okay.
+
+So we now have a target chair. What should we do? We are first going to mark that chair as occupied
+
+or full, not empty, so that we can't use it anymore later on for other customers until the customer
+
+has completed or finished eating or drinking. And then we are going to tell the customer to go
+
+towards that chair. Not at the exact position of the chair, and you should already know why. I'm
+
+going to give you zero second to think about it. But yeah, we should move it to somewhere around
+
+or near the chair. Okay, enough enigmas or puzzles. So target chair dot mark as occupied.
+
+That's the first step. It should not be able to be occupied by another customer.
+
+Then customer dot go to then. We are not just going to tell the customer to go towards that
+
+position, because we need to do more stuff after that. Okay. One of the things that we need to do
+
+is tell him to sit down or play the sit down animation. So we want to use the go to then
+
+method. And I think that I need to turn that into a public one. So public. There you go.
+
+So go to then. We are going to go to the target chair dot customer position.
+
+Do I want to go that fast? No. I think I'm going to go target chair dot transform that position
+
+just to show you the error that we are going to encounter. And the callback here should be
+
+handle customer reached chair, the customer and the target chair. Okay, just to do some stuff.
+
+Let's actually press alt enter so that the method is generated automatically. Thank you.
+
+We are also going to create this method. So mark as occupied. This one is going to be
+
+quite simple again. We're just going to set is empty equals false. All right. And after that,
+
+we want to check if the table is full or not. Okay, so yeah, it might be important later on for
+
+other customers. So check if table is full. Or maybe we can call it check if full. Yeah,
+
+something like that. So when is it full if we don't have any table available? Okay,
+
+or any chair available because we are in the table script. So for i from chairs dot length
+
+chairs dot length, if chairs at index i dot is empty, it means that we've got an available
+
+chair. So is full equals false, just to make sure. And we can return. Okay. Otherwise,
+
+is full equals true. So we can just do this is full equals true, because we did not find
+
+an available chair. Okay. If the chair is empty, we've got somewhere to go. Yep. I'm just double
+
+checking here. I don't want to make any mistake. So we should be good here. Nice. Let's now jump
+
+back to Unity because hopefully we can try this out. Okay, let's hit play. All right. So we should
+
+see some customers coming again. Let's grab some cups. Boom. Let's grab a bit more. Thank you.
+
+Okay, so let's serve them. All right. Yep. Now you can see what happens here.
+
+Really weird, isn't it? What's the issue? Food serving station dequeuing blah, blah, blah.
+
+Customer 17 cannot reach the target position 8030 minus 251. Why? Here is a quick trick that I use.
+
+I'm just right clicking 3D object sphere. And I set this position 803 minus 251.
+
+What do we have in there? We are not on the nav mesh. So of course, the customer will not be able
+
+to reach this position right here. That's why I told you previously. So what we could have done
+
+is select the chair here, the chair, not the renderer, and uncheck the nav mesh obstacle.
+
+What the heck is happening? Come on, bro. What's wrong with you? Do you need some coffee? Anyway.
+
+Sorry. So yeah, the chair here. We could have disabled the nav mesh obstacle. And
+
+when the customer reaches that position, we can enable the nav mesh obstacle. But, but, but, but,
+
+but, but, but, but, but, it's not good at all. Imagine this case. That happened to me so many
+
+times when making the course. We don't have any nav mesh here, but we've got a worker or a customer
+
+walking to, to, to, to, to, to, to, and just passing through this position because it's not an obstacle.
+
+So if the obstacle is not enabled, the customers and any nav mesh agent can go through these,
+
+this chair. At some point, we had some customers and workers in the middle of the chair, literally
+
+in the middle of the chair, and another one came, sat down, enabled the obstacle, and the customer
+
+or worker was stuck. And I was like, what's happening in there? What's wrong? So yeah, this is
+
+one thing that you need to keep in mind, please. So the fix that I found for that is to have a
+
+position near the chair here, okay, somewhere around here, that the customer will go to, and when he
+
+reaches that position, we can disable the nav mesh agent and just manipulate it however you want.
+
+So place it on the chair, play some animation, like the the sit and drink animation, and so on.
+
+Okay, so this is what we are going to do in this lesson really quickly because, because you're smart.
+
+So let's open our chair prefab, chair, chair, chair, chair, chair, chair. In here, we are going to right
+
+click and create an empty game object. This is going to be the customer target point. The other
+
+one is going to be the customer target walk point. So this is where the customer should walk towards.
+
+So I'm going to give it a small icon. You should move it to somewhere around here, let's say. Let's
+
+have a top view. Yeah, should be good. And the customer target point here is where the customer
+
+is going to sit. Okay, so I'm going to save you some time here. It's .005.698.187. Okay, so this is
+
+a position that I found when making the game. Let's do something like that. And of course, you can
+
+experiment with these and find some better values. What we can do now is exit the chair. Okay, boom.
+
+So here is one issue here. So this one is on the nav mesh, but this one is on the other side.
+
+So we've got two solutions for that. You can either grab this one and move it wherever you
+
+want so that the customer is going to try and move towards that position, which is actually
+
+nice to do. And we can apply it to the prefab. So not to the chair prefab. Hopefully, it's going
+
+to apply to the scene. Not the scene, the table set, yeah. So now if we open the table set script.
+
+Oh, come on. I'm losing my words. Prefab. Both target positions for the customers are right.
+
+Cool. Okay, so now let's use these positions instead of the simple chair position. So for
+
+that, we are going to open the chair script and add our two new positions. So elements,
+
+serialize field, private transform, customer target point, where the customer should sit.
+
+And the other one is going to be the customer target walk point. Okay, so from that, we can
+
+return the position. So public vector3, it's going to be a property. Customer target walk position.
+
+And we are going to return the customer target walk point dot position. Nice. So let's do this
+
+step by step here. We are just going to move the customer towards that position or to that position.
+
+So table set. Okay, go to then. So we are going to go towards the target chair dot
+
+customer target walk position. Okay, and when we've reached that position, we can call handle
+
+customer reach chair. So in here, we can disable the navmesh agent again and move it to the chair.
+
+I think we are going to do that in the next lesson. So for now, let's jump back to Unity.
+
+I think we are going to open the chair prefab in here. All right, let's reference our target point
+
+and target walk point. Thank you. So now we should be able to hit play.
+
+Let's grab some coffee cups. Boom. Okay, thank you. And now if we serve them, yep,
+
+they are moving towards that position. Really cool. Awesome.
+
+So yeah, everything seems to be working perfectly till this point. So in the next one, let's try and
+
+actually tell them to sit. See you in the next one.

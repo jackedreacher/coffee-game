@@ -1,0 +1,261 @@
+Welcome back guys! In this lesson we are going to fix the issue that we found in the previous lesson
+
+and we are also going to improve our visual thingies here, the visual elements. So mess up
+
+the chairs, put the dirty meshes for the foods and so on. Okay? But the first thing I want to
+
+do here is open the table manager and check if the table is dirty or not. So if tables at index i
+
+is dirty we are going to continue. Okay? Perfect! Let's now jump back to our table set script
+
+and fix the issue I told you about. So whenever we've got an incoming customer we need to keep
+
+track of that. So private int incoming customers. Let's keep track of how many customers are
+
+currently coming to the table and if we've got some incoming customers, so if incoming customers
+
+is greater than zero, we are going to return. Why? Because we don't want to handle the timer.
+
+So you could either add the check here or use it or do it like I've done right here. It's actually
+
+the same logic. So so so fire customers. Let's do it in order. When accepting a customer right here
+
+we are going to increment the incoming customers count. So incoming customers plus plus. There you
+
+go. Now we have an incoming customer. We are not going to handle the timer so we should not
+
+decrease it or decrement it. But whenever a customer has reached the target chair what we
+
+can do is incoming incoming customer sorry minus minus and just as a precaution here again
+
+incoming customers will be equal to mathf.maximum between zero and the incoming customers.
+
+Okay so that our incoming customers doesn't become a negative. Perfect. So now let's try something.
+
+I just want to make sure that we don't we won't have that issue. So what I'm going to do is
+
+move the table somewhere further away. Yeah we can do something like that. If I move it
+
+somewhere around here just for demonstration purposes I think it should be good. We are going
+
+to allow the first customer to go to the towards the table and wait for it to sit down before
+
+sending the next customer. Okay so boom thank you. I'm just going to fill this place a bit more
+
+the plateau sorry. So let's send the first customer. Okay there you go. So he's going to sit
+
+down. Let's now let's serve the second one. Okay and yep the thingy has been locked. But if you
+
+want to make sure that the timer is not decreasing at all I have a better idea. What we can do is
+
+switch to debug mode. So let's do the same thing. Let's fill the plateau of cups okay with cups
+
+sorry boom okay bam. So let's serve the first one up. Let's hit pause. We are going to select our
+
+table right here. So the table set. Let's switch to debug mode and have a look at the timer here.
+
+So let's move so that we don't serve the second customer. Boom. So the timer is now two seconds
+
+and a half. I think we have three cups here right. Let's check that. Yep there you go. Oh come on.
+
+Let's press F again. Select a cup. I'm selecting the UI every time. So we have three cups. So three
+
+seconds for the table. Now let's try and serve the second customer really quickly. Okay okay boom
+
+yeah awesome. We've locked the timer and increased the timer again when the customer reached the
+
+table. Perfect. This is exactly what we want to see. Nice. By the way we can also make sure that
+
+the timer is doesn't never does never become negative negative but yeah I think you are
+
+skilled to do that. Nice. So next let's mess up our tables. Whenever we fire a customer right here
+
+we've got the loop for the chairs. So we are handling the fired customer and we are also
+
+going to mess up the chair. So chairs at index i dot mess up. There you go. Mess up. That's better.
+
+So let's open or create this method. Boom. Public void mess up. And to mess up the chair we are
+
+simply going to apply a random rotation around the y-axis to the renderer of our chair.
+
+So renderer dot local rotation will be equals to a quaternion dot Euler zero around the x-axis
+
+something around the y-axis and zero around the z-axis. So that something can be anything you
+
+want here. In my case I'm just going to do 60 times mathf dot sine random dot range and of
+
+course random needs to be using random equals unity engine dot random. Thank you. While I'm
+
+here I'm also going to reference the renderer. So serialize field private render renderer
+
+and I'm going to use the new keyword to avoid having these white green sorry jiggly lines.
+
+So or maybe I can actually do transform. Yeah.
+
+Transform render. Okay. I still need to use the new keyword even though this is not a renderer.
+
+So random dot range between minus one f and one f and I'm going to explain this line in one second.
+
+Let's close this parenthesis close this one and zero. Perfect. So this random dot range we are
+
+grabbing a value be a random value between minus one and one float. So this is included. After that
+
+we grab the sign of this random value. So basically I just want a random minus one or one.
+
+Okay. So this line is going to pick a random value either minus one or one not between minus
+
+one and one. And that way we are going to rotate the renderer by 60 degrees either to the left or
+
+to the right. Okay. Really simple. But it's just what I came up with here. If you want to come up
+
+with something else make sure to do so. So yeah at this point we should be able to reference our
+
+chairs. So prefabs prefabs gameplay no table stuff. Yeah. Simple table set. We've got the
+
+chair right here. Sorry. So renderer. Perfect. Has it been added here. Yep. So we can now hit play.
+
+Okay. Let's try. Oh we could have brought the table a bit closer by the way.
+
+Yep. So let's exit this prefab scene. They are going to consume the cups and the next step will
+
+be to hide these. Yeah. Perfect. So now the table is being messed up. Nice. Or actually yeah you know
+
+what the next step will be to display the dirty meshes here. Because we've already marked the
+
+plateau as dirty. So let's do that. Boom. Let's get the table a bit closer. Maybe somewhere around here.
+
+Thank you. And now what we can do is open the plateau. Because in our table set script remember
+
+we've already marked it as dirty right here. So marking the plateau as dirty.
+
+What should we do in here? Well the plateau contains food positions. So we are going to tell
+
+each food position to be marked as dirty. As simple as it gets. So for i from 0 to
+
+positions parent. I think it's food positions parent dot child count. We're going to grab our food position.
+
+Do we have a list of that? I don't think we do. So yeah that's okay.
+
+We could have created a list. It would have been a bit cleaner maybe. So positions parent
+
+dot get child at index i dot get component of type food position. Okay perfect. Then we can
+
+check if the food position is empty or not. So if the food position is empty we can simply continue.
+
+But if it's not empty what we want to do is display the food first. Because
+
+we are going to hide them as they are being consumed. So let's just do food position dot
+
+display food. Okay let's create this method. Thank you. And next we are going to mark it as
+
+dirty. So food position dot mark as dirty. Boom. And finally what we are going to do is rearrange
+
+the food positions. Do we have that? Yeah. Rearrange food positions. Why? Because we've
+
+seen it earlier. This spawnable food script here has a clean y offset on plateau. But we now need
+
+to implement a dirty y offset on plateau. Because our dirty mesh might be less high or less taller
+
+than our clean food. So let's grab these two and drop them here. Perfect. I'm just going to change
+
+that to dirty. Okay boom and boom. Thank you. So now our spawnable food has a clean y offset on the
+
+plateau and a dirty y offset on the plateau. But we still need by the way to set up our dirty
+
+mesh. We haven't added it yet. The mesh that we are going to use for the dirty food. So let's do
+
+that right away. Maybe as an element here. So elements serialize field private mesh dirty mesh.
+
+So it means that every spawnable food should have a dirty mesh. Let's jump back to our plateau script.
+
+Okay so we are going to mark the food position as dirty. And finally rearrange our food positions.
+
+But we need to pass in the food instance here. And the one we are going to use is our last food
+
+maybe. Did we store it or not? The last food that has been pushed. We did not store it. So let's
+
+store it. Private spawnable food last food pushed. Every time we push a food. So
+
+yeah somewhere around here. Last food pushed will be equal to the food instance. Okay.
+
+That way we can grab its y value. So in here last food pushed. Nice. And now finally remember
+
+earlier when we implemented the method we've used the clean y offset on the plateau. But now we need
+
+to check if the food is dirty or not. Because if it is dirty we need to use the dirty y offset on
+
+the plateau. So for that let's ask our thingy. So food instance dot is dirty. If it is sorry
+
+question mark yeah. If it is dirty we are going to use the food instance dot
+
+dirty y offset on plateau. Otherwise we are going to use the clean y offset on plateau.
+
+So now we need to implement that. Additionally what you could have done is plateau. Do we have
+
+a is dirty in the plateau or not? Yeah we can check if the plateau is dirty if we mark it as
+
+dirty right here. That's one scenario we could do. But I'm going to stick to what I've done when
+
+making the course. But keep in mind that you can do that. When marking the plateau as dirty here
+
+you can set a boolean to is dirty. So is dirty equals true. And then use it in here instead of
+
+food instance dot is dirty. Okay. So let's implement this property. Is dirty is going to
+
+return is dirty as usual and private bool is dirty. Thank you. So of course you can already imagine
+
+that we are going to need a method to set this to true. So public void mark as dirty and this is
+
+just going to set is dirty to true. But what we also want to do is change our renderer here.
+
+So serialize field private mesh filter. Let's call it filter and we can do filter dot mesh
+
+equals dirty mesh. Perfect. So now we have a way to mark our food as dirty. So to recap or to sum
+
+up when firing our customers we mark the plateau as dirty here. So inside of here we display the
+
+food if it has been hidden. By the way I'm just going to turn this into public and remove the
+
+exceptions. Okay so public and remove the exception. Thank you. So again we display the food and we mark
+
+the food position as dirty. What does that mean? We haven't implemented that yet. So let's implement
+
+that one. The food position if it contains any food should mark the food as dirty so that we can
+
+change the mesh. So what we are going to do here is food dot mark as dirty. Okay so it's super cool
+
+that we've implemented that just before this one. Got it? So at this point I think that we should
+
+be good and we should see the dirty mesh of the coffee cups after referencing them of course.
+
+So let's select our cup. I think it's in gameplay. Cup. There you go. We need to reference the filter
+
+and the dirty mesh. So here is our filter and the dirty mesh will be coffee cup. No cup. Dirty maybe?
+
+Yep this one. What about the y offset? It should be so much less than the previous one. We're
+
+going to duplicate this one. Cup cup cup cup. Now dirty cup. Here it is. Okay let's duplicate it again.
+
+Maybe 0.1, 0.01, 0.02, 0.03. Yeah 0.025 seems correct. So let's grab it or set it here
+
+and we can remove our two boys. Nice! So we've done it for the cups but if you're using the pizza
+
+please consider doing it. Okay the chairs everything should be cool now. Let's hit play.
+
+All right let's serve our customers. Boom! I was drinking myself so I forgot to prepare the cups.
+
+Sorry! Boom! Okay so let's move them to the tables. By the way I'm also going to hide the nav mesh
+
+for the moment. Okay perfect. The meshes have been changed here as you can see. That is awesome.
+
+So 1, 2, 3, 4, 5. This one is a tiny bit inside of the plateau so maybe we can move it up if we want to
+
+but the foot position should be at zero. It should be placed correctly so we should have it somewhere
+
+around here. I think that my mesh is not as good as I thought here. Yeah it should be moved up.
+
+Anyway what's cool is that it's working so this is just a simple Y offset issue that we can fix.
+
+Okay so the next step is going to be to hide the cups as they are being consumed by the customers.
+
+Let's do that in the next one. See you there!

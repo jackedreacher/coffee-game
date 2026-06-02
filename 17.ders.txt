@@ -1,0 +1,277 @@
+Welcome back guys! In this lesson we are going to complete the core loop of the game which is
+
+customers grabbing a cup or food, going to the table, consuming the beverage or food and then
+
+leaving so that more customers can come after we've cleaned the table of course. So the goal
+
+of this lesson is going to fire the customers that have consumed their food. Okay let's go!
+
+Okay so right here handle customer reached chair. Whenever a customer has reached a chair
+
+what we want to do is increment a timer. A timer we are going to use to hide the food step by step
+
+from the top to the bottom and actually fire the customers after the timer has elapsed.
+
+So timer plus equals constants dot time to consume food. So for that I've decided to use
+
+a constants static class to store my constants but of course you can use a value from right
+
+here so you can create a variable and use it. Okay so let's jump back to Unity, Tiny Coffee
+
+Shop, Scripts, Utilities maybe yeah, Constants.
+
+Constants. Let's open the script. Okay so it's going to be a static class and we are going to
+
+do this, this, public static float time to consume food. There you go, thank you.
+
+Now we can jump back to our table set here and we want to set up the value by the way of our
+
+time to consume food. Let's say each food should take I don't know one second so five cups five
+
+seconds. Let's start with this value and then we can tweak it. You will tweak it when making the
+
+game of course. So timer, yep we need to set up our timer here but we are not going to add one
+
+time to consume food and by the way make sure that you increase the timer each time you grab a food
+
+so that you increase it for each food actually. If the line was outside of the loop like right here
+
+it would only add one second even though the customer has five cups. So yeah just make sure
+
+to do so. So let's now create our timer. Let's do a new header, timer settings, private float,
+
+timer. So now that we get our timer we can create a new logic in the update method. We are going to
+
+check if the customers.count is greater than zero then we want to handle our timer. Let's create
+
+this method, okay thank you. Inside of here we want to decrease our timer, time.deltaTime and if the
+
+timer is less or equals to zero we want to fire the customers. There you go. It's not the best way
+
+of describing the method but it's understandable. Okay let's say that they have not paid us enough
+
+so let's fire them. Okay so to fire our customers what are we going to do? Well first off what we
+
+can do is customers.clear. That's the first step. Then we are going to tell each chair to fire the
+
+customers. So for i from zero to chairs.length we are going to check if the chair is empty or not
+
+because we might have a customer sitting alone at a table. So if chairs at index i that is empty
+
+we are just going to continue. Thank you. Next we are going to grab the customer from the chair
+
+and now that I'm thinking about it maybe the customers list here is useless but anyway we
+
+have it just in case. We might use it later on. Who knows? My nose. Okay so customer
+
+customer will be equal to chairs at index i dot pop. The pop method here in the chair will return
+
+the customer. Remember we've added the push method just here. So let's create this method. Thank you.
+
+Then we are going to tell the customer manager to handle that fired customer. The table set is not
+
+going to tell the customer to go at a certain point. The customer manager will. So customer
+
+manager dot instance dot handle fired customer and we can pass in the customer here. After that we
+
+are going to mess up the chairs and apply some visual changes. But for now let's keep it
+
+as simple as possible. So now that the customers have left the table is dirty. So is dirty equals
+
+true. We should display the dirty cups or dirty food. So we are going to mark the plateau as dirty
+
+plateau dot mark as dirty. The plateau will then swap the renders of the current food that's on it
+
+and finally is full equals false. So now the table has a new state. It's empty but it's dirty. So in
+
+the table manager later on when we look for a dirty for a clean table sorry we are going to
+
+add another condition here. If the table is dirty we are we don't want to send customers there.
+
+Got it? So let's create this one is the I think this is the the simplest one. So let's do alt
+
+this create generate a field. Thank you. We also want a property for that so I'm going to do something
+
+like this is dirty and return is dirty. Thank you. So that's the first step. Let's mark the plateau
+
+as dirty and generate the handle fired customer. I think I'm going to start with this one.
+
+So let's open it. Public. Okay. Thank you.
+
+There you go. So to make things simple our customer manager will have a certain customer
+
+exit point where the customer should go after consuming their food. So let's do serialize field
+
+private transform customer exit point let's say. And inside of here we want to do customer
+
+dot get up and go where to the exit point so customer exit point dot position.
+
+And the callback or the method that we need to call after this has happened is handle
+
+customer reached exit point and of course we want to pass in the customer in here. Okay.
+
+So let's create this method. Boom. Oh what did I do? Control Z.
+
+Control Z. Okay. Yeah. Yeah that's odd. So customer. Thank you. This is now good. Now let's
+
+create this one. Generate the method. Perfect. And inside of here we are not going to return
+
+anything so void and by the way why get up and go? Oh it has generated this. Okay so let's do
+
+action here. Callback. Yep. Or maybe reach destination callback. Yeah. Public. But I
+
+don't want to implement this right now. I want to implement this one. This is where if you are
+
+using pooling you would return the customer to the pool. So in my case I'm just going to destroy
+
+the customer. As simple as it gets. Now let's implement the get up and go method. Why is it
+
+different than the go to then? Not that much. It's not that much different but remember when the
+
+customer has reached the table we've disabled the navigation. So we definitely need to
+
+enable the navigation one more time. So enable navigation and finally go to then position
+
+callback. Thank you. So let's enable our navigation. Disable right here. So private void
+
+enable navigation.
+
+Thank you. And navigation ability dot enable.
+
+Enable. There you go. Let's create this one just after the disable method. So public void
+
+enable. I don't know why I keep adding semicolons after. It's just a reflex
+
+from creating abstract classes. So agent dot enabled equals true. We might do something else
+
+but I want you to think about it first. If we keep it as is what will happen?
+
+Are we going to have some issues or not?
+
+Anyway let's try and do that first. We are going to mark the plateau as dirty later on. We just
+
+want to check if the customers are going to move to the target position or not after consuming the
+
+food. So customer manager. Yeah we need to reference the exit point here. So for that
+
+we are going to do something like this. So right click create an empty game object. Customer exit
+
+point. There you go. Let's drop it here. Where is my boy? We are going to select it
+
+and tell them to exit maybe somewhere around here. So move to view. Thank you. Let's set the
+
+y value to zero and move the position here. Somewhere around here or maybe behind the tree.
+
+Okay we've referenced this. The table is ready to go. Let's hit play. We are going to have two issues
+
+so that just I just want you to know that. But let's tackle them one by one. So let's put some
+
+cups in here. Okay boom boom boom boom boom. Okay so we need to have two customers that go towards
+
+the table. So here's the first one and here's the second one. So they are consuming their food
+
+and they should leave maybe at some point. Okay not implemented method. Come on I always have
+
+not implemented methods. Okay so let's implement our pop method here. We need to return the customer.
+
+So popping the customer will mean multiple things. First off we are going to return
+
+the customer. But we should not return it right away because if we return it we can't
+
+apply logic after that. So what we are going to do instead is set is empty to false. Sorry true.
+
+Now the customer is going to leave. So the chair is empty. Next customer.transfer.setParent.
+
+Null. It doesn't have any link with the chair anymore. We could actually turn it into a child
+
+of the customer manager if we wanted to from the either from here or from the table set. Okay.
+
+But yeah we now need to set our customer here to null. But if we do customer equals null we won't
+
+be able to return it. So in here we are going to return the customer to return. And we are going
+
+to store it just before setting customer to null. So customer to return is going to be equal to
+
+customer. Nice. And just like that we should be set. So let's jump back to Unity one more time.
+
+Try that again. Okay so let's grab the cups again. Let's grab the cups. Let's serve our customers.
+
+One two three. Okay so we've got three or four cups. Four seconds should be enough.
+
+And yeah they're actually leaving. Awesome. Nice. I'm gonna follow you. Come on. Come here.
+
+Come here. Where are you going? Boom. After reaching behind the tree they disappeared.
+
+Okay so I thought that we were going to have an error where the customer would not be able to
+
+warp to the nav mesh. Because this is an issue that I've encountered when making the course.
+
+So it has either been fixed or I have some different settings. But that's a good point.
+
+Just in case you run into this issue I just want to show you how you can fix that.
+
+So when enabling our navigation in the customer right here. So enable navigation.
+
+Before enabling right here actually. Before enabling the agent you might want to warp
+
+the customer or the agent to the nav mesh. And for that here is how you can do it. So you are going
+
+to sample a position on the nav mesh close to where the customer is. So if navmesh.samplePosition
+
+transform.position. Then you need a hit. NavMesh.hit. And let's specify a radius. The warp
+
+radius is the distance. The maximum distance where you want to check for a nav mesh surface position
+
+from the transform.position. So we can do something like half a meter or half a unit.
+
+And for the mask we are going to use navmesh.allAreas. So if we find a position on the
+
+nav mesh. If we can warp. We are going to do agent.warpToThatHit.position. That way we can
+
+warp the nav mesh agent to the nav mesh surface. And we make sure that it is on a nav mesh surface.
+
+But yeah. I'm just going to comment this by the way. Perfect. So if you run into that issue where
+
+you have an error or you have a warning telling you that the nav mesh agent is not on a surface
+
+you can use that prior to enabling the agent. Okay I think that I hope that was useful.
+
+So in the next one let's implement our table cleaning thingy. So we need to mess up the chairs.
+
+We need to change or switch the meshes here for our coffee cups. Boom boom. And we also have
+
+something else. Oh here is the issue I want to show you by the way. Let me just do. Wait wait wait
+
+wait wait. I'm just gonna go here. Yep. There you go. Better. So imagine that. Oh by the way the table
+
+is dirty. I need to exit and come back because the customers won't be able to sit on a dirty table.
+
+Even though they should be able because we haven't implemented the method
+
+in the table manager yet. But yeah there is something I want to show you here.
+
+Imagine this case. It happened to me so I want to show it to you. You serve the first customer.
+
+Boom up. And now you wait for it. Oh come on. It did not happen. Can you go there? Okay he can.
+
+Okay so let's try and move another one. Now wait wait wait. I'm gonna try and apply that because I
+
+really want you to see that. Okay so the first one is going there. Wait for one two seconds and
+
+then the second one is coming. Boom. If the second customer is coming while the first one is still
+
+eating, so he's still sitting there, you are going to have an error because this chair is not
+
+occupied anymore. So customer.transform.setParent null. We don't have any customer there.
+
+I hope that this is clear. So here is a fix I came up with. If we are going to send a customer at a
+
+certain table we are going to freeze the timer. We should not implement or handle our timer in
+
+the table set method right here. We should not decrement it. So we are going to freeze it and
+
+whenever the customer reaches the table, sits down, we are going to enable it again. Okay?
+
+It's so cool that it worked like really right away because again when making the course like
+
+it was a mess figuring that out. Anyway see you in the next one.

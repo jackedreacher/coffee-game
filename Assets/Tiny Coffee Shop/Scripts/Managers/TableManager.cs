@@ -2,4 +2,45 @@ using UnityEngine;
 
 public class TableManager : MonoBehaviour
 {
+    [Header(" Elements ")]
+    private TableSet[] tables;
+
+    private void Awake()
+    {
+        tables = GetComponentsInChildren<TableSet>();
+    }
+
+    public bool IsAnyTableAvailable()
+    {
+        return GetFirstCleanEmptyTable() != null;
+    }
+
+    public TableSet GetFirstCleanEmptyTable()
+    {
+        for (int i = 0; i < tables.Length; i++)
+        {
+            if (tables[i].IsFull)
+                continue;
+
+            if (tables[i].IsDirty)
+                continue;
+
+            return tables[i];
+        }
+
+        return null;
+    }
+
+    public void HandleCustomerServed(Customer customer)
+    {
+        TableSet table = GetFirstCleanEmptyTable();
+
+        if (table == null)
+        {
+            Debug.LogError("TableManager: No clean table found. This should not happen.");
+            return;
+        }
+
+        table.AcceptCustomer(customer, this);
+    }
 }

@@ -1,0 +1,405 @@
+0.67Welcome back guys! In this lesson, we are going to handle the customers when they reach the target position right here.
+
+Okay, so for that we are going to jump back to our table set script here.
+
+In the handleCustomerReach chair is where we are going to put our logic.
+
+So what should we do first?
+
+Well, first off, I want to keep track of the customers this table set handles because later on we are going to
+
+fire them if I can say so, tell them to leave the table when they've consumed their food.
+
+So let's create a list for that.
+
+Elements, maybe settings.
+
+Yeah, so private list and of course we need to use system.collections.generic.
+
+So customers equals new list of customers. Thank you.
+
+And inside of here we can now say customers.addCustomer.
+
+That's our first step.
+
+Then we are going to tell the chair to handle the customer.
+
+By the way, I still have an error here.
+
+Oh, I forgot to add the parenthesis. Thank you.
+
+So then I told you that we are going to tell the chair to handle that customer.
+
+So pogChair.pushCustomer.
+
+Let's now create this method here.
+
+And handling the customer or pushing the customer to the chair doesn't mean trying to make him fall.
+
+But the chair is going to tell the customer to disable the agent so that we can move the customer
+
+outside of the NavMesh surface.
+
+We've seen that we could not move a customer outside of a NavMesh surface if the agent was enabled.
+
+So this is going to be the main job of the chair here.
+
+And then it's going to put the customer or move it at the target position that we've specified earlier.
+
+And after that, by the way, what we are also going to do is grab the cups from the customer.
+
+So we are going to grab the cups first and remove them from the customer's plateau and drop them
+
+inside of our own plateau right here.
+
+The table sets plateau that we don't have.
+
+So let's add that.
+
+SerializeField private plateau plateau.
+
+Okay, there you go.
+
+And inside of here we can loop through all of the cups from the customer.
+
+So customer.foodNeededCount, foodTakenCount.
+
+Yep, that's better.
+
+We are going to do spawnable food.
+
+Food will be equals to customer.pop. There you go.
+
+Or you can call this one popFood.
+
+Okay, I'm just going to call it pop.
+
+It makes sense for me, but feel free to rename it as you wish.
+
+Then we can grab this food and drop it in our plateau.
+
+So plateau.gameObject.setActive. True.
+
+First, we can enable it in case it was not enabled before. Plateau.push.
+
+Good, there you go.
+
+Then we are going to handle a timer that we are going to use for the customers to consume
+
+their food and then leave there and then fire them.
+
+But yeah, let's implement that after we've set up the basic logic.
+
+So let's create our customer.pop method. Public, boom.
+
+And this one should be quite straightforward.
+
+We are going to grab it from the plateau.
+
+So food will be equals to plateau.pop. There you go.
+
+And then we can check if we've got something in here.
+
+So it's just a precaution, by the way, because we should have some caps.
+
+The customer should not have an empty plateau.
+
+So if the food equals null, we are simply going to return null.
+
+And you can also display an error inside of here.
+
+So if the plateau is empty, we want to hide it.
+
+So plateau.gameObject.setActive.
+
+False. Okay.
+
+And finally, we can return our food. There you go.
+
+So we should be good for the pop method.
+
+And at this point, I think that the plateau of the table should grab the cups from both customers.
+
+We can definitely try this out.
+
+Okay, so let's jump back to Unity.
+
+Let's select our table.
+
+We are going to specify or reference our plateau, which is right here, and also save that for the prefab.
+
+So let's apply all. Nice.
+
+Now, what else do we need to do? Nothing else. Let's check.
+
+Do we have something in the customer that we need to reference? Nope.
+
+I think we are good to go.
+
+So let's hit play. All right.
+
+Let's grab some cups. Drop them here. Okay.
+
+Let's grab more.
+
+All right, all right, all right.
+
+Let's serve the customers. Okay.
+
+Oh, we've got something that we did not.
+
+Oh, the push method has not been implemented. Come on. Come on.
+
+I knew there was something wrong.
+
+So public void push.
+
+Let's not implement it right now because we just want to see the cups being moved to the
+
+table's plateau. So let's exit.
+
+By the way, I think I'm going to hide the plateau at start. Okay.
+
+It might make more sense.
+
+So let's select our plateau in here. Disable it. Thank you.
+
+I think we are also going to apply the changes to the prefab. Hit play.
+
+All right.
+
+Let's grab some cups. There you go. Thank you. Boom.
+
+Let's serve the customers. There you go.
+
+The cups have successfully been moved to the plateaus, to the table's plateau actually. Nice.
+
+This one is ready to leave.
+
+What else do we have in here? Yep.
+
+We just need to move the customers to the table now.
+
+So let's do that in the next one. See you there.
+
+Let's do that right now.
+
+Let's not move to another lesson just for that. Okay.
+
+So for that, we need to open our push method inside of the chair script.
+
+And inside of here, what do we need to do?
+
+Well, first off, let's store our customer in here.
+
+So we can do something like settings right here.
+
+Private customer.
+
+Customer. Customer. Thank you.
+
+So this.customer equals customer. Okay.
+
+Now we've successfully stored the customer.
+
+Is empty equals false. Yep.
+
+We are occupied.
+
+But I think that we've already called this somewhere around here. Yeah.
+
+When accepting the customer here.
+
+So no need to do that again.
+
+We can remove it.
+
+But if you want to keep it as a precaution, please feel free to do so. Then what else?
+
+We are going to grab the customer and turn it as a child of the chair.
+
+So customer.transform.setParentTransform.
+
+That's the first step.
+
+Then we are going to tell the customer to sit down.
+
+So customer.sitDown.
+
+We need to specify the target position.
+
+So it's going to be our customer target point, if I remember well.
+
+Customer.targetPoint.position.
+
+And finally, the facing.
+
+So the facing here will be the forward direction of the chair.
+
+So transform.forward. There you go. Cool.
+
+So we now need to implement this one. Boom. Sit down. Public.
+
+Oh, why is it before the start method?
+
+I think it's using the alphabetical order here.
+
+So let's remove it from here.
+
+And maybe what we can do is drop it after collecting the food. Yep. Okay, nice.
+
+So I'm going to rename that target position. There you go.
+
+And this one is going to be the facing. Thank you.
+
+So what did we say earlier?
+
+To move a customer to the target position or to a position outside of the NavMesh surface,
+
+we are going to disable the navigation first.
+
+So let's call disableNavigation. Okay. Boom. Boom.
+
+This one is going to be quite simple.
+
+We are simply going to call the navigationAbility.disable. Okay.
+
+And inside of our navigation ability, we are going to handle that.
+
+But let's keep that for after.
+
+After disabling the navigation, we can safely move to the target position.
+
+So transform.position will be equal to targetPosition.withY equals zero. Okay.
+
+And finally, we can start the drinking state.
+
+So startDrinkingState. There you go.
+
+Let's create this method. Grab it.
+
+Maybe drop it after the disableNavigation one.
+
+And we now have two things to handle.
+
+The disabling of the navigation ability or the navigation.
+
+It's going to be something like agent.enabled equals false.
+
+But let's do that after setting the startDrinkingState method.
+
+So state in here will be state.drinking.
+
+That's the first step.
+
+Then we are going to disable the plateau.
+
+Once again, just by precaution, even though it should already be disabled.
+
+And then what we can do is animator.playSitDownAnimation and pass in our facing.
+
+So if we want to pass in our facing, we need to grab it from there.
+
+So facing in here.
+
+And let's pass the facing right there. Perfect.
+
+What do you prefer?
+
+Starting with this one or this one?
+
+I can't hear you.
+
+So let's implement this one. Boom. Disable.
+
+Public void disable.
+
+As I've told you, disabling the navigation ability is quite straightforward.
+
+Agent.enabled equals false. Nice.
+
+Then let's implement this one. Boom.
+
+Let's open our customer animator.
+
+Public, of course. Facing.
+
+So we are definitely going to call face the facing.
+
+And before that, we need to do more stuff.
+
+We don't want to manage or handle the animations.
+
+So isSitting is now going to be true.
+
+So isSitting equals true.
+
+We can also play the animation.
+
+So animator.playSit and finally apply the facing. Nice.
+
+So now everything should be set up correctly.
+
+I'm just going to check if we need to reference some stuff.
+
+Make sure that the sit animation is attached to our customer.
+
+So customer right here.
+
+Here is the animator.
+
+We've got the sit animation. Really cool.
+
+One thing I want to do too is set up the obstacle avoidance.
+
+Should we set it up now?
+
+Yeah, let's do that actually.
+
+So the height will be 1.7, 1.8, 2. OK.
+
+And the radius, .5, .4, .3, 5. Yeah, .35.
+
+Yeah, that's decent. Perfect.
+
+So let's save that.
+
+Jump back to our script.
+
+We've got the table set up.
+
+Customer is all good.
+
+Round table, chair.
+
+Everything should be good now.
+
+So let's hit play and see how it goes.
+
+All right, let's prepare the cups. Boom, boom. Thank you. Let's go.
+
+OK, that's the first customer. Yay!
+
+Customers are now sitting and drinking.
+
+I don't know if we can call this drinking.
+
+But yeah, they are cheering more than drinking.
+
+Come on, I told you that the goal here was not to grab perfect animations.
+
+I'm sure you can do that.
+
+I just want to show you the systems, how it should work.
+
+And they're also inside of the chairs.
+
+But from the game's perspective, it's not that noticeable. So that's cool. That's fine.
+
+OK, so that's our first step.
+
+Next, so in the next one, we are going to consume these cups.
+
+And tell the customers to leave immediately.
+
+OK, see you in the next one.

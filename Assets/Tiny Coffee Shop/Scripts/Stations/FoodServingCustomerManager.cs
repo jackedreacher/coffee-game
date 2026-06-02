@@ -49,9 +49,18 @@ public class FoodServingCustomerManager : MonoBehaviour
         return customers.Peek();
     }
 
-    public void DequeueCustomer(Customer customer)
+    public void Dequeue()
     {
         customers.Dequeue();
+
+        Customer[] customerArray = customers.ToArray();
+        for (int i = 0; i < customerArray.Length; i++)
+            customerArray[i].GoTo(GetTargetCustomerPosition(i));
+    }
+
+    private Vector3 GetTargetCustomerPosition(int index)
+    {
+        return queueStartPoint.position + queueSpacing * index;
     }
 
     public bool IsCustomerReadyToTakeFood()

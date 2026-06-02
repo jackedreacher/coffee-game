@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 13 complete
+Last updated: Lesson 17 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -17,6 +17,7 @@ Scripts/Customer/     -> Customer.cs, CustomerAnimator.cs
 Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
 Scripts/Abilities/    -> HoldFoodAbility.cs, NavigationAbility.cs
 Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs, CustomerManager.cs, TableManager.cs
+Scripts/Utilities/    -> Constants.cs (TimeToConsumeFood=1f)
 Scripts/UI/           -> MobileJoystick.cs
 Prefabs/Gameplay/     -> Cup, Pizza, Plateau, CoffeeStation
 Prefabs/Characters/   -> Customer
@@ -69,10 +70,11 @@ FoodServingStation (MonoBehaviour, RequireComponent FoodServingCustomerManager):
   - int workerCount (tracks how many workers/players inside trigger)
   - OnTriggerEnter/Exit: check PlayerDetector, increment/decrement workerCount (min 0)
   - OnTriggerStay: if workerCount>0 -> HandleFoodServing
+  - [SerializeField] TableManager tableManager
   - HandleFoodServing: timer check -> IsCustomerReadyToTakeFood -> NeedsMoreFood check -> GetFirstFullPosition -> ServeFood
   - Pop(): dropZone.Pop()
   - ServeFood: PeekFirstCustomer -> Pop food -> CollectFood -> if NeedsMoreFood return, else DequeueCustomer
-  - DequeueCustomer: delegates to customerManager.DequeueCustomer
+  - DequeueCustomer: if !tableManager.IsAnyTableAvailable return -> customerManager.Dequeue -> tableManager.HandleCustomerServed
 
 FoodServingCustomerManager (MonoBehaviour):
   - Transform spawnPoint, Transform queueStartPoint (serialized)
@@ -81,7 +83,8 @@ FoodServingCustomerManager (MonoBehaviour):
   - Queue<Customer> customers
   - SpawnNewCustomer: Random.Range(min, max+1) foodCount, Initialize(foodCount, targetPos, -queueSpacing.normalized)
   - PeekFirstCustomer(): returns customers.Peek()
-  - DequeueCustomer(customer): customers.Dequeue()
+  - Dequeue(): customers.Dequeue, then loop remaining customers -> GoTo(GetTargetCustomerPosition(i)) to move queue forward
+  - GetTargetCustomerPosition(index): queueStartPoint.position + queueSpacing * index
   - IsCustomerReadyToTakeFood(): customers.Count>0, Peek first, distance check <0.1f (y=0 both sides)
   - GetLastCustomerPosition: queueStartPoint.position + queueSpacing * (count-1)
 
@@ -106,8 +109,8 @@ Customer (MonoBehaviour):
   - CollectFood(food): enable plateau, push food, foodTakenCount++
   - NeedsMoreFood(): return foodTakenCount < foodNeededCount
   - Initialize(foodCount, targetPos, finalFacing): stores values, calls GoToThen(pos, FaceFinalFacing)
-  - GoToThen(pos, callback): stores callback, calls GoTo
-  - GoTo: TryGoTo -> StartWalkingState
+  - GoToThen(public, pos, callback): stores callback, calls GoTo
+  - GoTo(public): TryGoTo -> StartWalkingState
   - ReachDestination: StartIdleState -> invoke+null callback
   - FaceFinalFacing: animator.Face(finalFacing)
   - HandleWalkingState: HasReachedDestination->ReachDestination, IsMoving->ManageAnimations(velocity), else->StartIdleState
@@ -156,7 +159,9 @@ Simple Table Set (TableSet script + NavMeshObstacle + BoxCollider)
        |- Plateau (maxCap:~7) -> Positions -> FoodPosition
   |- Chair (prefab, Chair script + NavMeshObstacle(carve) + BoxCollider)
   |- Chair (duplicate, rotated 180)
-Table Manager (TableManager script, empty for now)
+Table Manager (TableManager script, tables[] from GetComponentsInChildren)
+  |- Simple Table Set (child of Table Manager)
+       |- Chair (isEmpty, customerTargetPoint, customerTargetWalkPoint serialized)
 Customer Manager (singleton, spawns customers on demand)
 CustomerSpawnPoint (empty transform, where customers appear)
 Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
@@ -185,4 +190,8 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 11: FoodServingStation trigger/worker/timer, foodNeededCount, IsCustomerReadyToTakeFood distance check, FoodDropZone.GetFirstFullPosition, Plateau.GetFirstFullPosition public
 [x] Lesson 12: Serve food to customer - Pop from drop zone, CollectFood (enable plateau + push), NeedsMoreFood check, DequeueCustomer
 [x] Lesson 13: Table setup - SimpleTableSet (round table + 2 chairs + plateau), Chair prefab, NavMesh Obstacles (carve), box colliders, TableSet/Chair/TableManager empty scripts
-[ ] Lesson 14: (next) Implement TableSet/Chair/TableManager scripts, move customers to tables
+[x] Lesson 14: TableManager (IsAnyTableAvailable, GetFirstCleanEmptyTable, HandleCustomerServed->random pos), TableSet.IsFull, FoodServingStation checks table before dequeue, queue moves forward on dequeue, Customer.GoTo public
+[x] Lesson 15: TableManager.HandleCustomerServed->table.AcceptCustomer, TableSet(chairs[], AcceptCustomer, GetFirstEmptyChair, CheckIfFull, HandleCustomerReachedChair stub), Chair(isEmpty, IsEmpty, MarkAsOccupied, customerTargetWalkPoint->CustomerTargetWalkPosition), Customer.GoToThen public
+[x] Lesson 16: TableSet(List<Customer>, [SerializeField]plateau, HandleCustomerReachedChair->add+PushCustomer+pop loop to table plateau), Chair(PushCustomer: store customer, SetParent, SitDown), Customer(Pop, SitDown, DisableNavigation, StartDrinkingState), NavigationAbility.Disable, CustomerAnimator.PlaySitDownAnimation(isSitting+Play"Sit"+Face)
+[x] Lesson 17: Constants(TimeToConsumeFood=1f), TableSet(timer+=TimeToConsumeFood per food, isTimerFrozen on AcceptCustomer/unfreeze on reached, HandleTimer, FireCustomers->Chair.Pop+HandleFiredCustomer+isDirty+MarkAsDirty), Chair.Pop(isEmpty=true,SetParent null,return), CustomerManager(customerExitPoint,HandleFiredCustomer->GetUpAndGo->Destroy), Customer.GetUpAndGo(Enable+GoToThen), NavigationAbility.Enable(+warp commented), TableManager.GetFirstCleanEmptyTable checks IsDirty, Plateau.MarkAsDirty stub
+[ ] Lesson 18: (next) Table cleaning - dirty mesh swap, player cleans table

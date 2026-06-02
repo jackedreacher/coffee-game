@@ -105,6 +105,11 @@ public class Plateau : MonoBehaviour
             foodPositionsParent.GetChild(i).localPosition = Vector3.up * i * positionsYOffset;
     }
 
+    public void MarkAsDirty()
+    {
+        // Next lesson: swap food meshes to dirty variants
+    }
+
     private void CreateNewFoodPosition()
     {
         FoodPosition foodPositionInstance = new GameObject("FoodPosition " + foodPositionsParent.childCount)

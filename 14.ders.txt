@@ -1,0 +1,233 @@
+Welcome back guys. In this lesson, we are going to try and move the customers or at least one
+
+customer to the table that we've created in the previous lesson. So in this one, please stay
+
+focused. The previous lesson was chill. This one is going to be tough. Anyway, excuse me for that.
+
+We are going to grab our table here and drop it under the table manager or as a child of the
+
+table manager. Then, if we open our food serving station script, in the previous lessons we've
+
+added the dequeue customer method but we did not implement it, right? So let's implement it
+
+right away. To dequeue a customer, we first need to make sure that there is a table available and
+
+for that we need to ask the table manager. So if the table manager.isAnyTableAvailable
+
+returns false, then we are going to return. No table is currently available. So let's add a
+
+reference to our table manager here. I'm going to drop it under components, elements, sorry.
+
+Private table manager, table manager. And in here, I don't want the table manager to be a
+
+singleton because, I don't know, maybe in your game you might have multiple table managers.
+
+It's not going to be the case in this template or in this course but you might experiment with that.
+
+Okay, so let's now implement or create the isAnyTableAvailable method. So public bool
+
+isAnyTableAvailable. To know if there is any table available, we need to be aware of all of
+
+the table sets that we have at our disposal, right? So we can do two things. We can either
+
+reference them in the inspector or maybe grab them on awake. I'm going to grab them on awake
+
+but feel free to choose the method that you want here. So I'm going to do elements,
+
+serialized field, private table set, oh not serialized, sorry, private table set array,
+
+tables. So because this is an array, the amount of tables that we are going to have is going to
+
+be fixed, right? If you feel that this amount will change over time, please use a list, okay?
+
+So awake tables equals get components in children, so get components. All of the tables will be
+
+children of the table manager. Table set, perfect. So now we have all of our tables at our disposal,
+
+all of the tables, sorry, at our disposal. So to know if there is any table available,
+
+we are just going to return get first clean empty table is different than null.
+
+What does that mean? You are aware that, I think it was in the food, food, food, food,
+
+spawnable food here, here. The spawnable food, so the coffee cup for instance, oh we did not add it,
+
+but anyway, I think I've explained it before. The coffee cups and the pizzas or any food that you
+
+want to add will have a clean mesh and a dirty mesh when the food is consumed, right? So we want
+
+to know if the table is clean or dirty because we should not send customers at a dirty table.
+
+It would be disrespectful. So let's grab a clean table, not a dirty one.
+
+Let's generate this method, okay? So this right here should return a table set
+
+and then the implementation is going to be quite simple. We are going to loop through all of our
+
+tables, so tables.length. I'm not going to tackle the clean or dirty aspect of the table right now,
+
+we are going to tackle that later on, but first off, I just want to check if the table is full
+
+or not because we might have some customers already sitting at the table and eating or
+
+drinking their beverage. So let's check if the table is full or not. If the tables at index i
+
+is full, we are going to return. Otherwise, we can return tables at index i and in here we should
+
+not return but continue, check the next table, okay? We might fall into the case where there
+
+is no table available, so we should return null and in here if we return null, this is going to
+
+return false. Got it? Now we need to implement this property in here, so generate property, boom!
+
+Let's remove this, bam! Let's create a field, so private bool isFull and this should return isFull.
+
+These are the settings, perfect! Okay, so at start or maybe in awake, so awake
+
+isFull equals false. The table set should not be full at start, it's empty. So if we consider that
+
+the table is empty at start, we can jump back to our table manager, nope, to our food serving station.
+
+So we've reached this point right here, we've found a table, we've found an available table,
+
+an empty one. What should we do? Well, the customer will be able to move towards that table,
+
+so the food serving station should not be responsible for that customer anymore.
+
+So customerManager.dq, let's remove the customer from our CustomerManager and we are going to tell
+
+the table manager to handle the customer served and passing the customer, okay? Hope this is clear.
+
+So let's dequeue the customer from our queue right here, public void dequeue, and this one is not
+
+going to be as simple as customers.dequeue. This is the first step, of course, but then because the
+
+first customer has moved, we need to move all of the other customers by one step, let's say, okay?
+
+So we need to move them along the actual real queue. For that, we are just going to loop again
+
+through all of the customers. In here, we've created them, but now let's loop through all of
+
+our customers. So customers.count, and we can grab the customers one by one to move them.
+
+So customers.toArray, because we can't do indexing in a queue, so toArray.indexI.goto.
+
+Oh, can't we go to customers? I think we should do this. toArray.indexI.goto.
+
+What? One second. Can we call? Oh, I think that the goto method is private. No way.
+
+Goto, it is private. Indeed. So let's turn it into a public one. Let's now jump back to our
+
+customer, not customer script, but the food serving customer manager, okay? And now we can
+
+remove these parentheses, goto, yeah, there you go, getTargetCustomerPosition,
+
+customer position, and let's pass in an index here. We are going to create this method, boom,
+
+and in here, let's actually call this one index, and to grab the TargetCustomerPosition,
+
+we are basically going to reuse this, but now with the index. So let's drop it here
+
+and use the index, boom, perfect. Okay, I think that's it. We can remove these curly brackets
+
+here and give that a shot. What should happen? We are not moving the customer yet. The food,
+
+food, food, food serving station in here, yeah, we still need to tell the table manager to handle
+
+the customer served. For that, you know what? Just to give that a shot, we are going to tell
+
+the customer to move to a random position. So Vector3.randomPosition will be equal to random
+
+dot onUnitSphere, and of course, we need to do using random equals UnityEngine dot random,
+
+thank you. So onUnitSphere, this is going to return a Vector3 with a radius of one,
+
+so dot with y zero to keep it on the y equals zero plane, times, I don't know, maybe 10,
+
+yeah, something like that. Just, no, let's go with five. I don't want the customer to go that far.
+
+And then we can say customer.gotoRandomPosition, okay? Just to move it out of the way.
+
+And by the way, the customer, the food serving customer manager should also spawn a new customer
+
+because we haven't reached the maximum value. We've removed a customer, so we are now at nine.
+
+By the way, I need to add the table manager. So yeah, we have nine customers, and we are able
+
+to create a new one. So let's grab our coffee cashier station and reference our table manager.
+
+I think we should be good here, so let's hit play. Let's go grab some cups.
+
+Okay, let's drop them here. Thank you. Boom, let's grab more. Okay, let's serve the customers.
+
+Three, four, okay. So we are getting an error here. Okay, what's that?
+
+Oh, we are returning isFool. I'm sorry for that. Okay, yeah, we need to return isFool,
+
+but with a lowercase i. So let's give that a shot again. Okay, so let's get some cups.
+
+One more time. Okay, thank you.
+
+All right, so now what happens? We've served this boy, but it seems that it has not been
+
+dequeued from the list here. There are cups available. Okay.
+
+Okay, can you move out of the way, please? Hey, mister. Nothing. Okay, so let's debug this.
+
+First off, I want to make sure that I call this method right here, the dequeue one in the food
+
+serving station. So we dequeue the manager. So dl.foodServingStation
+
+plus dequeuingCustomer. Dequeuing. I think I need to add another u here,
+
+customer. We can add the name of the customer. So customer.name. Okay, so dequeueCustomers.dequeue.
+
+Customer.targetCustomerPosition. Okay.
+
+So let's also dl here, foodServingCustomerManager.
+
+DequeuedCustomer. And we can check the count of our customers here. So customers.count.
+
+Okay. We should have nine after this point here. All right. And then the table manager. Okay.
+
+dlTableManager plus fold with the name of the customer. So customer.name to go to
+
+randomPosition. Okay. It's fine. You can learn how to debug along with me, actually. And maybe
+
+you can think about some better ways to debug this. If that's the case, please let me know
+
+in the comments section. All right. So now let's hit play again. Okay. Let's grab some cups.
+
+As usual, drop them here. Let's try and serve that boy.
+
+Okay. Okay. So we are not triggering any of these. Interesting.
+
+Really interesting. So the table set here is not full, which is good. So the table set is not full,
+
+but we can't reach this point. Is a new table? No table is available. So return getFirstCleanemptedTable.
+
+If the FirstCleanemptedTable is different than null, then there is available tables.
+
+There are available tables. And of course, I made a typo here. Just one exclamation point
+
+is causing all of this. But at least we now know how to debug our code. Yeah. I was checking if
+
+the table was not full. So if the table is not full, continue. No, no, no. Come on. If the table
+
+is not full, we shouldn't have to debug it. We should have to debug it. Okay. So let's
+
+say if the table is not full, we should return this table here. Okay. Sorry for that. It's just
+
+to show you that even if you've coded hundreds and hundreds of games, you can still make
+
+beginner mistakes. Or is it just me? Yeah. If it's just me, I'm sorry for that. Anyway,
+
+so let's serve that boy. Yay. Customers are being served. Awesome. They are moving at random
+
+which is really cool. That's what we expect from them. But yeah, nice. And we're creating
+
+more customers. Really cool. Perfect. So now that this is working correctly, in the next one,
+
+we are going to tell the table right here to move the customers, to accept, sorry, a customer,
+
+so that they can sit down and drink their beverage or consume their food. See you in the next one.
