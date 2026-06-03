@@ -5,9 +5,13 @@ public class FoodSpawnerStation : MonoBehaviour
     [Header(" Elements ")]
     [SerializeField] private SpawnableFood spawnableFoodPrefab;
     [SerializeField] private Plateau plateau;
+    [SerializeField] private Transform workerTargetPoint;
 
     [Header(" Settings ")]
     [SerializeField] private float spawnDelay;
+
+    public System.Type FoodType => spawnableFoodPrefab.GetType();
+    public Vector3 WorkerTargetPosition => workerTargetPoint.position;
     private float spawnTimer;
 
     void Update()

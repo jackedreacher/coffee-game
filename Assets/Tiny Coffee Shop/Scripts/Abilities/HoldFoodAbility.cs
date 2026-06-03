@@ -5,6 +5,11 @@ public class HoldFoodAbility : MonoBehaviour
     [Header(" Elements ")]
     [SerializeField] private Plateau plateau;
 
+    public Plateau Plateau => plateau;
+    public bool IsPlateauEmpty => plateau.IsEmpty;
+    public bool IsPlateauFull => plateau.IsFull;
+    public bool IsPlateauDirty => plateau.IsDirty;
+
     [Header(" Timer ")]
     private const float canGrabFoodDelay = .1f;
     private float grabFoodTimer;

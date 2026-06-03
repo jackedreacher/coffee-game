@@ -1,0 +1,163 @@
+Welcome back guys! In this lesson we are going to create our first request so I'm not going to talk
+
+too much. Okay so create task request this is where we left it in the previous one. In this
+
+one we're going to create our field plateau or station plateau request. So let's open our task
+
+request script and create the request right here. So of course it's going to inherit from the
+
+abstract task request class. So let's go public class field station plateau request and of course
+
+it inherits from the task request. Boom that's the first step. Then what did I tell you? We need two
+
+things we need the position of our worker where should he put or drop the food and we are also
+
+going to need the type of food or the food prefab that said that he needs to grab. So private
+
+vector3 drop zone position you can call this one worker position if you want public
+
+vector3 let's add a property for that drop zone position boom position and let's return drop zone
+
+position next the food so private spawnable food food public spawnable food food and let's return
+
+our food ah not food okay anyway so after that we can definitely create our field station plateau
+
+request with a constructor so public field station plateau request. What do we need? We need a GUID
+
+so let's pass in a string GUID we need the food so spawnable food
+
+food and we need the drop zone position so vector3 drop zone position this dot GUID equals GUID
+
+this dot food equals food and this dot drop zone position equals drop zone position.
+
+What else do we need? We've set up the GUID we've set up the other things we need to set up the
+
+priority so in here again you will decide how important a task request will be so in my case
+
+I'm just going to set this to 70. I want it because I want it to be 70. What are you going to do? What?
+
+Anyway let's grab the food so that it makes more sense and drop it maybe just before the drop zone
+
+position to match the order that we've used right here. Perfect! So this is our first request here
+
+we have two important things that we are sending along with the GUID. So now what we can do is
+
+jump back to our food serving station right here and create that request so inside of here we are
+
+going to create a new field station plateau request so let's add a parenthesis let's pass
+
+in our GUID which is right here GUID generator okay so GUID generator dot GUID we need to
+
+pass in the food do we have a reference for that? We don't so we are going to create that too
+
+by the way I'm just going to put that here and serialize field
+
+private spawnable food and let's call it food served refab maybe okay
+
+boom boom boom so let's send it along with our request and finally we need the drop zone
+
+position here so we are just going to ask the drop zone to return that worker position that
+
+we need so drop zone dot maybe worker target point dot position or maybe something
+
+like worker target position yeah I think it makes more sense okay so we can do something like
+
+this this and this there you go so let's now create this boom drop zone food drop zone
+
+I think I'm going to drop it in the elements or maybe positions or settings you decide serialize
+
+field private worker target point it's going to be a transform and we are also going to return so
+
+public vector3 worker target position so we are going to return worker target point dot position
+
+perfect so now we are going to set up that position or reference it in the food drop zone
+
+so let's jump back to unity okay so worker target points boom we are good to go for here
+
+spawnable food yeah and we also need the task requester so let's first add a GUID generator
+
+and a task requester so let's reference the task requester and let's also reference our
+
+spawnable food which should be I think we can grab it from there but I'm going to open the
+
+prefabs folder so gameplay is it in gameplay yep cup boom and of course if you're using pizza you
+
+can pass in the pizza here as the food served okay all right so at this point the food serving
+
+station right here is going to continuously emit these requests right here because we don't have
+
+enough food let's open the create task request here and implement it so first off we can reference
+
+the sender so request dot sender equals this this task requester is the sender okay then
+
+what do we want to do we want to check if that request that we've got right here has been emitted
+
+already or not because we might imagine this case the food serving station has no cups so it's going
+
+to emit a request but while the worker is walking towards the coffee station right here grabbing the
+
+cups and coming back we might emit another request we don't want to emit more than one request per
+
+one request type per station okay it wouldn't make any sense we've already asked for cups so we need
+
+to check that so it means that we need to keep track of our requests right here let's remove
+
+these and create a list for these requests so um lists ah come on list of task request
+
+requests is going to be a new list of task request okay then whenever we want to add a new request
+
+we're going to we are going to check if we have that request stored in our list or not
+
+if that's the case we should not add it one more time so for each
+
+uh for each i don't like the var keyword so task request let's say r in our requests
+
+we are going to check two things we are going to check the type of the request and if it has the
+
+same guid so first off if r.guid equals our new request.guid then it's the same sender so maybe
+
+the food serving station okay and if the r.get type equals our request.get type if these requests
+
+do have the same type then we are going to return it means that we already have that request in our
+
+list okay so what's the type of the request here really simple fill station plateau request
+
+and later on we are going to have more requests again one for serving the customers
+
+and and so on let's not spoil everything from now on right now okay so this is our loop to check
+
+if we've already stored that request or not if that's not the case we can do requests.add request
+
+let's store it and finally we can send it to the worker manager to be processed so register requests
+
+request there you go i hope this is clear if not please do not hesitate to leave comments in the
+
+comment section i'm trying to go step by step because this is the core not the core of the
+
+game but the second core if we can say so we've tackled the core loop already which is really cool
+
+and yeah this is the next important thing so we are just going to check if this request is emitted
+
+one or multiple times and then we can call it a lesson we are going to process that request in
+
+the worker manager in the next one okay just so that i don't overwhelm you and you have time to
+
+digest what you've seen so far so uh inside of here let's just debug.log task requester
+
+let's say received a request plus request.getType maybe yeah and in here we can say dl.taskRequester
+
+maybe registered registered the request with the request type yep we are just going to use the type
+
+because we know that we are sending it from the food serving station so let's jump back to unity
+
+okay i think we've got everything well set up i hope i hope i hope anyway let's hit play
+
+okay so at start boom received a request and registered the requests so of course we've
+
+received it and registered it but as you can see we haven't registered it more than once
+
+even though the food serving station is sending the request we are not registering that request
+
+because we already have it and it hasn't been processed yet okay really cool so in the next one
+
+let's go one step further and process that request from the worker manager see you in the next one

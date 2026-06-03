@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 24 complete
+Last updated: Lesson 28 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -200,5 +200,16 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 21: Plateau.Push dirty bypass (isDirty||childCount<maxCap -> CreateNewPosition), occupiedPositions cap (count full positions; if >=maxCap -> isFull=true), HoldFoodAbility.HandleFoodDropZone: if plateau.IsDirty return (can't drop dirty at drop zone)
 [x] Lesson 22: Trash.cs (OnTriggerEnter->HoldDishAbility.HasDishes->PopAll->Destroy all), HoldDishAbility(HasDishes property, PopAll=plateau.PopAll+disable)
 [x] Lesson 23: Worker.cs (empty stub), WorkerManager.cs (List<Worker> workers serialized, Update->HandleRequests, HandleRequests comments: pending? idle? assign+remove)
-[x] Lesson 24: WorkerManager singleton+pendingRequests+RegisterRequest, TaskRequest(abstract,Sender+guid+priority+constructors), TaskRequester(CreateTaskRequest->RegisterRequest), GuidGenerator(Awake gen if empty), FoodServingStation(RequireComponent GuidGenerator, taskRequester field, requestTimer->CheckRequests->HasEnoughFood/EmitRequest stub), FoodDropZone.FoodCount, Plateau.GetFoodCount
-[ ] Lesson 25: (next) FillPlateauRequest + full EmitRequest impl
+[x] Lesson 24: WorkerManager singleton+pendingRequests+RegisterRequest, TaskRequest(abstract,Sender+guid+priority+constructors), TaskRequester(CreateTaskRequest->RegisterRequest), GuidGenerator — Tabsil'de zaten var (GUID property), FoodServingStation(RequireComponent GuidGenerator, taskRequester+foodServedPrefab fields, requestTimer->CheckRequests->HasEnoughFood/EmitRequest stub), FoodDropZone.FoodCount, Plateau.GetFoodCount
+[x] Lesson 25: FillStationPlateauRequest(guid+food+dropZonePosition+priority=70), FoodDropZone.WorkerTargetPosition(workerTargetPoint transform), FoodServingStation.EmitRequest impl, TaskRequester(duplicate check by guid+type, ClearRequest loop-backwards)
+[x] Lesson 26: WorkerManager.HandleRequests impl (pendingRequests check, HandleRequest, HandleFillStationPlateauRequest: FindObjectsByType, potentialStations by FoodType, GetRandom, create FillStationPlateauTask, worker.AssignTask), FoodSpawnerStation(FoodType=spawnablePrefab.GetType, WorkerTargetPosition), FillStationPlateauTask stub
+[x] Lesson 27: WorkerTask(abstract, subTasks list, currentSubTaskIndex, worker+request cache, Start/Update/Complete), SubTask(abstract, IsComplete, Start/Update abstract), MoveToSubTask(destination, GoTo+HasReachedDestination), FillStationPlateauTask inherits WorkerTask + MoveToSubTask for food spawner, TaskRequester.ClearRequest
+[x] Lesson 28: Worker([RequireComponent NavigationAbility], State enum, Awake caches nav+holdFood, Update calls task.Update, AssignTask+GoTo+MarkAsBusy+CompleteTask, HasReachedDestination+IsPlateauFull/Empty/Dirty props), HoldFoodAbility(Plateau property+IsPlateauEmpty/Full/Dirty), WaitForConditionSubTask(Func<bool>), FillStationPlateauTask 4 subtasks complete, FoodServingStation HandleFoodServing bug fix (customer not needing food → dequeue)
+[ ] Lesson 29: (next) Worker animations + more request types
+
+== BUG FIXES (session arası) ==
+- Trash: OnTriggerEnter→OnTriggerStay+timer(0.2s)+OnTriggerExit reset
+- GuidGenerator: Tabsil kütüphanesinde mevcut, bizimki silindi — GUID property adı: .GUID (büyük harf)
+- Worker physics layer: ayrı layer'a alındı, Player ile çarpışma kapatıldı (Layer Collision Matrix)
+- HoldDishAbility: artık [RequireComponent HoldFoodAbility], plateau = GetComponent<HoldFoodAbility>().Plateau (aynı plateau, inspector hatası önlendi)
+- Worker.holdFoodAbility: SerializeField kaldırıldı, Awake'te GetComponent ile alınıyor

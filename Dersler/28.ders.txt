@@ -1,0 +1,347 @@
+Welcome back guys! In these lessons, we've got more errors to fix! Hooray!
+
+Mommy, I want my mom! Anyway...
+
+You know what? In this lesson, we are going to get this worker to move. I want to hit the play
+
+button. I want to hit that button here. So this boy is going to move for sure. He's going to go
+
+grab cups and drop them in here. Even though it takes one hour. No, it's not. Okay, so our worker
+
+manager assigned a task to the worker. Let's do this first. So let's turn this into a public one.
+
+Field task. Nope. I want this to be more generic. So worker task. Task. There you go.
+
+Then, we are going to store that task because we need to update it in our update method if
+
+we are processing a task. So let's do task stuff or just task. Private. Worker task.
+
+Current task. And in here, what we can do is current task equals task. Boom! After that, remember,
+
+we need to start the task here. So we are going to call current task dot start.
+
+Nice! That's already pretty good. Then, we've started our task here, so we need to update it.
+
+So inside of the update method, we are going to check if the current task is different than no.
+
+Current task dot update. As simple as it gets. Then, what do we need? In our worker manager,
+
+we are now good. We've started the task. We need to complete it, but not now. We are still updating
+
+it. Oh yeah, we need to go to. So the go to method that we have right here is going to be stolen. No,
+
+no, no. Borrowed from the customer that we've got right here. So let's do yoink and go to the worker.
+
+Boom! Go to. Nice! So it means that the worker will also need a navigation ability. So let's add it.
+
+Require component. Type of. Oh, I can't type anymore. I'm tired. Navigation ability. Yay!
+
+Components. Private. Navigation ability. Navigation ability. Okay, thank you. And after
+
+that, we can start the working state here. Starting the working state is going to be
+
+switching or we are just going to switch from the idle state that the worker was in to the
+
+performing task state or busy state if you want to call it like so. So let's create an enum right
+
+here. Enum state. Idle equals zero and performing task will be equal to one. Cool! We can have that
+
+somewhere around here. Private state. State. And inside of here, our state is now equals to
+
+state.performingTask. I forgot to add the navigation ability here. So awake. Navigation
+
+ability equals get component of type navigation. Navigation ability. Thank you. Okay, there you go.
+
+Now what else do we need to do? Handle this state. So we need to handle the state machine.
+
+But first off, what we can already do is check if this first subtask is complete or not. We are
+
+going to update it. What else? Has reached destination. Oh yeah, we need this variable
+
+right here. So what is this going to return here? I think it should return a value from
+
+the navigation ability because this is where we check if the player or the agent has reached a
+
+destination. So indeed, what we need to do is navigationAbility.hasReachedDestination. Perfect.
+
+I think that's everything we need to do. And boom, boom, boom. I think we need to
+
+add the complete method, right? Yeah, complete task. So in here, we can simply just debug
+
+something for now. So dl, because I want to hit play. Come on. Worker task completed. Yay.
+
+So now let's jump back to Unity. And of course, we only have one subtask right now. Keep in mind
+
+that the worker is not going to grab the cups and drop them here. He's only, he normally, he's only
+
+going to move towards this position that we've set right here. So what should we set up at this point?
+
+Boom, boom, boom. We've got the task requester. Where is our worker? Is here. NavigationAbility.
+
+Okay, nice. WorkerManager has the worker. Oh, can I hit play? Let's try.
+
+Please move. Please move. Okay, one second. Okay, and a side reference. Oh, we need to reference
+
+that target here. We did not reference it earlier because we had an error, so we could not spot it
+
+in the inspector. Okay, okay, okay, okay. Yay. Our worker is moving. Task completed.
+
+Finally. Whoa, sorry. It was so long, but at the end of the day, we got this working. Okay,
+
+so we are almost there. Now, the issue is that our worker is not grabbing the cups. He should
+
+be grabbing the cups, but one thing he's missing is the ability to grab the cups. So worker,
+
+worker, worker, worker, where are you? Where are you, worker? HoldFoodAbility. And we need
+
+to reference a plateau that we have somewhere around here, hopefully. Now, let's hit play,
+
+and the worker should be able to grab the cups from the station.
+
+Okay. Why aren't you grabbing the cups? Because we don't have a player detector. Of course,
+
+the player detector is the one that handles the triggering. If you remember well,
+
+holdHandleFoodSpawnerStationTriggered and so on. Remember? But if we want to use onTriggerStay
+
+or onTriggerEnter and so on, we need to have a rigidbody attached to the thingies that is
+
+colliding. Right now, none of our two elements that are going to interact have a rigidbody.
+
+So you can either add a rigidbody to the worker or add a character controller. Okay? This is
+
+another trick you can use. Maybe we can copy the values from our player. I think these are the
+
+same.45.01.08. Yeah, I think..01. Yeah. To prevent him from stepping. Okay. But the collider,
+
+yeah, the collider is too bad here. So you know what? We are just going to copy our character
+
+controller, copy component, select our worker, paste component values. Boom. Yeah, that's way
+
+better. Okay. Let's now hit play. And yay, we're grabbing cups. Awesome. The plateau is in a weird
+
+position though. Uh-huh. So maybe we should move it somewhere around here. Yeah. Now it makes more
+
+sense here. Yeah. Way more sense. Okay. Perfect. So now our worker can move to the position and
+
+grab cups. Now we need to tell him to go towards this position. But first off, wait for the plateau
+
+to be full. Let's copy this. Copy component. Boom. And paste component values. Thank you.
+
+I think it should. No, no. Come on. Why did it select the thingy here? The head. Where is our
+
+plateau? Yeah, it's way too far. So paste component values. There you go. That's way better. And maybe
+
+zero along the x-axis. We can enable it. Yeah, that's fine. Okay. So now as an exercise, yep, I
+
+need to give you exercises from time to time. Come on. You need to practice. As an exercise, you need
+
+to add the three other subtasks. So I'm going to help you a bit more. So I need a subtask to wait
+
+for the plateau to be full. Then another subtask to go towards the drop position.
+
+And finally, this is a subtask, not a subtac. Subtask to wait for the plateau.
+
+Sorry. To be empty. Yep. There you go. These are the three subtasks that I need you to add. Okay.
+
+So please try and do that. I'm going to do that in five seconds. I'm just going to drink a bit
+
+and then start them. Okay. So let's start. This one is quite simple. We can simply do subtasks.add
+
+new move to subtask towards the drop position. Perfect. And for these two, we are going to need
+
+a new kind of subtask. So let's create it right here. Because we need to wait for the plateau to
+
+be full in this one and for the plateau to be empty in this one. So public class wait for condition
+
+subtask and it will implement or inherit, sorry, the subtask class. Perfect. Then we are going to
+
+need an action or a function. I want to use a function in this one because, again, I like variety.
+
+This one is going to be our condition. First off, let's create the constructor like we've done in
+
+here to know what our condition will be. So wait for condition substack.
+
+Punk. Boo. Condition. This.condition equals condition. Okay. Boom. Thank you. Then we are
+
+going to implement our start and update method. So we can simply do alt enter, implement the abstract
+
+class and starting the method in here will be worker.mark as busy so that the worker doesn't
+
+perform anything else or doesn't do anything else other than waiting for the condition to be
+
+applied or to be processed or to be checked. Okay. So if condition, if the condition is true because
+
+it does return a boolean, then isComplete equals true. As simple as it gets. Okay. And in this case,
+
+we don't need the worker. So what you could have done is add another virtual. Maybe this one can
+
+be virtual or another abstract class without the worker. Anyway. So let's mark our boy as busy here.
+
+Boom. Public. Void. Mark as busy. As I've told you, marking it as busy will simply be state
+
+equals state.performingTask. And we can actually call this here instead of just saying state
+
+equals state.performingTask again. Nice. So now we can jump back to our worker task and do that.
+
+So subtasks.add new waitForCondition subtask. And now what will our condition be? We are going to
+
+check if the worker's plateau is full. And the plateau should be full but should not be dirty.
+
+It should be full of clean cups or clean food. So worker.isPlateauFull and worker.isPlateauDirty.
+
+If it's not dirty, it is clean. Okay. Then the other condition or the other subtask will be a
+
+new waitForCondition subtask again. And in here we want to check if the plateau is empty. So worker.isPlateauEmpty.
+
+Perfect. So let's add these three properties. Here is the first one, the second one, and the third one.
+
+Boom. Here they are. So you can already imagine that we are going to need either a reference
+
+to a plateau or a reference to our hold food ability. So what I'm going to do is add a
+
+reference to the hold food ability. Hold food ability. Hold food ability. Hold food ability.
+
+Hold food ability. Hold food ability. Boom and boom with a capital H. Hold food ability.
+
+So in here we can simply return holdFoodAbility.isPlateauEmpty. And of course we are going
+
+to need to create these in our hold food ability. So let's do this, this, and this. Thank you.
+
+isPlateauDirty and isPlateauFull. Alt-enter. Let's create stuff on this one. Alt-enter,
+
+alt-enter, and alt-enter. So now again we've got our three properties in the holdFoodAbility
+
+class because this is where we have our plateau. So this is going to return plateau.isEmpty. Okay.
+
+This one is going to return plateau.isDirty. And finally plateau.isFull. Perfect. All right.
+
+I think we should be good. Oh, come on. I'm feeling some stress here. I think I'm going
+
+to start beating my nails. Oh my gosh. Is it going to work? Is it not going to work?
+
+Anyway, if you've done this exercise, I hope that this is kind of what you had at the end
+
+of the day. All the solution that you found. Let's hit play. Okay. So here is our worker
+
+going to grab cups. Okay. So nothing in here. HoldFoodAbility. No reference to it.
+
+Are you kidding me? Plateau.isFull. Didn't we reference our plateau?
+
+Oh, it's not referenced. What the? Oh, bruh. Why do we have more? Oh, I think that this is because
+
+I did not apply the changes to the worker prefab. Oh, I see. I found it weird, to be honest. Anyway,
+
+I hope it's going to work now. One. Yeah. So this is the first step. Plateau.isFull
+
+is going to drop the pearls. Yay. So now if we serve the customers, yeah, he's going to grab
+
+cups again. Oh, he's so cute. And he's quite fast, actually. Nice. Well done. So let's try and clean
+
+the table. Okay. Let's go put the dishes in the trash. Let's serve the customers again. And he
+
+should be again going to grab some more cups. Okay. Oh, interesting. So I can't serve the
+
+customers now? Why that? Okay. Oh, come on. I was so happy. Why did you do that to me, Unity?
+
+CoffeeCashierStation. Let's check how many workers we have. WorkerCount1. So we have
+
+zero workers. Okay. We have zero workers. So this boy should be able to serve. ServingTimer
+
+has been locked. Okay. RequestCheckTimer. This is something else. How many cups do this boy have?
+
+One, two, three, four. So he should be leaving. Okay. So the customer should be leaving. The
+
+serving timer has been locked. Okay. This is interesting. Let's try and fix this issue.
+
+So, okay. I'm going to go step by step here. Okay. As an exercise, fix this issue for me,
+
+please. And let me know in the comments section. Just kidding. So we've got our
+
+FoodSpawnerStation. No, the ServingStation. Because what happened here? Boom, boom, boom.
+
+Let's go back to our detector. We've got inDropZone, FoodSpawnerStation. So no, this is
+
+not where we handle the ServingStation. Do we have OnTriggerEnter here? Yeah. OnTriggerEnter,
+
+OnTriggerStay. So we should be handling the food serving. The serving timer is less than the
+
+serving delay. How much is the serving delay? ServingDelay.3. So we've passed this condition.
+
+Okay. If we've passed this condition, is customer ready to take food? Maybe we were not able to pass
+
+this condition. Needs more food because he doesn't eat more food. IsReady. Customers.count is less
+
+than the return false. Customer.peek. Distance from the queue.StartPoint.Position. Return
+
+distance. Okay. You know what? What we're going to do is this. Boom. And debug.log.
+
+FoodServingStation. Customer is not ready to take food.
+
+Peek. Otherwise, let's check this one. GetFirstFullPosition. Even though we had cups,
+
+so it should not be this condition that messed up everything. So FoodServingStation.
+
+FirstFullPosition. Not found. So it means that we have no cups. Yeah. Okay.
+
+Otherwise, boom, boom, boom. Yeah, he doesn't need more food, actually. I think this is what
+
+locks here. So FoodServingStation. Customer does not need more food. Yeah, I think that's the case.
+
+So I think that at this point, we should not serve the customer, but just dequeue him.
+
+I think this is the point we've reached. I'm going to try and reproduce the issue,
+
+but I'm now 99% sure that this is what causes the issue.
+
+Okay. So I was going to grab cups, but we've got our servant. Nice. Okay. So one, two, three, four.
+
+Okay. So let's serve the customers. So this one, oh, he's not going to leave. Okay. Thank you.
+
+So now this boy has four cups. If we clean the table and put the dishes in the trash.
+
+Thank you. So I'm just going to clear the console so that I have a better view of what's happening.
+
+Okay. Customer does not need more food. That's exactly what I supposed. Okay.
+
+So if he's ready to take the food, but he doesn't need more food, then we are going to serve him,
+
+actually. So actually serve food, food to serve pop. Okay. So I must have changed something
+
+compared to what I've done in the course while making the course.
+
+So if he doesn't need more food, we are simply going to dequeue the customer.
+
+Yet it should, it should the trick here. So let's dequeue the customer and not serve him.
+
+Customer to serve, no. This one, the peak first customer. Boom.
+
+Okay. Because he simply collects the food, serving timer equals zero. Maybe we can set
+
+the serving timer to zero too. Yeah. This is something we can do here. Okay. Let's give that
+
+a shot. And this is going to be the last thing we do during this lesson because it's quite long.
+
+Sorry, but I really hope that you've enjoyed it and that we, you've learned so many things.
+
+If that's the case, feel free to leave a review. Thank you so much. It really helps.
+
+Okay. So let's serve our customers. All right. Please get more cups. Thank you.
+
+So now our boy has four cups. We're going to clean the table. And of course we are going to add the
+
+animations to our worker. By the way, it can be a nice exercise actually, because we've added the
+
+animations to the customers. You simply need to grab the same logic and apply it to the worker.
+
+So try and do that, please. Why did I grab cups? Come on. Anyway, let's try it. Boom. Yeah. Awesome.
+
+So now he's moving to the table. Really cool. Nice. Okay. So everything is working as expected
+
+now. I'm so proud of this. This was a big chunk of the code, of the game actually.
+
+So now that we've got our tasks set up correctly, we can create more requests, more tasks to serve
+
+the customers, to do multiple things. And I think that's what we're going to do in the next one.
+
+After fixing our boy's animations, of course. So see you in the next one.

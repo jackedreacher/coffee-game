@@ -1,21 +1,23 @@
 using UnityEngine;
 
+[RequireComponent(typeof(HoldFoodAbility))]
 public class HoldDishAbility : MonoBehaviour
 {
-    [Header(" Elements ")]
-    [SerializeField] private Plateau plateau;
+    private Plateau plateau;
+
+    private void Awake()
+    {
+        plateau = GetComponent<HoldFoodAbility>().Plateau;
+    }
 
     public bool CanCollectDishes()
     {
-        // Plateau devre dışı = üzerinde hiçbir şey yok = kirli tabak alabiliriz
         if (!plateau.gameObject.activeInHierarchy)
             return true;
 
-        // Plateau aktif ama temiz yemek var = tabak alamayız
         if (!plateau.IsEmpty && !plateau.IsDirty)
             return false;
 
-        // Plateau boş veya zaten kirli = alabiliriz
         return true;
     }
 

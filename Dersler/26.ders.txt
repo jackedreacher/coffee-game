@@ -1,0 +1,181 @@
+Welcome back guys! In this lesson we are going to handle the request that we've created
+
+previously. So right now we've sent the field plateau request to the WorkerManager.
+
+Let's now handle it in the WorkerManager. First off I want to remove these debug.log lines. There
+
+you go. Let's jump back to Unity, select the WorkerManager and reference our worker. Right
+
+now we only have one worker. So let's open our WorkerManager in here. We call the register
+
+request and we now have a request in our pendingRequests list. Perfect! So we can now implement
+
+the first piece of logic in our handleRequests method. In here we want to check if we've got
+
+pendingRequests. So if pendingRequest.count is less or equal to zero, we are simply going to
+
+return because we don't have any requests pending right now. Then we are going to consider that our
+
+worker, the only worker we have, is idle right now because we can, yeah, let's implement this logic
+
+later on. So now the only thing we need to do is assign the pendingRequest to the worker. Okay?
+
+So let's do something like handleRequest and now singular because we only have one request we want
+
+to handle, we are going to pass in our pendingRequests at index zero and give it to our
+
+worker. So workers at index zero. Of course we are not going to use this later on because we are going
+
+to have more workers and so on. We will need the idle worker or the first one, maybe the closest
+
+one. Anyway, stop talking! So after handling the request we want to remove it from the list. So
+
+pendingRequests.removeAt zero. There you go. So let's now create this handleRequest method.
+
+Boom! Okay, so handling the request, by the way, I'm going to call this one request. So handling
+
+the request means applying a different logic depending on the type of the request. So if it's
+
+a clean table request, we are going to do stuff. If it's a field station plateau request, we are
+
+going to do something else. And if it's a serve customer request, again, you guessed it, something
+
+else. So we only have one type right now, which is the field station plateau request. So let's check
+
+if the request is of that type. If request.getType or is field plateau request, this is something you
+
+can do. Well, we are going to handle field plateau or maybe station, yeah, station plateau request
+
+with the worker. Okay, and we are also going to pass in the request.
+
+There you go. This will make our code easier to maintain. Perfect. So at this point we've
+
+got our request, we've got the worker, and we know what kind of request this is. So we know
+
+what we should do. So the first thing we are going to do is convert that request into a field
+
+station plateau request to grab the food that we need the worker to go grab. So let's say
+
+field station plateau request field request will be equal to request as field station plateau request.
+
+Perfect. Then we are going, as I've told you, to look for the food station that spawns the food
+
+that is requested in here. So let's do food spawner station, food spawner stations equals
+
+find objects by type, and we want to find all of the food spawner stations, and the sorting
+
+can be none. No need to sort them. But what we need is the food spawner station that spawns
+
+the food that is requested right here. So let's first see or check if we've got any food spawner
+
+station. If food spawner station.length is less or equals to zero, then we should not have that.
+
+So let's return, but we can definitely debug something here. Debug.log error, no food spawner
+
+station found. Okay, this should never happen. Of course we should have a food spawner station.
+
+At this point we know that we've got food spawner stations. So we need to make sure that the food
+
+spawner stations that we've got in here do spawn the food that is required. So we can create a list
+
+so that we can later on grab a random one or the closest one to our worker. So let's loop
+
+through all of these, but first off let's create a list of food spawner station. Let's call this
+
+one potential stations. Potential food spawner stations equals a new list of food spawner station.
+
+Okay, then we are going to loop through all of these and if food spawner station at index i dot
+
+we need to grab the food. Do we have the food in there? Nope, we don't. So we definitely need to
+
+at least set up a food type inside of here. So let's open our food spawner station and do something
+
+like maybe under settings public type food type and in here we want to return spawnable food
+
+prefab dot get type. Okay, that way we can check for the type, compare it with our request's food type.
+
+So food type equals a request, no not request, but field request dot food dot get type. Okay,
+
+if they have the same type we can definitely add that food spawner station to our list.
+
+Potential food spawner stations dot add food spawner station at index i. Perfect.
+
+So at this point we have a list of potential food spawner stations.
+
+But again we need to check if we've got something in our list or not. So let's grab our potential
+
+ones. No potential in here it should be count and no potential food spawner station found. Perfect.
+
+Okay, so now for now I think we can grab a random food spawner station. So food
+
+spawner station random food spawner station will be equal to potential food spawner stations dot
+
+get or maybe to array dot get random. Okay, again get random in here is an extension method
+
+method that I've made. It's really simple. It grabs a random element in an array. Okay,
+
+and we've got the same thing for the array here. I need to create one for lists too. Yep,
+
+I'll do that later on maybe. Okay, so at this point now we've got three core elements. We know
+
+what worker should handle the request. We know what station we need to fill and we know where
+
+to grab the food. The only thing left is to create a task from that request that the worker will be
+
+able to perform. Okay, so I'm going to write the logic of the task in here and then we can create
+
+that task. Okay, so our fill station plateau not request this time but task. Let's call it fill
+
+task will be equal to a new fill station plateau task and let's reference the things that we are
+
+going to need. We are going to need a reference to the worker. We are going to need a reference
+
+to our worker target point. So in the station, in this food spawner station. So again that food
+
+spawner station like we've done for the drop zone if I remember well. Let's double check.
+
+I'm sure we have it but yeah. Yeah, there you go. This blue point in here. The worker target point
+
+for the drop zone. We need something similar for our food spawner station in here. So I'm just
+
+going to duplicate it. Move it as a child of the coffee station right here. Thank you. Let's select
+
+it and maybe we should move it somewhere inside of the coffee station. You see inside of this
+
+bounding box again but also on the nav mesh. So let's grab that boy. Drop it somewhere around here
+
+if we can. Okay, seems decent. I think I'm just going to move it a little bit towards there and
+
+increase the bounding box of our station. So let's increase it like so. Boom, there you go.
+
+That way we don't have any issues with workers colliding or not being able to reach that point.
+
+Okay, but of course feel free to experiment with this again.
+
+So yep, we now have our worker target point. I'm just going to rename it. Let's open our
+
+food spawner station and add a reference to the position we need to reach or the position
+
+our worker needs to reach. So serialize field private transform worker target point. Thank you.
+
+And then we are going to specify the vector3 worker target position and this should return
+
+the worker target point dot position. Thank you. Let's now jump back to Unity. Oh, we won't be able
+
+to reference it because we still have some errors in here. That's cool. So let's reference our random
+
+food spawner station dot worker target position. Nice. Then we also need the drop zones position
+
+that we've set up earlier. So it's going to be in the request. Let me just do this, do this,
+
+and field request dot drop zone position. And finally, we are also going to pass in the request
+
+along with the task. Nice. Once the task has been created, we are going to assign it to the worker.
+
+So assign task field task. Perfect. Okay, this is still a bit blurry in here. So in the next one,
+
+let's create tasks. Tasks are going to be quite simple. They are just going to be a combination
+
+or a sequence of subtasks. Move there, wait for something, then move there, wait for something,
+
+and so on. It's going to be quite simple. Don't worry. See you in the next one.

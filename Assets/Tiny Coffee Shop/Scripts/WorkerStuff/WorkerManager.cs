@@ -27,9 +27,58 @@ public class WorkerManager : MonoBehaviour
 
     private void HandleRequests()
     {
-        // Pending request var mı?
-        // Idle worker var mı?
-        // Pending request'i idle worker'a ata
-        // Request'i pending listesinden kaldır
+        if (pendingRequests.Count <= 0)
+            return;
+
+        if (workers.Count <= 0)
+            return;
+
+        // TODO: idle worker kontrolü burada yapılacak
+        HandleRequest(pendingRequests[0], workers[0]);
+        pendingRequests.RemoveAt(0);
+    }
+
+    private void HandleRequest(TaskRequest request, Worker worker)
+    {
+        if (request is FillStationPlateauRequest)
+            HandleFillStationPlateauRequest(request, worker);
+    }
+
+    private void HandleFillStationPlateauRequest(TaskRequest request, Worker worker)
+    {
+        FillStationPlateauRequest fillRequest = request as FillStationPlateauRequest;
+
+        FoodSpawnerStation[] foodSpawnerStations = FindObjectsByType<FoodSpawnerStation>(FindObjectsSortMode.None);
+
+        if (foodSpawnerStations.Length <= 0)
+        {
+            Debug.LogError("No food spawner station found");
+            return;
+        }
+
+        List<FoodSpawnerStation> potentialStations = new List<FoodSpawnerStation>();
+
+        for (int i = 0; i < foodSpawnerStations.Length; i++)
+        {
+            if (foodSpawnerStations[i].FoodType == fillRequest.Food.GetType())
+                potentialStations.Add(foodSpawnerStations[i]);
+        }
+
+        if (potentialStations.Count <= 0)
+        {
+            Debug.LogError("No potential food spawner station found");
+            return;
+        }
+
+        FoodSpawnerStation randomFoodSpawnerStation = potentialStations.ToArray().GetRandom();
+
+        FillStationPlateauTask fillTask = new FillStationPlateauTask(
+            worker,
+            randomFoodSpawnerStation.WorkerTargetPosition,
+            fillRequest.DropZonePosition,
+            fillRequest
+        );
+
+        worker.AssignTask(fillTask);
     }
 }

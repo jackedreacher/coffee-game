@@ -89,47 +89,47 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 871590681819255628}
+    m_TransformParent: {fileID: 7099182213947003078}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.1846145
+      value: 1.1846151
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.1846145
+      value: 1.184615
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.1846145
+      value: 1.1846147
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.00014412
+      value: 0.01052423
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.467
+      value: -0.45086336
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0.014353133
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.99914044
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0.040756237
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.007331551
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: 0.001879968
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35d4d3e1226d4ee4f8f07b9e11e70d7f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -236,16 +236,11 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6559021958675563115}
-    - targetCorrespondingSourceObject: {fileID: -4128383740851021839, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 2893799548162282619, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2485176159928203584}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
---- !u!4 &871590681819255628 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -4128383740851021839, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
-  m_PrefabInstance: {fileID: 5381110817354876093}
-  m_PrefabAsset: {fileID: 0}
 --- !u!95 &2001602020786813228 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
@@ -254,6 +249,11 @@ Animator:
 --- !u!4 &5559468040863507286 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
+  m_PrefabInstance: {fileID: 5381110817354876093}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7099182213947003078 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2893799548162282619, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
   m_PrefabInstance: {fileID: 5381110817354876093}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7868291434250692021

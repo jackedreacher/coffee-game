@@ -12,6 +12,7 @@ public class FoodServingStation : MonoBehaviour
     [SerializeField] private FoodDropZone dropZone;
     [SerializeField] private TableManager tableManager;
     [SerializeField] private TaskRequester taskRequester;
+    [SerializeField] private SpawnableFood foodServedPrefab;
 
     [Header(" Settings ")]
     [SerializeField] private float servingDelay;
@@ -57,7 +58,9 @@ public class FoodServingStation : MonoBehaviour
 
     private void EmitRequest()
     {
-        // TODO: next lesson - taskRequester.CreateTaskRequest(new FillPlateauRequest(...))
+        taskRequester.CreateTaskRequest(
+            new FillStationPlateauRequest(guidGenerator.GUID, foodServedPrefab, dropZone.WorkerTargetPosition)
+        );
     }
 
     private void OnTriggerEnter(Collider other)
@@ -94,8 +97,14 @@ public class FoodServingStation : MonoBehaviour
         if (!customerManager.IsCustomerReadyToTakeFood())
             return;
 
-        if (!customerManager.PeekFirstCustomer().NeedsMoreFood())
+        Customer customer = customerManager.PeekFirstCustomer();
+
+        if (!customer.NeedsMoreFood())
+        {
+            servingTimer = 0;
+            DequeueCustomer(customer);
             return;
+        }
 
         if (GetFirstFullPosition() == null)
             return;

@@ -1,0 +1,259 @@
+Welcome back guys! In this lesson, we've got three errors to fix. So let's fix them one by one.
+
+First off, we need to create this task right here. So you know what? This is the first thing
+
+we are going to do. Okay, so let's right click, create a new script, WorkerTask. Let's open it.
+
+And this WorkerTask is going to be the base class all of our other tasks are going to inherit from.
+
+So abstract. Boom! Let's handle that one later on. For now, I just want to create
+
+the FieldPlatoTask in here. So let's go in the script, public class FieldStationPlatoTask
+
+will inherit from the WorkerTask. There you go. So inside of here, we need to create our
+
+constructor. So public FieldStationPlatoTask. We will need the worker. What else did we have here?
+
+Let's grab the script, drop it here and maybe we can see. Yeah, so we've got the worker,
+
+we've got a vector3 for our worker target position for the food station. So let's call this one
+
+foodSpawningStationPosition. Something like that. Yep. What else do we need? We need the drop
+
+position. So vector3 dropPosition or you can call it dropZonePosition. You decide here.
+
+And finally, we are going to have a reference to our task request. So let's call it
+
+request. Okay, so we can now save this one. We don't have any more error in here, which is really
+
+cool. We can grab it again and drop it here. Perfect. And now we've got a better view at our
+
+task. Nice. Okay, so we've got our constructor. What are we going to use these for? As I've told
+
+you in the previous one, all of our tasks here are going to be composed or made of sub-tasks.
+
+So for instance, the worker at start should go towards the foodSpawningStationPosition,
+
+wait until his plateau is full or after he has picked up a certain amount of food that you
+
+have decided. After that, he will move to the drop position and finally wait for his plateau
+
+to be emptied there. Okay, so it's going to look like something like subtasks.addNewSubtasks
+
+and so on. We are going to have four sub-tasks for this fieldStationPlateau task. I hope this is
+
+clear. Please, if it's not, again, leave a comment in the comment section. Thank you.
+
+So let's first create our sub-task class. So public class sub-task and this one is going to
+
+be abstract because as I've told you, we are going to have different kinds of sub-tasks.
+
+The moveTo sub-task, waitForSomething sub-task and so on. You can even add more, waitForATimer,
+
+teleportTo a position. You decide, actually. This is so versatile.
+
+So let's create our sub-task here. A sub-task will have a boolean, isComplete.
+
+So we can actually get it and private set it. Then we are going to have two methods that the
+
+the actual sub-tasks will override. So public abstract void start. Let's pass in a worker
+
+and public abstract void update in case we need to check something. So worker,
+
+worker, worker. There you go. Perfect. The sub-task class is as simple as this.
+
+So now let's create the first one, the moveTo sub-task. Public class moveTo sub-task that
+
+will inherit from the sub-task and of course we need to implement the abstract class with
+
+the start method and the update method. So let's start this method. If we start this sub-task,
+
+this is the moveTo sub-task, we are just going to tell the worker to move to a certain position
+
+but to have that position we need to store it somewhere. So vector3 destination.
+
+So let's store it. Maybe we can do something like a constructor moveTo sub-task with a vector3
+
+destination and this one is simply going to set the destination. So this.destination equals
+
+destination. Perfect. So now worker.goTo. Can we call the goTo method? No, because we
+
+still don't have it. We have it in our customer class and I think it's going to be quite similar
+
+but now we can simply do goTo destination. Telling the worker to go to that destination
+
+and in the update method we want to check if the worker has reached the destination. Why? Because
+
+as I've told you a task will be a compilation or a sequence of sub-tasks. So when the worker
+
+reaches the destination we are going to switch to the next sub-task and so on and so on. We are
+
+always going to check if the condition is complete, is true or not. If it's true, boom, complete this
+
+sub-task and move to the next one. So we want to check if the worker that has reached destination
+
+and this is going to be a property, isComplete equals true. Got it? Right now we can't set
+
+isComplete. We need to set this one to protected, sorry, not private. Okay, perfect. So we already
+
+have our first sub-task. So what we are going to do is remove these and in here we are instead
+
+going to do subtasks.add new moveToSubtask and set up our destination which is going to be our
+
+food spawning station position. Okay, right. So we now need to implement our worker task for this
+
+to make more sense because right now we are adding something to a list that we don't even
+
+have. Okay, but I hope that this is clear. In my opinion this was the best way to explain the
+
+process, explaining the sub-tasks, then creating the sub-task and maybe creating one example of a
+
+sub-task, how it would look like. But if you think I could have explained that in a better way, please
+
+let me know. All right, so our worker task. Well, we know that we are going to have sub-tasks so
+
+what we can do is protected list and again list sub-task, sub-tasks equals new list of sub-tasks.
+
+Perfect, so now we don't have any more error in here which is great. Then I told you that we were
+
+going to start the first one, wait for it to complete, then start the next one. So we need to
+
+keep track of the sub-task we are currently in. So protected int current sub-task index.
+
+Actually this can be private because I think we are only going to use it in the worker task
+
+class but let's keep it protected just in case. Then let's also cache our worker.
+
+And finally what we can do is also cache the request, protected task request request.
+
+Okay, these are the four things we are going to need in here.
+
+Next, let's create our first constructor. So public worker task and let's pass in our
+
+worker along with the task request request. This.worker equals worker and this.request
+
+equals request. So now we are having an error in here because our worker task
+
+constructor needs to also be implemented. For that we are going to add two points,
+
+okay? Then base worker and request so that our worker task here is aware of those worker and
+
+request. Then we can implement the constructor. Why is it important? Because our task or worker
+
+task will have a start method, an update method, a complete method and a cancel method if we need
+
+to cancel that task. So let's start with the start method. public void start. Inside of here what do
+
+we want to do? We just want to initialize some stuff. When the worker is going to call the start
+
+method to start the task, remember we've assigned the task to the worker here. We are still going
+
+to implement this one, don't worry, but when assigning the task we are going to start it from
+
+the worker. So in the start method we want to reset our current subtask index just in case,
+
+even though it should already be zero, and then we are going to start our first subtask. So subtasks
+
+at index zero dot start, okay? So let's have a look at what's going to happen here. By the way we need
+
+to pass in the work area. The field station plateau task has been assigned to our worker right here.
+
+So the worker is going to start it. We're going to call the start method and start the first
+
+subtask which is this one, move to. So what will happen? Our worker is going to walk towards the
+
+destination. The destination that we've set up here, the food spawning station position, okay?
+
+Is that clear? I need you to stay focused here because you are going to implement some tasks
+
+as an exercise later on. Of course you can still decide not to do them but I highly encourage you
+
+to do these exercises. Anyway, so we've started our task. We now need to check if we've completed
+
+our current subtask or not to be able to switch to the next one. So public void update and again
+
+this update method is going to be called from the worker because it does not inherit from the
+
+MonoBehaviour class. So the start and update method that you can see here are not called
+
+automatically. They need to be called from somewhere. Anyway, so if the current subtask index
+
+is greater or equals to the subtask.count it means that we've completed everything. So let's return
+
+because we should have called the complete method earlier. Actually this should never happen but
+
+again I like to put in precautions here. Subtask then current will be equals to the subtasks
+
+at index current subtask index. Okay we've got our subtask. Then we need to update it.
+
+Why should we update it? Because we need to check if the worker has reached the destination or not.
+
+So let's update it with our worker. Okay perfect. After that if the current task is complete
+
+what should we do? We are going to increment our counter.
+
+So plus plus boom and then check if we still have more tasks to start subtasks sorry to start
+
+or not. So if our current subtask index is less than the subtasks.count we still have more
+
+subtasks. So subtasks at index current subtask index dot start with the worker. Okay otherwise
+
+we've completed our task. So let's just call the complete method. Perfect. At this point we've got
+
+the full loop of our worker task. We apply or process subtasks one by one until they are all
+
+complete and when all of these subtasks are complete our worker task is complete. Nice.
+
+So let's now do public void complete. I think it should be private. Yeah private because we are
+
+just going to call it from the worker task here. Okay so if the request is different than null
+
+and the request dot sender is different than null what do we want to do? Request dot sender dot
+
+clear request and we can pass in this request that we want to clear. I'm going to explain that in
+
+one moment. Then we can simply call worker dot complete task. That way we can switch in our
+
+state machine from the busy state or processing task state to the idle state again and the worker
+
+manager can now request that worker one more time to assign it or give it a new task. Then why do
+
+we want to clear the request in here? Because remember our task requester here is checking if
+
+he already has a certain request to prevent having duplicates. So if we don't clear the request in
+
+our worker task in here what will happen is that any request will only be able to execute once
+
+because we've removed the request from the pending requests but this is inherent to our
+
+worker manager and it's not linked to the task requester. We should not remove it when giving it
+
+to the worker because it might have not been accomplished or processed yet. The station can
+
+ask the worker manager to go get some cups and yeah we don't have enough food but it takes time
+
+to go grab that food. So we should only clear the request from the task requester once the task has
+
+been completed. So we need to implement this clear request method in our task requester then.
+
+So let's do it! public void clear request we need the request so task request request
+
+then here is what we are going to do. We are going to loop through all of our requests in
+
+the opposite direction so for not like that with two r's are requests dot count dot count
+
+oh come on requests dot count thank you if the requests at index i dot guid equals our request
+
+dot guid and requests at index i dot get type equals request dot get type then that's the same
+
+request we're going to remove it requests dot remove at i and then we can break okay perfect
+
+so what's left now in our worker manager we need to assign the task to our worker
+
+we also need to create the complete task methods we have two more errors in here so go to and has
+
+reached destination let's implement these in the next one i think this one is already pretty huge
+
+in term of content and understanding so i'm going to give you some time to digest it okay and if
+
+you've got any questions please feel free to drop them in the comment section see you in the next one
