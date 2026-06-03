@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Trash : MonoBehaviour
 {
+    [SerializeField] private Transform workerTargetPoint;
+    public Vector3 WorkerTargetPosition => workerTargetPoint.position;
+
     private float dumpTimer;
     private const float dumpDelay = 0.2f;
 

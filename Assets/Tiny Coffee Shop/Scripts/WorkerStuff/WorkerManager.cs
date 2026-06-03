@@ -7,6 +7,7 @@ public class WorkerManager : MonoBehaviour
 
     [Header(" Elements ")]
     [SerializeField] private List<Worker> workers = new List<Worker>();
+    [SerializeField] private Trash trash;
 
     [SerializeReference] private List<TaskRequest> pendingRequests = new List<TaskRequest>();
 
@@ -33,8 +34,18 @@ public class WorkerManager : MonoBehaviour
         if (workers.Count <= 0)
             return;
 
-        // TODO: idle worker kontrolü burada yapılacak
-        HandleRequest(pendingRequests[0], workers[0]);
+        List<Worker> idleWorkers = new List<Worker>();
+        for (int i = 0; i < workers.Count; i++)
+        {
+            if (workers[i].CurrentTask != null)
+                continue;
+            idleWorkers.Add(workers[i]);
+        }
+
+        if (idleWorkers.Count <= 0)
+            return;
+
+        HandleRequest(pendingRequests[0], idleWorkers[0]);
         pendingRequests.RemoveAt(0);
     }
 
@@ -44,6 +55,15 @@ public class WorkerManager : MonoBehaviour
             HandleFillStationPlateauRequest(request, worker);
         else if (request is ServeCustomersRequest)
             HandleServeCustomersRequest(request, worker);
+        else if (request is CleanTableRequest)
+            HandleCleanTableRequest(request, worker);
+    }
+
+    private void HandleCleanTableRequest(TaskRequest request, Worker worker)
+    {
+        CleanTableRequest cleanRequest = request as CleanTableRequest;
+        CleanTableTask task = new CleanTableTask(worker, cleanRequest.Table, trash, request);
+        worker.AssignTask(task);
     }
 
     private void HandleServeCustomersRequest(TaskRequest request, Worker worker)

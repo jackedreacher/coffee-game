@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 29 complete
+Last updated: Lesson 30 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -165,7 +165,9 @@ Table Manager (TableManager script, tables[] from GetComponentsInChildren)
        |- Chair (isEmpty, customerTargetPoint, customerTargetWalkPoint serialized)
 Customer Manager (singleton, spawns customers on demand)
 CustomerSpawnPoint (empty transform, where customers appear)
-Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
+Player has: CharacterController, PlayerDetector, HoldFoodAbility, HoldDishAbility, PlayerAnimator
+  |- Plateau (child of character model, starts disabled)
+Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbility, HoldDishAbility, CustomerAnimator
   |- Plateau (child of character model, starts disabled)
 
 == PATTERNS & GOTCHAS ==
@@ -207,7 +209,8 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 27: WorkerTask(abstract, subTasks list, currentSubTaskIndex, worker+request cache, Start/Update/Complete), SubTask(abstract, IsComplete, Start/Update abstract), MoveToSubTask(destination, GoTo+HasReachedDestination), FillStationPlateauTask inherits WorkerTask + MoveToSubTask for food spawner, TaskRequester.ClearRequest
 [x] Lesson 28: Worker([RequireComponent NavigationAbility], State enum, Awake caches nav+holdFood, Update calls task.Update, AssignTask+GoTo+MarkAsBusy+CompleteTask, HasReachedDestination+IsPlateauFull/Empty/Dirty props), HoldFoodAbility(Plateau property+IsPlateauEmpty/Full/Dirty), WaitForConditionSubTask(Func<bool>), FillStationPlateauTask 4 subtasks complete, FoodServingStation HandleFoodServing bug fix (customer not needing food → dequeue)
 [x] Lesson 29: Worker animations (CustomerAnimator + state machine: Idle/PerformingTask), ServeCustomersRequest(guid+workerTargetPos+dropZone+priority=40), ServeCustomersTask(MoveTo+WaitForCondition(foodCount<3)), FoodServingStation(workerServingTargetPoint, CanSendServeCustomersRequest: workerCount<=0&&customerReady&&hasEnoughFood, EmitServeCustomersRequest, OnTrigger detects Worker too), WorkerManager handles ServeCustomersRequest→ServeCustomersTask, [SerializeReference] on pendingRequests+TaskRequester.requests, [System.Serializable] on TaskRequest+subclasses
-[ ] Lesson 30: (next) Worker idle check before task assignment
+[x] Lesson 30: WorkerManager idle check (CurrentTask==null loop, return if none idle), CleanTableRequest(guid+table+priority=50), CleanTableTask(MoveTo table→WaitForCondition(!isDirty)→MoveTo trash→WaitForCondition(!dirty&&empty)), TableSet([RequireComponent GuidGenerator], GUID property, workerTargetPoint/WorkerTargetPosition, OnCustomerLeft→tableManager.PushDirtyTable, GetCleanedBy→tableManager.RemoveDirtyTable), TableManager(TaskRequester+dirtyTables list+PushDirtyTable+RemoveDirtyTable), Trash(workerTargetPoint+WorkerTargetPosition), WorkerManager(trash ref+HandleCleanTableRequest), Worker(CurrentTask property), Worker prefab: add HoldDishAbility
+[ ] Lesson 31: (next) worker table cleaning re-request bug fix
 
 == BUG FIXES (session arası) ==
 - Trash: OnTriggerEnter→OnTriggerStay+timer(0.2s)+OnTriggerExit reset

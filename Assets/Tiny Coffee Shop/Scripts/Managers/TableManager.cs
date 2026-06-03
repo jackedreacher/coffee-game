@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TableManager : MonoBehaviour
@@ -5,9 +6,27 @@ public class TableManager : MonoBehaviour
     [Header(" Elements ")]
     private TableSet[] tables;
 
+    [Header(" Components ")]
+    [SerializeField] private TaskRequester taskRequester;
+
+    [Header(" Settings ")]
+    private List<TableSet> dirtyTables = new List<TableSet>();
+
     private void Awake()
     {
         tables = GetComponentsInChildren<TableSet>();
+    }
+
+    public void PushDirtyTable(TableSet table)
+    {
+        dirtyTables.Add(table);
+        taskRequester.CreateTaskRequest(new CleanTableRequest(table.GUID, table));
+    }
+
+    public void RemoveDirtyTable(TableSet table, HoldDishAbility holdDishAbility)
+    {
+        dirtyTables.Remove(table);
+        taskRequester.ClearRequest(new CleanTableRequest(table.GUID, table));
     }
 
     public bool IsAnyTableAvailable()

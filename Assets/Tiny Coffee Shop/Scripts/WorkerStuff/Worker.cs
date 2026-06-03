@@ -16,6 +16,7 @@ public class Worker : MonoBehaviour
     private WorkerTask currentTask;
 
     public bool IsIdle => state == State.Idle;
+    public WorkerTask CurrentTask => currentTask;
     public bool HasReachedDestination => navigationAbility.HasReachedDestination;
     public bool IsPlateauFull => holdFoodAbility.IsPlateauFull;
     public bool IsPlateauEmpty => holdFoodAbility.IsPlateauEmpty;

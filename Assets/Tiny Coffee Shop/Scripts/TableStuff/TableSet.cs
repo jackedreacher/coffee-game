@@ -1,13 +1,19 @@
 using UnityEngine;
 
+[RequireComponent(typeof(GuidGenerator))]
 public class TableSet : MonoBehaviour
 {
     [Header(" Elements ")]
     [SerializeField] private Plateau plateau;
+    [SerializeField] private Transform workerTargetPoint;
     private Chair[] chairs;
 
     [Header(" Components ")]
     private TableManager tableManager;
+    private GuidGenerator guidGenerator;
+
+    public string GUID => guidGenerator.GUID;
+    public Vector3 WorkerTargetPosition => workerTargetPoint.position;
 
     [Header(" Settings ")]
     private bool isFull;
@@ -26,6 +32,7 @@ public class TableSet : MonoBehaviour
         isFull = false;
         isDirty = false;
         chairs = GetComponentsInChildren<Chair>();
+        guidGenerator = GetComponent<GuidGenerator>();
     }
 
     private void Update()
@@ -60,6 +67,8 @@ public class TableSet : MonoBehaviour
 
         isDirty = false;
         isFull = false;
+
+        tableManager?.RemoveDirtyTable(this, holdDishAbility);
     }
 
     public void MarkPlateauDirty(int foodCount)
@@ -82,6 +91,8 @@ public class TableSet : MonoBehaviour
         isFull = false;
         foodTimer = 0;
         foodConsumed = 0;
+
+        tableManager?.PushDirtyTable(this);
     }
 
     public void AcceptCustomer(Customer customer, TableManager tableManager)
