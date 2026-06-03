@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 33 complete
+Last updated: Lesson 34 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -213,7 +213,8 @@ Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbil
 [x] Lesson 31: Priority-based task preemption — WorkerTask.Request property, HoldFoodAbility.IsPlateauActive, Worker.CanCancelTask(!IsPlateauActive), WorkerManager.HandleNoIdleWorkersFound: loop pending requests→loop workers→if CanCancelTask && pendingPriority>currentPriority→add current request back to pending→HandleRequest(new)→workerFound=true→break; if workerFound remove pending+break
 [x] Lesson 32: Multi-worker + idle system — WorkerManager uses GetRandom() idle worker, IdleRequest(guid+pos+priority=-1), IdleTask(MoveTo+WaitForCondition(false)), WorkerIdlePosition([RequireComponent TaskRequester+GuidGenerator], 2s timer→CreateIdleRequest), WorkerManager handles IdleRequest, PlayerDetector: [SerializeField] NavigationAbility, OnTriggerStay returns if moving
 [x] Lesson 33: Table cleaned event + task cancellation — TableManager.TableCleaned Action<TableSet,HoldDishAbility>, invoked in RemoveDirtyTable; WorkerManager subscribes+OnTableCleaned(remove pending CleanTableRequest by GUID, cancel worker's CleanTableTask if different cleaner); Worker.CancelTask(), WorkerTask.Cancel()(clears request from sender); CleanTableTask.Table property; Plateau.Push safety: if no empty position && childCount<maxCapacity → CreateNewFoodPosition before push
-[ ] Lesson 34: (next)
+[x] Lesson 34: Highest-priority + closest worker — WorkerManager.GetHighestPriorityRequest()(int.MinValue loop→max priority index), GetTargetPositionFromRequest(FillStation→dropZonePos, ServeCustomers→workerTargetPos, CleanTable→table.WorkerTargetPosition), GetClosestWorker(idleWorkers,targetPos)(float.MaxValue loop→min distance index); HandleRequests uses these instead of pendingRequests[0]+GetRandom(). Unity: duplicate tables → each needs unique GUID (GuidGenerator → Generate GUID)
+[ ] Lesson 35: (next)
 
 == SESSION BUG FIXES (Lesson 29-32 arası) ==
 - Plateau.Start()→Awake(): disabled plateau ilk SetActive(true)'de Start() bir frame geç çalışıp isEmpty=true reset ediyordu → dirty dish dump çalışmıyordu

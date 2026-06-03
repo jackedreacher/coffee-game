@@ -54,8 +54,59 @@ public class WorkerManager : MonoBehaviour
             return;
         }
 
-        HandleRequest(pendingRequests[0], idleWorkers.ToArray().GetRandom());
-        pendingRequests.RemoveAt(0);
+        TaskRequest highestPriorityRequest = GetHighestPriorityRequest();
+        Vector3 taskTargetPosition = GetTargetPositionFromRequest(highestPriorityRequest);
+        Worker closestWorker = GetClosestWorker(idleWorkers, taskTargetPosition);
+        HandleRequest(highestPriorityRequest, closestWorker);
+        pendingRequests.Remove(highestPriorityRequest);
+    }
+
+    private TaskRequest GetHighestPriorityRequest()
+    {
+        int maxPriority = int.MinValue;
+        int requestIndex = -1;
+
+        for (int i = 0; i < pendingRequests.Count; i++)
+        {
+            if (pendingRequests[i].Priority > maxPriority)
+            {
+                maxPriority = pendingRequests[i].Priority;
+                requestIndex = i;
+            }
+        }
+
+        return pendingRequests[requestIndex];
+    }
+
+    private Vector3 GetTargetPositionFromRequest(TaskRequest request)
+    {
+        if (request is FillStationPlateauRequest fillRequest)
+            return fillRequest.DropZonePosition;
+        else if (request is ServeCustomersRequest serveRequest)
+            return serveRequest.WorkerTargetPosition;
+        else if (request is CleanTableRequest cleanRequest)
+            return cleanRequest.Table.WorkerTargetPosition;
+
+        return Vector3.zero;
+    }
+
+    private Worker GetClosestWorker(List<Worker> idleWorkers, Vector3 taskTargetPosition)
+    {
+        float minDistance = float.MaxValue;
+        int workerIndex = -1;
+
+        for (int i = 0; i < idleWorkers.Count; i++)
+        {
+            float distance = Vector3.Distance(idleWorkers[i].transform.position, taskTargetPosition);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                workerIndex = i;
+            }
+        }
+
+        return idleWorkers[workerIndex];
     }
 
     private void HandleNoIdleWorkersFound()
