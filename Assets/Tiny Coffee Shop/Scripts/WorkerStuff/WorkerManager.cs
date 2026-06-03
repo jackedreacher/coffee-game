@@ -14,6 +14,12 @@ public class WorkerManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        TableManager.TableCleaned += OnTableCleaned;
+    }
+
+    private void OnDestroy()
+    {
+        TableManager.TableCleaned -= OnTableCleaned;
     }
 
     public static void RegisterRequest(TaskRequest request)
@@ -113,6 +119,41 @@ public class WorkerManager : MonoBehaviour
     {
         ServeCustomersTask task = new ServeCustomersTask(worker, request);
         worker.AssignTask(task);
+    }
+
+    private void OnTableCleaned(TableSet table, HoldDishAbility holdDishAbility)
+    {
+        for (int i = 0; i < pendingRequests.Count; i++)
+        {
+            if (pendingRequests[i] is not CleanTableRequest)
+                continue;
+
+            if (pendingRequests[i].Guid != table.GUID)
+                continue;
+
+            pendingRequests.RemoveAt(i);
+            break;
+        }
+
+        for (int i = 0; i < workers.Count; i++)
+        {
+            if (workers[i].CurrentTask == null)
+                continue;
+
+            if (workers[i].CurrentTask is not CleanTableTask)
+                continue;
+
+            CleanTableTask cleanTableTask = workers[i].CurrentTask as CleanTableTask;
+
+            if (cleanTableTask.Table != table)
+                continue;
+
+            if (holdDishAbility.gameObject == workers[i].gameObject)
+                continue;
+
+            workers[i].CancelTask();
+            break;
+        }
     }
 
     private void HandleFillStationPlateauRequest(TaskRequest request, Worker worker)

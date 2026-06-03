@@ -1,5 +1,7 @@
 public class CleanTableTask : WorkerTask
 {
+    public TableSet Table => (request as CleanTableRequest).Table;
+
     public CleanTableTask(Worker worker, TableSet table, Trash trash, TaskRequest request) : base(worker, request)
     {
         subTasks.Add(new MoveToSubTask(table.WorkerTargetPosition));

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +12,9 @@ public class TableManager : MonoBehaviour
 
     [Header(" Settings ")]
     private List<TableSet> dirtyTables = new List<TableSet>();
+
+    [Header(" Actions ")]
+    public static Action<TableSet, HoldDishAbility> TableCleaned;
 
     private void Awake()
     {
@@ -27,6 +31,7 @@ public class TableManager : MonoBehaviour
     {
         dirtyTables.Remove(table);
         taskRequester.ClearRequest(new CleanTableRequest(table.GUID, table));
+        TableCleaned?.Invoke(table, holdDishAbility);
     }
 
     public bool IsAnyTableAvailable()

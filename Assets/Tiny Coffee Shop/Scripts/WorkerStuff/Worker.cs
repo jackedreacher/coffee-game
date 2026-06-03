@@ -104,6 +104,12 @@ public class Worker : MonoBehaviour
         state = State.PerformingTask;
     }
 
+    public void CancelTask()
+    {
+        currentTask.Cancel();
+        CompleteTask();
+    }
+
     public void CompleteTask()
     {
         currentTask = null;

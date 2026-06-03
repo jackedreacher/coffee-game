@@ -40,6 +40,12 @@ public abstract class WorkerTask
             Complete();
     }
 
+    public void Cancel()
+    {
+        if (request != null && request.Sender != null)
+            request.Sender.ClearRequest(request);
+    }
+
     private void Complete()
     {
         if (request != null && request.Sender != null)

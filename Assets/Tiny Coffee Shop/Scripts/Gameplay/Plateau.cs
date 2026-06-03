@@ -31,6 +31,9 @@ public class Plateau : MonoBehaviour
         if (foodInstance.IsDirty)
             isDirty = true;
 
+        if (GetFirstEmptyFoodPosition() == null && foodPositionsParent.childCount < maxCapacity)
+            CreateNewFoodPosition();
+
         FoodPosition foodPosition = GetFirstEmptyFoodPosition();
         foodPosition.Push(foodInstance);
 
