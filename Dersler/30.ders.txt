@@ -1,0 +1,293 @@
+Welcome back guys! In this lesson we are going to better handle our workers to prevent
+
+issues that we had in the previous lesson. So for that we are going to open our worker manager.
+
+Inside of here we want to check if we've got idle workers or not. So list of worker idle workers
+
+equals new list of worker and now we can loop through all of our workers. We currently have one
+
+but that's fine. And find idle workers. So for i from 0 to workers, oh i from 0 to workers.count
+
+because after that we might add another worker or maybe two more to check if everything is
+
+working correctly. If the tasks are split in a good way. So if workers at index i dot currentTask
+
+equals null, then continue. But if it's different than null, not equals, if the worker has no task
+
+he's idle. We can also check if the state is currently idle but yeah I have decided to go
+
+that route. So idle workers dot add workers at index i. There you go. And in here we can check
+
+and in here we can check if idle workers dot count is less or equal to zero, we have no idle workers.
+
+So what we can do is check for priorities, cancel tasks, but for now we are simply going to return.
+
+Okay let's not do anything and wait for a worker to be idle. So let's now create this currentTask
+
+property. Boom! It should simply return our currentTask. We're going to move it up. Boom!
+
+Semicolon and we are good to go. Okay so let's now give that a shot so that our serveCustomers
+
+task does not get given to our busy worker. So yeah I'm also going to grab the worker and turn
+
+into a child of the worker manager. Okay so let's see how it goes now.
+
+Serving the customers. Go grab cups. Nice.
+
+Boom! And now he's serving again which is fine. Okay okay we are getting progress here.
+
+Now he is going to grab some more cups. Yeah that's perfect. Okay let's wait for a little bit,
+
+give this a bit more testing. Oh I don't like that.
+
+What's wrong in here? What the? What? Excuse me? No no no this is really wrong.
+
+Okay so let's select our skinnedMeshRenderer. Exit the debug mode. Oh okay okay okay I hate
+
+this checkbox. I hate it from the bottom of my heart. Let's never apply root motion. Anyway you
+
+can apply root motion. You will test that. I hate applying root motions. It prevents me from
+
+getting full control about animations. Yeah so here's what we're going to do again. Let's select
+
+our worker from the prefabs folder. So character. I think I'm also going to remove it from the
+
+customer here. Oh it's already removed. Perfect. So worker do not apply root motion. No in this
+
+game do not apply it. You're not going to have a character that is playing a jump animation and you
+
+need to apply that motion to the character for it to be on the other side. But yeah
+
+I hate that. I hate that checkbox. Okay eat. Hurry up. Boom there you go. Let's grab the dirty cups.
+
+Put them in the trash. Okay nice. Everything seems to be working perfectly at this point. Okay cool
+
+yep everything's fine.
+
+Right we can actually add another subtask if we want so that the worker here faces the station.
+
+Okay it might be an option. Okay nice. So what we are going to do next is add another request,
+
+another request, another task for the customer to clean the table because I'm kind of tired of going
+
+back and forth collecting the dishes. And you know what? I think that I'm going to speed run this
+
+in this lesson. And this is an exercise for you. Please add that. Okay so first things first. Let's
+
+create our request. So let's open our task request script. Okay and create a new one. So public
+
+class clean table request. Let's inherit from the task request. What are we going to need?
+
+A private table set table. Public table set table. Let's return the table. Why are we going to need
+
+the table? Because we need to know if it's clean or not. So public clean table request. Let's pass
+
+in the guid and the table of course. So this.guid equals guid and this.table equals table. Okay
+
+then the priority will be something like 50. So it's a higher priority than this one and lower
+
+than this one. Okay next we are going to jump to our maybe table manager or table. Who is going to
+
+send the requests now? Well I think that the table manager is the one that should send the requests.
+
+So let's add a task requester. So maybe somewhere around here. Serialize field.
+
+Private task requester. Task requester. Okay there you go. And when are we going to request or send
+
+a request? When we've got a table that becomes dirty. So we need to know when that happens.
+
+Okay when will that happen? When it's happening we are just going to say push dirty table and
+
+we need to know which table has become dirty. Okay we are going to keep track of the amount
+
+of dirty tables. So we need a list for that. Settings. Private table set. It's going to be a
+
+list of table set and we will need collections that generate dirty tables equals new list of
+
+dirty tables. So inside of here what we can do is dirty tables that add the table. So now we know
+
+how many dirty tables we have and when that's the case we can send a request. So task requester
+
+dot create task request. New clean table request with the GUID of the table. Each table is going
+
+to have its own GUID though because later on we are going to save the state of the table. It might
+
+be locked. It might be unlocked. So yeah we need a unique identifier for that. So table
+
+table table this one dot GUID and we are also going to pass in the table. Okay semicolon. Okay
+
+so let's now tell the table to call this method when it gets dirty. So inside of our table set
+
+script gets cleaned get cleaned by accept customers fire where is our fire customers method handle
+
+food timer get cleaned by mark as dirty right here yeah in here when firing the customers we
+
+set is dirty to true but we are also going to do something like manager which is the table manager
+
+and we don't have any reference to the table oh table manager there you go we have it i thought
+
+we have we did we did not so dot push dirty table this do we store the manager somewhere i don't
+
+remember yeah accept customer perfect but when the table gets cleaned so get cleaned by yeah right
+
+here we need to remove the table from the dirty tables array so let's do something like um table
+
+manager dot remove dirty table and let's pass in this okay and we are also going to need to know
+
+who removed the uh or who cleaned the dirty table so hold dish ability this is going to come in handy
+
+later on i'm going to explain why anyway let's create this remove dirty table method just after
+
+the push dirty table perfect so let's do this uh and inside of here we can do dirty tables dot
+
+remove table set let's rename this one table thank you but what else should we do in here
+
+well as soon as the worker has cleaned the table we should remove the request from the task
+
+requester otherwise another one might come to that table even though it's cleaned i hope it makes
+
+sense so task requester dot task requester dot clear request new clean table request and we can
+
+actually store that request if we want when sending it but yeah this one but yeah i'm just
+
+going to do that table dot guid and we need to create that guid table perfect so let's now create
+
+this guid here boom where is it right here it's going to return our guid generator dot guid
+
+and of course we need a guid generator too so require component type of guid generator
+
+components private guid generator guid generator thank you let's uh actually i think it was yeah
+
+in in uppercase and in the awake method guid generator equals get component
+
+get component of type guid generator nice let's remove the start method it's empty okay boom boom
+
+boom the guid maybe i'm gonna drop it somewhere around here so that it makes a bit more sense
+
+and i think that we're good to go so we now have set up our request now our worker manager needs
+
+to handle that request so in the worker manager or you know what i'm actually going to create the
+
+task so that we can handle that correctly so public class clean table task will inherit from
+
+the worker task class task there you go public clean table task worker worker we will need the
+
+table set table we will also need to know where the trash is so trash and finally task request
+
+request let's do base worker request okay so how are we going to decompose this first off the
+
+worker needs to move towards the table or towards the tables worker point so subtasks dot add new
+
+move to subtask and the destination will be table dot worker our worker target position here target
+
+position okay perfect so let's create this one first okay thank you uh it's going to return
+
+as usual our worker target point dot position and we are going to drop it somewhere around
+
+here maybe does it make sense maybe this might make more sense something like that serialized field
+
+private transform uh worker target point okay perfect so now we know where to uh send our worker
+
+once he's here we are going to wait for the table to get cleaned or for the table to be clean
+
+so subtasks dot add new wait for condition subtask and the conditioning here is going to be
+
+table dot is dirty nope the table should not be dirty once it's cleaned it's not dirty anymore
+
+after that let's go towards the trash so new move to subtask and again trash dot worker
+
+target position not point let's create this okay let's return as usual worker target
+
+point dot position i'm rushing because come on you know how to do this at that point
+
+okay uh serialize no serialize field thank you private transform worker target point
+
+perfect so we are going to uh need to create the point for the trash and for the table
+
+all right uh once the worker has reached the trash we are going to wait again for what we
+
+are going to wait for the worker's plateau to be empty okay not full of dirty dishes
+
+so subtasks dot add new wait for condition subtask let's wait for wait for the worker
+
+dot is plateau dirty to not be dirty and worker dot is plateau empty to be empty okay
+
+perfect i hope this makes sense again so if you get any questions at this point
+
+again please leave a message in the comment section
+
+nice uh we've got our task we've got our request so let's jump to the worker manager and handle
+
+that boy else if request is a clean table request what are we gonna do let's not rush come on slow
+
+down tabseel handle clean table request request worker thank you let's create this one grab it
+
+and drop it after the two others boom okay and it's going to be as simple as the serve customers
+
+request one so clean table task task equals a new clean table task with the worker the table
+
+that needs to be cleaned and in here we need to grab it from the request so request as clean table
+
+request not task dot table thank you uh then we need the trash so the trash is going to be linked
+
+in our worker manager here but keep in mind that you can link it to the table manager and let's not
+
+forget about our request after that we can assign the task to the worker nice so let's create our
+
+trash maybe at the top here boom serialized field private trash trash nice okay so uh i think that
+
+we are now good to go can we try that out or not so keep in mind that we are not handling
+
+priorities right now oh let's reference this one to the uh prefab okay nice now we need to uh open
+
+our table by the way so gameplay or maybe table stuff yeah simple table set we need to set up the
+
+worker target point and what's good is that the gui generator has automatically been added to the
+
+simple table set so we've got these positions in here these are linked to the chairs so let's
+
+create an empty game object give it a blue color or icon or label set it at zero on the y-axis
+
+nice and this is going to be our uh worker target point okay let's reference it here let's make sure
+
+that it is triggering the table and we can see that it is not right now but uh do we have a
+
+trigger in our other table right here yeah we have it in here so let's apply this to our prefab
+
+let's apply boom thank you let's just make sure that we have it yep and now our worker target
+
+point is inside of this trigger so the worker should be able to clean the table
+
+if we select the table it's also on the nav mesh which is perfect okay so we've got this i think we
+
+also need to add it to the trash right here so let's press f sorry let's right click create an
+
+empty game object worker target point let's reference it and give it a blue icon boom place
+
+it here maybe yeah it's still inside of the bounding box which is perfect okay so i think
+
+that we can now reference the trash and hit play boom so let's watch our worker in action putting
+
+cups perfect serving customers nice getting more cups okay this customer is going to leave so we
+
+will need to clean the table and of course we've forgotten something simple table set table oh the
+
+task requester of course this is why i like adding uh require component attributes so here is our
+
+task requester let's try it again okay almost there this one should again consume the cups
+
+go clean the table thank you okay so he can't hold hey you forgot about that me too not gonna lie
+
+so our worker has the hold food ability but he does not have the hold dish ability if we add it
+
+of course we're gonna have some errors but we can reference it boom and now he can hold dishes
+
+how cool is that boom and now he's going to serve the customers i guess
+
+uh-huh yep go garb some cups everything is working perfectly so cool what if we increase his
+
+speed so five okay hurry up okay so now he should go and clean the table but he has not cleaned the
+
+table he can't go and clean it again oh this is an issue we need to fix so as an exercise
+
+try and fix this issue before the next lesson i'm gonna fix it in the next one don't worry see you there

@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 31 complete
+Last updated: Lesson 32 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -211,7 +211,17 @@ Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbil
 [x] Lesson 29: Worker animations (CustomerAnimator + state machine: Idle/PerformingTask), ServeCustomersRequest(guid+workerTargetPos+dropZone+priority=40), ServeCustomersTask(MoveTo+WaitForCondition(foodCount<3)), FoodServingStation(workerServingTargetPoint, CanSendServeCustomersRequest: workerCount<=0&&customerReady&&hasEnoughFood, EmitServeCustomersRequest, OnTrigger detects Worker too), WorkerManager handles ServeCustomersRequest→ServeCustomersTask, [SerializeReference] on pendingRequests+TaskRequester.requests, [System.Serializable] on TaskRequest+subclasses
 [x] Lesson 30: WorkerManager idle check (CurrentTask==null loop, return if none idle), CleanTableRequest(guid+table+priority=50), CleanTableTask(MoveTo table→WaitForCondition(!isDirty)→MoveTo trash→WaitForCondition(!dirty&&empty)), TableSet([RequireComponent GuidGenerator], GUID property, workerTargetPoint/WorkerTargetPosition, OnCustomerLeft→tableManager.PushDirtyTable, GetCleanedBy→tableManager.RemoveDirtyTable), TableManager(TaskRequester+dirtyTables list+PushDirtyTable+RemoveDirtyTable), Trash(workerTargetPoint+WorkerTargetPosition), WorkerManager(trash ref+HandleCleanTableRequest), Worker(CurrentTask property), Worker prefab: add HoldDishAbility
 [x] Lesson 31: Priority-based task preemption — WorkerTask.Request property, HoldFoodAbility.IsPlateauActive, Worker.CanCancelTask(!IsPlateauActive), WorkerManager.HandleNoIdleWorkersFound: loop pending requests→loop workers→if CanCancelTask && pendingPriority>currentPriority→add current request back to pending→HandleRequest(new)→workerFound=true→break; if workerFound remove pending+break
-[ ] Lesson 32: (next)
+[x] Lesson 32: Multi-worker + idle system — WorkerManager uses GetRandom() idle worker, IdleRequest(guid+pos+priority=-1), IdleTask(MoveTo+WaitForCondition(false)), WorkerIdlePosition([RequireComponent TaskRequester+GuidGenerator], 2s timer→CreateIdleRequest), WorkerManager handles IdleRequest, PlayerDetector: [SerializeField] NavigationAbility, OnTriggerStay returns if moving
+[ ] Lesson 33: (next) highest-priority request first + closest worker selection
+
+== SESSION BUG FIXES (Lesson 29-32 arası) ==
+- Plateau.Start()→Awake(): disabled plateau ilk SetActive(true)'de Start() bir frame geç çalışıp isEmpty=true reset ediyordu → dirty dish dump çalışmıyordu
+- Trash.OnTriggerExit: HoldDishAbility kontrolü eklendi (worker geçince timer sıfırlıyordu)
+- Trash.OnTriggerStay: HasDishes=false'ta dumpTimer=0 kaldırıldı (worker'ın boş plateau'su timer'ı resetliyordu)
+- PlayerDetector: NavigationAbility auto-get Awake'te (duplicate worker'larda null kalıyordu)
+- PlayerDetector: IdleTask kontrolü eklendi (idle pozisyonda food almasın)
+- Worker.CanCancelTask: IdleTask ise her zaman true (plateau aktif olsa bile)
+- IdlePositions ≥ Worker sayısı olursa 1 request hep pending'de kalır — bu beklenen davranış, bug değil
 
 == BUG FIXES (session arası) ==
 - Trash: OnTriggerEnter→OnTriggerStay+timer(0.2s)+OnTriggerExit reset

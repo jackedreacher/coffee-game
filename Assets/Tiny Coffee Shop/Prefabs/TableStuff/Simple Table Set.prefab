@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &911421766352977945
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8377423316979569730}
+  m_Layer: 0
+  m_Name: Worker Target Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 4422084297763085224, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8377423316979569730
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 911421766352977945}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.692, y: 0.13, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2558155365278632953}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1658664845705889470
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,6 +134,7 @@ GameObject:
   - component: {fileID: 6117535978582427208}
   - component: {fileID: 6346992366967225750}
   - component: {fileID: 7744481195672356412}
+  - component: {fileID: 2694437560185458855}
   m_Layer: 0
   m_Name: Simple Table Set
   m_TagString: Untagged
@@ -126,6 +158,7 @@ Transform:
   - {fileID: 2039869287724358660}
   - {fileID: 729610414460579856}
   - {fileID: 5996757088872902675}
+  - {fileID: 8377423316979569730}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6117535978582427208
@@ -140,7 +173,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05195bcf30df3c342a5bc397683d21ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TableSet
-  plateau: {fileID: 0}
+  plateau: {fileID: 581414785061748945}
+  workerTargetPoint: {fileID: 8377423316979569730}
 --- !u!208 &6346992366967225750
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -172,12 +206,25 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.2, y: 1, z: 1.2}
-  m_Center: {x: 0, y: 0.5, z: 0}
+  m_Size: {x: 2.2234879, y: 1, z: 0.85105836}
+  m_Center: {x: -0.051916122, y: 0.5, z: 0.027072966}
+--- !u!114 &2694437560185458855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4545551334069138583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08673b6be5830ec479ecd0c5eeacf2b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GuidGenerator
+  guid: 21fff987-b065-40fb-904d-8cd387b2893c
 --- !u!1 &4580388694666940923
 GameObject:
   m_ObjectHideFlags: 0

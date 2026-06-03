@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2824016859431355608}
+  - component: {fileID: 6906712681422930541}
   - component: {fileID: 3092904414902379689}
   - component: {fileID: 6341119373617744436}
   - component: {fileID: 6268596529370123240}
@@ -35,6 +36,19 @@ Transform:
   - {fileID: 5559468040863507286}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6906712681422930541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677759999505551656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b4728f74af1f4419575298cdbdadaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Worker
+  animator: {fileID: 3092904414902379689}
 --- !u!114 &3092904414902379689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59,7 +73,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 2
   m_Acceleration: 800
   avoidancePriority: 50
   m_AngularSpeed: 0
@@ -221,6 +235,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 3b655c62fbf698e48994435a64f60899, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7535418713881831788, guid: 581d6c79bdc7576459c10baf4a5816f0, type: 3}
       propertyPath: m_Name
       value: Apron

@@ -1,0 +1,135 @@
+Welcome back guys! In this lesson we are going to fix the issue we had in the previous one,
+
+which is, which you should have fixed it by the way, but the worker should be able to clean tables
+
+multiple times. So first things first, let's select the worker. I'm actually going to open
+
+the prefab and add the hold dish ability so that he can collect dishes. So let's do this,
+
+that's the first step. Then what we are going to do is hit play. Okay, I'm going to timelapse this
+
+and what we can do to timelapse it in real time is increase the time scale here. So five, okay,
+
+boom, boom, and now he can't go and clean the table. Why? If we select our table, normally
+
+we have the task requester and we have one request in here, okay? So the request has been emitted.
+
+What about the worker manager? We've got one pending request. What is that? If we switch to
+
+debug mode, it's the simple table set. So the pending request is in there. But what happens?
+
+Why can't we give this request to the boy here, to the worker? Because if we zoom
+
+in our station in here, what is happening in here? So this boy can go and consume the cups,
+
+but we've told the customer, the worker, sorry, to serve the customers. So the customer,
+
+the worker is still being able to serve the customers. The wait condition that we've specified,
+
+uh, where is the condition? Yeah, here, serve the customers. While it's going to stop serving
+
+the customers when the drop zone's food count is less than three, but the drop zone right here has
+
+more than three cups. So this task right here is not done yet. He's still performing this task
+
+right here. So we need to handle these cases. We need to be able to cancel some tasks if they have
+
+a lower priority. Let's do that. The first thing we want to do is open our worker manager inside of
+
+here. Uh, yeah, right here. When handling the requests, if we don't have any idle workers right
+
+now, we just return. What we are going to do is handle no idle workers found. Okay. Just in case
+
+we can do stuff if no worker has been found. What do we want to do in here? We are going to loop
+
+through all of our pending requests. So for i pending request dot count, we are going to grab
+
+that request. So task request request is going to be, uh, let's call it pending request.
+
+It's going to be pending requests at index i. There you go. And after that, we are going to
+
+say bool worker found equals false. Let's assume that we did not find any worker available for that
+
+request to handle that request. Next, we are going to loop through all of our workers, but
+
+we are not going to use the same index. So workers dot count. And for all of these workers, we are
+
+first going to check if the worker can cancel the task. So worker worker equals workers at index j.
+
+Okay. And if the worker cannot cancel its task or his task, we are going to continue.
+
+Why can't a worker cancel a task? So imagine that situation. You're telling a worker to go clean a
+
+table, but he has just grabbed some cups from the food serving station, from the food spawner
+
+station, sorry. So his plateau will already have stuff in it. We should not have that case happen.
+
+One of the conditions that needs to be met for the worker to cancel a task is, for instance,
+
+the plateau being empty. So let's implement this property. The only condition that I found here is
+
+the one I told you about. So hold food ability dot is plateau not dirty, not full, but just active.
+
+If the plateau is active, we should not be able to cancel the task. So boom, exclamation mark.
+
+We can only cancel if the plateau is not active. So let's create this property in here.
+
+Boom. And what we can do is return plateau dot game object dot active in hierarchy.
+
+Okay, so let's now jump back to our worker manager. Okay, so now we know that the worker,
+
+so let's say at this point, the worker can cancel his task. So what else should we do?
+
+If the worker can cancel the task, let's compare the priorities. So if pending request dot priority
+
+priority is greater than the worker dot current task dot request, oh, we need to add a reference
+
+to the request here, dot priority, priority. Okay, then we can cancel the task here.
+
+So what we're going to do is add the request property. Oh no, control Z, sorry. Let's create
+
+a property. We don't have any more things. Okay. So let's open our worker task and add a reference
+
+to the request. So public task request, request, request. Thank you. Now we can jump back here
+
+and we should be able to access the property. Can we? Oh, come on.
+
+I've just added it. Worker dot current task. Oh, the current task is an object? What?
+
+Worker task. There you go. Now we can access the request. Sorry, I really did miss that.
+
+Okay, so if the pending requests priority has a higher priority than the current task of our
+
+worker or the current request associated with the task of our worker, then what do we need to do?
+
+We need to add back this request here to the pending requests because the worker has not
+
+accomplished that request. So pending requests dot add worker dot current task dot request.
+
+Okay. And finally, we can simply handle the request again. So handle the request. Which request?
+
+The pending request with our worker, the one that we've found. And we can say that we've found a
+
+worker. And finally break. So why do we need this boolean here? Because when breaking, we are going
+
+to check after this loop if we've found a worker or not. So if worker found, what we can do is
+
+pending requests dot remove the pending request, the one that we've associated or given to the
+
+worker. We can remove it now. And finally, we can break. Okay, we can exit this loop. Okay, I think
+
+that we can now try this out. So let's exit and come back. Let's hit play. Let's again use our
+
+time lapse trick. So time here five. Okay. Cleaning the table. Serving the customers again. Cleaning
+
+the table. Oh, it seems like it's working. I like that. I like what I see. Cleaning the table again.
+
+Serving the customers. Getting some cups. Go clean the table. Even though he wanted to serve the
+
+customers. But cleaning the table has a higher priority. So he had to go there. Awesome.
+
+Really cool. Nice. Okay, so this is working. We can call it a day so that you can again digest
+
+this information. If you've got some questions regarding this lesson, please let me know in the
+
+comment section as usual. And see you in the next one.

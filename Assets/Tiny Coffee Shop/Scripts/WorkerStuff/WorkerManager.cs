@@ -48,7 +48,7 @@ public class WorkerManager : MonoBehaviour
             return;
         }
 
-        HandleRequest(pendingRequests[0], idleWorkers[0]);
+        HandleRequest(pendingRequests[0], idleWorkers.ToArray().GetRandom());
         pendingRequests.RemoveAt(0);
     }
 
@@ -91,6 +91,15 @@ public class WorkerManager : MonoBehaviour
             HandleServeCustomersRequest(request, worker);
         else if (request is CleanTableRequest)
             HandleCleanTableRequest(request, worker);
+        else if (request is IdleRequest)
+            HandleIdleRequest(request, worker);
+    }
+
+    private void HandleIdleRequest(TaskRequest request, Worker worker)
+    {
+        IdleRequest idleRequest = request as IdleRequest;
+        IdleTask task = new IdleTask(worker, idleRequest.TargetPosition, request);
+        worker.AssignTask(task);
     }
 
     private void HandleCleanTableRequest(TaskRequest request, Worker worker)

@@ -1,0 +1,261 @@
+Welcome back guys! In this lesson, we are going to add more workers to our game and see how the
+
+game handles it. So let's duplicate this boy, move it somewhere around here. Let's duplicate it one
+
+more time, maybe somewhere around here and another one. Okay, maybe there. Perfect! So we now have
+
+four workers. Let's now reference our workers. So we currently have one, so let's lock this,
+
+grab these three, drop them here and hit play. What is going to happen? We've got the first
+
+workers grabbing cups. Okay, so now we can serve the customers. He handles that one. Okay,
+
+so what else now? Okay, let's go. Boom! Now the table needs to be cleaned but we still need to
+
+serve the customers. Why is nobody serving the customers? Maybe because we always tell
+
+customer worker number zero to go and handle the request. Come on! So let's grab a random idle
+
+worker instead. So we've got a list of idle workers in here. So idleWorkers.toArray.getRandom.
+
+There you go. That way we send a random worker instead of always sending the first one. So let's
+
+test that again. Okay, so now this one has decided to go and put the cups. Now serving the customers
+
+is going to be handled by this one. Okay, next we are definitely going to add some logic because
+
+this one is closer. He should handle that task. All right, so now the table needs to be cleaned.
+
+This one is going to clean the table. Get out of the way! Get out of my way!
+
+What the heck is happening in here? Of course it had to happen. NavMesh does cause some issues.
+
+Okay, so I'm just going to wait for something. Yeah, I wanted to check if this one was going
+
+to walk away and he did. So you can notice an issue here. We will need the workers to move
+
+out of the way if they are not handling any task. And we also need to handle the obstacle avoidance
+
+here because it's kind of weird how it behaves. So what are we going to start with? First off,
+
+I think that we are going to add the idle task because, yep, idling is a task in itself.
+
+We are going to create some positions in here that will have a task requester and are going
+
+to request the workers to go towards that position and just do nothing. As simple as it gets.
+
+So let's create that task request first.
+
+And this one is going to be quite straightforward.
+
+And let's just return the target position. Thank you. Then we can create the constructor,
+
+idleRequest. Let's pass in the GUID as usual and the target position. So Vector3,
+
+targetPosition. This.guid equals GUID.
+
+This.targetPosition equals targetPosition. And the priority will be
+
+minus one. It's the lowest priority we can have. Okay, so now that we've got this request,
+
+we need something to create that request. And for that, let's create our positions first. So
+
+environment, boom, boom, boom, or maybe in gameplay. Yeah, let's put them in gameplay.
+
+So idlePositions, maybe worker, workerIdlePositions. Let's unlock this one,
+
+right click, create an empty GameObject, workerIdlePosition. Thank you. Let's
+
+use this one, the red one, and put it somewhere around here. We are going to have more, but let's
+
+first create the first one and turn it into a prefab. So scripts, utilities, worker, yeah, worker.
+
+Let's create a new script, workerIdlePosition. There you go. The goal of this script is
+
+simply going to be to create requests for the workers to be idle, as simple as it gets.
+
+So we are going to need a TaskRequester, require component type of TaskRequester.
+
+And we are also going to need a GUID generator. So let's do components,
+
+private TaskRequester, TaskRequester, and private GUID generator, GUID generator. Perfect.
+
+After that, we are going to store them. So awake,
+
+TaskRequester equals getComponentOfType, TaskRequester, and GUID generator equals
+
+getComponentOfType, GUID generator. Cool. So instead of trying to create a request on update,
+
+we are going to have a timer. It's going to be a bit cleaner. So private float timer,
+
+maybe under settings. And inside of here, if, first off, yeah, let's increment the timer. So
+
+timer plus equals time.deltaTime. If timer is greater or equals to 2, let's say, maybe send a
+
+request every 2 seconds, maybe every 5 seconds. I think 5 seconds is too much.2 seconds should
+
+be good. Timer equals 0 and TaskRequester.createTaskRequest, new idleRequest with the
+
+GUID generator.GUID and our target position will be transform.position. Yeah, the position of our
+
+worker idle position, this boy. Okay, we are done for this. So let's, we already have the script,
+
+which is fine. We need to, come on, why have the TaskRequester and other boy not been added?
+
+So worker idle position. Yeah, thank you. That's better. That's what I want to see.
+
+One thing you need to be aware of, you need to make sure that every worker idle position has a
+
+separate GUID or a different GUID from the other ones. So you need to generate the GUIDs for each
+
+one of these. Okay. But first off, let's turn that into a prefab. So prefab, let's do gameplay,
+
+maybe. Worker idle position, duplicate, generate. Duplicate, generate. Duplicate,
+
+generate. And maybe, yeah, let's create five idle positions. So one is going to be here,
+
+the other one there. Maybe this one can be here. I don't know. You can move them wherever you want.
+
+And finally, this one here. Okay, perfect. So now what we can do is create the task associated with
+
+that request. So worker task in here, we're going to go down and right here, public class idle task
+
+will inherit from worker task. And let's create the constructor. So public idle task,
+
+we will need the worker, as usual. We will need the target position.
+
+Where should the worker go? We will need the task request.
+
+And we can pass all of these to our base class request. There you go. Next, what are our
+
+subtasks going to be? Well, first off, we need to move towards or to that position.
+
+So subtasks.add new move to subtask target position. And after that, we are going to
+
+wait for a condition. What is that condition? When should we exit the idle state? Well,
+
+never, never stop being idle or lazy. Just kidding. The worker manager is actually checking
+
+if we've got idle workers or not. If we don't, we are going to compare priorities. Remember,
+
+okay? So here is how we can do it. subtask.add new wait for condition
+
+substack, subtask, boom, and false. Never exit the idle task. Cool. Now we can handle that task
+
+in the handle request script right here. Else, if request is idle request, handle idle request,
+
+request worker. Okay, let's create this boy, grab it, drop it after the clean one. Boom. Perfect.
+
+Idle task, task equals new idle task. Let's pass in the worker, the request as idle request
+
+dot position, boom dot target position, and finally the request. Okay, perfect. So now
+
+worker.assign task, task. Okay, I think that we are now good to go. We've got our task,
+
+we've got our positions. Yeah. So what we should spot is maybe after two seconds,
+
+if there is nothing to do, our workers should move to a specific idle position. Okay. Yeah.
+
+So let's hit play. There you go. All of the other workers moved to an idle position. Perfect.
+
+So now this one can move because he was idle. Okay, perfect. Nice. What will happen now? This
+
+one is serving, this one is going to serve, this one is putting cups in here. Someone needs to
+
+clean the table. Thank you. Yeah, that's so cool. Everything seems to be working perfectly.
+
+This one should reach this point and go to an idle position. Yeah. Nice. That's awesome.
+
+Can someone clean the table, please? Thank you. And someone now needs to serve the customers,
+
+of course. Now someone needs to go grab cups and serve the customers at the same time. Okay.
+
+That is awesome. But there is still an issue, of course. So now imagine that. How can I do this?
+
+I like messing up the game to see if we have issues or not. If we move the coffee station
+
+maybe somewhere around here, what will happen? Okay. So we grab cups. We need to get out of the
+
+way. Okay. So this one is coming. He is grabbing cups. Okay. Okay. He's dropping them here,
+
+of course. But what about this one? This one, you see? This boy here has things on his plateau.
+
+Which is really bad. Because he is in the idle task or performing an idle task,
+
+but his plateau has stuff in it. So he will never be able to cancel the task. Remember?
+
+Boom, boom, boom. Right here. Can cancel task. When can we cancel the task? If the plateau is
+
+inactive. His plateau is active. So he won't be able to cancel the task. Nor can this one. So
+
+maybe at one point... Oh, we've got three. Perfect. We've got three workers that can't work.
+
+Can you... Maybe we can lock this one too. Wait, I'm gonna try that.
+
+Okay. Yeah, grab some cups. Let's go. Come on, bro. You've got cups. Okay.
+
+Okay. And now he's locked. Because he has grabbed
+
+some cups and he can't grab any dirty thingies. Because the plateau is clean. So he can't put
+
+dirty food. So now we are locked. So a solution I came up with for this is to prevent the workers
+
+from grabbing anything if they are not static. If the worker is moving, he can't grab cups,
+
+he can't grab food, he can't grab dirty food, and he can't put anything in the drop zone.
+
+So let's apply this logic really quickly and we can call it a day. For that, we are going to open
+
+our PlayerDetector. Because this is where we call the HoldFoodAbilities and HoldDishAbilities. Okay.
+
+Inside of here, we are going to need a reference to our navigation. So PlayerDetector. Let's go
+
+with private... Yeah, but we might not have it for the player. So SerializeField. Private.
+
+NavigationAbility. NavigationAbility. Okay. So inside of the OnTriggerStay method,
+
+if the navigation is moving and not null. Because again, the player doesn't have a navigation
+
+ability right now. Even though in testing... Yeah, I think I have a YouTube video on that.
+
+I've experimented with point and click control for this game. It was fine. I didn't like it that
+
+much, but it was okay. But if NavigationAbility is different than null and NavigationAbility.isMoving.
+
+So if the worker is moving, we are simply going to return. Okay. We don't want to do anything.
+
+So now if we give that a shot, we will need to select our worker. So characters, worker,
+
+NavigationAbility is here and we need to reference it there. Perfect. Let's hit play.
+
+All right. So now the first one is moving. Let's try and move the coffee station again to mess
+
+things up because now I'm messing things up. But keep in mind that if a table is far away,
+
+you've told a worker to go grab stuff from that table and he passes nearby another table,
+
+he can clean that table. We don't want that. Same thing if there is another coffee station
+
+in the way. So yeah. Okay. So you are going to grab some cups. No, no. Don't you want some cups?
+
+He wants some cups. So now he has grabbed cups, but come on, you're not stupid. Okay. He's not
+
+moving, but you're not going to put an idle position nearby a coffee station. It doesn't
+
+make sense. So that situation will never happen. Okay. Perfect. What we can also do is check if the
+
+worker is performing a task, but yeah, I'm not going to do that. All right. Whoever wants some
+
+cups, go grab them from here or maybe from here. Okay. Let's see if a worker go grabs cups from
+
+there. Okay. Perfect. So now that we've got multiple workers working, we've done our tasks,
+
+our requests are all set up. In the next one, let's better handle our tasks. As I've told you,
+
+we want to look for the highest priority task or request first and not grab the first one.
+
+The other thing we need to do is grab the closest worker to that task. Yep. And last but not least,
+
+the table thing is here. The table manager, I told you that we needed the hold dish ability
+
+in here. Why? Let's find out in the next one. See you

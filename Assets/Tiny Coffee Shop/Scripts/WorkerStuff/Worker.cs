@@ -16,7 +16,7 @@ public class Worker : MonoBehaviour
     private WorkerTask currentTask;
 
     public bool IsIdle => state == State.Idle;
-    public bool CanCancelTask => !holdFoodAbility.IsPlateauActive;
+    public bool CanCancelTask => currentTask is IdleTask || !holdFoodAbility.IsPlateauActive;
     public WorkerTask CurrentTask => currentTask;
     public bool HasReachedDestination => navigationAbility.HasReachedDestination;
     public bool IsPlateauFull => holdFoodAbility.IsPlateauFull;

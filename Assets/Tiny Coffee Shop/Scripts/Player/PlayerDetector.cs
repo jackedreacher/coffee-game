@@ -5,14 +5,23 @@ public class PlayerDetector : MonoBehaviour
 {
     [Header(" Components ")]
     private HoldFoodAbility holdFoodAbility;
+    [SerializeField] private NavigationAbility navigationAbility;
 
     private void Awake()
     {
         holdFoodAbility = GetComponent<HoldFoodAbility>();
+        if (navigationAbility == null)
+            navigationAbility = GetComponent<NavigationAbility>();
     }
 
     private void OnTriggerStay(Collider other)
     {
+        if (navigationAbility != null && navigationAbility.IsMoving)
+            return;
+
+        if (TryGetComponent(out Worker worker) && worker.CurrentTask is IdleTask)
+            return;
+
         if (other.TryGetComponent(out FoodSpawnerStation station))
             HandleFoodSpawnerStationTriggered(station);
         else if (other.TryGetComponent(out FoodDropZone dropZone))

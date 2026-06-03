@@ -1,0 +1,273 @@
+Welcome back guys! In this lesson, we are going to fix our worker animations, not the customer one,
+
+but you should have done that because I told you to do so in the previous one. You are in a position
+
+where you can do that because we've added all of the animations to the customers already,
+
+so it's the same logic, or at least quite close to it. Anyway, so when completing a task here,
+
+first off, what we want to do is set the current task to null, this is quite straightforward,
+
+and also start the idle state. So starting the idle state, what does that mean? private void
+
+startIdleState, there you go. It simply means setting the state to idle, so state.idle,
+
+and stopping any walk animation that we might have, so animator.stop, and I think we already
+
+have that in the CustomerAnimator, so here's what we're going to do. Let's add our CustomerAnimator
+
+in here, so serialize field, private CustomerAnimator, animator. So do we have the stop method in here?
+
+It feels like we do, yep, we do, which is perfect, nice. So let's now handle our animations in the
+
+worker script. So first off, in the awake method, let's set the state to idle, so state.idle.
+
+In the update method, we want to handle our state machine, so let's do handleStateMachine,
+
+create that script, boom, and implement our switch statement with the state,
+
+and then we can actually do alt-enter in here and add the missing cases, there you go, it's a bit
+
+faster. Let's add the missing curly bracket and rearrange our code, there you go. So in case
+
+the worker is currently idle, we want to handle the idle state. Otherwise, we want to handle
+
+handle the performing task state. So let's create this one and this one. So let's start with the
+
+handleIdle state, because this one is quite simple to implement. Inside of here, we want to check if
+
+the worker is moving or not, so if navigationAbility.isMoving, yeah, it's a method, not a
+
+property here. So we are going to start the walking state. Otherwise, if we are handling
+
+the performing task state, we are going to apply the logic we've used in the customer in here,
+
+where is it, handleWorkingState. So let's grab this, jump back to our worker state in here,
+
+and drop it, not here, come on, I should have taken the code only, but yeah, let's do this
+
+and this. Now we can okay, put this in here and push this code. Nice. So let's also add the
+
+reachDestination method, which should be somewhere around here, reachDestination, okay.
+
+Boom, there you go. Our worker won't need any reachDestination callback, because we already
+
+handle all of this in the task. So I think we should be good for the animations at this point.
+
+Let's give that a shot. So let's jump back to Unity, and we have an error. Oh, we have an
+
+additional curly bracket in here, okay. Let's select the worker, reference the animator,
+
+and I think that we are good to go. So let's hit play. All right, yeah, perfect. Now the worker
+
+is walking, dropping the cups, and so on. Awesome. Nice. So everything seems to be working perfectly.
+
+Now what we're going to do is maybe diminish its speed or his speed, because he's quite fast
+
+at the moment. Okay, so worker, maybe two, something like that. Yep. And after that, we can clean up
+
+our project a bit. So let's remove this debug line, this debug line, this one, this one, maybe clean this
+
+too. Okay. What else? Do we have more debugs? So Ctrl-F, debug. No, nothing in here, which is nice.
+
+So what we're going to do now is add more tasks. And as an exercise, please try and add the
+
+ServeCustomers task, okay? Along with the request, both of them. Okay, so I'm going to start and add it.
+
+Let's open the task request file first. Okay, so let's add it after the FieldStationPlato request.
+
+Public class ServeCustomersRequest. Okay, this will again inherit from the task request
+
+class. There you go. And what do we need to serve the customers? Well, first off, we will need a
+
+private Vector3WorkerTargetPosition, public Vector3WorkerTargetPosition, which should
+
+return this. Okay. And by the way, another way you could have done this is just by creating a property.
+
+So public Vector3Blablu, let's say, maybe with an uppercase B, and add a getter with a private
+
+setter. Okay, this is the same logic that we've got here. In the background, it's going to create
+
+a field. So let's just add our private foodDropZone. DropZone? Why do we need the DropZone
+
+to serve the customers? Well, to tell the player, to tell the worker, sorry, to wait for a certain
+
+amount of time or for a condition. We are going to tell him to wait until the DropZone has no more
+
+food, or maybe at least three or so. You will decide the value of that setting. Okay, so public
+
+foodDropZone. DropZone, let's just return the DropZone. And now we can create our constructor.
+
+So public serveCustomersRequest, string GUID, like we had in here, Vector3WorkerTargetPosition
+
+and foodDropZone. DropZone. So this.GUID equals GUID. This.WorkerTargetPosition equals
+
+workerTargetPosition. And this.DropZone equals DropZone. Nice. After that, we will need a priority.
+
+So the priority of serving the customers will be lower than the priority of filling the station.
+
+In my case, but again, I invite you to experiment with this. Okay, so now that we've got our request,
+
+what we can do is jump to our foodServingStation, because this is where we emit the first
+
+request in here. And we can now check if we need to serve the customers or not. Let's do something
+
+like this now. If we can send the serveCustomersRequest, we are going to send it. So
+
+taskRequester.createTaskRequest, it's going to be a new serveCustomersRequest with the GUID.
+
+So GUIDGenerator.GUID. The next thing is the workerTargetPosition that we are going to set up.
+
+So workerTargetPoint.Position. And finally, the DropZone. Okay, this is our request. So let's
+
+first implement or create this method here. When can we serve the customers? Well, we need to serve
+
+the customers if no one is currently serving. Remember, in our onTriggerEnter, we incremented
+
+the workerCount. So maybe the player is already serving the customers, so no need to send this
+
+request. Or maybe someone else is serving, so no need to send it. So the workerCount needs to be
+
+less or equal to zero. And the CustomerManager.IsCustomerReadyToTakeFood should be true.
+
+And we should have enough food. If no customer is ready, we should not send the request. If we don't
+
+have enough food, we should not send the request. Okay? So these are the conditions I found where we
+
+should send a serveCustomersRequest. But again, I highly encourage you to experiment. Okay, let's
+
+reference our workerTargetPoint. So SerializeField. I'm just going to put it here, I think.
+
+I don't have any other transform yet. So PrivateTransform.UpWorkerTargetPoint.
+
+PrivateVector3. No, I need to pass in the point or the position here. I forgot already. Yeah, the position.
+
+So we don't need the other thing. We don't need the property then.
+
+Yeah, let's not add the property right now. We're just going to pass in the position. Okay.
+
+So if we jump back to Unity, no more errors. So we've got our request has been created in here.
+
+Perfect. We've got the actual request class. So now I think that we are ready to create the task
+
+associated with that request. Okay. So let's do public class serveCustomersTask.
+
+It will inherit from workerTask. Public serveCustomersTask. And again, we can already do
+
+baseWorker to pass in the worker and the request. Boom. Okay. So inside of here, we are going to have
+
+a worker. We are going to have a targetPosition, which is our workerTargetPoint.position,
+
+and a taskRequest request. So what we can do now is create our subtasks. So how many subtasks
+
+are we going to need? Well, I find that two is a good number. We tell the worker to go to the
+
+targetPosition and wait until we don't have enough food or we can't serve the customers.
+
+So subtasks.add new moveToSubtask. And let's go to the targetPosition. Okay.
+
+Then subtasks.add new waitForConditionSubtasks. Oh, it was the first one. Nice. And the condition
+
+in here will be that our request.dropZone.foodCount is less than 3. So request as serveCustomersRequest,
+
+we do that to actually grab the dropZone.foodCount is less than 3.
+
+Or what we could have done too is, along with the request, send in the serving station instead
+
+of the drop zone and checked if we had enough food because the serving station already asks
+
+the drop zone. So you decide here. In here, we've used 4. In here, we are using 3. That's fine
+
+because we can serve the customers even though we have less than 4 cups. Come on. In here, we
+
+could have done something like 2. You can still serve the customers. But yeah, again, experiment
+
+with these hard-coded values. Okay, so we now have our task. We need to handle that task. So
+
+in our worker manager, let's do else if request is serveCustomersRequest. Let's handle the serve
+
+customers request. Let's pass in the request and the worker. This one is going to be quite
+
+simpler than the field station plateau request one or how we handled it because what we are
+
+going to do in here is simply tell the worker to go towards that position or to actually
+
+do that task. So serveCustomersTask, let's call it task, will be equal to a new serveCustomersTask.
+
+Let's pass in our worker, our request. Maybe request as serveCustomersRequest.
+
+Do we have the positioning here? Oh, not task here. Request.workerTargetPosition. Perfect.
+
+There you go. And finally, request. Boom. This is our task. Let's now handle our task to our worker
+
+and we should be good to go. Awesome. So let's give that a shot and see what happens because
+
+remember right now we are not checking for idle workers. We are not checking for the closest
+
+worker or if the worker is performing a task whatsoever. Before hitting play, what we want
+
+to do is go to gameplay, maybe stations. I need to reference something, right? Yeah, this one,
+
+the workerTargetPoint. Where should the worker stand to serve the customers? Well, we are going
+
+to grab this point, duplicate it and drop it somewhere around here because, again, it should
+
+be inside of this trigger now to serve the customers. So workerTargetPoint or maybe
+
+workerTargetWorkerServing, maybe TargetPoint, just to differentiate it from this one.
+
+And it should not be a child of the drop zone but a child of the cashier station.
+
+Okay and now we are good. Let's hit play. Okay, so now he should go and grab some cups. Thank you.
+
+Dropping the cups in here and now serving the customers. Awesome. And then he goes back to
+
+grabbing more cups. Awesome. The last thing to do now is to clean the table. If we clean the table,
+
+he's going to move to serving the customers normally. Boom. Okay, he doesn't want to serve
+
+the customers. Why? Interesting. Okay, he doesn't want to serve the customers yet. Why?
+
+If we serve the first one, okay, nothing else. Uh-huh. Uh-huh. Okay, go grab some cups.
+
+So even though the table is clean now, he doesn't want to serve the customers.
+
+Interesting. If we select our WorkerManager here, switch to debug mode, we are not able to spot
+
+the requests. So what we are going to do is open the WorkerManager and turn this one into a
+
+serialized reference. So serialized reference, so that we can spot these requests, hopefully.
+
+But do we serialize them? No, they are not serialized. So system.serializable. Okay,
+
+so let's now jump back to Unity. Select our WorkerManager and hit play again.
+
+Okay, WorkerManager. Let's hit play. Now we can spot the pending requests, which is fine. Cool.
+
+It's super useful to debug things. Okay, so the first one has been handled.
+
+Serving the customers. Okay, another one again. It's really brief, but you can spot it.
+
+Okay, so now we have zero pending requests. So the serveCustomerRequest is not
+
+being registered. Okay, interesting. What about the cashierServingStation here? Again,
+
+here we can't spot the requests. Okay, so we are going to open our TaskRequester here,
+
+and same thing, serializeReference. SerializeReference. Okay, I think I know what happens,
+
+but let's check. Because right now, as I've told you, we do not check if the worker is idle or not.
+
+So he might have accepted a request or a task even though he had a task running, which is bad.
+
+So let's select this one. Okay, so we've got one request here. Okay, here is another one.
+
+So we currently have two requests in here, which are... Oh, I did not spot if they were the same
+
+or not. And we've got another one running in here. You see, this one has a priority of 40.
+
+So it's definitely... Oh, come on. What the heck is happening here? Anyway, it has a priority of 40.
+
+So it's definitely our serveCustomerRequest. So what we are going to do in the next one is
+
+better handle how our worker behaves to prevent this issue. See you in the next one.
