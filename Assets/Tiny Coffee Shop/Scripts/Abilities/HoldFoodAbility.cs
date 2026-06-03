@@ -9,6 +9,7 @@ public class HoldFoodAbility : MonoBehaviour
     public bool IsPlateauEmpty => plateau.IsEmpty;
     public bool IsPlateauFull => plateau.IsFull;
     public bool IsPlateauDirty => plateau.IsDirty;
+    public bool IsPlateauActive => plateau.gameObject.activeInHierarchy;
 
     [Header(" Timer ")]
     private const float canGrabFoodDelay = .1f;

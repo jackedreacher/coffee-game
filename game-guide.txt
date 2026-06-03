@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 30 complete
+Last updated: Lesson 31 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -210,7 +210,8 @@ Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbil
 [x] Lesson 28: Worker([RequireComponent NavigationAbility], State enum, Awake caches nav+holdFood, Update calls task.Update, AssignTask+GoTo+MarkAsBusy+CompleteTask, HasReachedDestination+IsPlateauFull/Empty/Dirty props), HoldFoodAbility(Plateau property+IsPlateauEmpty/Full/Dirty), WaitForConditionSubTask(Func<bool>), FillStationPlateauTask 4 subtasks complete, FoodServingStation HandleFoodServing bug fix (customer not needing food → dequeue)
 [x] Lesson 29: Worker animations (CustomerAnimator + state machine: Idle/PerformingTask), ServeCustomersRequest(guid+workerTargetPos+dropZone+priority=40), ServeCustomersTask(MoveTo+WaitForCondition(foodCount<3)), FoodServingStation(workerServingTargetPoint, CanSendServeCustomersRequest: workerCount<=0&&customerReady&&hasEnoughFood, EmitServeCustomersRequest, OnTrigger detects Worker too), WorkerManager handles ServeCustomersRequest→ServeCustomersTask, [SerializeReference] on pendingRequests+TaskRequester.requests, [System.Serializable] on TaskRequest+subclasses
 [x] Lesson 30: WorkerManager idle check (CurrentTask==null loop, return if none idle), CleanTableRequest(guid+table+priority=50), CleanTableTask(MoveTo table→WaitForCondition(!isDirty)→MoveTo trash→WaitForCondition(!dirty&&empty)), TableSet([RequireComponent GuidGenerator], GUID property, workerTargetPoint/WorkerTargetPosition, OnCustomerLeft→tableManager.PushDirtyTable, GetCleanedBy→tableManager.RemoveDirtyTable), TableManager(TaskRequester+dirtyTables list+PushDirtyTable+RemoveDirtyTable), Trash(workerTargetPoint+WorkerTargetPosition), WorkerManager(trash ref+HandleCleanTableRequest), Worker(CurrentTask property), Worker prefab: add HoldDishAbility
-[ ] Lesson 31: (next) worker table cleaning re-request bug fix
+[x] Lesson 31: Priority-based task preemption — WorkerTask.Request property, HoldFoodAbility.IsPlateauActive, Worker.CanCancelTask(!IsPlateauActive), WorkerManager.HandleNoIdleWorkersFound: loop pending requests→loop workers→if CanCancelTask && pendingPriority>currentPriority→add current request back to pending→HandleRequest(new)→workerFound=true→break; if workerFound remove pending+break
+[ ] Lesson 32: (next)
 
 == BUG FIXES (session arası) ==
 - Trash: OnTriggerEnter→OnTriggerStay+timer(0.2s)+OnTriggerExit reset

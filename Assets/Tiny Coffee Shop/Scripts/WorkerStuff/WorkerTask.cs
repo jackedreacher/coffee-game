@@ -7,6 +7,8 @@ public abstract class WorkerTask
     protected Worker worker;
     protected TaskRequest request;
 
+    public TaskRequest Request => request;
+
     public WorkerTask(Worker worker, TaskRequest request)
     {
         this.worker = worker;

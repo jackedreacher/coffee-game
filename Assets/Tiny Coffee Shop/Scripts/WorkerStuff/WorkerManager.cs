@@ -43,10 +43,44 @@ public class WorkerManager : MonoBehaviour
         }
 
         if (idleWorkers.Count <= 0)
+        {
+            HandleNoIdleWorkersFound();
             return;
+        }
 
         HandleRequest(pendingRequests[0], idleWorkers[0]);
         pendingRequests.RemoveAt(0);
+    }
+
+    private void HandleNoIdleWorkersFound()
+    {
+        for (int i = 0; i < pendingRequests.Count; i++)
+        {
+            TaskRequest pendingRequest = pendingRequests[i];
+            bool workerFound = false;
+
+            for (int j = 0; j < workers.Count; j++)
+            {
+                Worker worker = workers[j];
+
+                if (!worker.CanCancelTask)
+                    continue;
+
+                if (pendingRequest.Priority <= worker.CurrentTask.Request.Priority)
+                    continue;
+
+                pendingRequests.Add(worker.CurrentTask.Request);
+                HandleRequest(pendingRequest, worker);
+                workerFound = true;
+                break;
+            }
+
+            if (workerFound)
+            {
+                pendingRequests.Remove(pendingRequest);
+                break;
+            }
+        }
     }
 
     private void HandleRequest(TaskRequest request, Worker worker)
