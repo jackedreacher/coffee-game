@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TaskRequester : MonoBehaviour
 {
-    private List<TaskRequest> requests = new List<TaskRequest>();
+    [SerializeReference] private List<TaskRequest> requests = new List<TaskRequest>();
 
     public void CreateTaskRequest(TaskRequest request)
     {

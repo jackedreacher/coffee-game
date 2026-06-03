@@ -11,10 +11,7 @@ public class Trash : MonoBehaviour
             return;
 
         if (!holdDishAbility.HasDishes)
-        {
-            dumpTimer = 0;
             return;
-        }
 
         dumpTimer += Time.deltaTime;
 
@@ -31,6 +28,9 @@ public class Trash : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (!other.TryGetComponent(out HoldDishAbility _))
+            return;
+
         dumpTimer = 0;
     }
 }

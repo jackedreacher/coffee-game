@@ -18,7 +18,7 @@ public class Plateau : MonoBehaviour
     public bool IsEmpty => isEmpty;
     public bool IsDirty => isDirty;
 
-    private void Start()
+    private void Awake()
     {
         isFull = false;
         isEmpty = true;

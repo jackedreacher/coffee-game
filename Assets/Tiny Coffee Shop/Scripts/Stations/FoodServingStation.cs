@@ -13,6 +13,7 @@ public class FoodServingStation : MonoBehaviour
     [SerializeField] private TableManager tableManager;
     [SerializeField] private TaskRequester taskRequester;
     [SerializeField] private SpawnableFood foodServedPrefab;
+    [SerializeField] private Transform workerServingTargetPoint;
 
     [Header(" Settings ")]
     [SerializeField] private float servingDelay;
@@ -49,23 +50,38 @@ public class FoodServingStation : MonoBehaviour
     private void CheckRequests()
     {
         if (!HasEnoughFood())
-            EmitRequest();
+            EmitFillRequest();
 
-        // Müşteri servis edilebilir mi? (ilerleyen derslerde)
+        if (CanSendServeCustomersRequest())
+            EmitServeCustomersRequest();
     }
 
     private bool HasEnoughFood() => dropZone.FoodCount > 4;
 
-    private void EmitRequest()
+    private bool CanSendServeCustomersRequest()
+    {
+        return workerCount <= 0 &&
+               customerManager.IsCustomerReadyToTakeFood() &&
+               HasEnoughFood();
+    }
+
+    private void EmitFillRequest()
     {
         taskRequester.CreateTaskRequest(
             new FillStationPlateauRequest(guidGenerator.GUID, foodServedPrefab, dropZone.WorkerTargetPosition)
         );
     }
 
+    private void EmitServeCustomersRequest()
+    {
+        taskRequester.CreateTaskRequest(
+            new ServeCustomersRequest(guidGenerator.GUID, workerServingTargetPoint.position, dropZone)
+        );
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.TryGetComponent(out PlayerDetector playerDetector))
+        if (!other.TryGetComponent(out PlayerDetector _) && !other.TryGetComponent(out Worker _))
             return;
 
         workerCount++;
@@ -79,7 +95,7 @@ public class FoodServingStation : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (!other.TryGetComponent(out PlayerDetector playerDetector))
+        if (!other.TryGetComponent(out PlayerDetector _) && !other.TryGetComponent(out Worker _))
             return;
 
         workerCount--;

@@ -8,7 +8,7 @@ public class WorkerManager : MonoBehaviour
     [Header(" Elements ")]
     [SerializeField] private List<Worker> workers = new List<Worker>();
 
-    private List<TaskRequest> pendingRequests = new List<TaskRequest>();
+    [SerializeReference] private List<TaskRequest> pendingRequests = new List<TaskRequest>();
 
     private void Awake()
     {
@@ -42,6 +42,14 @@ public class WorkerManager : MonoBehaviour
     {
         if (request is FillStationPlateauRequest)
             HandleFillStationPlateauRequest(request, worker);
+        else if (request is ServeCustomersRequest)
+            HandleServeCustomersRequest(request, worker);
+    }
+
+    private void HandleServeCustomersRequest(TaskRequest request, Worker worker)
+    {
+        ServeCustomersTask task = new ServeCustomersTask(worker, request);
+        worker.AssignTask(task);
     }
 
     private void HandleFillStationPlateauRequest(TaskRequest request, Worker worker)

@@ -9,9 +9,13 @@ public class Worker : MonoBehaviour
     private NavigationAbility navigationAbility;
     private HoldFoodAbility holdFoodAbility;
 
+    [Header(" Elements ")]
+    [SerializeField] private CustomerAnimator animator;
+
     private State state;
     private WorkerTask currentTask;
 
+    public bool IsIdle => state == State.Idle;
     public bool HasReachedDestination => navigationAbility.HasReachedDestination;
     public bool IsPlateauFull => holdFoodAbility.IsPlateauFull;
     public bool IsPlateauEmpty => holdFoodAbility.IsPlateauEmpty;
@@ -21,11 +25,64 @@ public class Worker : MonoBehaviour
     {
         navigationAbility = GetComponent<NavigationAbility>();
         holdFoodAbility = GetComponent<HoldFoodAbility>();
+        state = State.Idle;
     }
 
     private void Update()
     {
+        HandleStateMachine();
+    }
+
+    private void HandleStateMachine()
+    {
         currentTask?.Update();
+
+        switch (state)
+        {
+            case State.Idle:
+                HandleIdleState();
+                break;
+            case State.PerformingTask:
+                HandlePerformingTaskState();
+                break;
+        }
+    }
+
+    private void HandleIdleState()
+    {
+        if (navigationAbility.IsMoving)
+            StartWalkingState();
+    }
+
+    private void HandlePerformingTaskState()
+    {
+        if (HasReachedDestination)
+        {
+            ReachDestination();
+            return;
+        }
+
+        if (navigationAbility.IsMoving)
+            animator.ManageAnimations(navigationAbility.Velocity);
+        else
+            StartIdleState();
+    }
+
+    private void StartIdleState()
+    {
+        state = State.Idle;
+        animator.Stop();
+    }
+
+    private void StartWalkingState()
+    {
+        state = State.PerformingTask;
+        animator.StartWalking();
+    }
+
+    private void ReachDestination()
+    {
+        StartIdleState();
     }
 
     public void AssignTask(WorkerTask task)
@@ -48,6 +105,6 @@ public class Worker : MonoBehaviour
     public void CompleteTask()
     {
         currentTask = null;
-        Debug.Log("Worker task completed");
+        StartIdleState();
     }
 }

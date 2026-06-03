@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 28 complete
+Last updated: Lesson 29 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -17,6 +17,7 @@ Scripts/Customer/     -> Customer.cs, CustomerAnimator.cs
 Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
 Scripts/Abilities/    -> HoldFoodAbility.cs, NavigationAbility.cs, HoldDishAbility.cs
 Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs, CustomerManager.cs, TableManager.cs
+Scripts/WorkerStuff/  -> WorkerManager.cs, Worker.cs, WorkerTask.cs, SubTask.cs, MoveToSubTask.cs, WaitForConditionSubTask.cs, TaskRequest.cs, TaskRequester.cs, FillStationPlateauRequest.cs, FillStationPlateauTask.cs, ServeCustomersRequest.cs, ServeCustomersTask.cs
 Scripts/Utilities/    -> Constants.cs (TimeToConsumeFood=1f)
 Scripts/UI/           -> MobileJoystick.cs
 Prefabs/Gameplay/     -> Cup, Pizza, Plateau, CoffeeStation
@@ -205,7 +206,8 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 [x] Lesson 26: WorkerManager.HandleRequests impl (pendingRequests check, HandleRequest, HandleFillStationPlateauRequest: FindObjectsByType, potentialStations by FoodType, GetRandom, create FillStationPlateauTask, worker.AssignTask), FoodSpawnerStation(FoodType=spawnablePrefab.GetType, WorkerTargetPosition), FillStationPlateauTask stub
 [x] Lesson 27: WorkerTask(abstract, subTasks list, currentSubTaskIndex, worker+request cache, Start/Update/Complete), SubTask(abstract, IsComplete, Start/Update abstract), MoveToSubTask(destination, GoTo+HasReachedDestination), FillStationPlateauTask inherits WorkerTask + MoveToSubTask for food spawner, TaskRequester.ClearRequest
 [x] Lesson 28: Worker([RequireComponent NavigationAbility], State enum, Awake caches nav+holdFood, Update calls task.Update, AssignTask+GoTo+MarkAsBusy+CompleteTask, HasReachedDestination+IsPlateauFull/Empty/Dirty props), HoldFoodAbility(Plateau property+IsPlateauEmpty/Full/Dirty), WaitForConditionSubTask(Func<bool>), FillStationPlateauTask 4 subtasks complete, FoodServingStation HandleFoodServing bug fix (customer not needing food → dequeue)
-[ ] Lesson 29: (next) Worker animations + more request types
+[x] Lesson 29: Worker animations (CustomerAnimator + state machine: Idle/PerformingTask), ServeCustomersRequest(guid+workerTargetPos+dropZone+priority=40), ServeCustomersTask(MoveTo+WaitForCondition(foodCount<3)), FoodServingStation(workerServingTargetPoint, CanSendServeCustomersRequest: workerCount<=0&&customerReady&&hasEnoughFood, EmitServeCustomersRequest, OnTrigger detects Worker too), WorkerManager handles ServeCustomersRequest→ServeCustomersTask, [SerializeReference] on pendingRequests+TaskRequester.requests, [System.Serializable] on TaskRequest+subclasses
+[ ] Lesson 30: (next) Worker idle check before task assignment
 
 == BUG FIXES (session arası) ==
 - Trash: OnTriggerEnter→OnTriggerStay+timer(0.2s)+OnTriggerExit reset
@@ -213,3 +215,6 @@ Player has: CharacterController, PlayerDetector, HoldFoodAbility, PlayerAnimator
 - Worker physics layer: ayrı layer'a alındı, Player ile çarpışma kapatıldı (Layer Collision Matrix)
 - HoldDishAbility: artık [RequireComponent HoldFoodAbility], plateau = GetComponent<HoldFoodAbility>().Plateau (aynı plateau, inspector hatası önlendi)
 - Worker.holdFoodAbility: SerializeField kaldırıldı, Awake'te GetComponent ile alınıyor
+- Plateau.Start()→Awake(): disabled plateau ilk SetActive(true)'de Start() bir frame geç çalışıp isEmpty=true reset ediyordu; Awake'e alınca senkron oldu (dirty dish dump bug)
+- Trash.OnTriggerExit: HoldDishAbility kontrolü eklendi — worker geçince timer reset etmiyordu
+- Trash.OnTriggerStay: HasDishes=false'ta dumpTimer=0 kaldırıldı — worker'ın boş plateau'su timer'ı resetliyordu
