@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 37 complete
+Last updated: Lesson 39 in progress
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -217,7 +217,8 @@ Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbil
 [x] Lesson 35: CashFile system — CashFile.cs(cashPrefab, Vector2Int gridSize, Vector3 gridSpacing, Vector3[] basePositions); Awake→StoreBasePositions(center grid: startPos=transform.pos - right*spacing.x*size.x/2 - forward*spacing.z*size.y/2 + gridSpacing/2, nested z/x loop, i=x+z*gridSize.x); GetTargetGridPosition(index)(elevationIndex=index/basePositions.Length, y=elevationIndex*spacing.y, baseIndex=index%length); GenerateCash(amount)(loop: targetPos=GetTargetGridPosition(childCount), Instantiate as child); [Button]GenerateOneCash(). Unity: CashFile empty GO child of Coffee Cashier Station + BoxCollider trigger, cashPrefab=cash prefab, gridSize=(2,4), gridSpacing=(0.75,0.15,0.4)
 [x] Lesson 36: Cash collection + arc animation — ArcAnimator.cs(singleton, static Animate(Transform t,target,duration,delay,height,Action<GO> cb)→coroutine MoveAlongArc: WaitForSeconds(delay), timer loop: percent=timer/duration, pos=Lerp(start,target,pct), pos.y+=Sin(pct*PI)*height, final snap+cb.Invoke); CashFile: private int index, GenerateCash uses index+i for positioning + index+=amount, OnTriggerEnter(PlayerController→AnimateCashToPlayer+index=0), AnimateCashToPlayer(duration=2f,delayStep=duration/childCount,clamp 0.01f,loop reverse: ArcAnimator.Animate(cash,player,1f,delay,3f,HandleCashMovedAlongArc)), HandleCashMovedAlongArc→AddCurrency(2)+Destroy; FoodServingStation: +cashFile SerializeField, ServeFood→cashFile.GenerateCash(2) before Pop. Unity: ArcAnimator empty GO in scene, FoodServingStation inspector→assign Cash File
 [x] Lesson 37: CashFile save/load — [RequireComponent GuidGenerator], IWantToBeSaved interface; private bool loaded; Awake→guidGenerator=GetComponent; Start: if(!loaded)Load(); GenerateCash(int amount, bool save=true): save=true→Save() at end, save=false used by Load(); OnTriggerEnter: after AnimateCashToPlayer+index=0 → Save(); Save()→Sijil.Save(this,guid,index); Load(): loaded=true, TryLoad(guid,out _index)→return if not found, else GenerateCash((int)_index, false). Unity: GuidGenerator auto-added by RequireComponent — generate unique GUID for each CashFile. CDO must be in scene (not child of another GO).
-[ ] Lesson 38: (next)
+[x] Lesson 38: Locked element UI prefab — World Space Canvas(200x200, scale 0.01, rot X:19 Y:-90), Container(Image+Mask, Square50), Fill(Image Filled Vertical Bottom, yellow), Outline(Image Square50 Outline), VerticalLayoutGroup+ContentSizeFitter(PreferredSize), PriceText(TMP)+Icon(Image) with LayoutElement preferred heights. Unity only, no code.
+[ ] Lesson 39: (next)
 
 == SESSION BUG FIXES (Lesson 29-32 arası) ==
 - Plateau.Start()→Awake(): disabled plateau ilk SetActive(true)'de Start() bir frame geç çalışıp isEmpty=true reset ediyordu → dirty dish dump çalışmıyordu
