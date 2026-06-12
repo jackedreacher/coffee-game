@@ -1,9 +1,14 @@
 using System;
 using NaughtyAttributes;
+using Tabsil.Sijil;
 using UnityEngine;
 
-public class CashFile : MonoBehaviour
+[RequireComponent(typeof(GuidGenerator))]
+public class CashFile : MonoBehaviour, IWantToBeSaved
 {
+    [Header(" Components ")]
+    private GuidGenerator guidGenerator;
+
     [Header(" Elements ")]
     [SerializeField] private GameObject cashPrefab;
 
@@ -13,10 +18,18 @@ public class CashFile : MonoBehaviour
 
     private Vector3[] basePositions;
     private int index;
+    private bool loaded;
 
     private void Awake()
     {
+        guidGenerator = GetComponent<GuidGenerator>();
         StoreBasePositions();
+    }
+
+    private void Start()
+    {
+        if (!loaded)
+            Load();
     }
 
     private void StoreBasePositions()
@@ -51,7 +64,7 @@ public class CashFile : MonoBehaviour
         return basePositions[basePositionIndex] + Vector3.up * y;
     }
 
-    public void GenerateCash(int amount)
+    public void GenerateCash(int amount, bool save = true)
     {
         if (basePositions == null)
             StoreBasePositions();
@@ -63,6 +76,9 @@ public class CashFile : MonoBehaviour
         }
 
         index += amount;
+
+        if (save)
+            Save();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -72,6 +88,7 @@ public class CashFile : MonoBehaviour
 
         AnimateCashToPlayer(other.transform);
         index = 0;
+        Save();
     }
 
     private void AnimateCashToPlayer(Transform playerTransform)
@@ -96,6 +113,27 @@ public class CashFile : MonoBehaviour
     {
         CurrencyManager.instance.AddCurrency(2);
         Destroy(cash);
+    }
+
+    public void Save()
+    {
+        if (guidGenerator == null)
+            guidGenerator = GetComponent<GuidGenerator>();
+
+        Sijil.Save(this, guidGenerator.GUID, index);
+    }
+
+    public void Load()
+    {
+        loaded = true;
+
+        if (guidGenerator == null)
+            guidGenerator = GetComponent<GuidGenerator>();
+
+        if (!Sijil.TryLoad(this, guidGenerator.GUID, out object _index))
+            return;
+
+        GenerateCash((int)_index, false);
     }
 
     [Button]
