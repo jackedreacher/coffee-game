@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 35 complete
+Last updated: Lesson 36 complete
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -215,7 +215,8 @@ Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbil
 [x] Lesson 33: Table cleaned event + task cancellation — TableManager.TableCleaned Action<TableSet,HoldDishAbility>, invoked in RemoveDirtyTable; WorkerManager subscribes+OnTableCleaned(remove pending CleanTableRequest by GUID, cancel worker's CleanTableTask if different cleaner); Worker.CancelTask(), WorkerTask.Cancel()(clears request from sender); CleanTableTask.Table property; Plateau.Push safety: if no empty position && childCount<maxCapacity → CreateNewFoodPosition before push
 [x] Lesson 34: Highest-priority + closest worker — WorkerManager.GetHighestPriorityRequest()(int.MinValue loop→max priority index), GetTargetPositionFromRequest(FillStation→dropZonePos, ServeCustomers→workerTargetPos, CleanTable→table.WorkerTargetPosition), GetClosestWorker(idleWorkers,targetPos)(float.MaxValue loop→min distance index); HandleRequests uses these instead of pendingRequests[0]+GetRandom(). Unity: duplicate tables → each needs unique GUID (GuidGenerator → Generate GUID)
 [x] Lesson 35: CashFile system — CashFile.cs(cashPrefab, Vector2Int gridSize, Vector3 gridSpacing, Vector3[] basePositions); Awake→StoreBasePositions(center grid: startPos=transform.pos - right*spacing.x*size.x/2 - forward*spacing.z*size.y/2 + gridSpacing/2, nested z/x loop, i=x+z*gridSize.x); GetTargetGridPosition(index)(elevationIndex=index/basePositions.Length, y=elevationIndex*spacing.y, baseIndex=index%length); GenerateCash(amount)(loop: targetPos=GetTargetGridPosition(childCount), Instantiate as child); [Button]GenerateOneCash(). Unity: CashFile empty GO child of Coffee Cashier Station + BoxCollider trigger, cashPrefab=cash prefab, gridSize=(2,4), gridSpacing=(0.75,0.15,0.4)
-[ ] Lesson 36: (next) GenerateCash from FoodServingStation after serving customers
+[x] Lesson 36: Cash collection + arc animation — ArcAnimator.cs(singleton, static Animate(Transform t,target,duration,delay,height,Action<GO> cb)→coroutine MoveAlongArc: WaitForSeconds(delay), timer loop: percent=timer/duration, pos=Lerp(start,target,pct), pos.y+=Sin(pct*PI)*height, final snap+cb.Invoke); CashFile: private int index, GenerateCash uses index+i for positioning + index+=amount, OnTriggerEnter(PlayerController→AnimateCashToPlayer+index=0), AnimateCashToPlayer(duration=2f,delayStep=duration/childCount,clamp 0.01f,loop reverse: ArcAnimator.Animate(cash,player,1f,delay,3f,HandleCashMovedAlongArc)), HandleCashMovedAlongArc→AddCurrency(2)+Destroy; FoodServingStation: +cashFile SerializeField, ServeFood→cashFile.GenerateCash(2) before Pop. Unity: ArcAnimator empty GO in scene, FoodServingStation inspector→assign Cash File
+[ ] Lesson 37: (next)
 
 == SESSION BUG FIXES (Lesson 29-32 arası) ==
 - Plateau.Start()→Awake(): disabled plateau ilk SetActive(true)'de Start() bir frame geç çalışıp isEmpty=true reset ediyordu → dirty dish dump çalışmıyordu

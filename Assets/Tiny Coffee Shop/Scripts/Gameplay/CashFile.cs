@@ -1,3 +1,4 @@
+using System;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class CashFile : MonoBehaviour
     [SerializeField] private Vector3 gridSpacing;
 
     private Vector3[] basePositions;
+    private int index;
 
     private void Awake()
     {
@@ -41,11 +43,11 @@ public class CashFile : MonoBehaviour
         }
     }
 
-    private Vector3 GetTargetGridPosition(int index)
+    private Vector3 GetTargetGridPosition(int targetIndex)
     {
-        int elevationIndex = index / basePositions.Length;
+        int elevationIndex = targetIndex / basePositions.Length;
         float y = elevationIndex * gridSpacing.y;
-        int basePositionIndex = index % basePositions.Length;
+        int basePositionIndex = targetIndex % basePositions.Length;
         return basePositions[basePositionIndex] + Vector3.up * y;
     }
 
@@ -56,9 +58,44 @@ public class CashFile : MonoBehaviour
 
         for (int i = 0; i < amount; i++)
         {
-            Vector3 targetPosition = GetTargetGridPosition(transform.childCount);
+            Vector3 targetPosition = GetTargetGridPosition(index + i);
             Instantiate(cashPrefab, targetPosition, Quaternion.identity, transform);
         }
+
+        index += amount;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.TryGetComponent(out PlayerController _))
+            return;
+
+        AnimateCashToPlayer(other.transform);
+        index = 0;
+    }
+
+    private void AnimateCashToPlayer(Transform playerTransform)
+    {
+        if (transform.childCount <= 0)
+            return;
+
+        float duration = 2f;
+        float delayStep = duration / transform.childCount;
+        delayStep = Mathf.Min(delayStep, 0.01f);
+
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            Transform cash = transform.GetChild(i);
+            float delay = (transform.childCount - 1 - i) * delayStep;
+            delay = Mathf.Min(delay, duration);
+            ArcAnimator.Animate(cash, playerTransform, 1f, delay, 3f, HandleCashMovedAlongArc);
+        }
+    }
+
+    private void HandleCashMovedAlongArc(GameObject cash)
+    {
+        CurrencyManager.instance.AddCurrency(2);
+        Destroy(cash);
     }
 
     [Button]

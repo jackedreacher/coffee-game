@@ -14,6 +14,7 @@ public class FoodServingStation : MonoBehaviour
     [SerializeField] private TaskRequester taskRequester;
     [SerializeField] private SpawnableFood foodServedPrefab;
     [SerializeField] private Transform workerServingTargetPoint;
+    [SerializeField] private CashFile cashFile;
 
     [Header(" Settings ")]
     [SerializeField] private float servingDelay;
@@ -142,6 +143,7 @@ public class FoodServingStation : MonoBehaviour
     private void ServeFood()
     {
         Customer customerToServe = customerManager.PeekFirstCustomer();
+        cashFile.GenerateCash(2);
         SpawnableFood foodToServe = Pop();
         customerToServe.CollectFood(foodToServe);
 
