@@ -143,7 +143,7 @@ public class FoodServingStation : MonoBehaviour
     private void ServeFood()
     {
         Customer customerToServe = customerManager.PeekFirstCustomer();
-        cashFile.GenerateCash(2);
+        cashFile?.GenerateCash(2);
         SpawnableFood foodToServe = Pop();
         customerToServe.CollectFood(foodToServe);
 

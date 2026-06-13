@@ -1,0 +1,303 @@
+Welcome back guys! In this lesson, let me show you something.
+
+Okay, so let's select time, do something like three.
+
+Let's just get some customers to consume their food.
+
+Maybe one. Okay.
+
+So now I'm going to clean the table.
+
+Even if this boy was going to clean it.
+
+So now he tried to clean the table and now he's going to the trash
+
+because he thinks that he has some dirty food on his plateau
+
+that is not active actually.
+
+So this is why I told you that the hold dish ability here is important.
+
+Why? Because whenever we remove a dirty table, so whenever we clean a table,
+
+we are going to trigger an event or an action.
+
+And that action is going to be caught by the worker manager
+
+and check if any worker was going to clean a table.
+
+If that was the case, we're going to cancel that task for the worker
+
+and tell him to go idle or go do something else
+
+because the table is now clean.
+
+So in our table manager right here, let's create our action.
+
+So actions. Okay.
+
+Public static action.
+
+And we are going to pass in a table set along with a hold dish ability.
+
+Table cleaned. Okay.
+
+So now that we've got this action, we can trigger it in here.
+
+So table cleaned, let's invoke it with the first argument being the table
+
+and the second one, the hold dish ability.
+
+So now what we're going to do is jump to our worker manager.
+
+And now inside of the worker manager,
+
+what we're going to do is subscribe to that event.
+
+So inside of the awake method,
+
+tableManager.tableCleaned plus equals onTableCleaned.
+
+Okay. So let's create this method. There you go.
+
+We might drop it.
+
+Where should I put it?
+
+Maybe at the end?
+
+Yeah, let's put it at the end.
+
+Okay. Maybe just before the static methods.
+
+So let's now unsubscribe from it just in case we reset or reload the scene. Boom. Minus. There you go.
+
+And inside of here, let's do stuff.
+
+So this is the table and this is the hold dish ability.
+
+Now in this method, here is how we are going to handle that case or situation.
+
+We are going to loop through all of our pending requests.
+
+Maybe we had a request to clean that table.
+
+So if pendingRequest at index i dot or not dot is cleanTableRequest,
+
+if that request was cleaning a table and the pendingRequest
+
+at index i dot GUID equals the table dot GUID.
+
+So table dot GUID. There you go.
+
+So we had a request to clean that specific table. Okay.
+
+So we can continue in our logic.
+
+What we're going to do is remove it.
+
+So pendingRequest dot removeAt i and simply break that.
+
+So exit this loop.
+
+So we are removing the request from the pending requests.
+
+But that's not it.
+
+Because one of the workers might have a request that was processed
+
+and is not inside of the pending requests anymore.
+
+So for i from zero to workers dot count.
+
+So now let's ask all of the workers.
+
+And inside of this loop, we are going to check multiple things.
+
+First off, does our worker have a task or not?
+
+So if workers at index i dot currentTask equals null,
+
+let's just return because our worker did not have a task.
+
+If our workers at index i dot currentTask is cleanTableRequest.
+
+So if it was not a request, sorry, a cleanTableTask.
+
+And why can't...
+
+Oh, we need to add some practices in here. Sorry.
+
+So if the current task of the worker was not cleaning a table,
+
+we can continue again.
+
+And at this point, the worker had to clean a table, not this table.
+
+So we need to check if it's this table or not.
+
+So let's store the task.
+
+cleanTableTask will be equals to workers at index i dot currentTask. Okay?
+
+As cleanTableTask, of course.
+
+Okay, so let's check that.
+
+If cleanTableTask dot table, can we grab the table or not? We can't.
+
+So we are going to try and grab that table. Public table.
+
+Table set, sorry. Table set. Table.
+
+And let's just return our table.
+
+But which table?
+
+We need to grab it from the request, I think.
+
+So let's do a request as cleanTableRequest dot table, maybe? Maybe?
+
+Yep, we can, because we stored that table in the request right here. Okay?
+
+So fine, now we have access to this table.
+
+So if that table is different than the table that has just been cleaned,
+
+we are going to continue again.
+
+And finally, if our holdDishAbility, holdDishAbility, let's compare the GameObject.
+
+So holdDishAbility dot GameObject equals our workers dot i dot GameObject.
+
+So if this worker was going to clean that table, we are just going to continue. Why?
+
+Because we don't want to stop him from cleaning that table.
+
+But if someone else cleaned that table, then we are going to cancel the worker's task.
+
+So workers dot index i dot cancelTask.
+
+Yep, cancelTask.
+
+Okay, I hope this is clear again.
+
+Let's now cancel the task from the worker.
+
+So public void cancelTask. Boom.
+
+What we can do is tell the current task to cancel, like so.
+
+And we can also complete the task, okay?
+
+So completing the task, again, will remove the current task and start the idle state.
+
+Yeah, a task can also be cancelled.
+
+I don't think that we've implemented that.
+
+But yeah, it can be started, updated, completed and cancelled.
+
+So public void cancel.
+
+But don't worry, cancelling a task is quite straightforward.
+
+We are just going to apply the same logic that we've used right here.
+
+Removing the request from the sender, okay? Perfect.
+
+So I think that we should be able to give that a shot now.
+
+Let's jump back to Unity. Let's hit play.
+
+Okay, so let's increase the time scale just to get some dirty tables.
+
+Oh, I could have added more tables, to be honest. Yeah.
+
+Okay, so let's do one now.
+
+I'm going to try and clean the table before it gets... Okay, boom.
+
+And you can see that this worker was about to clean the table.
+
+But I won in the race.
+
+Okay, let's wait a little bit again. Boom, boom.
+
+This one is coming to clean the table.
+
+But, but, but, but, but...
+
+No, I'm going to clean. No, no, no.
+
+Yeah, there you go.
+
+Okay, so we are getting an error in here. What's that?
+
+Put position dot push.
+
+Oh, again, I think it's a food position issue here.
+
+Maybe we have more food positions than we can handle in our player? Or what?
+
+What's wrong in here?
+
+One, two, three, four, five, six, seven, eight.
+
+Yeah, but I think that we already managed or handled that issue earlier.
+
+Okay, seems like we still have that issue.
+
+Okay, so let's fix this issue here.
+
+Okay, so let's exit here. All right.
+
+So we are going to open our plateau script.
+
+And to fix that issue after these conditions, we are going to check if the positions parent,
+
+so food positions parent dot child count is less than the max capacity.
+
+Because we are not marking the plateau as full with these new food positions, the dirty ones.
+
+We are going to create a new food position.
+
+Okay, just in case.
+
+So let's try that again.
+
+Okay, so let's go a bit faster. Maybe three. Nice.
+
+Okay, let's do one.
+
+Let's collect these cups. Boom. Thank you. I was first.
+
+Then let's do this again. One.
+
+Okay, let's collect more. Boom.
+
+Okay, no errors so far.
+
+But how many cups do we have? Player.
+
+Oh, we have more than eight, which is nice.
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12. 12.
+
+And we can grab more. Nice.
+
+Okay, that's working really well.
+
+If we select all of these, we can spot in the inspector 20 positions. Nice.
+
+Okay, in the next one, we are going to improve our worker manager's task handling or requests
+
+handling because we did not do that in this one.
+
+We've handled the tables.
+
+It took some time.
+
+But anyway, it took the time that it had to take.
+
+See you in the next one.

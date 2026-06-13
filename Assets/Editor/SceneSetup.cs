@@ -199,6 +199,172 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 34 (Duplicate Tables + GUIDs)")]
+    public static void SetupLesson34()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        GameObject tableSetPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/Tiny Coffee Shop/Prefabs/TableStuff/Simple Table Set.prefab");
+
+        if (tableSetPrefab == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Simple Table Set.prefab not found!\nRun Setup Lesson 13 first.", "OK");
+            return;
+        }
+
+        GameObject gameplay = GameObject.Find("--- GAMEPLAY ---");
+
+        // Check if there's already a table in the scene
+        TableSet existingTable = Object.FindFirstObjectByType<TableSet>();
+        if (existingTable == null)
+        {
+            EditorUtility.DisplayDialog("Error", "No existing table found in scene!\nPlace at least one table first.", "OK");
+            return;
+        }
+
+        Vector3[] positions = new Vector3[]
+        {
+            new Vector3(2.5f, 0f, 1.5f),
+            new Vector3(-2.5f, 0f, 1.5f),
+            new Vector3(0f, 0f, 3.5f)
+        };
+
+        int created = 0;
+        for (int i = 0; i < positions.Length; i++)
+        {
+            GameObject newTable = (GameObject)PrefabUtility.InstantiatePrefab(tableSetPrefab);
+            newTable.name = "Simple Table Set (" + (i + 2) + ")";
+            newTable.transform.position = positions[i];
+
+            if (gameplay != null)
+                newTable.transform.SetParent(gameplay.transform, true);
+
+            // Generate new GUID
+            GuidGenerator guid = newTable.GetComponent<GuidGenerator>();
+            if (guid != null)
+            {
+                SerializedObject so = new SerializedObject(guid);
+                SerializedProperty guidProp = so.FindProperty("guid");
+                if (guidProp != null)
+                {
+                    guidProp.stringValue = System.Guid.NewGuid().ToString();
+                    so.ApplyModifiedProperties();
+                }
+            }
+
+            Undo.RegisterCreatedObjectUndo(newTable, "Create Table " + (i + 2));
+            created++;
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 34: " + created + " extra tables created with unique GUIDs!");
+        EditorUtility.DisplayDialog("Lesson 34 Done!",
+            "Created " + created + " extra tables:\n" +
+            "• Table 2 at (2.5, 0, 1.5)\n" +
+            "• Table 3 at (-2.5, 0, 1.5)\n" +
+            "• Table 4 at (0, 0, 3.5)\n\n" +
+            "⚡ Pozisyonları istediğin yere taşı.\n" +
+            "⚡ Her tablonun kendine ait GUID'i var.\n" +
+            "⚡ NavMesh'i tekrar bake et.",
+            "OK");
+    }
+
+    [MenuItem("Cooked Fast/Setup Lesson 35 (Cash File on Cashier Station)")]
+    public static void SetupLesson35()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        GameObject cashPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/PinkTea/3D Cartoon Safe Pack/Prefabs/Cash.prefab");
+
+        if (cashPrefab == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Cash.prefab not found at\nAssets/PinkTea/3D Cartoon Safe Pack/Prefabs/Cash.prefab", "OK");
+            return;
+        }
+
+        GameObject cashierStation = GameObject.Find("Coffee Cashier Station");
+        if (cashierStation == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Coffee Cashier Station not found in scene!", "OK");
+            return;
+        }
+
+        // Check if Cash File already exists
+        Transform existingCashFile = cashierStation.transform.Find("Cash File");
+        if (existingCashFile != null)
+        {
+            EditorUtility.DisplayDialog("Warning", "Cash File already exists under Coffee Cashier Station!", "OK");
+            return;
+        }
+
+        // Create Cash File GameObject
+        GameObject cashFileObj = new GameObject("Cash File");
+        cashFileObj.transform.SetParent(cashierStation.transform);
+        cashFileObj.transform.localPosition = new Vector3(0f, 0f, 1.2f);
+        cashFileObj.transform.localRotation = Quaternion.identity;
+        cashFileObj.transform.localScale = Vector3.one;
+
+        // Add components
+        cashFileObj.AddComponent<GuidGenerator>();
+        cashFileObj.AddComponent<CashFile>();
+
+        // Box Collider (trigger)
+        BoxCollider col = cashFileObj.AddComponent<BoxCollider>();
+        col.isTrigger = true;
+        col.size = new Vector3(1.5f, 1f, 1.5f);
+        col.center = new Vector3(0f, 0.5f, 0f);
+
+        // Generate GUID
+        GuidGenerator guid = cashFileObj.GetComponent<GuidGenerator>();
+        if (guid != null)
+        {
+            SerializedObject guidSo = new SerializedObject(guid);
+            SerializedProperty guidProp = guidSo.FindProperty("guid");
+            if (guidProp != null)
+            {
+                guidProp.stringValue = System.Guid.NewGuid().ToString();
+                guidSo.ApplyModifiedProperties();
+            }
+        }
+
+        // Set CashFile fields
+        SetSerializedFieldObject(cashFileObj, "CashFile", "cashPrefab", cashPrefab);
+        SetSerializedFieldVector2Int(cashFileObj, "CashFile", "gridSize", new Vector2Int(2, 4));
+        SetSerializedFieldVector3(cashFileObj, "CashFile", "gridSpacing", new Vector3(0.75f, 0.15f, 0.4f));
+
+        // Link CashFile to FoodServingStation
+        CashFile cashFileComp = cashFileObj.GetComponent<CashFile>();
+        if (cashFileComp != null)
+            SetSerializedFieldObject(cashierStation, "FoodServingStation", "cashFile", cashFileComp);
+
+        Undo.RegisterCreatedObjectUndo(cashFileObj, "Create Cash File");
+
+        // Save as prefab
+        string prefabFolder = "Assets/Tiny Coffee Shop/Prefabs/GamePlay";
+        PrefabUtility.SaveAsPrefabAssetAndConnect(
+            cashFileObj, prefabFolder + "/Cash Pile.prefab", InteractionMode.AutomatedAction);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 35: Cash File created on Coffee Cashier Station!");
+        EditorUtility.DisplayDialog("Lesson 35 Done!",
+            "Created:\n" +
+            "• Cash File under Coffee Cashier Station\n" +
+            "• BoxCollider (trigger) 1.5x1x1.5\n" +
+            "• Grid: 2x4, spacing (0.75, 0.15, 0.4)\n" +
+            "• Cash prefab linked\n" +
+            "• FoodServingStation.cashFile linked\n" +
+            "• Saved as Cash Pile.prefab\n\n" +
+            "⚡ Pozisyonu ayarla (localPos şu an 0,0,1.2).\n" +
+            "⚡ Play'e bas ve Generate One Cash ile test et.",
+            "OK");
+    }
+
     private static GameObject CreateChair(GameObject chairPrefab, Material paletteMat, string name, Vector3 localPos, float yRotation)
     {
         // Chair parent (empty): holds script, collider, obstacle
@@ -261,6 +427,42 @@ public class SceneSetup
                 if (prop != null)
                 {
                     prop.objectReferenceValue = value;
+                    so.ApplyModifiedProperties();
+                }
+                return;
+            }
+        }
+    }
+
+    private static void SetSerializedFieldVector2Int(GameObject obj, string componentType, string fieldName, Vector2Int value)
+    {
+        foreach (var comp in obj.GetComponents<Component>())
+        {
+            if (comp.GetType().Name == componentType)
+            {
+                SerializedObject so = new SerializedObject(comp);
+                SerializedProperty prop = so.FindProperty(fieldName);
+                if (prop != null)
+                {
+                    prop.vector2IntValue = value;
+                    so.ApplyModifiedProperties();
+                }
+                return;
+            }
+        }
+    }
+
+    private static void SetSerializedFieldVector3(GameObject obj, string componentType, string fieldName, Vector3 value)
+    {
+        foreach (var comp in obj.GetComponents<Component>())
+        {
+            if (comp.GetType().Name == componentType)
+            {
+                SerializedObject so = new SerializedObject(comp);
+                SerializedProperty prop = so.FindProperty(fieldName);
+                if (prop != null)
+                {
+                    prop.vector3Value = value;
                     so.ApplyModifiedProperties();
                 }
                 return;

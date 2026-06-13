@@ -1,0 +1,269 @@
+Welcome back guys! In this lesson, we are going to complete our handling workers section.
+
+In this one, we are going to do two or three important things. First off, we need to grab
+
+the highest priority request and this is the one we should handle first, not the first pending
+
+request. Then we are going to grab the worker that is the closest to where we should apply
+
+that task or perform that task, okay? All right, so for that we are going to open our
+
+worker manager script. Okay, thank you. And inside of here, where we handle our requests,
+
+after handling no idle workers found, we right here use the first pending request. This is not
+
+what we are going to do. Instead, we are going to grab the highest priority request. So highest
+
+priority request. This is going to be equals to get highest priority request, okay?
+
+Let's now create this method. Boom! Okay, let's remove the exception here and find the highest
+
+priority request. So it's quite simple, I'm sure you know how to do that. Just loop through all
+
+of the pending requests and grab the one that is the highest priority. Yeah, as simple as it gets.
+
+So you can either use the link library or simply use a loop. So int max priority
+
+will be equals to int dot minimum value, okay? Then the request index is going to be minus one.
+
+Then we can loop through all of our pending requests, like so. Thank you.
+
+And if the pending requests at index i dot priority is greater than the max priority,
+
+then we want to set the max priority equals pending requests i dot priority. And request
+
+index equals i. Cool. At the end of this, what we can do is return pending requests.
+
+So return pending requests at index request index. And we know for sure that our request
+
+index will never be negative. Why? Because we've made sure that we called this method
+
+if we had some pending requests. So we know for a fact that we are going to have pending requests
+
+in there, okay? So we now have our highest priority request. So now what we want to do is
+
+grab the worker that is the closest to the main target point, let's say, of that request.
+
+So we can do something like worker target worker or closest worker equals get closest worker
+
+from list. And in here, we are going to pass in two things. First off, the list of workers that
+
+are able to perform that task. Next, the task target position, okay? So we need to grab that
+
+position. Vector3 task target position will be equals to get target position from request,
+
+let's say. Boom. And let's pass in the highest priority request. So each request, if you remember
+
+has a kind of target position for the worker. So for the serve customers request, it's the worker
+
+target position. To clean the table, it's going to be the table position or table.worker target
+
+point. Yeah, this one. For the filling station plateau, it's going to be the drop zone. No,
+
+do we have that position? Drop zone position? Yeah, actually, it's given by our boy here,
+
+by our worker manager. Remember in here? Yeah, we check out the station. So for this one,
+
+you've got two possibilities. You can either grab the spawner station's position or worker position
+
+or the serving station's worker position. We've got two possibilities. That's great. That's nice.
+
+Okay, so let's create this method and this one. Perfect. Let's start with this one. So let's drop
+
+it here. Thank you. And we should be good to go. Okay, let's implement our get target position
+
+from request method. Inside of here, I'm just going to rename this one request so that it
+
+doesn't take that much space. And we can check for each request, actually. So if the request
+
+is fill station plateau request, we are going to return request as fill station plateau request
+
+dot drop zone position. Boom. Okay, we are using the drop zone position for this one.
+
+But as I told you, you can also use the food spawner station's worker position. Else if
+
+request is, what is the second one? Serving, right? Where is the handle handle request? I'm
+
+just going to copy and paste this. So bam. Okay. And drop this here. But of course, I need to
+
+remove the if statement. So the first one. And in here, we are going to return stuff. So let's grab
+
+these and drop it here, here and here. Thank you. So in here, we need to reset the request as a serve
+
+customer as clean and as idle. Okay, are we missing something? Yeah, I think we need an else statement.
+
+Okay, so the last one should be an else statement. Or we can keep the else if and if we can't find
+
+that request type, we can return vector 3.0. Okay, there is one obvious thing here we can do.
+
+The idle request. This is definitely not important. We can remove it. It's not something of a high
+
+priority. It's never going to be, let's say, the highest priority request because it might be with
+
+other idle requests with a priority of minus one, but that's it. These are the most important ones.
+
+So for the serve customers request, we want to use the worker target point or position here.
+
+And for the table, we can use the... Do we have a worker thingy? No, we've got the table
+
+dot worker target position. Okay. So at this point, we know what position is needed or is going to be
+
+reached by the worker for that request. Let's now implement this method here. Inside of here,
+
+we are going to use the same logic that we've used in the get highest priority request.
+
+So let's do float min distance equals load dot max value int worker index equals minus one.
+
+And again, we know that we'll have workers here because we've made sure that our idle workers
+
+list had some entries in it. Okay. So what we're going to do is for i from zero to workers dot
+
+count, and the workers right here should not be the workers list. It should be the idle workers
+
+list. There you go. So when looping on that list, we want to check float distance is going to be
+
+equals to idle workers at index i dot transform dot position, but we want a distance. So vector
+
+three dot distance between our idle worker and the task target position. Nice. If that distance
+
+is less than the minimum distance, then the distance equals our minimum... Sorry, the minimum
+
+distance equals the distance, and the worker index equals i. And after that, we can return
+
+our idle workers at worker index. Boom. Perfect. So now we are all set up. We need to use this boy.
+
+We need to use this boy when handling the request here. So the worker here is going to be the target
+
+worker, and the highest priority request is the one that we need to to do. Boom. Or to perform.
+
+Handle. Okay. And by the way, we should not remove at index zero here. We should remove
+
+the pending request. So remove not at, but the highest priority request. Okay. So we can now
+
+try this out. And before hitting play, what I want to do is add more tables. So here's the first one.
+
+I'm going to duplicate it, move it somewhere around here. Okay. And maybe we can have another one
+
+there, maybe a bit further away. And this one somewhere around here. Perfect. Nice. Okay. Now we
+
+can try this out. Do we need to reference our tables? Nope. They are referenced at runtime.
+
+All right. So we can speed up the game a bit more. So maybe five. Okay. Just so that we have
+
+customers going to the tables, consuming food, and so on. Okay. Boom, boom. Now we can jump back. Okay.
+
+So let's have a top view instead, or kind of a side view. Let's maximize the scene here to better
+
+spot what happens. So this boy is the closest one. So he went to serve the customers. This one is
+
+going to grab cups, and this one is now serving, putting the cups. Okay. This table needs to be
+
+cleaned. Can someone come and clean the table, please? Okay. So nobody is coming to clean the table.
+
+Interesting. Okay. What is this boy doing here? Oh, this one was going to clean the table,
+
+but he went to grab some cups.
+
+Do we have some errors? No, we don't have any error.
+
+Okay. Okay. Okay. Okay. So this boy cleans this table, but these two tables do not want to be
+
+cleaned. Why is that happening? Are they added to the table manager or not?
+
+Let's switch to debug mode. Dirty tables. We have two dirty tables. Yeah, these ones.
+
+Table number two, which is this one, and table not number three. I think it was number one.
+
+So now we have three. Okay. So we still have two dirty tables, but the request here to clean the
+
+tables, table three. Okay. Table three. It's not there anymore. So I think that our request to
+
+clean the table has been canceled, but we haven't canceled it from the task requester.
+
+That's what might have happened. I think that one worker was going to clean the table, but maybe we
+
+did not clean it. Where is the worker manager? Here are our pending requests.
+
+So we've got minus 4.7 for the target position. Let's try something here.
+
+Let's create a sphere. Okay. And the position we need to use is minus 4.7. All of these are
+
+along the same x-axis, which is minus 4.7. Okay. So they're all somewhere around here.
+
+These are our idle positions. So we don't have any requests pending to clean the table here.
+
+Really interesting. Let's hit play again and see what happens. We are going to do that step by
+
+step now. So let's select our table manager. Let's speed up the things a bit. Okay. So now one,
+
+maybe two and one. Okay. I just want this table to become dirty so that I can spot. Okay. So now
+
+we've emitted a request. Okay. So this boy comes and clean it. Nice. Now the request has been
+
+removed. Should I help them a bit more or not? So the request here to clean the table again,
+
+it has been removed, but because the table has been cleaned.
+
+He was doing a moonwalk. Okay. So now we have one request, two requests.
+
+One has been handled to this boy. Okay. What about this one?
+
+Interesting.
+
+Okay. So nobody wants to clean this one.
+
+And we don't have any requests for this one too.
+
+What?
+
+I, okay.
+
+Let me clean these to check what's going to happen after that.
+
+Okay. We are getting an error here now.
+
+Dirty tables.array.data2 has disappeared. Of course I've cleaned the table, bruh.
+
+Okay. So now this table has been put here. All right. We've got this boy coming and cleaning it.
+
+What about this one? So someone is going to clean this one. Okay.
+
+We've got another dirty table there. Somebody is coming to clean it. Okay.
+
+So we need more dirty tables at the same time, I think, to spot that issue again.
+
+Okay. Here is one request. It has been given to this boy. And here is another one.
+
+Okay. Okay. Okay. I think that my tables have the same GUID.
+
+Dude.
+
+You know what? What? What let me, what let me,
+
+do you know how I find, I found that out? Because I had one request and two dirty tables. So it
+
+means that the request had already been handled and it has not been added to the requests. --.
+
+So yeah, please make sure to not reproduce that error. So select the table, generate GUID,
+
+generate GUID and generate GUID. Okay. So now I'm going to go to the table.
+
+So select the table, generate GUID, generate GUID and generate GUID. Perfect.
+
+So let's now hit play. All right. Let's speed up things a bit again to give it a shot.
+
+So let's have a top view again. Okay. Maybe we can remove the gizmos. All right.
+
+So table clean. This one is cleaned. This one is cleaned again. Nice. Nice. Let me go grab some,
+
+can we grab some cups? No. Okay. Okay. Everything seems to be going all right.
+
+This one was the closest. So he decided to serve the customers, go grab cups,
+
+serve customers and so on. This one was now closed because this one was busy actually.
+
+And now everything seems to be working perfectly. Awesome. And this lesson closes our worker
+
+handling section. If you've enjoyed this, please feel free to leave a review. It would
+
+be highly appreciated. Thank you. And yep. See you in the next one.
