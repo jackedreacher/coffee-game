@@ -456,66 +456,57 @@ public class SceneSetup
     {
         var scene = EditorSceneManager.GetActiveScene();
 
-        // Load sprites
         Sprite square40 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_40.png");
         Sprite square50 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_50.png");
         Sprite squareOutline50 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_Outline_50.png");
         Sprite cashIcon = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Tiny Coffee Shop/Sprites/UI/Cash_icon.png");
 
-        // =====================
         // 1. LOCKED ELEMENT (root)
-        // =====================
         GameObject lockedElement = new GameObject("Locked Element");
         lockedElement.transform.position = Vector3.zero;
 
-        // Unlocked Elements container
-        GameObject unlockedElements = new GameObject("Unlocked Elements");
-        unlockedElements.transform.SetParent(lockedElement.transform);
-        unlockedElements.transform.localPosition = Vector3.zero;
+        // 2. ANIM (LeanTween animation target)
+        GameObject anim = new GameObject("Anim");
+        anim.transform.SetParent(lockedElement.transform);
+        anim.transform.localPosition = Vector3.zero;
+        anim.transform.localScale = Vector3.one;
 
-        // =====================
-        // 2. CANVAS (World Space)
-        // =====================
+        // 3. CANVAS (World Space, size 2x2, scale 1) under Anim
         GameObject canvasObj = new GameObject("Canvas");
-        canvasObj.transform.SetParent(lockedElement.transform);
+        canvasObj.transform.SetParent(anim.transform);
 
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
-
         canvasObj.AddComponent<CanvasScaler>();
         canvasObj.AddComponent<GraphicRaycaster>();
 
         RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
         canvasRect.localPosition = new Vector3(0f, 1f, 0f);
-        canvasRect.localRotation = Quaternion.Euler(0f, -90f, 0f);
+        canvasRect.localRotation = Quaternion.Euler(90f, -90f, 0f);
         canvasRect.sizeDelta = new Vector2(2f, 2f);
-        canvasRect.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+        canvasRect.localScale = Vector3.one;
 
-        // =====================
-        // 3. CONTAINER (background image)
-        // =====================
+        // 4. CONTAINER (stretch to canvas)
         GameObject container = new GameObject("Container");
         container.transform.SetParent(canvasObj.transform);
         Image containerImg = container.AddComponent<Image>();
-        if (square50 != null)
-            containerImg.sprite = square50;
+        if (square50 != null) containerImg.sprite = square50;
+        containerImg.type = Image.Type.Simple;
         containerImg.color = new Color(0.35f, 0.35f, 0.35f, 0.9f);
-        containerImg.pixelsPerUnitMultiplier = 256f;
 
         RectTransform containerRect = container.GetComponent<RectTransform>();
         containerRect.anchorMin = Vector2.zero;
         containerRect.anchorMax = Vector2.one;
         containerRect.offsetMin = Vector2.zero;
         containerRect.offsetMax = Vector2.zero;
+        containerRect.localPosition = Vector3.zero;
+        containerRect.localRotation = Quaternion.identity;
 
-        // =====================
-        // 4. FILL IMAGE
-        // =====================
+        // 5. FILL IMAGE
         GameObject fill = new GameObject("Fill");
         fill.transform.SetParent(container.transform);
         Image fillImg = fill.AddComponent<Image>();
-        if (square40 != null)
-            fillImg.sprite = square40;
+        if (square40 != null) fillImg.sprite = square40;
         fillImg.type = Image.Type.Filled;
         fillImg.fillMethod = Image.FillMethod.Vertical;
         fillImg.fillOrigin = 0;
@@ -528,12 +519,9 @@ public class SceneSetup
         fillRect.offsetMin = Vector2.zero;
         fillRect.offsetMax = Vector2.zero;
 
-        // =====================
-        // 5. VERTICAL LAYOUT (price text + icon)
-        // =====================
+        // 6. VERTICAL LAYOUT
         GameObject vertLayout = new GameObject("Vertical Layout");
         vertLayout.transform.SetParent(container.transform);
-        vertLayout.transform.SetSiblingIndex(container.transform.childCount - 1);
 
         RectTransform vlRect = vertLayout.AddComponent<RectTransform>();
         vlRect.anchorMin = Vector2.zero;
@@ -552,35 +540,29 @@ public class SceneSetup
         priceTextObj.transform.SetParent(vertLayout.transform);
         TextMeshProUGUI priceText = priceTextObj.AddComponent<TextMeshProUGUI>();
         priceText.text = "256";
-        priceText.fontSize = 9f;
+        priceText.fontSize = 0.6f;
         priceText.alignment = TextAlignmentOptions.Center;
-        priceText.fontSizeMin = 0.5f;
-        priceText.fontSizeMax = 1f;
         priceText.enableAutoSizing = false;
 
         LayoutElement priceLayout = priceTextObj.AddComponent<LayoutElement>();
-        priceLayout.preferredHeight = 3f;
+        priceLayout.preferredHeight = 1.2f;
 
         // Icon
         GameObject iconObj = new GameObject("Icon");
         iconObj.transform.SetParent(vertLayout.transform);
         Image iconImg = iconObj.AddComponent<Image>();
-        if (cashIcon != null)
-            iconImg.sprite = cashIcon;
+        if (cashIcon != null) iconImg.sprite = cashIcon;
         iconImg.preserveAspect = true;
 
         LayoutElement iconLayout = iconObj.AddComponent<LayoutElement>();
-        iconLayout.preferredHeight = 2f;
+        iconLayout.preferredHeight = 0.8f;
 
-        // =====================
-        // 6. OUTLINE
-        // =====================
+        // 7. OUTLINE
         GameObject outline = new GameObject("Outline");
         outline.transform.SetParent(container.transform);
         Image outlineImg = outline.AddComponent<Image>();
-        if (squareOutline50 != null)
-            outlineImg.sprite = squareOutline50;
-        outlineImg.pixelsPerUnitMultiplier = 150f;
+        if (squareOutline50 != null) outlineImg.sprite = squareOutline50;
+        outlineImg.type = Image.Type.Simple;
         outlineImg.color = Color.white;
 
         RectTransform outlineRect = outline.GetComponent<RectTransform>();
@@ -589,11 +571,14 @@ public class SceneSetup
         outlineRect.offsetMin = new Vector2(-0.02f, -0.02f);
         outlineRect.offsetMax = new Vector2(0.02f, 0.02f);
 
+        // 8. UNLOCKED ELEMENTS
+        GameObject unlockedElements = new GameObject("Unlocked Elements");
+        unlockedElements.transform.SetParent(lockedElement.transform);
+        unlockedElements.transform.localPosition = Vector3.zero;
+
         Undo.RegisterCreatedObjectUndo(lockedElement, "Create Locked Element");
 
-        // =====================
-        // 7. PLACE UNDER GAMEPLAY
-        // =====================
+        // 9. PLACE UNDER GAMEPLAY
         GameObject gameplay = GameObject.Find("--- GAMEPLAY ---");
         if (gameplay != null)
             lockedElement.transform.SetParent(gameplay.transform, true);
@@ -609,15 +594,106 @@ public class SceneSetup
         Debug.Log("✅ Lesson 38: Locked Element UI prefab created!");
         EditorUtility.DisplayDialog("Lesson 38 Done!",
             "Created:\n" +
-            "• Locked Element with World Space Canvas\n" +
-            "• Container + Fill Image (vertical fill)\n" +
-            "• Price Text (TMP) + Cash Icon\n" +
-            "• Outline\n" +
-            "• Unlocked Elements container\n" +
-            "• Saved as Locked Element.prefab\n\n" +
-            "⚡ Locked Element'i masa/station yanına taşı.\n" +
+            "• Locked Element\n" +
+            "  └ Anim\n" +
+            "    └ Canvas (World Space, 2x2, scale 1)\n" +
+            "      └ Container + Fill + VLayout + Outline\n" +
+            "  └ Unlocked Elements\n\n" +
+            "⚡ Pozisyonu ayarla.\n" +
             "⚡ Unlock edilecek objeyi Unlocked Elements altına koy.\n" +
-            "⚡ Canvas rotation'ı kameraya göre ayarla.",
+            "⚡ Font size'ı inspector'dan ayarla (0.5-1 arası).",
+            "OK");
+    }
+
+    [MenuItem("Cooked Fast/Setup Lesson 39 (LockedElement + PayAbility)")]
+    public static void SetupLesson39()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        GameObject cashPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/PinkTea/3D Cartoon Safe Pack/Prefabs/Cash.prefab");
+
+        // 1. Add PayAbility to Player
+        GameObject player = GameObject.Find("Player");
+        if (player != null)
+        {
+            if (player.GetComponent<PayAbility>() == null)
+                player.AddComponent<PayAbility>();
+
+            if (cashPrefab != null)
+                SetSerializedFieldObject(player, "PayAbility", "cashPrefab", cashPrefab);
+        }
+
+        // 2. Setup Locked Element in scene (search everywhere)
+        GameObject lockedElement = null;
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+        {
+            if (go.name == "Locked Element")
+            {
+                lockedElement = go;
+                break;
+            }
+        }
+        if (lockedElement == null)
+        {
+            lockedElement = new GameObject("Locked Element");
+            lockedElement.transform.position = new Vector3(2f, 0f, 2f);
+            GameObject gameplay = GameObject.Find("--- GAMEPLAY ---");
+            if (gameplay != null)
+                lockedElement.transform.SetParent(gameplay.transform, true);
+            Undo.RegisterCreatedObjectUndo(lockedElement, "Create Locked Element");
+        }
+
+        // Add LockedElement script
+        if (lockedElement.GetComponent<LockedElement>() == null)
+            lockedElement.AddComponent<LockedElement>();
+
+        // Add BoxCollider (trigger) if not present
+        BoxCollider col = lockedElement.GetComponent<BoxCollider>();
+        if (col == null)
+        {
+            col = lockedElement.AddComponent<BoxCollider>();
+            col.isTrigger = true;
+            col.size = new Vector3(2f, 2f, 2f);
+            col.center = new Vector3(0f, 1f, 0f);
+        }
+
+        // Wire up references
+        Transform animTransform = lockedElement.transform.Find("Anim");
+        if (animTransform != null)
+            SetSerializedFieldObject(lockedElement, "LockedElement", "anim", animTransform);
+
+        // Find Price Text and Fill Image in Canvas
+        TextMeshProUGUI priceText = lockedElement.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (priceText != null)
+            SetSerializedFieldObject(lockedElement, "LockedElement", "priceText", priceText);
+
+        Image[] images = lockedElement.GetComponentsInChildren<Image>(true);
+        foreach (Image img in images)
+        {
+            if (img.gameObject.name == "Fill")
+            {
+                SetSerializedFieldObject(lockedElement, "LockedElement", "fillImage", img);
+                break;
+            }
+        }
+
+        SetSerializedFieldInt(lockedElement, "LockedElement", "initialPrice", 100);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 39: LockedElement + PayAbility setup complete!");
+        EditorUtility.DisplayDialog("Lesson 39 Done!",
+            "Created:\n" +
+            "• LockedElement script on Locked Element\n" +
+            "• BoxCollider (trigger 2x2x2) on Locked Element\n" +
+            "• PayAbility on Player (+ cash prefab linked)\n" +
+            "• Price Text, Fill Image, Anim references wired\n" +
+            "• Initial Price: 100\n\n" +
+            "⚡ Locked Element pozisyonunu ayarla.\n" +
+            "⚡ Unlock edilecek objeyi Unlocked Elements altına koy.\n" +
+            "⚡ Tools > Clear Save ile eski kayıtları temizle.",
             "OK");
     }
 

@@ -72,7 +72,9 @@ public class CashFile : MonoBehaviour, IWantToBeSaved
         for (int i = 0; i < amount; i++)
         {
             Vector3 targetPosition = GetTargetGridPosition(index + i);
-            Instantiate(cashPrefab, targetPosition, Quaternion.identity, transform);
+            GameObject cash = Instantiate(cashPrefab, targetPosition, Quaternion.identity, transform);
+            if (cash.TryGetComponent(out Collider col))
+                col.enabled = false;
         }
 
         index += amount;
