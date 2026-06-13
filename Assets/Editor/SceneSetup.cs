@@ -407,6 +407,48 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 37 (Sijil Save System)")]
+    public static void SetupLesson37()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        // Check if Sijil already exists
+        var existing = Object.FindFirstObjectByType<Tabsil.Sijil.Sijil>();
+        if (existing != null)
+        {
+            EditorUtility.DisplayDialog("Info", "Sijil already exists in scene!\nNo changes needed.", "OK");
+            return;
+        }
+
+        // Create --- OTHERS --- section if not exists
+        GameObject others = GameObject.Find("--- OTHERS ---");
+        if (others == null)
+        {
+            others = new GameObject("--- OTHERS ---");
+            others.transform.position = Vector3.zero;
+            Undo.RegisterCreatedObjectUndo(others, "Create OTHERS section");
+        }
+
+        // Create Sijil
+        GameObject sijilObj = new GameObject("Sijil");
+        sijilObj.transform.position = Vector3.zero;
+        sijilObj.AddComponent<Tabsil.Sijil.Sijil>();
+        sijilObj.transform.SetParent(others.transform);
+
+        Undo.RegisterCreatedObjectUndo(sijilObj, "Create Sijil");
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 37: Sijil save system added to scene!");
+        EditorUtility.DisplayDialog("Lesson 37 Done!",
+            "Created:\n" +
+            "• Sijil save system under --- OTHERS ---\n\n" +
+            "CashFile save/load is now ready.\n" +
+            "⚡ Tools > Clear Save ile eski kayıtları temizleyebilirsin.",
+            "OK");
+    }
+
     private static GameObject CreateChair(GameObject chairPrefab, Material paletteMat, string name, Vector3 localPos, float yRotation)
     {
         // Chair parent (empty): holds script, collider, obstacle
