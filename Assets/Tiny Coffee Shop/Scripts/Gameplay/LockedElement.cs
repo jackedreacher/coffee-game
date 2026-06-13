@@ -1,22 +1,41 @@
 using TMPro;
+using Tabsil.Sijil;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LockedElement : MonoBehaviour
+[RequireComponent(typeof(GuidGenerator))]
+public class LockedElement : MonoBehaviour, IWantToBeSaved
 {
     [Header(" Elements ")]
     [SerializeField] private TextMeshProUGUI priceText;
     [SerializeField] private Image fillImage;
     [SerializeField] private Transform anim;
+    [SerializeField] private GameObject unlockedElements;
+
+    [Header(" Components ")]
+    private GuidGenerator guidGenerator;
 
     [Header(" Settings ")]
     [SerializeField] private int initialPrice;
     private int currentPrice;
+    private bool loaded;
+
+    private const string currentPriceKey = "LockedElementCurrentPrice";
 
     private void Awake()
     {
+        guidGenerator = GetComponent<GuidGenerator>();
         currentPrice = initialPrice;
         priceText.text = currentPrice.ToString();
+
+        if (unlockedElements != null)
+            unlockedElements.SetActive(false);
+    }
+
+    private void Start()
+    {
+        if (!loaded)
+            Load();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -76,6 +95,8 @@ public class LockedElement : MonoBehaviour
 
         if (currentPrice <= 0)
             Unlock();
+
+        Save();
     }
 
     private void UpdateVisuals()
@@ -87,6 +108,47 @@ public class LockedElement : MonoBehaviour
 
     private void Unlock()
     {
-        Debug.Log("Unlocked");
+        currentPrice = 0;
+        anim.gameObject.SetActive(false);
+
+        if (unlockedElements != null)
+            unlockedElements.SetActive(true);
+
+        Save();
+    }
+
+    public void Save()
+    {
+        if (guidGenerator == null)
+            guidGenerator = GetComponent<GuidGenerator>();
+
+        string guid = guidGenerator.GUID;
+
+        if (currentPrice > 0)
+            Sijil.Save(this, guid + currentPriceKey, currentPrice);
+        else
+            Sijil.Save(this, guid, true);
+    }
+
+    public void Load()
+    {
+        loaded = true;
+
+        if (guidGenerator == null)
+            guidGenerator = GetComponent<GuidGenerator>();
+
+        string guid = guidGenerator.GUID;
+
+        if (Sijil.TryLoad(this, guid, out object _unlocked))
+        {
+            Unlock();
+            return;
+        }
+
+        if (Sijil.TryLoad(this, guid + currentPriceKey, out object _currentPrice))
+        {
+            currentPrice = (int)_currentPrice;
+            UpdateVisuals();
+        }
     }
 }

@@ -18,7 +18,7 @@ public class TableManager : MonoBehaviour
 
     private void Awake()
     {
-        tables = GetComponentsInChildren<TableSet>();
+        tables = GetComponentsInChildren<TableSet>(true);
     }
 
     public void PushDirtyTable(TableSet table)
@@ -43,6 +43,9 @@ public class TableManager : MonoBehaviour
     {
         for (int i = 0; i < tables.Length; i++)
         {
+            if (!tables[i].gameObject.activeInHierarchy)
+                continue;
+
             if (tables[i].IsFull)
                 continue;
 

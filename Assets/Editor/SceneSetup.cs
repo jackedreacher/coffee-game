@@ -678,6 +678,11 @@ public class SceneSetup
             }
         }
 
+        // Find Unlocked Elements
+        Transform unlockedElements = lockedElement.transform.Find("Unlocked Elements");
+        if (unlockedElements != null)
+            SetSerializedFieldObject(lockedElement, "LockedElement", "unlockedElements", unlockedElements.gameObject);
+
         SetSerializedFieldInt(lockedElement, "LockedElement", "initialPrice", 100);
 
         EditorSceneManager.MarkSceneDirty(scene);
