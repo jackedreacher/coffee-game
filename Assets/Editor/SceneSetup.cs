@@ -365,6 +365,48 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 36 (Arc Animator Singleton)")]
+    public static void SetupLesson36()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        // Check if Arc Animator already exists
+        ArcAnimator existing = Object.FindFirstObjectByType<ArcAnimator>();
+        if (existing != null)
+        {
+            EditorUtility.DisplayDialog("Warning", "Arc Animator already exists in scene!", "OK");
+            return;
+        }
+
+        // Create --- OTHERS --- section if not exists
+        GameObject others = GameObject.Find("--- OTHERS ---");
+        if (others == null)
+        {
+            others = new GameObject("--- OTHERS ---");
+            others.transform.position = Vector3.zero;
+            Undo.RegisterCreatedObjectUndo(others, "Create OTHERS section");
+        }
+
+        // Create Arc Animator
+        GameObject arcAnimatorObj = new GameObject("Arc Animator");
+        arcAnimatorObj.transform.position = Vector3.zero;
+        arcAnimatorObj.AddComponent<ArcAnimator>();
+        arcAnimatorObj.transform.SetParent(others.transform);
+
+        Undo.RegisterCreatedObjectUndo(arcAnimatorObj, "Create Arc Animator");
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 36: Arc Animator singleton created!");
+        EditorUtility.DisplayDialog("Lesson 36 Done!",
+            "Created:\n" +
+            "• --- OTHERS --- section\n" +
+            "• Arc Animator singleton under it\n\n" +
+            "Cash collection animation is now ready to use.",
+            "OK");
+    }
+
     private static GameObject CreateChair(GameObject chairPrefab, Material paletteMat, string name, Vector3 localPos, float yRotation)
     {
         // Chair parent (empty): holds script, collider, obstacle
