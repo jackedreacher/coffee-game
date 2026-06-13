@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using TMPro;
 
 public class SceneSetup
 {
@@ -446,6 +448,176 @@ public class SceneSetup
             "• Sijil save system under --- OTHERS ---\n\n" +
             "CashFile save/load is now ready.\n" +
             "⚡ Tools > Clear Save ile eski kayıtları temizleyebilirsin.",
+            "OK");
+    }
+
+    [MenuItem("Cooked Fast/Setup Lesson 38 (Locked Element UI Prefab)")]
+    public static void SetupLesson38()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        // Load sprites
+        Sprite square40 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_40.png");
+        Sprite square50 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_50.png");
+        Sprite squareOutline50 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_Outline_50.png");
+        Sprite cashIcon = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Tiny Coffee Shop/Sprites/UI/Cash_icon.png");
+
+        // =====================
+        // 1. LOCKED ELEMENT (root)
+        // =====================
+        GameObject lockedElement = new GameObject("Locked Element");
+        lockedElement.transform.position = Vector3.zero;
+
+        // Unlocked Elements container
+        GameObject unlockedElements = new GameObject("Unlocked Elements");
+        unlockedElements.transform.SetParent(lockedElement.transform);
+        unlockedElements.transform.localPosition = Vector3.zero;
+
+        // =====================
+        // 2. CANVAS (World Space)
+        // =====================
+        GameObject canvasObj = new GameObject("Canvas");
+        canvasObj.transform.SetParent(lockedElement.transform);
+
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+
+        canvasObj.AddComponent<CanvasScaler>();
+        canvasObj.AddComponent<GraphicRaycaster>();
+
+        RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
+        canvasRect.localPosition = new Vector3(0f, 1f, 0f);
+        canvasRect.localRotation = Quaternion.Euler(0f, -90f, 0f);
+        canvasRect.sizeDelta = new Vector2(2f, 2f);
+        canvasRect.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+
+        // =====================
+        // 3. CONTAINER (background image)
+        // =====================
+        GameObject container = new GameObject("Container");
+        container.transform.SetParent(canvasObj.transform);
+        Image containerImg = container.AddComponent<Image>();
+        if (square50 != null)
+            containerImg.sprite = square50;
+        containerImg.color = new Color(0.35f, 0.35f, 0.35f, 0.9f);
+        containerImg.pixelsPerUnitMultiplier = 256f;
+
+        RectTransform containerRect = container.GetComponent<RectTransform>();
+        containerRect.anchorMin = Vector2.zero;
+        containerRect.anchorMax = Vector2.one;
+        containerRect.offsetMin = Vector2.zero;
+        containerRect.offsetMax = Vector2.zero;
+
+        // =====================
+        // 4. FILL IMAGE
+        // =====================
+        GameObject fill = new GameObject("Fill");
+        fill.transform.SetParent(container.transform);
+        Image fillImg = fill.AddComponent<Image>();
+        if (square40 != null)
+            fillImg.sprite = square40;
+        fillImg.type = Image.Type.Filled;
+        fillImg.fillMethod = Image.FillMethod.Vertical;
+        fillImg.fillOrigin = 0;
+        fillImg.fillAmount = 0f;
+        fillImg.color = new Color(1f, 0.85f, 0.2f, 1f);
+
+        RectTransform fillRect = fill.GetComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = Vector2.zero;
+        fillRect.offsetMax = Vector2.zero;
+
+        // =====================
+        // 5. VERTICAL LAYOUT (price text + icon)
+        // =====================
+        GameObject vertLayout = new GameObject("Vertical Layout");
+        vertLayout.transform.SetParent(container.transform);
+        vertLayout.transform.SetSiblingIndex(container.transform.childCount - 1);
+
+        RectTransform vlRect = vertLayout.AddComponent<RectTransform>();
+        vlRect.anchorMin = Vector2.zero;
+        vlRect.anchorMax = Vector2.one;
+        vlRect.offsetMin = Vector2.zero;
+        vlRect.offsetMax = Vector2.zero;
+
+        var vlGroup = vertLayout.AddComponent<VerticalLayoutGroup>();
+        vlGroup.childControlWidth = true;
+        vlGroup.childControlHeight = true;
+        vlGroup.childForceExpandWidth = true;
+        vlGroup.childForceExpandHeight = true;
+
+        // Price Text
+        GameObject priceTextObj = new GameObject("Price Text");
+        priceTextObj.transform.SetParent(vertLayout.transform);
+        TextMeshProUGUI priceText = priceTextObj.AddComponent<TextMeshProUGUI>();
+        priceText.text = "256";
+        priceText.fontSize = 9f;
+        priceText.alignment = TextAlignmentOptions.Center;
+        priceText.fontSizeMin = 0.5f;
+        priceText.fontSizeMax = 1f;
+        priceText.enableAutoSizing = false;
+
+        LayoutElement priceLayout = priceTextObj.AddComponent<LayoutElement>();
+        priceLayout.preferredHeight = 3f;
+
+        // Icon
+        GameObject iconObj = new GameObject("Icon");
+        iconObj.transform.SetParent(vertLayout.transform);
+        Image iconImg = iconObj.AddComponent<Image>();
+        if (cashIcon != null)
+            iconImg.sprite = cashIcon;
+        iconImg.preserveAspect = true;
+
+        LayoutElement iconLayout = iconObj.AddComponent<LayoutElement>();
+        iconLayout.preferredHeight = 2f;
+
+        // =====================
+        // 6. OUTLINE
+        // =====================
+        GameObject outline = new GameObject("Outline");
+        outline.transform.SetParent(container.transform);
+        Image outlineImg = outline.AddComponent<Image>();
+        if (squareOutline50 != null)
+            outlineImg.sprite = squareOutline50;
+        outlineImg.pixelsPerUnitMultiplier = 150f;
+        outlineImg.color = Color.white;
+
+        RectTransform outlineRect = outline.GetComponent<RectTransform>();
+        outlineRect.anchorMin = Vector2.zero;
+        outlineRect.anchorMax = Vector2.one;
+        outlineRect.offsetMin = new Vector2(-0.02f, -0.02f);
+        outlineRect.offsetMax = new Vector2(0.02f, 0.02f);
+
+        Undo.RegisterCreatedObjectUndo(lockedElement, "Create Locked Element");
+
+        // =====================
+        // 7. PLACE UNDER GAMEPLAY
+        // =====================
+        GameObject gameplay = GameObject.Find("--- GAMEPLAY ---");
+        if (gameplay != null)
+            lockedElement.transform.SetParent(gameplay.transform, true);
+
+        // Save as prefab
+        string prefabFolder = "Assets/Tiny Coffee Shop/Prefabs/GamePlay";
+        PrefabUtility.SaveAsPrefabAssetAndConnect(
+            lockedElement, prefabFolder + "/Locked Element.prefab", InteractionMode.AutomatedAction);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 38: Locked Element UI prefab created!");
+        EditorUtility.DisplayDialog("Lesson 38 Done!",
+            "Created:\n" +
+            "• Locked Element with World Space Canvas\n" +
+            "• Container + Fill Image (vertical fill)\n" +
+            "• Price Text (TMP) + Cash Icon\n" +
+            "• Outline\n" +
+            "• Unlocked Elements container\n" +
+            "• Saved as Locked Element.prefab\n\n" +
+            "⚡ Locked Element'i masa/station yanına taşı.\n" +
+            "⚡ Unlock edilecek objeyi Unlocked Elements altına koy.\n" +
+            "⚡ Canvas rotation'ı kameraya göre ayarla.",
             "OK");
     }
 
