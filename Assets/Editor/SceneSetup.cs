@@ -792,6 +792,94 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 45 (Office Zone Structure)")]
+    public static void SetupLesson45()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        if (GameObject.Find("Office Zone") != null)
+        {
+            EditorUtility.DisplayDialog("Warning", "Office Zone already exists in scene!", "OK");
+            return;
+        }
+
+        GameObject gameplay = GameObject.Find("--- GAMEPLAY ---");
+
+        // 1. Office Zone root
+        GameObject officeZone = new GameObject("Office Zone");
+        officeZone.transform.position = Vector3.zero;
+        if (gameplay != null)
+            officeZone.transform.SetParent(gameplay.transform);
+        Undo.RegisterCreatedObjectUndo(officeZone, "Create Office Zone");
+
+        // 2. Walls container
+        GameObject walls = new GameObject("Walls");
+        walls.transform.SetParent(officeZone.transform);
+        walls.transform.localPosition = Vector3.zero;
+
+        // 3. Office Ground placeholder
+        GameObject officeGround = new GameObject("Office Ground");
+        officeGround.transform.SetParent(officeZone.transform);
+        officeGround.transform.localPosition = new Vector3(0f, 0.005f, 0f);
+
+        // 4. HR Elements
+        GameObject hrElements = new GameObject("HR Elements");
+        hrElements.transform.SetParent(officeZone.transform);
+        hrElements.transform.localPosition = Vector3.zero;
+
+        // HR Desk trigger placeholder
+        GameObject hrDesk = new GameObject("HR Desk");
+        hrDesk.transform.SetParent(hrElements.transform);
+        hrDesk.transform.localPosition = Vector3.zero;
+
+        BoxCollider hrTrigger = hrDesk.AddComponent<BoxCollider>();
+        hrTrigger.isTrigger = true;
+        hrTrigger.size = new Vector3(1.5f, 2f, 1.5f);
+        hrTrigger.center = new Vector3(0f, 1f, 0f);
+
+        // 5. Player Upgrades Elements
+        GameObject playerElements = new GameObject("Player Upgrades Elements");
+        playerElements.transform.SetParent(officeZone.transform);
+        playerElements.transform.localPosition = Vector3.zero;
+
+        GameObject playerDesk = new GameObject("Player Upgrades Desk");
+        playerDesk.transform.SetParent(playerElements.transform);
+        playerDesk.transform.localPosition = Vector3.zero;
+
+        BoxCollider playerTrigger = playerDesk.AddComponent<BoxCollider>();
+        playerTrigger.isTrigger = true;
+        playerTrigger.size = new Vector3(1.5f, 2f, 1.5f);
+        playerTrigger.center = new Vector3(0f, 1f, 0f);
+
+        // 6. Disable office zone (starts locked)
+        officeZone.SetActive(false);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 45: Office Zone structure created!");
+        EditorUtility.DisplayDialog("Lesson 45 Done!",
+            "Oluşturulan yapı:\n" +
+            "• Office Zone (disabled)\n" +
+            "  ├ Walls (wall modellerini buraya taşı)\n" +
+            "  ├ Office Ground (konumlandır + ölçeklendir)\n" +
+            "  ├ HR Elements\n" +
+            "  │  └ HR Desk (trigger BoxCollider)\n" +
+            "  └ Player Upgrades Elements\n" +
+            "     └ Player Upgrades Desk (trigger BoxCollider)\n\n" +
+            "⚡ Manuel yapman gerekenler:\n" +
+            "1. Sağ duvarı seç → NavMesh Obstacle (carve) ekle\n" +
+            "2. NavMesh Surface → Bake\n" +
+            "3. Sağ duvarı devre dışı bırak\n" +
+            "4. Walls altına ofis duvarlarını ekle (sağ duvarı duplicate)\n" +
+            "5. Office Ground'u konumlandır ve ölçeklendir\n" +
+            "6. HR/Player masalarına model ekle (Prefabs/Models'dan desk)\n" +
+            "7. Worker'ları unpack et, gereksiz component'ları kaldır\n" +
+            "8. Manager Animator Controller oluştur (Sit anim)\n" +
+            "9. Manager materyali oluştur (kahverengi)",
+            "OK");
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 44 (Progression Canvas)")]
     public static void SetupLesson44()
     {

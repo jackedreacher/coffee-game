@@ -1,0 +1,309 @@
+Welcome back guys! In this lesson we are going to start working on upgrades and more specifically
+
+we are going to work on the office zone right here at the top right. Okay? So I think that you
+
+can do that on your own so it might be a good exercise for you to do. So please try and just
+
+create the visuals of the office zone right here at the top. You've got a reference in the promo
+
+video if you want or you can do it as you wish. Okay? So this lesson is going to be quite chill.
+
+Let's start right away. So first off we will want our workers to reach this position so of course
+
+it needs to be on the navmesh which is really cool. Next we are going to unlock a zone right
+
+here. So this wall right here should not be baked into the navmesh. So what it should be
+
+is a navmesh obstacle. So let's add a navmesh obstacle. Okay? Let's carve it again and what we
+
+are also going to do is rebake the navmesh because right now if we move this wall right here
+
+boom! It's not the result that we expect. So it does bake the navmesh as you can see here.
+
+You see when I move it it does carve the navmesh but yeah unfortunately we need to
+
+remove this too. So let's select our navmesh surface. Where is our navmesh surface? Right here.
+
+Let's bake it again. Okay? So now if we select our wall and move it. Perfect! We carve the navmesh
+
+where we've got our wall but we don't carve it right here. That is awesome. So I'm gonna hit
+
+ctrl z now. If I hit ctrl z it's not gonna work properly so I'm just gonna move it where it was.
+
+I think it was somewhere around here. Let me just check top view. Thank you. Yep that's decent.
+
+Okay cool. Maybe just a tiny bit less. Maybe 8. Yep something like that. Nope a bit more.
+
+.01. Yeah..015. Yeah that's better. Okay I prefer that. Okay so we will now be able to disable
+
+our right wall and the workers or the agents will be able to pass through this or go to towards a
+
+certain position inside of here. Towards the offices. So let's enable the thing. No I'm just
+
+going to leave it disabled. Let's create our office zone. So in gameplay I'm going to right
+
+click create an empty office zone. Okay so inside of here we can already add our walls let's say
+
+and then we will handle unlocking everything later on. So right now again let's take it easy.
+
+So let's duplicate this wall. No not this one. I'm going to duplicate the right wall because I
+
+want the nav mesh obstacle component. So let's duplicate it, enable it and turn it as a child
+
+of our walls right here. Boom. So let's make it smaller. Let's just call it wall because we are
+
+going to have a bunch of them. So maybe two and move it along the x-axis so that we can see it.
+
+Thank you. So let's make it maybe one wide because I want to leave some space for the door.
+
+Okay I'm just going to drop it here. Thank you. Let's duplicate it and move it by two maybe no
+
+or maybe three and a half something like that. Anyway it doesn't make sense right now and by
+
+the way what I can do is just maximize the scene so that we can better spot what we're doing.
+
+So let's duplicate this one, move it up maybe somewhere around here. Yep somewhere around here
+
+let's say should be good. Press T and expand it a tiny bit. We can hold ctrl to snap to the terrain.
+
+It might be better. Let's duplicate it, move it down, rotate it and snap it. What you can do by the way
+
+is press V to snap a vertex. This is another solution that is quite nice to have square
+
+enough mesh surfaces. It might be more relevant in our case. So something like that.
+
+Oh it's not perfect. I'm just going to cheat a tiny bit. That's better.
+
+Okay so let's duplicate this wall. Boom ctrl D, move it somewhere around here and move it again
+
+somewhere around there let's say. So we can already see that we will need to move our trash here
+
+and rebake the nav mesh of course. Okay is that good here? It's decent. Okay I like it.
+
+So I'm just going to duplicate this one even though it's not at the center.
+
+It's bothering me a bit here. Can we place it at the center please? This should do. Yeah so let's
+
+duplicate it again and move it somewhere around here. Perfect. Okay that's decent. So one more
+
+thing here is that it feels like this zone is a bit bigger than this one or am I just crazy?
+
+I don't know. Maybe I'm just going to push it a tiny bit.
+
+Uh-huh. No let's keep it as it was. Yeah okay that's fine. Anyway so this is our zone right here.
+
+So when we unlock the office zone we will definitely need another wall here that goes
+
+all the way to this wall. So again I'm going to duplicate this one or maybe just move it
+
+or maybe just yeah scale it up. Yeah I think I'm just going to scale it up. Okay again top view
+
+so that we can better see what we are doing here. Let's press uh let's actually right...
+
+No I can't. So let's press this one, expand it a tiny bit. Okay and it feels correct.
+
+Okay if I zoom in here yeah it's bothering me. I can play with the camera settings here.
+
+Where is it here? Let's not do dynamic clipping. Oh same thing. Okay I will need to press F here.
+
+Let's just up scale down press F on this one maybe. Yep that's better. Now I can safely zoom in.
+
+Okay thank you and yep that's perfect. Okay so we've got our office zone. I just want to add
+
+a sort of a ground to change the color here because it doesn't make sense to have that color.
+
+So what I'm going to do is select this ground right here. Can I select it? Yep. Let's check if
+
+we've got some weird components. We don't so we can definitely duplicate this one.
+
+Let's duplicate it, move it and we are going to place it top view. Thank you. Let's press V again
+
+and move it here again. Now we are going to press T and scale it down. Boom. Something like that.
+
+Maybe let's use the center of the walls here to have something decent. Right here you can see that
+
+we can still spot the green the greenery actually. So we're just going to scale it up a bit more.
+
+Something like that. Yep. Okay what the heck. So I'm going to press F, W first, F, V sorry
+
+and move it down. Oh I need to grab the vertex actually. Somewhere around here. We're going to
+
+edit the the Y position of course but I just want to make sure that everything is set correctly.
+
+Okay seems like it is. The Y value here is going to be .005 like this one I guess. Yep. Like the
+
+service ground. So that's fine. Is that the one we've created? Yep. Main ground. Oh I think I
+
+changed the wrong one here. This should be zero but the main ground is actually .005 so that's
+
+correct. Let's rename it office. Let's rename it office ground.
+
+Okay perfect. So now we can grab it and turn it as or into a child of our office zone here. Boom.
+
+So now what we can do is if we disable this we can't spot anything about what we've done
+
+which is great. We will be able to turn that into a child of the locked element. Okay so now we are
+
+going to add our props. As to know the desk for our worker manager and the desk for our player
+
+manager. So let's... I think I'm... should I make it a bit bigger? Yeah. Makes more sense right?
+
+Yep okay. So let's create two new GameObjects. Let's do something like hrelements and player
+
+upgrades elements. And again here I'm just going to do things differently as I've made them in
+
+the course. Hopefully we are not going to have any bug but that way I can experiment with you.
+
+So let's now right click. No let's not right click. We are going to grab a
+
+prefabs models. Let's grab the models first. We want a desk. Let's select this one the first one.
+
+Actually it's going to select everything but whatever. We can just unpack the prefab. Select
+
+this one and remove these. Now we can safely change the material to palette. Okay palette,
+
+palette. Where is my palette? Here it is. So let's drop the desk here. Maybe make it a bit
+
+smaller. Something like that. Yep that's decent. Let's switch to a top view. Okay thank you. Yep
+
+looks fine. So this is the renderer. The renderer of what? The renderer of our hrdesk.
+
+Because our hrdesk here will have a trigger that we can trigger. Okay a box collider that we can
+
+trigger to show the worker's canvas. The worker upgrades canvas. So let's add this later on.
+
+Okay so we've got our renderer. I'm just going to copy the position here and set that to 000
+
+because I want it to be centered on its parent. So paste position. Thank you. Let's add some props
+
+now really quickly because it's really not important. We are going to add some monitors.
+
+Let's place it correctly somewhere around here. Rotate it just a tiny bit maybe. Move it up.
+
+Okay thank you. We are going to give it the palette material again. Let's duplicate it.
+
+No let's press x here to use the world space and invert the rotation. So I think that we need to
+
+move this one a tiny bit somewhere around here. Thank you. Yeah makes more sense. Okay so we've
+
+got our monitors. We are now going to add a chair. Do we have our chair round table?
+
+Oh the chair is in even the... I think it was modern chair. We can add the
+
+prefab and just unpack it actually. Let's drop it here. Unpack the prefab.
+
+We will not need the chair scripts. We will not need the navmesh obstacle
+
+because it's going to be enabled later on. We will... the workers are not going to reach that
+
+position actually. And by the way we are not going to need these two points. The box collider is
+
+going to be useful indeed for the player but not for the workers. So let's rotate this. The renderer
+
+is centered. Okay perfect. So we can press f and yep looks correct. Okay so we can place a manager
+
+here. Okay so you know what? I don't want this lesson to take forever so I'm gonna let you
+
+customize this place as you wish. I'm just going to drop the most important things here. Actually
+
+yeah yeah I have placed the monitors just like that but that's cool. So now what we're gonna do
+
+is select our desk here. Okay this one. We're going to add a box collider so that the player
+
+can't pass through it first. But later on we are going to add a trigger. So let's... by the way I
+
+think this is going to be the trigger actually and the renderer is going to have the collider,
+
+the actual collider. So let's say that we want to allow the player to trigger this box here. Okay
+
+this box here. Okay we might move it up. Yep looks decent. So this is the trigger.
+
+Now let's take the renderer and add a box collider so that the player can't pass through it. Okay
+
+so this is fine for our HR zone. Let's do the same thing for the player upgrades.
+
+So you know what? I'm just going to do boop and boop and we should be good hopefully. This is our
+
+player upgrades desk and we might move it along the x-axis somewhere around here.
+
+Yeah it's definitely a bit tighter but that's fine. Okay so what we can already do right now
+
+is press play and see if we can go there. We should be able to but I just want to make sure
+
+that that's the case. Okay so let's go here. I can't go through the desk which is fine.
+
+Okay boom same thing here and I can't pass through walls. Perfect so everything is working
+
+perfectly. Okay so we could add the two managers but yeah let's add them to complete this lesson.
+
+In the next one we are going to actually tackle the logic of unlocking this zone right here. Okay
+
+so for the managers I'm just going to grab two workers. So characters
+
+worker. I'm just going to grab it, drop it here maybe. Let's unpack it. So prefab unpack. Thank
+
+you. Let's press f here to focus it. We are going to remove the cap. We are going to remove the
+
+apron like so. We are going to remove I think everything except the animator maybe. So we just
+
+want the manager to play the sit animation nothing else and of course you can improve that.
+
+So we are going to select the worker. Let's remove the dish ability. Let's remove the
+
+character controller but no one depends on that. Let's remove the player detector,
+
+the hold food ability. Okay it can't. So let's remove the worker, the customer animator, the agent.
+
+Okay so this one, this one and this one. Thank you. So again we are only going to play an animation
+
+for the manager nothing else. He won't have anything any logic attached to it. So we can
+
+open our animations here. Create a new animator. So create a new animator animation animator
+
+controller. Manager animator. We can also change its material here. So do we have a manager
+
+material? No we don't. So we are going to duplicate this one. Call this one manager. Change the color to
+
+maybe brown-ish. Yep just to differentiate it. Okay yeah I think it's fine. We are going to attach
+
+the manager animator to and I don't know why it changed the selected game object here. Let's open
+
+our manager animator and we are just going to grab our seat animation from the player animation
+
+animator. Sorry. So let's select it. Thank you. Here it is. We are going to lock this window.
+
+Open our character, our manager here and seating should be this one. Can we use it right away? I
+
+think we can. So let's allow it to loop. It is looping so that's fine. Okay so let's test this.
+
+We are just going to select this boy. First off let's play it actually. So where is my animation?
+
+Let's play it. Okay so that we can place him correctly. So let's select our worker and it's
+
+actually a manager. Let's rotate it by 180 degrees. Place it somewhere around here. Okay let's play the
+
+animation now. Okay we need to move it up a tiny bit. Move it up. Okay boom. Okay move it down and a
+
+bit to the front. Okay. Ah almost there.
+
+There you go. That's decent. Okay even if his legs go through the chair. But I think it's not visible
+
+from here right? Is it? Anyway I'm sure you can do better than me. Okay so let's move it a tiny bit.
+
+Maybe somewhere around here. Somewhere around here and it should be nice now I hope.
+
+Yeah come on that's fine. He won't feel it.
+
+But I keep moving him. I think he's yeah he still needs to go down a tiny bit.
+
+Come on am I going to spend one full lesson tweaking this? No I'm not. So what we are going
+
+to do is duplicate the manager and put it on the other chair. So let's just copy this component.
+
+Boom. Place it here and paste the component values. Now we should have another manager placed
+
+correctly. Let's hit play. Okay and yep both our managers are fine. Okay perfect. So we've set up
+
+everything here. In the next one let's learn how we can unlock this zone and unlock the offices
+
+one by one by the way. We are not going to unlock both offices at the same time. See you in the next one.
