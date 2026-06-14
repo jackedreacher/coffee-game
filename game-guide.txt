@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 40 in progress
+Last updated: Lesson 42 in progress
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -16,7 +16,7 @@ Scripts/TableStuff/   -> TableSet.cs, Chair.cs
 Scripts/Customer/     -> Customer.cs, CustomerAnimator.cs
 Scripts/Player/       -> PlayerController.cs(abstract), JoystickPlayerController.cs, PlayerAnimator.cs, PlayerDetector.cs
 Scripts/Abilities/    -> HoldFoodAbility.cs, NavigationAbility.cs, HoldDishAbility.cs, PayAbility.cs
-Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs, CustomerManager.cs, TableManager.cs
+Scripts/Managers/     -> CurrencyManager.cs, GameManager.cs, CustomerManager.cs, TableManager.cs, ProgressionManager.cs
 Scripts/WorkerStuff/  -> WorkerManager.cs, Worker.cs, WorkerTask.cs, SubTask.cs, MoveToSubTask.cs, WaitForConditionSubTask.cs, TaskRequest.cs, TaskRequester.cs, FillStationPlateauRequest.cs, FillStationPlateauTask.cs, ServeCustomersRequest.cs, ServeCustomersTask.cs
 Scripts/Gameplay/     -> LockedElement.cs, CashFile.cs
 Scripts/Utilities/    -> Constants.cs (TimeToConsumeFood=1f), ArcAnimator.cs
@@ -220,7 +220,9 @@ Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbil
 [x] Lesson 37: CashFile save/load — [RequireComponent GuidGenerator], IWantToBeSaved interface; private bool loaded; Awake→guidGenerator=GetComponent; Start: if(!loaded)Load(); GenerateCash(int amount, bool save=true): save=true→Save() at end, save=false used by Load(); OnTriggerEnter: after AnimateCashToPlayer+index=0 → Save(); Save()→Sijil.Save(this,guid,index); Load(): loaded=true, TryLoad(guid,out _index)→return if not found, else GenerateCash((int)_index, false). Unity: GuidGenerator auto-added by RequireComponent — generate unique GUID for each CashFile. CDO must be in scene (not child of another GO).
 [x] Lesson 38: Locked element UI prefab — World Space Canvas(2x2, scale 1, rot X:90 Y:-90), Container(Image Square50), Fill(Image Filled Vertical Bottom, yellow), Outline(Image Square50 Outline), VerticalLayoutGroup, PriceText(TMP)+Icon(Image) with LayoutElement preferred heights, Anim parent for LeanTween. Unity only, no code.
 [x] Lesson 39: LockedElement + PayAbility — LockedElement.cs(priceText+fillImage+anim+initialPrice, currentPrice, Awake→init price+text, OnTriggerEnter/Exit→ScaleUp/Down via LeanTween on anim, OnTriggerStay→check PayAbility+!isMoving→calculate cashPerFrame from animDuration+frameDuration→payAbility.Pay(cashPerFrame,this), CollectCash(amount)→currentPrice-=amount+UpdateVisuals+if<=0 Unlock, UpdateVisuals→fillAmount=1-current/initial+text, Unlock→Debug.Log); PayAbility.cs([RequireComponent CharacterController], cashPrefab, IsMoving→velocity.magnitude>0.1f, Pay(cashPerFrame,lockedElement)→toPay=Min(cashPerFrame,Currency)→AddCurrency(-toPay)→CollectCash(toPay)→AnimateCashTo, AnimateCashTo→Instantiate+disable collider+ArcAnimator.Animate→Destroy); CashFile.cs fix: disable collider on spawned cash prefabs. Unity: LockedElement script+BoxCollider(trigger 2x2x2) on Locked Element, PayAbility on Player+cash prefab, wire priceText+fillImage+anim+initialPrice=100.
-[ ] Lesson 40: (next)
+[x] Lesson 40: LockedElement save/load + unlock — Save(guid,true) when unlocked, Save(guid+currentPriceKey,currentPrice) for partial; Load: TryLoad guid→Unlock else TryLoad currentPriceKey→UpdateVisuals; loaded bool prevents double-load in Start. TableManager: GetComponentsInChildren(includeInactive:true), activeInHierarchy check in GetFirstCleanEmptyTable.
+[x] Lesson 41: Unity-only — NavMesh bake "Collect Objects: All Game Objects", Coffee Station + Cashier Station renders → NavMesh Obstacle (carve). LE prefabs: First Table LE, Coffee Station LE, Coffee Cashier Station LE (each in Prefabs/TableStuff/, unique GUID). Tools > Clear Save → Play to test locked/unlock flow.
+[ ] Lesson 42: ProgressionManager — ProgressionStep struct (name, List<LockedElement>, Hide/Display methods), IWantToBeSaved, progressionSteps[], progressionStepIndex, Start→Load (TryLoad index→hide all steps→display current step). Unity: Cooked Fast > Setup Lesson 42 → creates Progression Manager under MANAGERS, auto-wires 3 steps.
 
 == SESSION BUG FIXES (Lesson 29-32 arası) ==
 - Plateau.Start()→Awake(): disabled plateau ilk SetActive(true)'de Start() bir frame geç çalışıp isEmpty=true reset ediyordu → dirty dish dump çalışmıyordu

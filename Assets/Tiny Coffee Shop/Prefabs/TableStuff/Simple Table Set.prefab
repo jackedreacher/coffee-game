@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 911421766352977945}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.692, y: 0.13, z: 0}
+  m_LocalPosition: {x: -0.966, y: 0.035, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -535,6 +535,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100008, guid: c49b578c54f48fd47aca6b1eda6be743, type: 3}
+    - target: {fileID: 6466959718516098643, guid: ccc1e13ead258bb44b26e3b1572a892a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.978
+      objectReference: {fileID: 0}
     - target: {fileID: 6579832846480447951, guid: ccc1e13ead258bb44b26e3b1572a892a, type: 3}
       propertyPath: m_Name
       value: Chair
@@ -626,7 +630,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6466959718516098643, guid: ccc1e13ead258bb44b26e3b1572a892a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.84
+      value: 0.991
       objectReference: {fileID: 0}
     - target: {fileID: 6579832846480447951, guid: ccc1e13ead258bb44b26e3b1572a892a, type: 3}
       propertyPath: m_Name

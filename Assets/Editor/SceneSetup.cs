@@ -702,6 +702,96 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 42 (Progression Manager)")]
+    public static void SetupLesson42()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        ProgressionManager existing = Object.FindFirstObjectByType<ProgressionManager>();
+        if (existing != null)
+        {
+            EditorUtility.DisplayDialog("Warning", "Progression Manager already exists in scene!", "OK");
+            return;
+        }
+
+        GameObject pmObj = new GameObject("Progression Manager");
+        pmObj.transform.position = Vector3.zero;
+
+        GameObject managers = GameObject.Find("--- MANAGERS ---");
+        if (managers != null)
+            pmObj.transform.SetParent(managers.transform);
+
+        ProgressionManager pm = pmObj.AddComponent<ProgressionManager>();
+        Undo.RegisterCreatedObjectUndo(pmObj, "Create Progression Manager");
+
+        // Auto-find LockedElement objects by name
+        GameObject firstTableLE = null;
+        GameObject coffeeStationLE = null;
+        GameObject coffeeCashierStationLE = null;
+
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+        {
+            if (go.name == "First Table LE") firstTableLE = go;
+            else if (go.name == "Coffee Station LE") coffeeStationLE = go;
+            else if (go.name == "Coffee Cashier Station LE") coffeeCashierStationLE = go;
+        }
+
+        // Configure progression steps via SerializedObject
+        SerializedObject pmSo = new SerializedObject(pm);
+        SerializedProperty stepsArr = pmSo.FindProperty("progressionSteps");
+        stepsArr.arraySize = 3;
+
+        // Step 0: First Table
+        SerializedProperty step0 = stepsArr.GetArrayElementAtIndex(0);
+        step0.FindPropertyRelative("name").stringValue = "First Table";
+        SerializedProperty elements0 = step0.FindPropertyRelative("lockedElements");
+        if (firstTableLE != null && firstTableLE.TryGetComponent(out LockedElement le0))
+        {
+            elements0.arraySize = 1;
+            elements0.GetArrayElementAtIndex(0).objectReferenceValue = le0;
+        }
+
+        // Step 1: Coffee Station
+        SerializedProperty step1 = stepsArr.GetArrayElementAtIndex(1);
+        step1.FindPropertyRelative("name").stringValue = "Coffee Station";
+        SerializedProperty elements1 = step1.FindPropertyRelative("lockedElements");
+        if (coffeeStationLE != null && coffeeStationLE.TryGetComponent(out LockedElement le1))
+        {
+            elements1.arraySize = 1;
+            elements1.GetArrayElementAtIndex(0).objectReferenceValue = le1;
+        }
+
+        // Step 2: Coffee Cashier Station
+        SerializedProperty step2 = stepsArr.GetArrayElementAtIndex(2);
+        step2.FindPropertyRelative("name").stringValue = "Coffee Cashier Station";
+        SerializedProperty elements2 = step2.FindPropertyRelative("lockedElements");
+        if (coffeeCashierStationLE != null && coffeeCashierStationLE.TryGetComponent(out LockedElement le2))
+        {
+            elements2.arraySize = 1;
+            elements2.GetArrayElementAtIndex(0).objectReferenceValue = le2;
+        }
+
+        pmSo.ApplyModifiedProperties();
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        string found = "";
+        found += firstTableLE != null ? "✓ First Table LE\n" : "✗ First Table LE (assign manually)\n";
+        found += coffeeStationLE != null ? "✓ Coffee Station LE\n" : "✗ Coffee Station LE (assign manually)\n";
+        found += coffeeCashierStationLE != null ? "✓ Coffee Cashier Station LE\n" : "✗ Coffee Cashier Station LE (assign manually)\n";
+
+        Debug.Log("✅ Lesson 42: Progression Manager created!");
+        EditorUtility.DisplayDialog("Lesson 42 Done!",
+            "Created:\n" +
+            "• Progression Manager under --- MANAGERS ---\n" +
+            "• 3 Progression Steps pre-configured\n\n" +
+            "LockedElement auto-find:\n" + found +
+            "\n⚡ Eksik LE'leri inspector'dan manuel ata.\n" +
+            "⚡ Tools > Clear Save → Play ile test et.",
+            "OK");
+    }
+
     private static GameObject CreateChair(GameObject chairPrefab, Material paletteMat, string name, Vector3 localPos, float yRotation)
     {
         // Chair parent (empty): holds script, collider, obstacle
