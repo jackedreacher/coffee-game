@@ -1,6 +1,6 @@
 == COOKED-FAST GAME DEV GUIDE ==
 Unity 6000.3.16f1 | C# | Isometric Cafe Tycoon
-Last updated: Lesson 43 in progress
+Last updated: Lesson 44 in progress
 
 == ARCHITECTURE ==
 - Abstract class pattern: SpawnableFood (abstract) -> CoffeeCup, Pizza
@@ -223,7 +223,8 @@ Worker has: CharacterController, PlayerDetector, NavigationAbility, HoldFoodAbil
 [x] Lesson 40: LockedElement save/load + unlock — Save(guid,true) when unlocked, Save(guid+currentPriceKey,currentPrice) for partial; Load: TryLoad guid→Unlock else TryLoad currentPriceKey→UpdateVisuals; loaded bool prevents double-load in Start. TableManager: GetComponentsInChildren(includeInactive:true), activeInHierarchy check in GetFirstCleanEmptyTable.
 [x] Lesson 41: Unity-only — NavMesh bake "Collect Objects: All Game Objects", Coffee Station + Cashier Station renders → NavMesh Obstacle (carve). LE prefabs: First Table LE, Coffee Station LE, Coffee Cashier Station LE (each in Prefabs/TableStuff/, unique GUID). Tools > Clear Save → Play to test locked/unlock flow.
 [x] Lesson 42: ProgressionManager — ProgressionStep struct (name, List<LockedElement>, Hide/Display methods), IWantToBeSaved, progressionSteps[], progressionStepIndex, Start→Load (TryLoad index→hide all steps→display current step). Unity: Cooked Fast > Setup Lesson 42 → creates Progression Manager under MANAGERS, auto-wires 3 steps.
-[ ] Lesson 43: LockedElement event + ProgressionManager full wiring — LockedElement: static Action<LockedElement> Unlocked, Unlock(bool instant=false) invokes Unlocked+Save only if !instant, Load()→Unlock(instant:true). ProgressionManager: Awake/OnDestroy subscribe/unsubscribe LockedElement.Unlocked; ProgressionStep: Contains/UnlockElement/IsComplete (struct copy fix: reassign array element after UnlockElement); OnLockedElementUnlocked: Contains check→UnlockElement→IsComplete→progressionStepIndex++→Save→StartNextStep; Load() bug fix: hide loop starts from progressionStepIndex (not 0) so already-unlocked steps stay visible.
+[x] Lesson 43: LockedElement event + ProgressionManager full wiring — LockedElement: static Action<LockedElement> Unlocked, Unlock(bool instant=false) invokes Unlocked+Save only if !instant, Load()→Unlock(instant:true). ProgressionManager: Awake/OnDestroy subscribe/unsubscribe LockedElement.Unlocked; ProgressionStep: Contains/UnlockElement/IsComplete (struct copy fix: reassign array element after UnlockElement); OnLockedElementUnlocked: Contains check→UnlockElement→IsComplete→progressionStepIndex++→Save→StartNextStep; Load() bug fix: hide loop starts from progressionStepIndex (not 0) so already-unlocked steps stay visible.
+[ ] Lesson 44: Progression camera + blocker canvas — ProgressionManager: CinemachineCamera progressionCamera + GameObject progressionCanvas, Awake→progressionCanvas.SetActive(false), StartNextStep→Display+StartCoroutine; StartStepCoroutine(step): new CameraTarget(), progressionCanvas=true, loop each lockedElement→set target.TrackingTarget+progressionCamera.Target+enable camera→WaitForSeconds(1f), after loop disable camera+canvas. Unity: duplicate Player Follow Camera→"Progression Camera" (clear tracking target, disable), Cinemachine Brain default blend In/Out 0.5s, Progression Canvas (sortOrder=5) + transparent Blocker panel (raycastTarget=true).
 
 == SESSION BUG FIXES (Lesson 29-32 arası) ==
 - Plateau.Start()→Awake(): disabled plateau ilk SetActive(true)'de Start() bir frame geç çalışıp isEmpty=true reset ediyordu → dirty dish dump çalışmıyordu

@@ -792,6 +792,73 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 44 (Progression Canvas)")]
+    public static void SetupLesson44()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        if (GameObject.Find("Progression Canvas") != null)
+        {
+            EditorUtility.DisplayDialog("Warning", "Progression Canvas already exists in scene!", "OK");
+            return;
+        }
+
+        // Create Progression Canvas
+        GameObject canvasObj = new GameObject("Progression Canvas");
+
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 5;
+
+        CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 1f;
+
+        canvasObj.AddComponent<GraphicRaycaster>();
+
+        // Put under UI section if exists
+        GameObject uiParent = GameObject.Find("--- UI ---");
+        if (uiParent != null)
+            canvasObj.transform.SetParent(uiParent.transform);
+
+        Undo.RegisterCreatedObjectUndo(canvasObj, "Create Progression Canvas");
+
+        // Create blocker panel (invisible, blocks input)
+        GameObject panel = new GameObject("Blocker");
+        panel.transform.SetParent(canvasObj.transform);
+
+        Image panelImg = panel.AddComponent<Image>();
+        panelImg.color = new Color(0f, 0f, 0f, 0f);
+        panelImg.raycastTarget = true;
+
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        panelRect.anchorMin = Vector2.zero;
+        panelRect.anchorMax = Vector2.one;
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 44: Progression Canvas created!");
+        EditorUtility.DisplayDialog("Lesson 44 Done!",
+            "Created:\n" +
+            "• Progression Canvas (Sort Order 5, Scale With Screen Size)\n" +
+            "  └ Blocker (transparent panel, Raycast Target=true)\n\n" +
+            "⚡ Manuel yapman gerekenler:\n" +
+            "1. Hierarchy'de Player Follow Camera'yı duplicate et\n" +
+            "2. Yeni kameranın adını 'Progression Camera' yap\n" +
+            "3. Tracking Target alanını temizle (None)\n" +
+            "4. Progression Camera'yı devre dışı bırak (uncheck)\n" +
+            "5. Main Camera → Cinemachine Brain → Default Blend: In/Out 0.5s\n" +
+            "6. Progression Manager inspector'da:\n" +
+            "   - Progression Camera → Progression Camera\n" +
+            "   - Progression Canvas → Progression Canvas\n\n" +
+            "⚡ Tools > Clear Save → Play → unlock et → kamera geçişini test et.",
+            "OK");
+    }
+
     private static GameObject CreateChair(GameObject chairPrefab, Material paletteMat, string name, Vector3 localPos, float yRotation)
     {
         // Chair parent (empty): holds script, collider, obstacle

@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using Tabsil.Sijil;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class ProgressionManager : MonoBehaviour, IWantToBeSaved
@@ -36,6 +38,11 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
         }
     }
 
+    [Header(" Elements ")]
+    [SerializeField] private CinemachineCamera progressionCamera;
+    [SerializeField] private GameObject progressionCanvas;
+
+    [Header(" Settings ")]
     [SerializeField] private ProgressionStep[] progressionSteps;
     private int progressionStepIndex;
 
@@ -44,6 +51,7 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
     private void Awake()
     {
         LockedElement.Unlocked += OnLockedElementUnlocked;
+        progressionCanvas.SetActive(false);
     }
 
     private void OnDestroy()
@@ -82,7 +90,28 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
 
     private void StartNextStep()
     {
-        progressionSteps[progressionStepIndex].Display();
+        ProgressionStep step = progressionSteps[progressionStepIndex];
+        step.Display();
+        StartCoroutine(StartStepCoroutine(step));
+    }
+
+    private IEnumerator StartStepCoroutine(ProgressionStep step)
+    {
+        CameraTarget target = new CameraTarget();
+
+        progressionCanvas.SetActive(true);
+
+        for (int i = 0; i < step.lockedElements.Count; i++)
+        {
+            target.TrackingTarget = step.lockedElements[i].transform;
+            progressionCamera.Target = target;
+            progressionCamera.gameObject.SetActive(true);
+
+            yield return new WaitForSeconds(1f);
+        }
+
+        progressionCamera.gameObject.SetActive(false);
+        progressionCanvas.SetActive(false);
     }
 
     public void Save()
@@ -98,7 +127,6 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
         if (progressionStepIndex >= progressionSteps.Length)
             return;
 
-        // Hide unstarted steps only — already-unlocked steps stay visible
         for (int i = progressionStepIndex; i < progressionSteps.Length; i++)
             progressionSteps[i].Hide();
 
