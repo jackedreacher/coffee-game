@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using Tabsil.Sijil;
 using UnityEngine;
@@ -21,6 +22,9 @@ public class LockedElement : MonoBehaviour, IWantToBeSaved
     private bool loaded;
 
     private const string currentPriceKey = "LockedElementCurrentPrice";
+
+    [Header(" Actions ")]
+    public static Action<LockedElement> Unlocked;
 
     private void Awake()
     {
@@ -106,7 +110,7 @@ public class LockedElement : MonoBehaviour, IWantToBeSaved
         fillImage.fillAmount = fillAmount;
     }
 
-    private void Unlock()
+    private void Unlock(bool instant = false)
     {
         currentPrice = 0;
         anim.gameObject.SetActive(false);
@@ -114,7 +118,11 @@ public class LockedElement : MonoBehaviour, IWantToBeSaved
         if (unlockedElements != null)
             unlockedElements.SetActive(true);
 
-        Save();
+        if (!instant)
+        {
+            Unlocked?.Invoke(this);
+            Save();
+        }
     }
 
     public void Save()
@@ -141,7 +149,7 @@ public class LockedElement : MonoBehaviour, IWantToBeSaved
 
         if (Sijil.TryLoad(this, guid, out object _unlocked))
         {
-            Unlock();
+            Unlock(instant: true);
             return;
         }
 

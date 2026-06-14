@@ -9,6 +9,19 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
     {
         public string name;
         public List<LockedElement> lockedElements;
+        private List<LockedElement> unlockedElements;
+
+        public bool Contains(LockedElement element) => lockedElements.Contains(element);
+
+        public void UnlockElement(LockedElement element)
+        {
+            if (unlockedElements == null)
+                unlockedElements = new List<LockedElement>();
+
+            unlockedElements.Add(element);
+        }
+
+        public bool IsComplete => unlockedElements != null && unlockedElements.Count >= lockedElements.Count;
 
         public void Hide()
         {
@@ -28,9 +41,48 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
 
     private const string progressionIndexKey = "ProgressionIndex";
 
+    private void Awake()
+    {
+        LockedElement.Unlocked += OnLockedElementUnlocked;
+    }
+
+    private void OnDestroy()
+    {
+        LockedElement.Unlocked -= OnLockedElementUnlocked;
+    }
+
     private void Start()
     {
         Load();
+    }
+
+    private void OnLockedElementUnlocked(LockedElement element)
+    {
+        if (!progressionSteps[progressionStepIndex].Contains(element))
+        {
+            Debug.LogError("Current progression step does not contain this locked element");
+            return;
+        }
+
+        var step = progressionSteps[progressionStepIndex];
+        step.UnlockElement(element);
+        progressionSteps[progressionStepIndex] = step;
+
+        if (!progressionSteps[progressionStepIndex].IsComplete)
+            return;
+
+        progressionStepIndex++;
+        Save();
+
+        if (progressionStepIndex >= progressionSteps.Length)
+            return;
+
+        StartNextStep();
+    }
+
+    private void StartNextStep()
+    {
+        progressionSteps[progressionStepIndex].Display();
     }
 
     public void Save()
@@ -46,10 +98,10 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
         if (progressionStepIndex >= progressionSteps.Length)
             return;
 
-        for (int i = 0; i < progressionSteps.Length; i++)
+        // Hide unstarted steps only — already-unlocked steps stay visible
+        for (int i = progressionStepIndex; i < progressionSteps.Length; i++)
             progressionSteps[i].Hide();
 
-        ProgressionStep step = progressionSteps[progressionStepIndex];
-        step.Display();
+        progressionSteps[progressionStepIndex].Display();
     }
 }
