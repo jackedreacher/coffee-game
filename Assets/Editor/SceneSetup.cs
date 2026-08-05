@@ -792,6 +792,194 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 47 (HR Canvas)")]
+    public static void SetupLesson47()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        if (GameObject.Find("HR Canvas") != null)
+        {
+            EditorUtility.DisplayDialog("Warning", "HR Canvas already exists in scene!", "OK");
+            return;
+        }
+
+        Sprite square50 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_50.png");
+        Sprite crossIcon = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Heathen Engineering/Icons/Free Flat Button Solid Cross Icon.png");
+        GameObject workerUIContainerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Tiny Coffee Shop/Prefabs/UI/Worker UI Container.prefab");
+
+        GameObject uiParent = GameObject.Find("--- UI ---");
+
+        // 1. HR CANVAS
+        GameObject canvasObj = new GameObject("HR Canvas");
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 1;
+
+        CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 1f;
+
+        canvasObj.AddComponent<GraphicRaycaster>();
+
+        if (uiParent != null)
+            canvasObj.transform.SetParent(uiParent.transform);
+
+        Undo.RegisterCreatedObjectUndo(canvasObj, "Create HR Canvas");
+
+        // 2. BACKGROUND
+        GameObject background = new GameObject("Background");
+        background.transform.SetParent(canvasObj.transform);
+        Image bgImg = background.AddComponent<Image>();
+        bgImg.color = new Color(0.25f, 0.45f, 0.65f, 1f);
+
+        RectTransform bgRect = background.GetComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.offsetMin = Vector2.zero;
+        bgRect.offsetMax = Vector2.zero;
+
+        // 3. TITLE
+        GameObject title = new GameObject("Title");
+        title.transform.SetParent(canvasObj.transform);
+        TextMeshProUGUI titleText = title.AddComponent<TextMeshProUGUI>();
+        titleText.text = "Human Resources";
+        titleText.fontSize = 72f;
+        titleText.alignment = TextAlignmentOptions.Center;
+
+        RectTransform titleRect = title.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.5f, 1f);
+        titleRect.anchorMax = new Vector2(0.5f, 1f);
+        titleRect.pivot = new Vector2(0.5f, 1f);
+        titleRect.anchoredPosition = new Vector2(0f, -60f);
+        titleRect.sizeDelta = new Vector2(900f, 150f);
+
+        // 4. BACK BUTTON
+        GameObject backButton = new GameObject("Back Button");
+        backButton.transform.SetParent(canvasObj.transform);
+        Image backImg = backButton.AddComponent<Image>();
+        if (square50 != null) backImg.sprite = square50;
+        backImg.type = Image.Type.Sliced;
+        backImg.color = new Color(0.85f, 0.25f, 0.25f, 1f);
+        backButton.AddComponent<Button>();
+
+        RectTransform backRect = backButton.GetComponent<RectTransform>();
+        backRect.anchorMin = new Vector2(0f, 1f);
+        backRect.anchorMax = new Vector2(0f, 1f);
+        backRect.pivot = new Vector2(0.5f, 0.5f);
+        backRect.anchoredPosition = new Vector2(150f, -142f);
+        backRect.sizeDelta = new Vector2(100f, 100f);
+
+        GameObject backIcon = new GameObject("Icon");
+        backIcon.transform.SetParent(backButton.transform);
+        Image backIconImg = backIcon.AddComponent<Image>();
+        if (crossIcon != null) backIconImg.sprite = crossIcon;
+        backIconImg.preserveAspect = true;
+
+        RectTransform backIconRect = backIcon.GetComponent<RectTransform>();
+        backIconRect.anchorMin = Vector2.zero;
+        backIconRect.anchorMax = Vector2.one;
+        backIconRect.offsetMin = new Vector2(15f, 15f);
+        backIconRect.offsetMax = new Vector2(-15f, -15f);
+
+        // 5. CURRENCY CONTAINER (copy from Main Canvas if present)
+        GameObject mainCanvasObj = GameObject.Find("Main Canvas");
+        Transform mainCurrencyContainerT = mainCanvasObj != null ? mainCanvasObj.transform.Find("Currency Container") : null;
+        if (mainCurrencyContainerT != null)
+        {
+            GameObject currencyCopy = Object.Instantiate(mainCurrencyContainerT.gameObject, canvasObj.transform);
+            currencyCopy.name = "Currency Container";
+            RectTransform ccRect = currencyCopy.GetComponent<RectTransform>();
+            RectTransform srcRect = mainCurrencyContainerT.GetComponent<RectTransform>();
+            ccRect.anchorMin = srcRect.anchorMin;
+            ccRect.anchorMax = srcRect.anchorMax;
+            ccRect.pivot = srcRect.pivot;
+            ccRect.anchoredPosition = srcRect.anchoredPosition;
+            ccRect.sizeDelta = srcRect.sizeDelta;
+        }
+
+        // 6. WORKER CONTAINER SCROLL (Scroll View)
+        GameObject scrollView = new GameObject("Worker Container Scroll");
+        scrollView.transform.SetParent(canvasObj.transform);
+        Image scrollBg = scrollView.AddComponent<Image>();
+        scrollBg.color = new Color(0f, 0f, 0f, 0.15f);
+        ScrollRect scrollRect = scrollView.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+
+        RectTransform scrollViewRect = scrollView.GetComponent<RectTransform>();
+        scrollViewRect.anchorMin = Vector2.zero;
+        scrollViewRect.anchorMax = Vector2.one;
+        scrollViewRect.offsetMin = new Vector2(0f, 0f);
+        scrollViewRect.offsetMax = new Vector2(0f, -800f);
+
+        GameObject viewport = new GameObject("Viewport");
+        viewport.transform.SetParent(scrollView.transform);
+        Image viewportImg = viewport.AddComponent<Image>();
+        viewportImg.color = Color.white;
+        Mask viewportMask = viewport.AddComponent<Mask>();
+        viewportMask.showMaskGraphic = false;
+
+        RectTransform viewportRect = viewport.GetComponent<RectTransform>();
+        viewportRect.anchorMin = Vector2.zero;
+        viewportRect.anchorMax = Vector2.one;
+        viewportRect.offsetMin = Vector2.zero;
+        viewportRect.offsetMax = Vector2.zero;
+
+        GameObject content = new GameObject("Content");
+        content.transform.SetParent(viewport.transform);
+        RectTransform contentRect = content.AddComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.anchoredPosition = Vector2.zero;
+        contentRect.sizeDelta = new Vector2(0f, 0f);
+
+        VerticalLayoutGroup vlGroup = content.AddComponent<VerticalLayoutGroup>();
+        vlGroup.padding = new RectOffset(20, 20, 20, 20);
+        vlGroup.spacing = 20f;
+        vlGroup.childAlignment = TextAnchor.UpperCenter;
+        vlGroup.childControlWidth = true;
+        vlGroup.childControlHeight = true;
+        vlGroup.childForceExpandWidth = false;
+        vlGroup.childForceExpandHeight = false;
+
+        ContentSizeFitter csf = content.AddComponent<ContentSizeFitter>();
+        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        scrollRect.viewport = viewportRect;
+        scrollRect.content = contentRect;
+
+        // Drop one Worker UI Container instance as a preview
+        if (workerUIContainerPrefab != null)
+        {
+            GameObject preview = (GameObject)PrefabUtility.InstantiatePrefab(workerUIContainerPrefab, content.transform);
+            preview.name = "Worker UI Container";
+        }
+
+        // 7. CANVAS STARTS DISABLED
+        canvasObj.SetActive(false);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 47: HR Canvas created!");
+        EditorUtility.DisplayDialog("Lesson 47 Done!",
+            "Oluşturulan yapı:\n" +
+            "• HR Canvas (sortOrder=1, disabled)\n" +
+            "  ├ Background (mavi panel)\n" +
+            "  ├ Title (\"Human Resources\")\n" +
+            "  ├ Back Button (kırmızı, cross icon)\n" +
+            "  ├ Currency Container (Main Canvas'tan kopya)\n" +
+            "  └ Worker Container Scroll\n" +
+            "     └ Viewport → Content (VerticalLayoutGroup + ContentSizeFitter)\n" +
+            "        └ Worker UI Container (preview, 1 adet)\n\n" +
+            "⚡ Progression Canvas sort order'ını kontrol et (10 önerilir, HR'nin üstünde kalmalı).\n" +
+            "⚡ Görsel ayarları (renk, boyut, spacing) beğendiğin gibi düzenle.\n" +
+            "⚡ Back Button + Currency Container hizası: Y=-142 (ikisi de aynı hizada).",
+            "OK");
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 46 (Office Zone Progression Steps)")]
     public static void SetupLesson46()
     {

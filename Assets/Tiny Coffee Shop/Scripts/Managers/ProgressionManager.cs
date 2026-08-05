@@ -66,6 +66,9 @@ public class ProgressionManager : MonoBehaviour, IWantToBeSaved
 
     private void OnLockedElementUnlocked(LockedElement element)
     {
+        if (progressionStepIndex >= progressionSteps.Length)
+            return;
+
         if (!progressionSteps[progressionStepIndex].Contains(element))
         {
             Debug.LogError("Current progression step does not contain this locked element");
