@@ -1,0 +1,121 @@
+Welcome back guys! In this lesson, we are going to add more logic to open or display and hide
+
+the human resources panel, okay? And we might do more if we've got time to do so. All right, so
+
+the first thing we are going to do is select our HR canvas and add a canvas group. Boom! That way,
+
+we can hide it and show it as we want. We are not going to disable it because we might have
+
+some pieces of logic that need to run while we are playing. All right, so for now, let's hide
+
+it actually and let's add a new script as a manager. So let's create an empty script, let's
+
+call it HR manager. Let's go, okay, so let's open our scripts folder, managers, let's create a new
+
+script, HR manager, there you go. And while we are here, we can also create the HR desk station.
+
+This is the script that's going to be attached to our desk right here, the HR desk, to detect
+
+whenever we trigger it with the player, okay? So, oh, I've selected the desk without...
+
+that's odd. Anyway, here it is, this desk right here. We can actually unlock them just to be
+
+able to spot them. Okay, thank you. So let's create the script, HR desk manager or not, let's call it
+
+desk station. All right, so we can select our desk, attach the desk station script and select our HR
+
+manager, attach the HR manager script. Perfect! So now everything is set up, we can open the HR manager
+
+script. Okay, so inside of here, we are going to reference our canvas group, so elements, serialize
+
+field. No, I don't want to update Visual Studio saying thank you. Private canvas group, let's call
+
+it CG because we know that it is related to the HR manager here. What we can do is have a method
+
+to display it and another one to hide it. So public void display and public void hide, there you go.
+
+So inside of here, CG.hide and the hide method here is an extension method. You can have a look
+
+at my canvas group extensions, it's really simple actually. Yep, let's go back, thank you.
+
+CG.show, there you go. So we now have the ability to display and hide our canvas group. Now what we're
+
+going to do is open our other script, the new one, the HR desk station. But first off, let's reference
+
+our canvas group in here. All right, where is my boy? Boom, boom, boom, HR manager. The canvas group
+
+is in the UI right here, thank you. Let's now open our HR desk station to handle detection.
+
+Okay, so we are definitely going to need a reference to our manager, so elements, serialize field,
+
+private HR manager, HR manager, that way we can call the hide and display methods.
+
+Then we are going to need to add the onTriggerStay method along with the onTriggerExit.
+
+So why don't I use the onTriggerEnter? Because I don't want to show the HR panel when the player
+
+is moving, so we are going to use this one instead, not right when the player enters the trigger.
+
+So inside of here, we can already check if the panel is visible or not. So if HRManager.isPanelVisible,
+
+if the panel is visible, we don't need to do anything else, so we're just going to return.
+
+Let's add this one later on, because we get two more conditions. Or the player has entered. If the
+
+player has already entered the trigger, no need to do anything. And for the third one, I'm just
+
+noticing that it's not compulsory, so let's just use two. So let's create our first setting.
+
+private bool hasEntered. There you go. We also want to check that the player is the one that
+
+has triggered this HRDeskStation, so if other.tryGetComponentOutPlayerController
+
+playerController. So if we are not able to grab the player controller script, we are just going
+
+to return. If the player is moving, we don't want to do anything. We don't want to show the panel,
+
+so if playerController.isMoving, again, we are just going to return. And this is a method,
+
+not a property, thank you. Otherwise, we can display the panel. So hasEntered equals true,
+
+and let's show it. So HRManager.display. There you go. Now in the onTriggerExit,
+
+we are not going to hide the panel, because to hide the panel, we are basically just going to
+
+press the cross at the top left corner, or on the top left corner. So we want to check if the
+
+other.tryGetComponentOutPlayerController playerController, if this is not a player
+
+controller that has exited the trigger, we don't want to do anything. Otherwise,
+
+hasEntered equals false. The player has exited the trigger. That way, we can trigger it again
+
+and display it. Boom. This is all we needed here. So we can remove these two methods. We can
+
+actually add this property to our HRManager. So let's do something like this. And inside of here,
+
+we can simply return something like cg.alpha is greater than zero. If the alpha is greater than
+
+zero, it means that the canvas group is visible. But we can actually check for the block raycasts
+
+boolean, because remember, we do turn it to true, the interactability is set to true too,
+
+so we've got three possibilities in here. Okay. So just like that, we should be good. Can we try
+
+this out? So let's reference our HRManager in here. What do we need to reference? Nothing else.
+
+Yep. I think we can try that. So let's hit play. All right. Let's try and trigger it.
+
+So now we are moving. Boom. If I stop, it does show. Awesome. So we just need to link this
+
+cross here, or this button, to our hide method. Let's grab it from not here. Come on. In the
+
+canvas. So back button in here. Let's add a callback. And we are going to pass in the HRManager.
+
+Is that method? Yeah. It is public. That's perfect. Let's try it again. All right. Let's show it and
+
+hide it. Perfect. Everything is working perfectly. And we should be able to show it again. Nice.
+
+Awesome. Okay. So at this point, I think that we are ready to configure our buttons.
+
+These ones. So let's do that in the next one. See you there.

@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using Tabsil.Sijil;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(GuidGenerator))]
@@ -25,6 +26,7 @@ public class LockedElement : MonoBehaviour, IWantToBeSaved
 
     [Header(" Actions ")]
     public static Action<LockedElement> Unlocked;
+    [SerializeField] private UnityEvent unlockedCallback;
 
     private void Awake()
     {
@@ -117,6 +119,8 @@ public class LockedElement : MonoBehaviour, IWantToBeSaved
 
         if (unlockedElements != null)
             unlockedElements.SetActive(true);
+
+        unlockedCallback?.Invoke();
 
         if (!instant)
         {

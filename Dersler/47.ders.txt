@@ -1,0 +1,107 @@
+Welcome back, guys! In this lesson, we are going to tackle making our HR canvas,
+
+so the human resources canvas, the one that's going to be displayed whenever we trigger
+
+the HR desk right here, okay? So, UI. We've got our main canvas and the progression canvas.
+
+Let's duplicate our main canvas and rename it HR canvas, okay? That's the first step.
+
+Then, let's increment our order here to one, so that it displays above the main canvas.
+
+And our progression canvas can be 10, maybe, if we are afraid to go over this number here, okay?
+
+So, we are going to keep the currency container from this and remove our game panel here.
+
+Let's create a background for our canvas. So, UI canvas here and panel. This is going to be our
+
+background. Ah, background. There you go. It should occupy the whole space and we're going
+
+to change its color to blue-ish, maybe. Yep, something like this. So, now that we've got
+
+our background, we're going to create a title. And by the way, again, this lesson is going to be
+
+quite chill, to be honest. We're going to take it step by step and just take our time here. So,
+
+human, sorry, resources. Okay. So, it should take a bit more space. Boom. Let's center that.
+
+Again, you can create this canvas as you wish here. The most important thing is going to be how
+
+we set up our worker UI containers. But I'm going to explain how it works. Don't worry.
+
+So, let's rename this one title. Okay. Boom. And maybe we can move it somewhere around here,
+
+make it a bit bigger, something like that. Okay. Yeah, it makes more sense. And we are also going
+
+to have a way to exit this panel. So, let's create a back button. UI button, button, button, button,
+
+and rename it back button. Let's use our square 50, the deer square 50, red-ish. Let's do 150 by
+
+150. No, that's too much. So, 100 by 100. Maybe this can be three. Okay. Let's remove the text
+
+inside of here and add an icon instead. So, let's do icon. Let's occupy the whole space with a bit
+
+of padding. No, like so. Yep. Thank you. Do we have a cross or something in here? Yep, we do.
+
+Perfect. We want it to preserve its aspect and move the back button to the top left with maybe
+
+150 and minus 150, somewhere around here. Okay. Makes sense. It is aligned with our
+
+currency container here, right? Minus 142. Okay. Let's do minus 142. So, we've got our back button
+
+and our currency container. Now, we need another container for our worker UI container here. Okay.
+
+And this is going to be a scroll view. So, let's right-click, UI, scroll view. Thank you. We can
+
+call this one worker container scroll. And we've got a viewport with the scroll bars that we're
+
+going to remove. As usual, you know me, I don't like these. What we can do is, should we keep
+
+the background or not? I think we are going to keep it here. Let's keep the background. Okay.
+
+We only want our scroll view to be vertical, not horizontal. So, let's uncheck that. The viewport
+
+should occupy the whole space. And our content will have two more components. One, the first one
+
+is going to be a vertical layout group because we want to stack the worker UI containers vertically.
+
+And the second one is going to be a content size feeder. Let's set the vertical feed to the
+
+preferred size. Okay. So, that our content sets up his height depending on our worker UI containers.
+
+Okay. So, let's set up our scroll view here. Let's occupy the whole space. But nope, we are
+
+going to have maybe 800 pixels of padding to the top. And yep, this zone should be correct. Okay.
+
+So, now we can already grab our worker UI container and drop the first one in here to see how it's
+
+going to go. So, if we add two more, I don't like the spacing. I don't like how it is set up.
+
+So, we are going to add some padding in here, maybe 20 pixels. Let's also align them to the middle
+
+center, no upper center, and add some spacing. Yeah, that's way better. Next, we don't want to allow
+
+the child force expand feature in here. So, we are going to keep it as is now. Perfect. Makes sense.
+
+So, if I duplicate it more and hit play, let's try this out. Okay. Boom, boom. Yeah, that's working.
+
+Perfect. So, you might have spotted something here. These two buttons were not placed correctly at
+
+first, but they snapped to the other buttons at runtime. This is because I've added a script here
+
+that you can check because, come on, we've tackled UIs in so many different courses.
+
+In the chat GPT course, in the Kawaii Survivor course, and more actually. So, I don't want to
+
+explain things every time. We are going to waste our time here. So, if we check out the locked
+
+overlay here, we've got the video unlocked button, for instance, that has the match other UI element
+
+script. And you can open the script, check it out. It's really simple. Okay. So, that's the first step.
+
+Next, later on, I'm going to explain how this container is going to work here.
+
+Okay. So, now we've got our UI container. We've got our canvas that is set up correctly.
+
+So, what we need to do is add some logic to this. Let's add logic in the next one. We will need to
+
+open it, close it, and set up our containers. Perfect. So, see you in the next one.

@@ -1,0 +1,179 @@
+Welcome back guys! In this lesson, we are going to learn how we can unlock this zone right here,
+
+the office zone. Okay? So let's jump right in. First off, we are going to add a locked element
+
+that will unlock this zone right here. But that's not it. Remember, at first we've got a wall right
+
+here. We've got the right wall. So when unlocking the zone, the office zone, we also need to
+
+hide this wall right here, the right wall. Okay? So there are two things we need to do or take into
+
+account. Let's hide this wall right now and turn this into a locked element. And we are going to
+
+have two locked elements as a child of a locked element. So one locked element for the office,
+
+so for the zone, and a locked element for each one of these desks right here. Okay?
+
+So, office zone. We are going to, again, it's different from what I've done in the course,
+
+so I'm just thinking about the best approach here. So this is what we need to unlock here.
+
+Okay? So let's grab a locked element. Do I have a prefab locked element or not? I did not turn
+
+any of these into a prefab. Okay. Oh, the table maybe. Let's unlock this first.
+
+Yeah, the table is actually a locked element table stuff. So we can duplicate the table here.
+
+Let's unpack it. Yep. Let's grab it and drop it here, maybe, and office zone LE, locked element.
+
+So what do we want to unlock? Not the table set, but we want to unlock the office's zone. And what
+
+we are first going to do is grab this and move it somewhere around here. Okay? It makes more sense.
+
+So let's move it here. Let's update the GUID or change it. Let's not forget about that. And now,
+
+hopefully, we can turn all of our office zone game objects into, yeah, I think that's the
+
+best approach here. Okay. So let's enable our right wall here. Okay? Now, what will happen?
+
+When we unlock this, I'm actually going to set it to five so that we don't run out of
+
+cache. We should spot the office zone getting enabled. So let's unlock it. Okay.
+
+That's working perfectly. Cool. If we exit and come back, hopefully, it should be saved.
+
+Okay. Fine. But our right wall is still present. So I cannot access this zone. And by the way,
+
+I need to move the trash too. So let's move the trash right now.
+
+Boom. Maybe somewhere around here. I'm going to need to bake again.
+
+So what you can do is turn the trash into a thingy, into a NavMesh obstacle. Okay. So the
+
+first thing we are going to tackle is hiding the right wall whenever we unlock the office zone.
+
+Okay? So for that, we need to open our locked element script here. Every locked element will
+
+have a Unity event attached to it. So maybe we can drop it somewhere around here. Serialize field.
+
+Private. Unity event. And we will need the UnityEngine.events library, of course.
+
+Unlocked callback. Okay? So this unlocked callback will be called whenever we unlock this
+
+locked element. So in the unlock method that we can find right here, just after this, we can do
+
+unlocked callback and invoke it. Okay? Perfect. So now if we jump back to Unity, we should spot
+
+the Unity event right here. This is going to be super useful. So what will our unlocked callback
+
+be here? Really simple. Come on. So you have two possibilities. I think multiple possibilities,
+
+but one of these are we can reference the right wall and disable it. So GameObject.SetActive.False.
+
+Or you can create another script that will handle the office zone that will do the same thing.
+
+You can reference that script here and call the method that you are going to create. Let's say
+
+HideRightWall. Okay? So right now if I hit play, I don't think I've cleared the save, so it
+
+should work. We should see the right wall being disabled. We should not see the right wall,
+
+actually. Yeah. We should not see it. And that's exactly what happens. Really cool. But if we clear
+
+the save, of course it's not going to get disabled because our locked element here has not been
+
+unlocked yet. Okay. Fine. So that's the first step. Awesome. The second one is creating the
+
+intricated or imbricated or inherited locked elements inside of this locked element. So we
+
+are going to have one for each office. The human resources and the player upgrades.
+
+Then we can add them to the progression manager, by the way. For now we are just going to unlock
+
+them and at the end of this lesson we are going to add them to the progression manager so that
+
+they get unlocked as we go. For now we are just going to enable the unlocked elements so that we
+
+can spot what we are playing with here. We've got the HR elements, so if I hide these, yeah,
+
+that's what I want to display. So we are going to need more locked elements here. So
+
+should we disable that? Should we, sorry, duplicate that? I think I'm going to do that
+
+and remove the offices zone. And you know what? I'm going to do a locked element
+
+prefab. Okay, I'm finally going to turn this into a prefab. So boom, here we go. Okay, so this one is
+
+going to go there. I'm going to grab it, switch to the top view, place it somewhere around here, I guess.
+
+Yeah, it needs to be visible. So we either need to place it here, maybe make it smaller.
+
+We can make it smaller, we can make the door larger, the office maybe a bit bigger. We can
+
+also push all of these, so we can push the desk to the back a tiny bit, let's say, so that we have
+
+more space for our locked element, yeah. Okay, so maybe let's do something like that for now, okay?
+
+So this locked element right here will need to have a new GUI, of course. We can unpack the
+
+prefab if we don't want to mess with this. And turn the HR elements into a child of the
+
+unlocked elements right here. Boom, let's disable them. Let's also do the same thing for our player
+
+upgrades elements. So let's call this one HRLE for locked element again. Let's duplicate it
+
+and call this one player upgrades LE. Okay, so we can place this maybe somewhere around here.
+
+Same thing here, we will need to push this back. So let's grab the desk and push it back somewhere
+
+around here. Perfect, thank you. So now these elements right here will need to be a child of
+
+the unlocked elements and we can remove the HR elements from here. I think we should be good.
+
+Let's generate a new GUI just to make sure. Okay, same thing for this one, it's already a new GUI.
+
+Okay, I think we are good to go. So let's disable the unlocked elements right here. Thank you.
+
+Let's clear our save. Boom, boom. Let's hit play. Okay, so now we can unlock this.
+
+And we've got two zones that we can unlock. So let's start with this one. Okay, it has been
+
+unlocked. Perfect. And same thing for here. Cool, everything is now working perfectly.
+
+If we exit and come back, we should hopefully see both of these offices being unlocked.
+
+And that's the case. Nice. So now as a final step, let's add them to the progression manager.
+
+So let's select our progression manager right here. Thank you. Boom, boom and boom. We're gonna
+
+add two more. Well, actually three more. We are going to have the office zone. We are going to
+
+have the HR, sorry, office, let's say, and the player upgrades office. Okay, so let's reference
+
+these three. So locked elements. Here is the office zone. We will have the HR locked element
+
+and player upgrade locked element. Perfect. So now we can clear our save one more time,
+
+hit play and unlock stuff one by one. So here's the first table. Okay, here is our coffee station.
+
+Boom. Oh, we're going to run out of cash. No, no, we are not. Here is our serving station.
+
+Now we can unlock this and I can't go through the wall, by the way. So let's unlock this. Boom.
+
+Here is our first zone. Boom. And the second one. Awesome. Really cool. Everything is going
+
+as expected. Of course, you can add more tables to unlock or you can play with the order you want
+
+to unlock stuff here. I'm just going to show you the principal things you can do, the most
+
+important things, actually. Okay. So now that we've got this working and set up correctly,
+
+in the next one, we are going to deal with our upgrades, the workers. We want to unlock workers
+
+at some point. We've got our trigger right here, which is right here. Perfect. So we can definitely
+
+trigger that zone. We want to show a canvas here where we can unlock and upgrade workers.
+
+Then the workers are going to spawn here and we'll be able to go perform some tasks.
+
+See you in the next one.

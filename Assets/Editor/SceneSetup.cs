@@ -792,6 +792,76 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 46 (Office Zone Progression Steps)")]
+    public static void SetupLesson46()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        ProgressionManager pm = Object.FindFirstObjectByType<ProgressionManager>();
+        if (pm == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Progression Manager not found in scene!\nRun Setup Lesson 42 first.", "OK");
+            return;
+        }
+
+        GameObject officeZoneLE = null;
+        GameObject hrLE = null;
+        GameObject playerUpgradesLE = null;
+
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+        {
+            if (go.name == "Office Zone LE") officeZoneLE = go;
+            else if (go.name == "HR LE") hrLE = go;
+            else if (go.name == "Player Upgrades LE") playerUpgradesLE = go;
+        }
+
+        SerializedObject pmSo = new SerializedObject(pm);
+        SerializedProperty stepsArr = pmSo.FindProperty("progressionSteps");
+
+        int existingCount = stepsArr.arraySize;
+        stepsArr.arraySize = existingCount + 3;
+
+        AddProgressionStep(stepsArr, existingCount, "Office Zone", officeZoneLE);
+        AddProgressionStep(stepsArr, existingCount + 1, "HR Office", hrLE);
+        AddProgressionStep(stepsArr, existingCount + 2, "Player Upgrades Office", playerUpgradesLE);
+
+        pmSo.ApplyModifiedProperties();
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        string found = "";
+        found += officeZoneLE != null ? "✓ Office Zone LE\n" : "✗ Office Zone LE (assign manually)\n";
+        found += hrLE != null ? "✓ HR LE\n" : "✗ HR LE (assign manually)\n";
+        found += playerUpgradesLE != null ? "✓ Player Upgrades LE\n" : "✗ Player Upgrades LE (assign manually)\n";
+
+        Debug.Log("✅ Lesson 46: Office Zone progression steps added!");
+        EditorUtility.DisplayDialog("Lesson 46 Done!",
+            "Progression Manager'a 3 yeni step eklendi:\n" +
+            found +
+            "\n⚡ Eksik LE'leri inspector'dan manuel ata.\n" +
+            "⚡ Office Zone LE'nin Unlocked Callback'ine sağ duvarı SetActive(false) olarak bağla.\n" +
+            "⚡ Tools > Clear Save → Play ile test et.",
+            "OK");
+    }
+
+    private static void AddProgressionStep(SerializedProperty stepsArr, int index, string stepName, GameObject le)
+    {
+        SerializedProperty step = stepsArr.GetArrayElementAtIndex(index);
+        step.FindPropertyRelative("name").stringValue = stepName;
+        SerializedProperty elements = step.FindPropertyRelative("lockedElements");
+
+        if (le != null && le.TryGetComponent(out LockedElement leComp))
+        {
+            elements.arraySize = 1;
+            elements.GetArrayElementAtIndex(0).objectReferenceValue = leComp;
+        }
+        else
+        {
+            elements.arraySize = 0;
+        }
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 45 (Office Zone Structure)")]
     public static void SetupLesson45()
     {
