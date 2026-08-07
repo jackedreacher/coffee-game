@@ -59,12 +59,18 @@ public class UIWorkerContainer : MonoBehaviour
         // level — otherwise a locked worker would show no earned blobs at all
         // The math now lives in WorkerUtilities so the workers themselves can
         // reuse it when applying their stats
-        Vector3Int statLevels = WorkerUtilities.GetStatsLevelsFromLevel(
-            Mathf.Max(workerData.InitialLevel, level));
+        int displayLevel = Mathf.Max(workerData.InitialLevel, level);
+
+        Vector3Int statLevels = WorkerUtilities.GetStatsLevelsFromLevel(displayLevel);
 
         stats[0].Initialize(workerData.MaxSpeed, statLevels.x);
         stats[1].Initialize(workerData.MaxCapacity, statLevels.y);
         stats[2].Initialize(workerData.MaxRevenue, statLevels.z);
+
+        // Hint at the row the next upgrade will fill. displayLevel, not level:
+        // a locked worker sits at -1, and -1 % 3 is -1 in C#
+        int statIndex = displayLevel % stats.Length;
+        stats[statIndex].Blink();
     }
 
     public void Unlock()
@@ -83,6 +89,10 @@ public class UIWorkerContainer : MonoBehaviour
         stats[statIndex].Increment();
 
         level++;
+
+        // The blinking hint moves on to whichever row is next in the rotation
+        statIndex = level % stats.Length;
+        stats[statIndex].Blink();
 
         UpdateButtonVisuals();
     }

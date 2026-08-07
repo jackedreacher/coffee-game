@@ -26,6 +26,15 @@ public class UIWorkerStat : MonoBehaviour
         blinkingBlobIndex = activeBlobCount;
     }
 
+    public void Blink()
+    {
+        // Nothing left to hint at once every blob in this row is filled
+        if (blinkingBlobIndex > blobs.Count - 1)
+            return;
+
+        blobs[blinkingBlobIndex].Blink();
+    }
+
     public void Increment()
     {
         blobs[blinkingBlobIndex].Activate();

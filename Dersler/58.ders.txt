@@ -1,0 +1,89 @@
+Welcome back guys! In this lesson we want to add some effects to our UI worker container.
+
+I know, I know, I told you that we were done with the UI for now but that's not the case
+
+unfortunately. We are just going to add that effect and then we can jump to our player upgrades.
+
+We haven't added the player upgrades yet to this office right here. We need to add that because
+
+right now we can only upgrade our workers. So I want to add a blinking effect to the capacity
+
+or revenue or in general the stat that is going to be updated or upgraded next.
+
+So let's do that really quickly. For that we need to open our UI worker stat and add a blink method.
+
+So public void blink. Inside of here we can do blobs at index blinking blob index dot blink.
+
+But if the player or the worker has been fully upgraded we don't have anything to
+
+blink so we need to check that case. So if the blinking blob index is greater than the
+
+blobs dot count minus one we can simply return. So now let's add the blink method in our
+
+blobs blob thingy in the UI upgrade blob. So public void blink.
+
+To blink we are going to use leantween. So leantween dot cancel render dot game object
+
+render dot color equals color dot white. Again here is super subjective but I just
+
+want to show you the core idea behind that. So leantween dot color we are going to lerp
+
+the render dot rect transform. Lerp it to the blink color that we are going to specify right here.
+
+Blink color and let the animation last for one second. Then we want it to loop so set loop
+
+ping pong minus one. Okay so that it is infinite. When we activate this blob or the blob we are
+
+going to cancel the twin. So cancel leantween dot cancel game object. Okay so that it stops
+
+blinking. Perfect I think we are quite done here. So we've got the blinking logic we call the we've
+
+got the blink method but we never call it. Where are we going to call it? Well in the UI worker
+
+container. When initializing our containers here we want to blink the correct blob. So what we can
+
+do is int stat index equals level modulo stats dot length. Then we know that this is the one that
+
+we need to blink. So stats at index stat index dot blink and that stat is going to handle the
+
+correct blob that needs to blink. But we've got some other places where we need to apply this
+
+logic. For instance when leveling up. So when leveling up again we can do oh let's copy actually
+
+this logic in here boom and paste it here. We already have the stat index so no need to reference
+
+the integer again or create it again and yep I think we're good to go. So let's jump back to
+
+Unity and give that a shot. Let's select our prefabs UI the blob worker upgrade blob this one
+
+and set a blink color. Let's say maybe a yellow one. Yellow color something like that or red.
+
+Anyway you decide here come on. So let's try this out. Okay boom and yep this one is blinking.
+
+Awesome. So of course we've maxed out all of the other workers but boom if we upgrade oh
+
+we've got an issue here. We should activate the previous blob when upgrading.
+
+Did you think about that? Yeah you should have. So what's the issue here? Blink.
+
+Blink. Oh I see. So I'm giving you two seconds to think about the issue here. It's right here on
+
+the screen. One two. Well when we blink we cancel the render.gameobject all the tween on the
+
+render.gameobject but when we activate we do not cancel the render we cancel the actual game object
+
+which is really bad. We need to cancel the tween on the renderer and now we should be good.
+
+So let's try that out really quickly. Let's hit play. Okay boom let's upgrade and upgrade.
+
+Yay! Now if we upgrade everything is activated. Perfect. So in the next one I think that we are
+
+ready to tackle the player upgrades. By the way it can be a super exercise that you can try and do
+
+because the logic is going to be quite the same as we've used for the workers. The layout is going
+
+to be a bit different but come on the logic is the same. It's similar and I think it would be
+
+a waste of time for me to spend a lot of time explaining how it's going to work. So I'm still
+
+going to do it but it's going to be quick. Okay see you in the next one.
