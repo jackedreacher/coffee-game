@@ -981,6 +981,62 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 51 (Worker Spawn Point)")]
+    public static void SetupLesson51()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        WorkerManager workerManager = Object.FindFirstObjectByType<WorkerManager>();
+        if (workerManager == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Worker Manager not found in scene!", "OK");
+            return;
+        }
+
+        HRManager hrManager = Object.FindFirstObjectByType<HRManager>();
+        if (hrManager == null)
+        {
+            EditorUtility.DisplayDialog("Error", "HR Manager not found!\nRun Setup Lesson 48 first.", "OK");
+            return;
+        }
+
+        // Spawn point is deliberately NOT a child of Worker Manager,
+        // since spawned workers get parented to it at runtime.
+        GameObject spawnPoint = GameObject.Find("Worker Spawn Point");
+        bool created = false;
+
+        if (spawnPoint == null)
+        {
+            spawnPoint = new GameObject("Worker Spawn Point");
+            spawnPoint.transform.position = new Vector3(-4f, 0f, 4f);
+
+            GameObject others = GameObject.Find("--- OTHERS ---");
+            if (others != null)
+                spawnPoint.transform.SetParent(others.transform, true);
+
+            Undo.RegisterCreatedObjectUndo(spawnPoint, "Create Worker Spawn Point");
+            created = true;
+        }
+
+        SetSerializedFieldObject(workerManager.gameObject, "WorkerManager", "workerSpawnPoint", spawnPoint.transform);
+        SetSerializedFieldObject(hrManager.gameObject, "HRManager", "workerManager", workerManager);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 51: Worker Spawn Point wired!");
+        EditorUtility.DisplayDialog("Lesson 51 Done!",
+            (created
+                ? "• Worker Spawn Point oluşturuldu (-4, 0, 4)\n"
+                : "• Mevcut Worker Spawn Point kullanıldı\n") +
+            "• Worker Manager → Worker Spawn Point bağlandı\n" +
+            "• HR Manager → Worker Manager bağlandı\n\n" +
+            "⚡ Spawn Point'i sahnede istediğin yere taşı (NavMesh üstünde olsun).\n" +
+            "⚡ Play → HR paneli aç → mavi FREE butonuna bas → worker spawn olmalı.\n" +
+            "⚡ Not: Henüz kayıt yok, oyunu kapatınca worker'lar kaybolur (Lesson 52).",
+            "OK");
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 50 (Wire UI Worker Container)")]
     public static void SetupLesson50()
     {

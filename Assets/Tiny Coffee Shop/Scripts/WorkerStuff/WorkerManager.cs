@@ -8,6 +8,7 @@ public class WorkerManager : MonoBehaviour
     [Header(" Elements ")]
     [SerializeField] private List<Worker> workers = new List<Worker>();
     [SerializeField] private Trash trash;
+    [SerializeField] private Transform workerSpawnPoint;
 
     [SerializeReference] private List<TaskRequest> pendingRequests = new List<TaskRequest>();
 
@@ -25,6 +26,21 @@ public class WorkerManager : MonoBehaviour
     public static void RegisterRequest(TaskRequest request)
     {
         Instance.pendingRequests.Add(request);
+    }
+
+    public void SpawnWorker(WorkerDataSO workerDataSO, int workerLevel)
+    {
+        Worker worker = Instantiate(
+            workerDataSO.Prefab,
+            workerSpawnPoint.position,
+            Quaternion.identity,
+            transform);
+
+        // Without this the worker keeps the scriptable object's asset name
+        worker.name = workerDataSO.Name;
+
+        workers.Add(worker);
+        worker.Initialize(this, workerLevel);
     }
 
     private void Update()

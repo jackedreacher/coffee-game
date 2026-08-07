@@ -7,10 +7,12 @@ public class HRManager : MonoBehaviour
     [SerializeField] private CanvasGroup cg;
     [SerializeField] private UIWorkerContainer uiWorkerContainerPrefab;
     [SerializeField] private Transform workerContainersParent;
+    [SerializeField] private WorkerManager workerManager;
 
     [Header(" Data ")]
     [SerializeField] private WorkerDataSO[] workerDatas;
     private List<UIWorkerContainer> workerContainers;
+    private int[] workerLevels;
 
     public bool IsPanelVisible => cg.blocksRaycasts;
 
@@ -22,34 +24,43 @@ public class HRManager : MonoBehaviour
     private void GenerateWorkerContainers()
     {
         workerContainers = new List<UIWorkerContainer>();
+        workerLevels = new int[workerDatas.Length];
 
         for (int i = 0; i < workerDatas.Length; i++)
         {
-            UIWorkerContainer containerInstance = Instantiate(uiWorkerContainerPrefab, workerContainersParent);
+            // -1 marks the worker as locked; Load() overwrites this later
+            workerLevels[i] = -1;
 
-            int workerLevel = 0;
-            containerInstance.Initialize(this, workerDatas[i], workerLevel);
+            UIWorkerContainer containerInstance = Instantiate(uiWorkerContainerPrefab, workerContainersParent);
+            containerInstance.Initialize(this, workerDatas[i], workerLevels[i]);
 
             workerContainers.Add(containerInstance);
         }
     }
 
-    public void OnContainerUnlockButtonClicked(UIWorkerContainer container)
+    public void OnContainerUnlockButtonClicked(UIWorkerContainer uiWorkerContainer)
     {
 
     }
 
-    public void OnContainerVideoUnlockButtonClicked(UIWorkerContainer container)
+    public void OnContainerVideoUnlockButtonClicked(UIWorkerContainer uiWorkerContainer)
+    {
+        uiWorkerContainer.Unlock();
+
+        int workerIndex = uiWorkerContainer.transform.GetSiblingIndex();
+        workerLevels[workerIndex] = workerDatas[workerIndex].InitialLevel;
+
+        workerManager.SpawnWorker(workerDatas[workerIndex], workerLevels[workerIndex]);
+
+        // Save
+    }
+
+    public void OnContainerUpgradeButtonClicked(UIWorkerContainer uiWorkerContainer)
     {
 
     }
 
-    public void OnContainerUpgradeButtonClicked(UIWorkerContainer container)
-    {
-
-    }
-
-    public void OnContainerVideoUpgradeButtonClicked(UIWorkerContainer container)
+    public void OnContainerVideoUpgradeButtonClicked(UIWorkerContainer uiWorkerContainer)
     {
 
     }

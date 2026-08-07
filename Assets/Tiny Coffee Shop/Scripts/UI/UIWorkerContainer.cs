@@ -22,19 +22,28 @@ public class UIWorkerContainer : MonoBehaviour
     [Header(" Data ")]
     private HRManager hrManager;
     private WorkerDataSO workerData;
-    private int workerLevel;
+
+    [Header(" Settings ")]
+    // Negative means the worker hasn't been unlocked yet
+    private int level;
 
     public void Initialize(HRManager hrManager, WorkerDataSO workerData, int workerLevel)
     {
         this.hrManager = hrManager;
         this.workerData = workerData;
-        this.workerLevel = workerLevel;
 
         profileImage.sprite = workerData.ProfilePicture;
         nameText.text = workerData.Name;
 
         InitializeButtonCallbacks();
+        level = workerLevel;
         UpdateButtonVisuals();
+    }
+
+    public void Unlock()
+    {
+        lockedOverlay.SetActive(false);
+        level = Mathf.Max(workerData.InitialLevel, level);
     }
 
     private void InitializeButtonCallbacks()

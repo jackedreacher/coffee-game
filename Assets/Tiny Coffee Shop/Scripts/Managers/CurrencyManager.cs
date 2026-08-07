@@ -10,6 +10,7 @@ public class CurrencyManager : MonoBehaviour, IWantToBeSaved
     public static CurrencyManager instance;
 
     [Header(" Settings ")]
+    [SerializeField] private int initialCurrency = 525;
     private bool shouldSave;
 
     public int Currency { get; private set; }
@@ -34,7 +35,7 @@ public class CurrencyManager : MonoBehaviour, IWantToBeSaved
         if (Sijil.TryLoad(this, currencyKey, out object _currency))
             Currency = (int)_currency;
         else
-            Currency = 525;
+            Currency = initialCurrency;
 
         UpdateTexts();
     }

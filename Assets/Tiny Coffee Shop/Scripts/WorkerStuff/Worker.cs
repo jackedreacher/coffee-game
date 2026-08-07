@@ -11,6 +11,10 @@ public class Worker : MonoBehaviour
 
     [Header(" Elements ")]
     [SerializeField] private CustomerAnimator animator;
+    private WorkerManager workerManager;
+
+    [Header(" Settings ")]
+    private int level;
 
     private State state;
     private WorkerTask currentTask;
@@ -28,6 +32,19 @@ public class Worker : MonoBehaviour
         navigationAbility = GetComponent<NavigationAbility>();
         holdFoodAbility = GetComponent<HoldFoodAbility>();
         state = State.Idle;
+    }
+
+    public void Initialize(WorkerManager workerManager, int workerLevel)
+    {
+        this.workerManager = workerManager;
+        level = workerLevel;
+
+        SetupStats();
+    }
+
+    private void SetupStats()
+    {
+        // Speed, capacity and revenue get configured here in a later lesson
     }
 
     private void Update()
