@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorkerDataSO
   name: Ethan
   unlockPrice: 500
-  initialLevel: 4
+  initialLevel: 5
   profilePicture: {fileID: 21300000, guid: 0145b27cebd44284485fe51ff893723c, type: 3}
   prefab: {fileID: 6906712681422930541, guid: e1b840b0d5a635040b1066c3e86aafc1, type: 3}

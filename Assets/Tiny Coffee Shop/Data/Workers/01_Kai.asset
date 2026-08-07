@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 01_Kai
   m_EditorClassIdentifier: Assembly-CSharp::WorkerDataSO
   name: Kai
-  unlockPrice: 200
-  initialLevel: 1
+  unlockPrice: 100
+  initialLevel: 2
   profilePicture: {fileID: 21300000, guid: 0145b27cebd44284485fe51ff893723c, type: 3}
   prefab: {fileID: 6906712681422930541, guid: e1b840b0d5a635040b1066c3e86aafc1, type: 3}

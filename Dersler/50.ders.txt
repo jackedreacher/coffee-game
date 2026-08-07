@@ -1,0 +1,255 @@
+Welcome back guys! In this lesson, we are going to configure our UI worker containers. So let's
+
+jump right in. Okay, so we've got our initialize method. We've got multiple things to initialize
+
+or to set up, so please stay focused during the next two lessons, maybe? Yeah, I'm gonna try and
+
+squish that in two lessons, maybe. Yeah, if it takes more lessons, I'm sorry, because there are
+
+stuff that we need to understand in here. Let's start with the simple things, sorry.
+
+So first off, we've got our HR manager that we need to store. So let's say elements or maybe
+
+managers. Yeah, anyway, elements. Private HR manager. Then we want to do this.
+
+HR manager equals HR manager. Thank you. Oh yeah, it's a capital R here. I think I'm just going to
+
+use this syntax, okay? Boom, thank you. Then what we want to do is this.workerData equals workerData.
+
+And again, we are going to grab this, rename it. Let's do data private workerData.
+
+WorkerData. Nice. So now the UI container is aware of the worker data associated with it.
+
+So when we unlock it, for instance, it can return the prefab that is associated with that data.
+
+So let's go on. Let's first configure the profile picture. So for that, we are going to be needing
+
+our UnityEngine.UI library because we want the serialize field private image
+
+profile image, let's say, or yeah, profile image actually. So profileImage.sprite equals
+
+workerData.profilePicture. Thank you. That's quite straightforward. We are going to need the
+
+name text. So nameText.text. This is going to be a TextMeshProUGUI. So dot text equals workerData
+
+dot name. Okay, so in here we can do serialize field private TextMeshProUGUI name text.
+
+Okay, alt enter and using TextMeshPro, this library. Okay, now that we've got the profile
+
+picture and the data, we are going to need to initialize the buttons. What buttons? These ones.
+
+Let me just open the prefab. So UI container. Boom. So we've got one, two, three, four buttons.
+
+The first one is to unlock the worker with some cash using its unlock price. The second one,
+
+the blue one, is to unlock the worker for free. So if you want to allow the user or the player to
+
+watch a video to unlock it. Then we've got two more buttons. We've got the upgrade button and the free
+
+or video upgrade button. These have almost the same logic as the previous two ones, but
+
+they are just upgrades. So this one will allow you to upgrade the worker and this one upgrade
+
+the worker for free. So this one is with cash of course. So we will need to configure the price
+
+that we've got in here. What else? We will need to configure the price for this one too,
+
+the unlock one and not the upgrade. So we've got a bunch of things to do. Okay, what we can do is
+
+first of reference them or should we just reference them one by one? I think we are going to proceed
+
+one by one. Okay, I think it makes more sense. So let's do initialize buttons or button callbacks.
+
+Let's create this method in here. Boom, thank you. And then I'm going to explain how the
+
+upgrade thingies or the upgrade blobs are going to be handled. So as we've said previously, we've got
+
+four buttons. We've got the unlock button that is going to be doing something. We've got the
+
+video unlock button. We've got the upgrade button. And we've got the video upgrade
+
+button. Okay, four buttons. But their logic is not going to be handled inside of the UI worker
+
+container. The logic for these buttons is going to be handled inside of the HR manager. Okay,
+
+it makes more sense. It's cleaner. And that way the logic is in one place, not spread around four,
+
+five, six buttons. Okay, it makes more sense. But again, feel free to experiment if you want to
+
+attach the logic inside of here. So let's create the buttons first. Yep, let's do that.
+
+Let's do maybe another header for that. So buttons, serialize field, private button.
+
+We've got the, yeah, I think it's unlock button.
+
+And three more. So unlock, maybe video unlock button, upgrade.
+
+And this one is going to be video upgrade button. Perfect. Video unlock button,
+
+video unlock button. Yeah, what's the issue here? Oh, I think it's just because we
+
+don't have the logic associated with that. So onClick.addListener. What do we want to do
+
+when we click on the unlock button? Well, again, we are going to let the HR manager handle that.
+
+But we are going to need a lambda expression and call the HR manager.onContainer,
+
+three. It's not the three one. Unlock button clicked and pass in this button. Okay.
+
+And we are going to do the same thing for the other three buttons. So we can basically just
+
+copy this line and call a different callback. So this one is going to be onContainer, unlock. No,
+
+it's video, unlock button clicked. This one is going to be upgrade.
+
+And this one video upgrade. Okay. Four different logics for four different buttons. So we can
+
+create these one by one. Alt, Enter, Alt, Enter, Alt, Enter and Alt, Enter. Boom. Where are the
+
+buttons? Here they are. So the video upgrade should be after the upgrade and the video unlock
+
+after the unlock. So we can grab this one, drop it here, just rearranging things here and there.
+
+A bit. Boom, boom, boom and boom. This one is going to be public, public, public and public.
+
+Thank you. So now no more errors in our initialized button callbacks method. So we are good to go.
+
+Okay. So now that we've got this, I think the most logical path to follow now is to handle
+
+all of these buttons, these four buttons. So I told you previously that we needed to add the prices
+
+to unlock the worker and to upgrade the worker. So let's do that right away. After initializing
+
+our button callbacks, what we are going to do is update the button visuals. Okay.
+
+So let's create this method and drop it after the initialization somewhere around here. Thank you.
+
+Boom. Let's start with the unlock ones. So first off, is this worker locked or unlocked?
+
+To know that, we can check if the locked overlay right here is enabled or not. Okay. This is one
+
+way we can do this. Because our boy right here, so UIContainer, has a locked overlay that I'm
+
+going to find right here. After unlocking the UIWorkerContainer, we are going to disable this
+
+locked overlay, which contains the buttons, the lock icon and the black overlay here. So we can
+
+definitely use that to know if our worker has been unlocked or not. If that's the case, no need to
+
+update the price to unlock the worker. Makes sense? I hope it does. Okay. So first off, if
+
+lockedOverlay.activeInHierarchy, and of course we need that locked overlay, so serializeField
+
+private GameObject, lockedOverlay. Okay. So if this boy is active in the hierarchy, it means
+
+that our worker is still locked. So we can definitely call something like updateUnlockButton
+
+and return. Okay. Otherwise, we can update our other buttons, the upgradeButton and maybe the
+
+videoUpgradeButton. No, this one won't need to be updated. Maybe it's interactability? Anyway,
+
+we are going to tackle this later. Okay. So let's update our unlockButtons. Yeah, let's start with
+
+this one. One thing I want to do here, and it's not compulsory, but I want the first worker to be
+
+free. So if this UIWorkerContainer is the first one in the list, in the HRManager, then we are
+
+going to write free instead of the price of our boy. So intButtonIndex or maybe ContainerIndex
+
+is going to be equal to transform.getSiblingIndex. If our ContainerIndex is less or equal to zero,
+
+it means that this is the first container, UIWorkerContainer, sorry, then unlockPriceText
+
+.text is going to be equal to free.
+
+And our button should definitely be interactable. So unlockButton.interactable
+
+equals true. After that, we can return. So let's add a quick reference to our text here,
+
+maybe somewhere around here. Yeah, no, this is buttons. So let's do text here.
+
+So let's do text here. SerializeField,
+
+private textMeshProUGUI and unlockPriceText. While we are here, we can add the one for the
+
+upgradePriceText. Yep, we are definitely going to need that too.
+
+So, boom, boom, boom, free. What about the other ones now? We need to grab the unlockPrice and
+
+we've got the unlockPrice in our WorkerData scriptable object. So unlockPriceText.text
+
+will be equal to less than sprite equals zero to use our cache sprite with a space
+
+plus WorkerData.unlockPrice, as simple as it gets. And finally, we can check the interactability of
+
+our button or handle it. It needs to be interactable if we get enough cache to unlock our
+
+boy here. So we can use the CurrencyManager for that. unlockButton.interactable equals
+
+CurrencyManager.instance.hasEnoughCurrencyToPurchase our WorkerData.unlockPrice.
+
+Makes sense? Please, if it doesn't make sense for you, let me know in the comments section.
+
+We've tackled that, I think, in the Kawaii Survivor course and it's something you should
+
+know at this point. I'm sure you get this. Okay, so we should be done for the unlockButton. Now,
+
+let's handle the other buttons. So the logic to upgrade to get the upgradePrice is going to be
+
+quite different from... it needs some calculation, actually, with the level of our worker. So for
+
+now, we're just going to write upgradePriceText.text equals something like... yeah, we need the cache
+
+here. So plus, let's say, 100. Okay, for now, let's say that we're just going to display 100
+
+cache for the upgradeButton. But later on, we will need the level to determine that value.
+
+So then we can handle the interactability of our boy here. So let's say upgradeButton.interactable
+
+equals currencyManager.instance.hasEnoughCurrency for that upgradePrice that we need to calculate.
+
+So let's just do upgradePrice and in here int upgradePrice equals 100 and use this in here.
+
+Perfect. Okay, so we should now have some basic stuff going on. What we can do is jump back to
+
+Unity, reference some things and call it a day. Yeah, it should be enough for this lesson. In the
+
+next one, we can go one step further and handle the levels and so on. So now what we want to do
+
+is select our UIWorkerContainer and reference all of the things that we need. So where is our
+
+profilePictureContainer? I think it's the worker icon. Yep, perfect. Now we also need to reference
+
+the name, text, the locked overlay that we've seen earlier, the unlockButton is right here, the
+
+videoUnlockButton, the upgradeButton, videoUpgradeButton, the unlockPriceText,
+
+so unlockButton, text, this one, and the upgradePriceText, which is this one. Perfect. So let's just save,
+
+jump back to our main scene, HRManager doesn't need anything. Let's hit play and we should be
+
+good. So this one is free. Oh, by the way, yeah, I need to select this one and block, raycast, and
+
+interactable. So Angelo, Kai, Jawed, Matteo, Ethan, and the prices are well set up. So now we can unlock
+
+this one, the first one of course, Kai, and not the other ones because we don't have enough cash.
+
+So the interactability of these is working perfectly. The interactability of the three
+
+buttons is quite different. You will need to implement some kind of detection depending on
+
+if your ad is loaded or not. And here it's going to depend on your ad provider, if you're
+
+using AdMob or Unity Ads or Ad Colony anyway. So I'll leave that up to you, but the button is there
+
+and you can use it. So we can't unlock them unfortunately yet because we need to add the
+
+logic for that. Yes, of course. One thing I want to see is what if we hide the locked overlay here.
+
+Yeah, we've got the first price set up. What about this one? Boom, 10, 10, 10. Okay, so the price is
+
+10 for all of them. Yeah, because it is locked, so we haven't reached this point. It makes sense.
+
+Okay, so in the next one, we are going to go one step further and implement the logic for the
+
+unlock buttons here so that we can actually unlock our workers. Okay, see you in the next one!
