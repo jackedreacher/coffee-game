@@ -806,7 +806,7 @@ public class SceneSetup
 
         Sprite square50 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_50.png");
         Sprite crossIcon = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Heathen Engineering/Icons/Free Flat Button Solid Cross Icon.png");
-        GameObject workerUIContainerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Tiny Coffee Shop/Prefabs/UI/Worker UI Container.prefab");
+        GameObject workerUIContainerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Tiny Coffee Shop/Prefabs/UI/UI Worker Container.prefab");
 
         GameObject uiParent = GameObject.Find("--- UI ---");
 
@@ -987,11 +987,11 @@ public class SceneSetup
         var scene = EditorSceneManager.GetActiveScene();
 
         // 1. Add UIWorkerContainer to the prefab asset
-        string prefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/Worker UI Container.prefab";
+        string prefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/UI Worker Container.prefab";
         GameObject prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
         if (prefabAsset == null)
         {
-            EditorUtility.DisplayDialog("Error", "Worker UI Container.prefab not found!\nRun Setup Lesson 47 first.", "OK");
+            EditorUtility.DisplayDialog("Error", "UI Worker Container.prefab not found!\nRun Setup Lesson 47 first.", "OK");
             return;
         }
 
@@ -1075,7 +1075,7 @@ public class SceneSetup
             for (int i = content.childCount - 1; i >= 0; i--)
             {
                 Transform child = content.GetChild(i);
-                if (child.name == "Worker UI Container")
+                if (child.name == "Worker UI Container" || child.name == "UI Worker Container")
                     Object.DestroyImmediate(child.gameObject);
             }
         }
