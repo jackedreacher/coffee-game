@@ -90,8 +90,13 @@ public class FoodServingStation : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        // The server's stats decide how much cash the serving generates, so
+        // anything without them can't serve at all
+        if (!other.TryGetComponent(out CharacterStats characterStats))
+            return;
+
         if (workerCount > 0)
-            HandleFoodServing();
+            HandleFoodServing(characterStats);
     }
 
     private void OnTriggerExit(Collider other)
@@ -103,7 +108,7 @@ public class FoodServingStation : MonoBehaviour
         workerCount = Mathf.Max(0, workerCount);
     }
 
-    private void HandleFoodServing()
+    private void HandleFoodServing(CharacterStats characterStats)
     {
         if (servingTimer < servingDelay)
         {
@@ -127,7 +132,7 @@ public class FoodServingStation : MonoBehaviour
             return;
 
         servingTimer = 0;
-        ServeFood();
+        ServeFood(characterStats);
     }
 
     private FoodPosition GetFirstFullPosition()
@@ -140,10 +145,17 @@ public class FoodServingStation : MonoBehaviour
         return dropZone.Pop();
     }
 
-    private void ServeFood()
+    private void ServeFood(CharacterStats characterStats)
     {
         Customer customerToServe = customerManager.PeekFirstCustomer();
-        cashFile?.GenerateCash(2);
+
+        // Fully subjective formula — tweak baseRevenue to be more generous.
+        // Max(1, ...) keeps a worker with no revenue upgrades earning something
+        int baseRevenue = 1;
+        float revenueMultiplier = Mathf.Max(1f, characterStats.Revenue);
+        int revenue = Mathf.CeilToInt(baseRevenue * revenueMultiplier);
+
+        cashFile?.GenerateCash(revenue);
         SpawnableFood foodToServe = Pop();
         customerToServe.CollectFood(foodToServe);
 

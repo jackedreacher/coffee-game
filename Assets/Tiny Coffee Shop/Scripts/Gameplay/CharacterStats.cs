@@ -46,7 +46,9 @@ public class CharacterStats : MonoBehaviour
 
     private float CalculateAdditionalRevenue(int level)
     {
-        return level * 2f;
+        // The course uses level * 2f, which pays a maxed worker 15 bills per cup
+        // against an unupgraded worker's 1 — far too steep, so we scale it down
+        return level * .2f;
     }
 }
 

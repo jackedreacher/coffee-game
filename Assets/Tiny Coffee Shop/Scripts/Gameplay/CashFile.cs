@@ -98,21 +98,35 @@ public class CashFile : MonoBehaviour, IWantToBeSaved
         if (transform.childCount <= 0)
             return;
 
+        // Cached: unparenting below shrinks childCount as we go, and the
+        // staggering has to stay based on the original count
+        int cashCount = transform.childCount;
+
         float duration = 2f;
-        float delayStep = duration / transform.childCount;
+        float delayStep = duration / cashCount;
         delayStep = Mathf.Min(delayStep, 0.01f);
 
-        for (int i = transform.childCount - 1; i >= 0; i--)
+        for (int i = cashCount - 1; i >= 0; i--)
         {
             Transform cash = transform.GetChild(i);
-            float delay = (transform.childCount - 1 - i) * delayStep;
+            float delay = (cashCount - 1 - i) * delayStep;
             delay = Mathf.Min(delay, duration);
+
+            // Unparent before animating: otherwise cash generated while these
+            // are still flying gets mixed into the pile's children, and the
+            // next collection grabs bills that are already being destroyed
+            cash.parent = null;
+
             ArcAnimator.Animate(cash, playerTransform, 1f, delay, 3f, HandleCashMovedAlongArc);
         }
     }
 
     private void HandleCashMovedAlongArc(GameObject cash)
     {
+        // ArcAnimator passes null when the transform vanished mid-flight
+        if (cash == null)
+            return;
+
         CurrencyManager.instance.AddCurrency(2);
         Destroy(cash);
     }

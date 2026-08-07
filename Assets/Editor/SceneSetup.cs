@@ -1817,6 +1817,72 @@ public class SceneSetup
     }
 
     // =====================
+    // LESSON 57 - Player base stats
+    // =====================
+    // FoodServingStation now refuses to serve anything without a CharacterStats
+    // component, so the player needs one too or they can no longer serve
+    [MenuItem("Cooked Fast/Setup Lesson 57 (Player Base Stats)")]
+    public static void SetupLesson57()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        string baseStatsFolder = "Assets/Tiny Coffee Shop/Data/Base Stats";
+        if (!AssetDatabase.IsValidFolder(baseStatsFolder))
+        {
+            EditorUtility.DisplayDialog("Error", "Base Stats folder not found!\nRun Setup Lesson 56 first.", "OK");
+            return;
+        }
+
+        string assetPath = baseStatsFolder + "/Player Base Stats.asset";
+        BaseCharacterStatsSO baseStats = AssetDatabase.LoadAssetAtPath<BaseCharacterStatsSO>(assetPath);
+
+        if (baseStats == null)
+        {
+            baseStats = ScriptableObject.CreateInstance<BaseCharacterStatsSO>();
+            AssetDatabase.CreateAsset(baseStats, assetPath);
+
+            SerializedObject statsSO = new SerializedObject(baseStats);
+            statsSO.FindProperty("speed").floatValue = 2f;
+            statsSO.FindProperty("capacity").intValue = 7;
+            statsSO.FindProperty("revenue").floatValue = 1f;
+            statsSO.ApplyModifiedProperties();
+        }
+
+        AssetDatabase.SaveAssets();
+
+        GameObject player = null;
+        foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (go.name == "Player" && go.GetComponent<PlayerDetector>() != null)
+            {
+                player = go;
+                break;
+            }
+        }
+
+        if (player == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Player (with PlayerDetector) not found in the scene!", "OK");
+            return;
+        }
+
+        CharacterStats characterStats = player.GetComponent<CharacterStats>();
+        if (characterStats == null)
+            characterStats = player.AddComponent<CharacterStats>();
+
+        SerializedObject cs = new SerializedObject(characterStats);
+        cs.FindProperty("baseStats").objectReferenceValue = baseStats;
+        cs.ApplyModifiedProperties();
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        EditorUtility.DisplayDialog("Lesson 57",
+            "Player Base Stats created and CharacterStats added to the scene Player.",
+            "OK");
+    }
+
+    // =====================
     // HELPERS
     // =====================
     private static void SetSerializedFieldObject(GameObject obj, string componentType, string fieldName, Object value)

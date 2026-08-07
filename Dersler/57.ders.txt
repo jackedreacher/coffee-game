@@ -1,0 +1,253 @@
+Welcome back guys! In this lesson we're gonna do two things. In the previous one we've set up the
+
+stats of our workers at start, but not at run time. Now if we level up our workers, they are
+
+not going to apply their new stats unless we quit the game and come back. So I want to fix that.
+
+In our worker script right here, what we are going to do is... do we have the level up thingy?
+
+Nope, I don't think we do. But we do have it in the worker manager if you remember well,
+
+right here, level up worker. So let's level up our worker. We've got the worker name right here,
+
+so we are going to loop through all of our workers.count, this is a list of course,
+
+if the workers at index i.gameobject.name, because remember, when spawning the worker,
+
+so in the spawn worker, we've associated the name right here. This is really important. Two
+
+workers can't share the same name. If you want to do that, well, you will need some kind of index,
+
+if you want, to keep track of the worker that you want to update or to level up. But in my case,
+
+I've used the name of the worker. What we can also do, if you don't like this method, is grab maybe
+
+the worker data, you can associate the worker data to the worker, and grab the name from there,
+
+if you want to have different names for the game objects and the data. So gameobject.name,
+
+I think we can do .name right away, but yeah, let's do .gameobject.name. Equals worker name,
+
+or maybe it's different than that. By the way, oh, I thought we had an error here. So continue.
+
+They don't have the same name. This is not the worker we want to level up. Otherwise,
+
+workers at index i.levelup. And let's break, because we've leveled up our worker. Nice!
+
+So now we can jump to our worker script and create that level up method, just after setting up
+
+the stats. So public void levelUp, level++, and let's just set up our stats, because the stats
+
+depend on the level, so everything is going to update properly. Cool! Okay, so we can now give
+
+that a quick shot in Unity. So let's hit play. All right, so this shows up because we were in
+
+the trigger. Let's come back. Let's select a worker. Boom, boom, boom. Let's select Matteo.
+
+So the fourth one, we are going to increase its speed. Boom, 2.4. Perfect. Boom, boom. One more
+
+time, 2.6. Awesome! And 2.8 and 3. Yay! Everything is working perfectly. Now if we exit and come
+
+back, we should see the changes apply, of course, because we've done that in the previous one.
+
+So we've got this. Boom, boom, boom. Yes, perfect, perfect. Matteo, 3, and so on. What about the plateau?
+
+12. Noise, 7 plus 5. That's working. Okay, so the next thing we need to do here is apply the revenue.
+
+And to apply the revenue, well, it's going to depend on all of the places where the workers are
+
+going to generate revenue. In our case, we only have one place, which is the serving station.
+
+So we will need to open our food serving station script right here.
+
+When serving the customers, right now we generate two cash, okay? So two bills, let's say.
+
+So what we need here is a reference to our character stats to know what's the revenue
+
+multiplier of the guy that is serving, and hence generate cash depending on that value.
+
+So the logic here is that we need character stats.
+
+Okay, so we either need character stats or the revenue multiplier. You decide here. I've decided
+
+to pass in the character stats. So we will need them here. We don't have any choice because this
+
+is where we call this method. So if we need them there, we need them here. Character stats,
+
+character stats. And if we need them here, it means that we need them here on trigger stay.
+
+But in here, we've got a collider and we don't check if that collider has a character stats
+
+component. So we can definitely do that. If the collider don't have a character stats
+
+script, we can dismiss that and prevent calling this method.
+
+So we can do other.tryGetComponent out character stats, character stats, okay?
+
+And if character stats, or maybe just, yeah, let's do the if statement here. So if we can't find
+
+a character stats component, we can just return. Otherwise, we can pass in the character stats in
+
+here. Okay? Makes sense? Cool. So now that we've got our character stats in the actuallyServeFood
+
+method, we can calculate the cash that we need to generate. So int baseRevenue will be equals to 1.
+
+Okay? Again, super subjective here. You can change the formula here. Okay? So floatRevenueMultiplier
+
+is going to be equals to Mathf.max between 1 and the characterStats.revenueMultiplier. Okay.
+
+Then we can do int revenue will be equals to the Mathf.CL to int baseRevenue times revenueMultiplier.
+
+Nice. Thank you. So now we can use this revenue to be generated as a cash.
+
+Can we try that? Can we try that? Can we try that? Yes, I think that we can.
+
+So I will need to collect the cash here from the food serving station and maybe lock,
+
+lock, lock, lock, lock, lock. Anyway, let's hit play and we can handle this.
+
+Okay. So let's generate the cash in here.
+
+Okay. So missing a reference to an external object. Oh, I think this is due to our arc animator here.
+
+Okay. We can try and tackle this later on. But now let's generate our cash here.
+
+So who is going to serve? Angelo. Angelo here has a revenueMultiplier of 1. So according to
+
+our calculation here, we should have 1 is the maximum. Okay. So 1 times 1 equals 1. So we can,
+
+we should generate $1 per coffee cup. Okay. That's the case. One coffee cup has been served
+
+and one cash or yeah, cash has been generated, which is perfect. So now let's wait and see if
+
+someone else is going to come and serve our customers here. Okay. So now we've got,
+
+we've got, we've got Kai that is coming and Kai's revenueMultiplier is also 1. Okay.
+
+So I'm just going to increase Kai's revenueMultiplier in here. Okay. Where is Kai? Okay.
+
+Let's increase it. Thank you. Boom. Who is going to serve now? This is Jawed. Jawed 1. Oh,
+
+come on. Let's also increase Jawed. Okay. Thank you. And Ethan also is going to be maxed out.
+
+Perfect. So now, yeah, what I want to do is check who is serving. Angelo is 1. Angelo,
+
+yeah. Come on Angelo, get out of my way, please go do something else. Okay. So now we've got
+
+Kai 1.6. So 1.6, normally we should have 1.6 is the max value here, 1.6. So 1.6 times 1
+
+equals 1.6 and the seal will return 2. So normally we should generate 2 cash when Kai
+
+serves the customer. So let's check. We've got this here. Okay. So let's go step by step.
+
+Okay. So now we should spot everything here.
+
+Do we have an available table? I don't know.
+
+Okay. Yeah. I think we need to wait for Angelo to clean the table,
+
+which is going to happen in 3, 2, 1, now. Okay. So can you go please? Okay. This one,
+
+this customer is leaving. Here's another one. And there you go. We've generated 2 cash here. Okay.
+
+Oh, come on. What did I do? Frick. Let's press F here. Yep. I'm messing everything up as usual.
+
+Let's do this. Thank you. So yeah, again, we've generated 2 bills here, which is perfect.
+
+Awesome. We can do another try here. Boom, boom, boom, boom, boom, boom, boom. Okay. Yeah. Again,
+
+2 and so on. So we can wait for another worker to come and serve them. So who is this boy?
+
+By the way, we can actually select the UI and prevent us from clicking or actually seeing the
+
+UI in the scene view. So now we should not be able to click it. So this is Jawed. Jawed, Jawed,
+
+Jawed has 1.8 here. It's going to be clumped to 2, 2. So he is going to generate 2 cash too. Yep.
+
+Same thing. So you can decide to change the calculation if you want to deliver or give
+
+more cash to your players. And yep. So we've got the...
+
+Perfect. So now let's quickly fix our issue here and call it a day. So cash.gameObject,
+
+we are trying to animate it. What we can do, by the way, what's that? Boom, skadoosh.
+
+Boom, boom, boom. The other one was at line 42 in the arc animator. So we can
+
+open our arc animator. Where is our arc animator? Line 42, 42, 42.
+
+Okay. So right here, complete callback.
+
+So it means that T equals null.
+
+What's wrong with this? Come on, the cash was not null.
+
+Animate cash to player.
+
+Cash pile. Okay. So normally we should have removed it from the parent. So transform.childCount,
+
+but we add more. So I think that this happens when we move the cash to player.
+
+Yeah, I think that this happens when we move some cash objects that are still
+
+under the cash pile and create new ones. So one good thing we could do
+
+is turn all of our cash that we want to collect into children of a brand new game object, maybe,
+
+before animating them. Yep. So is our arc, not the arc animator, actually. Yeah,
+
+maybe we can just unparent them because they are going to be animated and then destroyed.
+
+So boom, boom, boom, destroy cash. Yep. I think it makes sense here.
+
+So let's do that. Let's start from the last one, transform.childCount minus one,
+
+transform.getChildI.setParent null, or maybe parent equals null.
+
+Okay. This is a quick, dirty fix, but at least we're not going to have that error.
+
+Let's give that a quick shot. Okay. Let's hit play. So what we need to do here is to try and
+
+collect the cash when we serve the customers. So we should not be serving them right away,
+
+but soon, really soon. And yep, now. Okay. So we can't collect them.
+
+Oh, come on. You see, when you want to do stuff in the dirty way, it's not working.
+
+This is because I unparent them and then I try and move them. Come on. Why did I do that?
+
+Let's remove this. And what if we unparent it inside of our loop here? Do we unparent it here?
+
+Move along arc. Boom, boom, boom. No, we never unparent it. So,
+
+so, so, so. But aren't we going to have errors if we unparent it?
+
+So we've got T, we've got the target. No, I think we are not going to have any errors.
+
+And if we ever have errors, we can handle them, of course. So cash.parent equals null. Okay.
+
+So let's generate a bit more cash here so that we can try it out.
+
+Okay. Can we spawn more tables to get things going a bit faster?
+
+Nope. We don't have more tables. So we are just going to wait. I'm going to time lapse this.
+
+Okay. So now we should be able to try this out. Let's generate the cash. Okay. No errors.
+
+Let's generate the cash. Okay. No errors. Okay. So I removed something, that line from here,
+
+and I'm trying out again here just to check if we still have that error. We are going to have it,
+
+of course. And we don't, of course. But what we can do, one solution we can actually apply is
+
+we've got our cash pile here. We can get or create two parents, one for the cash that we
+
+can collect and one for the cash that we can't collect that is being generated. And when the
+
+player comes to collect the cash, we can move all of the cash that is going to be collected
+
+onto that new parent. Okay. As a child of that new parent. That way we don't have jamming between
+
+the cash that we collect and the one that is being generated. That's a solution. So if we
+
+ever feel that this is going to cause issues, we can apply that solution. Okay. See you in the next one.
