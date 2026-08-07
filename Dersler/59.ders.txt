@@ -1,0 +1,279 @@
+Welcome back, guys! In this lesson, we are going to start tackling the player upgrades
+
+and we are going to start with the UI as usual.
+
+Okay, so I'm going to rush into this because you already know how to do that.
+
+We've done that for the workers.
+
+So, PlayerUpgradesCanvas.
+
+We are going to remove everything-ish. I don't know.
+
+Let's actually remove everything and start from scratch.
+
+We've got the canvas group, of course.
+
+The reference resolution is correctly set up.
+
+We are going to create a panel.
+
+So, UICanvasPanel and okay.
+
+So, let's just rename it Panel in capital letters. Thank you.
+
+Do we want a background?
+
+By the way, why isn't it visible?
+
+Because the alpha is set to zero.
+
+So, let's set it to one.
+
+What we can do is actually remove the background and set or add a bit of an overlay here.
+
+After that, let's add a container to contain our stuff. So, container. Thank you.
+
+So, the container is going to be stuck to the bottom.
+
+Okay, maybe a bit bigger.
+
+Let's switch to 2D mode.
+
+And yep, it can be something like that.
+
+I think it makes sense.
+
+All right, maybe we can change its color too.
+
+So, let's turn it to a black container with a bit of transparency, something like that.
+
+So, maybe in the future we can remove this image from here.
+
+Okay, yeah, maybe it might make more sense.
+
+So, let's enable the image because we still want the raycast target,
+
+but set the color to transparent, fully transparent.
+
+Okay, so let's add the top ribbon. Top ribbon.
+
+Okay, it's going to be a child of the container.
+
+Let's select it, change the color to red-ish, but I don't want it to break my eyes.
+
+Stick it to the top and diminish its height, something like that.
+
+Okay, so the top ribbon is going to contain a text mesh probe.
+
+This is going to be the maybe title text.
+
+And let's call it player.
+
+Let's center it like so.
+
+And the font size can be a bit bigger.
+
+Maybe we can actually use the auto-size checkbox here, but it's not compulsory.
+
+Okay, what do I prefer?
+
+I think I'm going to favor the middle alignment here.
+
+We also need a button to exit or to close this panel.
+
+So, we can actually borrow it from here.
+
+Let's duplicate it, drop it inside of our container or top ribbon.
+
+Um, yeah, I think adding it to the top ribbon makes sense.
+
+So, let's stick it to the right. Thank you.
+
+We are going to remove the callback so that we don't get any errors or weird behavior
+
+that we don't expect.
+
+So, we've got our top ribbon set up.
+
+This can be smaller in my opinion, yeah.
+
+The icon can be a bit smaller, so maybe something like that.
+
+Yep, that's better.
+
+So, we've got our top ribbon done.
+
+Now, we are going to add the upgrade buttons container.
+
+So, let's create an empty GameObject, upgradeButtonsContainer.
+
+It should occupy the whole space minus the top ribbon.
+
+So, what you can do here is add a vertical layout group to the container
+
+if you want it to be perfectly aligned, okay?
+
+And after that, we can add layout elements to these two boys here. Okay.
+
+So, we've got our upgradeButtonsContainer.
+
+Let's add a horizontal layout group. Boom.
+
+Horizontal layout group.
+
+Let's occupy the whole container.
+
+Horizontal layout group.
+
+Should it control the size?
+
+No, I don't think so.
+
+Let's not force them to expand.
+
+We just want to set them properly, okay?
+
+To lay them out.
+
+After that, we can add another image for our container.
+
+So, this is going to be the upgradeContainer, okay?
+
+Like we've done for the other boys here. Do I have it?
+
+PlayerUpgradeContainer.
+
+Yeah, UIPlayerUpgradeContainer. I have it.
+
+So, what we can do is grab it and drop it here.
+
+Duplicate it twice.
+
+Let's maybe add a bit of spacing. 50 pixels.
+
+Yeah.
+
+What if we tell these to control the child size?
+
+I don't like that.
+
+If they expand, it's going to feel weird, to be honest. So, yeah.
+
+Let's keep the original size here.
+
+What we can do is actually select the container,
+
+increase the width a tiny bit, maybe 270 and 450. Okay.
+
+Oh, it did not apply. Come on. Revert all?
+
+No, it did not work.
+
+So, what we are going to do is grab all of them,
+
+remove them, grab, up, boom, like so.
+
+Duplicate twice.
+
+Yeah, I think I prefer that.
+
+What you can also do is switch to the simulator view
+
+and see how it's going to behave on a real phone.
+
+So, as you can see here, it's not optimal.
+
+So, what we can do is either diminish the spacing,
+
+or tell them to expand.
+
+But if you tell them to expand on iPad,
+
+it's going to feel super weird.
+
+So, you have to make a choice here.
+
+Or what you can do is add another script to check
+
+if you're on an iPad.
+
+And if that's the case, uncheck this
+
+and set up a width for the container. Okay.
+
+So, maybe 250. Whoa, come on.
+
+We're not going to spend the day here.
+
+Container, should it be smaller?
+
+Something like that.
+
+Well, again, here it depends if you want to add a banner
+
+at the bottom here.
+
+So, you might increase its size and move these up.
+
+And to move them up, you can just grab the upgrade container and move it up. Okay.
+
+So, you decide here.
+
+All right, I think I'm going to keep it as is.
+
+I just want to focus on the logic.
+
+So, this UIPlayerUpgradeContainer here has a vertical layout
+
+with a title, an icon, a section for the blobs with the blobs.
+
+So, here is the blobs section. Okay.
+
+Of course, we will need to control these blobs.
+
+For this example, I've decided to add five levels to our player
+
+for the speed, the capacity, and the revenue.
+
+And by the way, these are going to have a script.
+
+So, we are actually going to spawn them at runtime
+
+like we've done for the UI worker container.
+
+And then initialize them and update them. Okay.
+
+Same thing for the free button here.
+
+The free button is if you want to add a video.
+
+If you want to allow your players to watch a video
+
+to upgrade a stat, you can do so.
+
+Here is the button that will do or apply this logic. All right.
+
+So, now that this is done, we can actually remove these.
+
+I just want to set or apply the changes here.
+
+So, let's apply free, boom, boom, boom.
+
+No, I want to apply the rect transform.
+
+Why do I only have TextMeshPros?
+
+Yeah, I want to apply the rect transform.
+
+So, UID 260, 450, 260.
+
+Yeah, something like that. Okay.
+
+Now we can remove them.
+
+And in the next one, let's start working on the logic
+
+to show, hide this panel, and also set up our stats. StatContainers.
+
+See you in the next one.

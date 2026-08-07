@@ -1883,6 +1883,191 @@ public class SceneSetup
     }
 
     // =====================
+    // LESSON 59 - Player Upgrades Canvas (UI only, no logic yet)
+    // =====================
+    [MenuItem("Cooked Fast/Setup Lesson 59 (Player Upgrades Canvas)")]
+    public static void SetupLesson59()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        if (GameObject.Find("Player Upgrades Canvas") != null)
+        {
+            EditorUtility.DisplayDialog("Warning", "Player Upgrades Canvas already exists in scene!", "OK");
+            return;
+        }
+
+        Sprite square50 = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Tabsil/Square_50.png");
+        Sprite crossIcon = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Design Toolbox/Sprites/Heathen Engineering/Icons/Free Flat Button Solid Cross Icon.png");
+
+        string containerPrefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/UI Player Upgrade Container.prefab";
+        GameObject containerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(containerPrefabPath);
+
+        // The course resizes the container prefab to 260x450 so three of them
+        // fit side by side on a phone
+        if (containerPrefab != null)
+        {
+            GameObject prefabRoot = PrefabUtility.LoadPrefabContents(containerPrefabPath);
+            RectTransform prefabRect = prefabRoot.GetComponent<RectTransform>();
+            if (prefabRect != null)
+                prefabRect.sizeDelta = new Vector2(260f, 450f);
+            PrefabUtility.SaveAsPrefabAsset(prefabRoot, containerPrefabPath);
+            PrefabUtility.UnloadPrefabContents(prefabRoot);
+        }
+
+        GameObject uiParent = GameObject.Find("--- UI ---");
+
+        // 1. CANVAS
+        GameObject canvasObj = new GameObject("Player Upgrades Canvas");
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 1;
+
+        CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1080f, 1920f);
+        scaler.matchWidthOrHeight = 0f;
+
+        canvasObj.AddComponent<GraphicRaycaster>();
+
+        // Hidden by default; Lesson 60 wires the show/hide logic to this group.
+        // The GameObject stays active so the CanvasGroup is the single switch
+        CanvasGroup cg = canvasObj.AddComponent<CanvasGroup>();
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+        if (uiParent != null)
+            canvasObj.transform.SetParent(uiParent.transform);
+
+        Undo.RegisterCreatedObjectUndo(canvasObj, "Create Player Upgrades Canvas");
+
+        // 2. PANEL - full screen dark overlay
+        GameObject panel = new GameObject("PANEL");
+        panel.transform.SetParent(canvasObj.transform);
+        Image panelImg = panel.AddComponent<Image>();
+        panelImg.color = new Color(0f, 0f, 0f, 0.6f);
+
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        panelRect.anchorMin = Vector2.zero;
+        panelRect.anchorMax = Vector2.one;
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        // 3. CONTAINER - bottom sheet. Image stays enabled but fully
+        // transparent: it is only there to be a raycast target
+        GameObject container = new GameObject("Container");
+        container.transform.SetParent(panel.transform);
+        Image containerImg = container.AddComponent<Image>();
+        containerImg.color = new Color(0f, 0f, 0f, 0f);
+
+        RectTransform containerRect = container.GetComponent<RectTransform>();
+        containerRect.anchorMin = new Vector2(0f, 0f);
+        containerRect.anchorMax = new Vector2(1f, 0f);
+        containerRect.pivot = new Vector2(0.5f, 0f);
+        containerRect.anchoredPosition = Vector2.zero;
+        containerRect.sizeDelta = new Vector2(0f, 800f);
+
+        VerticalLayoutGroup containerLayout = container.AddComponent<VerticalLayoutGroup>();
+        containerLayout.spacing = 0f;
+        containerLayout.childAlignment = TextAnchor.UpperCenter;
+        containerLayout.childControlWidth = true;
+        containerLayout.childControlHeight = true;
+        containerLayout.childForceExpandWidth = true;
+        containerLayout.childForceExpandHeight = false;
+
+        // 4. TOP RIBBON
+        GameObject topRibbon = new GameObject("Top Ribbon");
+        topRibbon.transform.SetParent(container.transform);
+        Image ribbonImg = topRibbon.AddComponent<Image>();
+        if (square50 != null)
+        {
+            ribbonImg.sprite = square50;
+            ribbonImg.type = Image.Type.Sliced;
+        }
+        ribbonImg.color = new Color(0.72f, 0.28f, 0.28f, 1f);
+
+        LayoutElement ribbonLayout = topRibbon.AddComponent<LayoutElement>();
+        ribbonLayout.preferredHeight = 140f;
+        ribbonLayout.flexibleHeight = 0f;
+
+        GameObject titleText = new GameObject("Title Text");
+        titleText.transform.SetParent(topRibbon.transform);
+        TextMeshProUGUI title = titleText.AddComponent<TextMeshProUGUI>();
+        title.text = "PLAYER";
+        title.fontSize = 64f;
+        title.alignment = TextAlignmentOptions.Center;
+
+        RectTransform titleRect = titleText.GetComponent<RectTransform>();
+        titleRect.anchorMin = Vector2.zero;
+        titleRect.anchorMax = Vector2.one;
+        titleRect.offsetMin = new Vector2(160f, 0f);
+        titleRect.offsetMax = new Vector2(-160f, 0f);
+
+        // 5. CLOSE BUTTON - no callback yet, that comes with the logic lesson
+        GameObject closeButton = new GameObject("Close Button");
+        closeButton.transform.SetParent(topRibbon.transform);
+        Image closeImg = closeButton.AddComponent<Image>();
+        if (square50 != null)
+        {
+            closeImg.sprite = square50;
+            closeImg.type = Image.Type.Sliced;
+        }
+        closeImg.color = new Color(0.85f, 0.25f, 0.25f, 1f);
+        closeButton.AddComponent<Button>();
+
+        RectTransform closeRect = closeButton.GetComponent<RectTransform>();
+        closeRect.anchorMin = new Vector2(1f, 0.5f);
+        closeRect.anchorMax = new Vector2(1f, 0.5f);
+        closeRect.pivot = new Vector2(1f, 0.5f);
+        closeRect.anchoredPosition = new Vector2(-20f, 0f);
+        closeRect.sizeDelta = new Vector2(100f, 100f);
+
+        GameObject closeIcon = new GameObject("Icon");
+        closeIcon.transform.SetParent(closeButton.transform);
+        Image closeIconImg = closeIcon.AddComponent<Image>();
+        if (crossIcon != null) closeIconImg.sprite = crossIcon;
+        closeIconImg.preserveAspect = true;
+
+        RectTransform closeIconRect = closeIcon.GetComponent<RectTransform>();
+        closeIconRect.anchorMin = Vector2.zero;
+        closeIconRect.anchorMax = Vector2.one;
+        closeIconRect.offsetMin = new Vector2(22f, 22f);
+        closeIconRect.offsetMax = new Vector2(-22f, -22f);
+
+        // 6. UPGRADE BUTTONS CONTAINER - the three stat cards get spawned in
+        // here at runtime, exactly like the worker containers
+        GameObject upgradeButtonsContainer = new GameObject("Upgrade Buttons Container");
+        upgradeButtonsContainer.transform.SetParent(container.transform);
+        upgradeButtonsContainer.AddComponent<RectTransform>();
+
+        LayoutElement buttonsLayout = upgradeButtonsContainer.AddComponent<LayoutElement>();
+        buttonsLayout.flexibleHeight = 1f;
+
+        HorizontalLayoutGroup hlGroup = upgradeButtonsContainer.AddComponent<HorizontalLayoutGroup>();
+        hlGroup.spacing = 50f;
+        hlGroup.childAlignment = TextAnchor.MiddleCenter;
+        // Cards keep their own 260x450 size: expanding them looks wrong on tablets
+        hlGroup.childControlWidth = false;
+        hlGroup.childControlHeight = false;
+        hlGroup.childForceExpandWidth = false;
+        hlGroup.childForceExpandHeight = false;
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 59: Player Upgrades Canvas created!");
+        EditorUtility.DisplayDialog("Lesson 59 Done!",
+            "Player Upgrades Canvas (CanvasGroup hidden)\n" +
+            "  └ PANEL (dark overlay)\n" +
+            "     └ Container (bottom sheet, transparent raycast target)\n" +
+            "        ├ Top Ribbon (Title Text + Close Button)\n" +
+            "        └ Upgrade Buttons Container (Horizontal Layout, spacing 50)\n\n" +
+            "UI Player Upgrade Container prefab resized to 260x450.\n" +
+            "Cards are spawned at runtime in Lesson 60 - none placed now.",
+            "OK");
+    }
+
+    // =====================
     // HELPERS
     // =====================
     private static void SetSerializedFieldObject(GameObject obj, string componentType, string fieldName, Object value)
