@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 using UnityEditor;
+using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using TMPro;
 
@@ -977,6 +978,86 @@ public class SceneSetup
             "⚡ Progression Canvas sort order'ını kontrol et (10 önerilir, HR'nin üstünde kalmalı).\n" +
             "⚡ Görsel ayarları (renk, boyut, spacing) beğendiğin gibi düzenle.\n" +
             "⚡ Back Button + Currency Container hizası: Y=-142 (ikisi de aynı hizada).",
+            "OK");
+    }
+
+    [MenuItem("Cooked Fast/Setup Lesson 48 (HR Manager + Desk Station)")]
+    public static void SetupLesson48()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        GameObject hrCanvas = GameObject.Find("HR Canvas");
+        if (hrCanvas == null)
+        {
+            EditorUtility.DisplayDialog("Error", "HR Canvas not found!\nRun Setup Lesson 47 first.", "OK");
+            return;
+        }
+
+        GameObject hrDesk = GameObject.Find("HR Desk");
+        if (hrDesk == null)
+        {
+            EditorUtility.DisplayDialog("Error", "HR Desk not found!\nRun Setup Lesson 45 first.", "OK");
+            return;
+        }
+
+        // 1. Canvas Group on HR Canvas
+        CanvasGroup cg = hrCanvas.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = hrCanvas.AddComponent<CanvasGroup>();
+
+        cg.alpha = 0f;
+        cg.blocksRaycasts = false;
+        cg.interactable = false;
+
+        // HR Canvas GameObject itself should stay active (CanvasGroup handles visibility)
+        hrCanvas.SetActive(true);
+
+        // 2. HR Manager GameObject under MANAGERS
+        GameObject hrManagerObj = GameObject.Find("HR Manager");
+        if (hrManagerObj == null)
+        {
+            hrManagerObj = new GameObject("HR Manager");
+            hrManagerObj.transform.position = Vector3.zero;
+
+            GameObject managers = GameObject.Find("--- MANAGERS ---");
+            if (managers != null)
+                hrManagerObj.transform.SetParent(managers.transform);
+
+            Undo.RegisterCreatedObjectUndo(hrManagerObj, "Create HR Manager");
+        }
+
+        HRManager hrManager = hrManagerObj.GetComponent<HRManager>();
+        if (hrManager == null)
+            hrManager = hrManagerObj.AddComponent<HRManager>();
+
+        SetSerializedFieldObject(hrManagerObj, "HRManager", "cg", cg);
+
+        // 3. Desk Station on HR Desk
+        DeskStation deskStation = hrDesk.GetComponent<DeskStation>();
+        if (deskStation == null)
+            deskStation = hrDesk.AddComponent<DeskStation>();
+
+        SetSerializedFieldObject(hrDesk, "DeskStation", "hrManager", hrManager);
+
+        // 4. Wire Back Button -> HRManager.Hide
+        Transform backButtonT = hrCanvas.transform.Find("Back Button");
+        if (backButtonT != null && backButtonT.TryGetComponent(out Button backButton))
+        {
+            UnityEventTools.AddPersistentListener(backButton.onClick, hrManager.Hide);
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 48: HR Manager + Desk Station wired!");
+        EditorUtility.DisplayDialog("Lesson 48 Done!",
+            "Oluşturulan/bağlanan yapı:\n" +
+            "• HR Canvas → Canvas Group eklendi (başlangıçta gizli)\n" +
+            "• HR Manager (MANAGERS altında) → Canvas Group referansı bağlandı\n" +
+            "• HR Desk → Desk Station script + HR Manager referansı\n" +
+            "• Back Button → onClick → HRManager.Hide() bağlandı\n\n" +
+            "⚡ Play'e bas, HR Desk'e yaklaş ve dur — panel açılmalı.\n" +
+            "⚡ Sol üstteki çarpı butonuna bas — panel kapanmalı.",
             "OK");
     }
 
