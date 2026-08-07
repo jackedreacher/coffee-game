@@ -24,6 +24,13 @@ public class Plateau : MonoBehaviour
         isEmpty = true;
     }
 
+    // Deliberately not touching isFull here: this runs while setting up the
+    // stats, so the plateau is empty anyway
+    public void UpdateMaxCapacity(int capacity)
+    {
+        maxCapacity = capacity;
+    }
+
     public void Push(SpawnableFood foodInstance)
     {
         lastFoodPushed = foodInstance;

@@ -22,6 +22,11 @@ public class HoldFoodAbility : MonoBehaviour
         dropFoodTimer = canGrabFoodDelay;
     }
 
+    public void SetPlateauCapacity(int capacity)
+    {
+        plateau.UpdateMaxCapacity(capacity);
+    }
+
     public void HandleFoodSpawnerStation(FoodSpawnerStation station)
     {
         if (plateau.IsFull)

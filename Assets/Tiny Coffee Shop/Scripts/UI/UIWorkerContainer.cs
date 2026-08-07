@@ -57,23 +57,14 @@ public class UIWorkerContainer : MonoBehaviour
     {
         // While still locked, level is -1, so fall back to the data's initial
         // level — otherwise a locked worker would show no earned blobs at all
-        Vector3Int statLevels = GetStatLevelsFromLevel(Mathf.Max(workerData.InitialLevel, level));
+        // The math now lives in WorkerUtilities so the workers themselves can
+        // reuse it when applying their stats
+        Vector3Int statLevels = WorkerUtilities.GetStatsLevelsFromLevel(
+            Mathf.Max(workerData.InitialLevel, level));
 
         stats[0].Initialize(workerData.MaxSpeed, statLevels.x);
         stats[1].Initialize(workerData.MaxCapacity, statLevels.y);
         stats[2].Initialize(workerData.MaxRevenue, statLevels.z);
-    }
-
-    // One shared level feeds three stat rows in column order:
-    // lvl1 -> speed, lvl2 -> capacity, lvl3 -> revenue, lvl4 -> speed, ...
-    // so each row gains a blob every 3 levels, offset by its position.
-    private Vector3Int GetStatLevelsFromLevel(int level)
-    {
-        int speedLevel = Mathf.CeilToInt(Mathf.Max(0f, level) / 3f);
-        int capacityLevel = Mathf.CeilToInt(Mathf.Max(0f, level - 1) / 3f);
-        int revenueLevel = Mathf.CeilToInt(Mathf.Max(0f, level - 2) / 3f);
-
-        return new Vector3Int(speedLevel, capacityLevel, revenueLevel);
     }
 
     public void Unlock()

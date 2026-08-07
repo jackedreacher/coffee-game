@@ -1754,6 +1754,69 @@ public class SceneSetup
     }
 
     // =====================
+    // LESSON 56 - Worker base stats
+    // =====================
+    [MenuItem("Cooked Fast/Setup Lesson 56 (Worker Base Stats)")]
+    public static void SetupLesson56()
+    {
+        // 1. Create the base stats asset
+        string dataFolder = "Assets/Tiny Coffee Shop/Data";
+        if (!AssetDatabase.IsValidFolder(dataFolder))
+            AssetDatabase.CreateFolder("Assets/Tiny Coffee Shop", "Data");
+
+        string baseStatsFolder = dataFolder + "/Base Stats";
+        if (!AssetDatabase.IsValidFolder(baseStatsFolder))
+            AssetDatabase.CreateFolder(dataFolder, "Base Stats");
+
+        string assetPath = baseStatsFolder + "/Worker Base Stats.asset";
+        BaseCharacterStatsSO baseStats = AssetDatabase.LoadAssetAtPath<BaseCharacterStatsSO>(assetPath);
+
+        if (baseStats == null)
+        {
+            baseStats = ScriptableObject.CreateInstance<BaseCharacterStatsSO>();
+            AssetDatabase.CreateAsset(baseStats, assetPath);
+
+            // Only fill the values on creation, so re-running never overwrites
+            // whatever the designer tuned in the Inspector
+            SerializedObject statsSO = new SerializedObject(baseStats);
+            statsSO.FindProperty("speed").floatValue = 2f;      // NavMeshAgent default
+            statsSO.FindProperty("capacity").intValue = 7;
+            statsSO.FindProperty("revenue").floatValue = 1f;
+            statsSO.ApplyModifiedProperties();
+        }
+
+        AssetDatabase.SaveAssets();
+
+        // 2. Add CharacterStats to the Worker prefab and reference the asset
+        string workerPrefabPath = "Assets/Tiny Coffee Shop/Prefabs/Characters/Worker.prefab";
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(workerPrefabPath) == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Worker.prefab not found at\n" + workerPrefabPath, "OK");
+            return;
+        }
+
+        GameObject workerRoot = PrefabUtility.LoadPrefabContents(workerPrefabPath);
+
+        CharacterStats characterStats = workerRoot.GetComponent<CharacterStats>();
+        if (characterStats == null)
+            characterStats = workerRoot.AddComponent<CharacterStats>();
+
+        SerializedObject cs = new SerializedObject(characterStats);
+        cs.FindProperty("baseStats").objectReferenceValue = baseStats;
+        cs.ApplyModifiedProperties();
+
+        PrefabUtility.SaveAsPrefabAsset(workerRoot, workerPrefabPath);
+        PrefabUtility.UnloadPrefabContents(workerRoot);
+
+        AssetDatabase.SaveAssets();
+
+        EditorUtility.DisplayDialog("Lesson 56",
+            "Worker Base Stats created (speed 2, capacity 7, revenue 1)\n" +
+            "CharacterStats added to Worker.prefab and wired.",
+            "OK");
+    }
+
+    // =====================
     // HELPERS
     // =====================
     private static void SetSerializedFieldObject(GameObject obj, string componentType, string fieldName, Object value)

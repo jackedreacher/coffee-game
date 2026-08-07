@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 7751312280551205009}
   - component: {fileID: 3834394430263086838}
   - component: {fileID: 4788163401587287489}
+  - component: {fileID: 6780160054402615462}
   m_Layer: 6
   m_Name: Worker
   m_TagString: Untagged
@@ -178,6 +179,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1236dc6f9cb733d45b351fe4aff8050b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HoldDishAbility
+--- !u!114 &6780160054402615462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677759999505551656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b1803e28b1fcf84bafafc3589f15964, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  baseStats: {fileID: 11400000, guid: dfd386d888cd08f48af471fd5ae648a2, type: 2}
 --- !u!1001 &2735839954704228011
 PrefabInstance:
   m_ObjectHideFlags: 0

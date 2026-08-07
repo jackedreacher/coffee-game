@@ -1,0 +1,249 @@
+Welcome back, guys! In this lesson, we are finally going to apply the stats to the workers.
+
+Finally, no more UI for now. I'm sorry, the last lessons have been quite intense, but yeah,
+
+sometimes it happens. Anyway, so for this lesson, we are basically going to use what we've done,
+
+or some of what we've done, in the COI survival course. So again, I invite you to go check out
+
+that course, or some parts of it, where we handle the stats. Okay, so the first thing we want to do
+
+here is create a scriptable object that will hold the base character stats data. So in our scripts
+
+here, scriptable objects, right click, create a new scripting, scriptable object script.
+
+Let's call this one baseCharacterDataSO. Boom! Let's open it, and actually, I want to call it
+
+baseCharacterStatsSO, or DataSO. Boom! Stats, yep. In my head, it makes more sense. So we can grab
+
+this, drop it here, and here. Perfect! So our characters have three stats, the speed, the capacity,
+
+and the revenue. So let's create these. So stats, boom, serialized field, private, float, speed.
+
+Let's add a range between one and four, let's say. And of course here, it's super subjective,
+
+so I invite you to find the values that you want here. You can use the range attribute,
+
+you can decide not to use it. So yeah, feel free to experiment. Yep, no need to add the F here,
+
+because we know that this is a float. So let's add the capacity. This one is going to be an integer.
+
+And let's also add our revenue. Okay, so this capacity can be between seven and fourteen,
+
+let's say, and the revenue between one and two, okay? Again, super subjective. So public, float,
+
+speed. Let's return the speed. Let's add the capacity. Let's return the capacity. And finally,
+
+the revenue. Perfect! Okay, boom, boom, and boom. Nice. So these are our base stats here.
+
+These base stats will be used in the character stats script. That's a script we are going to
+
+create and attach to any character we want to handle with stats, okay? So basically,
+
+the workers and the player. So let's jump back to Unity, jump back to the scripts folder,
+
+and maybe in maybe gameplay, do we have something like characters? No. Abilities? Well, anyway,
+
+for now, we are just going to drop it here. So character stats. Let's open it. Okay,
+
+the first thing we are going to add, you might have guessed it, is a reference to our base
+
+character stats. So data, serialized field, private base character stats, and let's call
+
+this one base stats. Perfect. In the awake method, we can grab these stats and store them
+
+in some fields. So we've got our data, let's create some fields, so maybe settings,
+
+private float speed, private int capacity,
+
+and private float revenue. Perfect. We are also going to need to create some properties so that
+
+we can use these stats later on. So public float speed, let's return the speed again, public
+
+int capacity, and public float revenue.
+
+Nice. So speed equals base stats dot speed,
+
+capacity, and revenue. Boom. Let's use the lowercase version, and revenue. Nice.
+
+Okay, so why do we have an error here? This is an integer. Integer base stats dot capacity.
+
+Oh, integer. Yeah, sorry. And of course, we need to add a tabulation. Yeah, that's perfect.
+
+So we've set up our settings or our stats at start. Now we need to set up our stats depending
+
+on the level of our worker, because right now we are dealing with the worker. Let's focus on him.
+
+So how can we do that? Well, again, you can refer to our Kauai Survivor course.
+
+What we are going to do is create two more methods in here to set up these stats. So public void,
+
+set up stats, and inside of here, we will need to grab the speed level, the capacity level,
+
+and the revenue level. So you can either use a vector3 int like we've done earlier in the HR
+
+manager, if I remember well. Was it here, or in the UI worker container? Yeah, right here.
+
+And by the way, we will need the levels. So this, again, will need to be static. So I
+
+made the right choice when making the course. Okay, so we've got multiple things to do.
+
+Let's use a vector3 int just to keep some consistency, even though I like variation
+
+from time to time. So stats levels. Again, I did not do that when making the course, so
+
+we might debug stuff from time to time, as usual. But I think it's a good exercise for you to
+
+practice here, too. So our speed is going to be equal to the base stats.speed plus calculate
+
+calculate the additional speed, let's say,
+
+with the speed level, which is the stats level dot x. Okay, we can do the same thing for y and z.
+
+These are going to be the capacity and the revenue. So let's do this, this, and this.
+
+So capacity and revenue.
+
+And perfect, nice. So this is going to be calculate additional capacity and additional
+
+revenue. So let's create these methods. Boom, revenue, capacity, and speed. Thank you. So this
+
+is going to be the speed level. We can actually write level, level, and level. Again, here you
+
+are free to set up the value that you want, or the expression that you want to calculate
+
+the additional speed, depending on the level. In my case, I'm just going to use some kind of
+
+increment. So increment equals dot two. And we can simply return level times increment. Okay,
+
+so if our worker is level zero, let's say, the increment is going to be zero. So we are
+
+going to return zero here. The speed is going to be the base speed. If the level is one, and so on,
+
+come on, you got this. Anyway, so let's tackle the capacity now. So let's just return our level,
+
+for instance. So base capacity plus the level. Okay, level one, you can hold eight items,
+
+because the minimum here was seven for the base stats, and so on. Okay, for the revenue,
+
+I'm just going to return level times two F. Okay, I think we are doing great.
+
+So now that we've got a way to grab the speed, capacity, and revenue, we need to calculate them
+
+from the worker. Remember, we've got our setupStats method that we haven't implemented yet.
+
+So vector three int, let's call this one levels, not stats, equals, yeah, we are going to create
+
+the worker utilities class. So workerUtilities.getStatsLevelsFromLevel, and passing our level
+
+here. So let's go create our worker utilities class. And inside of there, we are going to
+
+drop this method in here. So inside of here, we can do workerUtilities.this. One quick tip,
+
+if you don't know that this is possible, at the end of the script, you can actually create another
+
+one. So public static class workerUtilities, and this is our class here. We can jump back to our
+
+script, grab this method, boom. Where is our script here? Let's do paste and public static.
+
+This is perfectly working, and it's okay if you want to do that, if you want to avoid creating a
+
+new script just for this tiny method. So I'm just going to keep it here, but keep in mind that you
+
+can create a new script inside of here, and only give it this method, okay? So getStatsLevel,
+
+getStatsLevels, not stats, boom, like so. Perfect! So now we can jump back to our UI worker container
+
+and remove this one. It's not going to be used anymore. All right, so what we can do at this
+
+point is set up our stats. So we will need to reference a characterStats script inside of here.
+
+We can do requireComponent, type of characterStats, like so. Let's do private characterStats,
+
+characterStats, thank you. Jump down right here, and set up our stats. So set up stats with the
+
+levels. Boom! Thank you! Awesome! Okay, so now we've set up our stats. By the way, we need to
+
+reference, yeah, let's not forget about this, characterStats equals getComponent of type
+
+characterStats. Now we're good to go. Okay, so after setting up our stats, it's still not enough,
+
+because we've got the speed, the capacity, and the revenue, but we need to set them up.
+
+So we need to associate our new speed to the navigation ability, we need to associate the
+
+capacity to the plateau, or the hold coffee ability, and the revenue to somewhere around
+
+here. The revenue can be added here, okay? Attached directly to the worker. So navigation
+
+ability.speed, oh, I think it was velocity, yeah. So velocity, or actually, no. Inside of our
+
+navigation ability, we've got a setSpeed method. Do we? No, we don't. So let's actually create a
+
+method for that, yeah. I think it will be better. So let's do public void setSpeed,
+
+loadSpeed, agent.speed equals speed. Thank you. Now we can jump back to our script,
+
+right here, so setSpeed, speed. But what is our speed here? It's characterStats.speed.
+
+Yep, that's way better. Let's also set our capacity, so holdFoodAbility.setPlateauCapacity
+
+with the characterStats.capacity, okay? And finally, we can just store the revenue right
+
+here. So revenue, let's call it revenueMultiplier, equals characterStats.revenue. Thank you.
+
+Let's also rename this stats, and we need to create this field and this method. So the field
+
+can be created somewhere around here, private loadRevenueMultiplier, and our setPlateauCapacity
+
+method can be created. Okay, public. Let's remove this. And in here, we can simply do plateau.update
+
+maxCapacity with the capacity. Okay, let's create this method again. Boom, boom, public.
+
+Let's remove this. And how can we do that? We've got our maxCapacity inside of here,
+
+isFull equals false. So we can actually do maxCapacity equals capacity. And no need to
+
+set isFull to false, because this is in the setup stats. It might be a good choice, but
+
+let's not do that for now. Let's not do that. Okay, nice. So the capacity is okay, the speed is
+
+okay. We can try this out. So this should work at start. We are not updating the speed when
+
+upgrading at runtime, okay? So let's give it a quick shot. We are going to select our... Oh,
+
+it added the character stats. That's perfect. So prefabs, worker, worker, worker, worker.
+
+The worker now has the character stats, so we need to create the base character stats.
+
+So let's open our data, workers. Nope, base character stats. Base stats, let's say. Okay,
+
+let's right-click, create a new scriptable object, base character data, worker base stats, let's say.
+
+We are going to use the base stats for all workers, but feel free to create more base
+
+stats for Angelo, Matteo, Jawed, and so on. The speed can be 1. Now what's the base speed
+
+here of our NavMesh agent? 2. Okay, so let's use that as a base. So 2. The capacity can be 7,
+
+and the revenue 1 at start. Okay, makes sense. So let's now select our worker and reference the
+
+base stats. I don't think we need to reference anything else, so we can safely hit play and
+
+check if we've got some upgrades set up from earlier lessons. Okay, boom. So it should be
+
+the case for Angelo, Kai, Ethan. Okay, what's Ethan's speed? Where is Ethan? Ethan, Ethan,
+
+here is Ethan.2.6, so it makes sense. Speed is level 3, and our increment was .2, if I remember
+
+well, right? Increment .2, yep. So 3 times .2 equals .6, and the base speed is 2. Perfect,
+
+that's awesome. Feels like it is working. Where is the plateau? So it should be level 3 for the
+
+capacity, so it can hold, or he can hold 10 thingies. That's perfect. Awesome. So the stats
+
+seem to be working perfectly. We can't check the revenue right now, because we need to take that
+
+into account in the station, okay? So that it can generate more revenue. We can try that in the next
+
+one, actually. See you there!

@@ -60,6 +60,11 @@ public class NavigationAbility : MonoBehaviour
         agent.enabled = true;
     }
 
+    public void SetSpeed(float speed)
+    {
+        agent.speed = speed;
+    }
+
     public bool TryGoTo(Vector3 targetPosition)
     {
         targetPosition.y = 0;

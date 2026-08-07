@@ -31,7 +31,15 @@ public class WorkerManager : MonoBehaviour
     public void LevelUpWorker(string workerName)
     {
         // Workers are named after their data asset in SpawnWorker, so the name
-        // is enough to find them. Stat scaling gets implemented in a later lesson.
+        // is enough to find them
+        for (int i = 0; i < workers.Count; i++)
+        {
+            if (workers[i].name != workerName)
+                continue;
+
+            workers[i].LevelUp();
+            return;
+        }
     }
 
     public void Initialize(WorkerDataSO[] workerDatas, int[] workerLevels)

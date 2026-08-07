@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(NavigationAbility))]
+[RequireComponent(typeof(CharacterStats))]
 public class Worker : MonoBehaviour
 {
     private enum State { Idle = 0, PerformingTask = 1 }
@@ -8,6 +9,7 @@ public class Worker : MonoBehaviour
     [Header(" Components ")]
     private NavigationAbility navigationAbility;
     private HoldFoodAbility holdFoodAbility;
+    private CharacterStats characterStats;
 
     [Header(" Elements ")]
     [SerializeField] private CustomerAnimator animator;
@@ -15,6 +17,7 @@ public class Worker : MonoBehaviour
 
     [Header(" Settings ")]
     private int level;
+    private float revenueMultiplier;
 
     private State state;
     private WorkerTask currentTask;
@@ -31,6 +34,7 @@ public class Worker : MonoBehaviour
     {
         navigationAbility = GetComponent<NavigationAbility>();
         holdFoodAbility = GetComponent<HoldFoodAbility>();
+        characterStats = GetComponent<CharacterStats>();
         state = State.Idle;
     }
 
@@ -42,9 +46,23 @@ public class Worker : MonoBehaviour
         SetupStats();
     }
 
+    public void LevelUp()
+    {
+        level++;
+
+        // Re-run the whole setup so the new level reaches the agent and the plateau
+        SetupStats();
+    }
+
     private void SetupStats()
     {
-        // Speed, capacity and revenue get configured here in a later lesson
+        Vector3Int levels = WorkerUtilities.GetStatsLevelsFromLevel(level);
+
+        characterStats.SetupStats(levels);
+
+        navigationAbility.SetSpeed(characterStats.Speed);
+        holdFoodAbility.SetPlateauCapacity(characterStats.Capacity);
+        revenueMultiplier = characterStats.Revenue;
     }
 
     private void Update()
