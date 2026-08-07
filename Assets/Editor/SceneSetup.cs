@@ -625,9 +625,9 @@ public class SceneSetup
                 SetSerializedFieldObject(player, "PayAbility", "cashPrefab", cashPrefab);
         }
 
-        // 2. Setup Locked Element in scene (search everywhere)
+        // 2. Setup Locked Element in scene (search everywhere, including inactive)
         GameObject lockedElement = null;
-        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (go.name == "Locked Element")
             {
@@ -730,7 +730,7 @@ public class SceneSetup
         GameObject coffeeStationLE = null;
         GameObject coffeeCashierStationLE = null;
 
-        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (go.name == "First Table LE") firstTableLE = go;
             else if (go.name == "Coffee Station LE") coffeeStationLE = go;
@@ -993,7 +993,18 @@ public class SceneSetup
             return;
         }
 
-        GameObject hrDesk = GameObject.Find("HR Desk");
+        // HR Desk may be inactive (nested inside a not-yet-unlocked Office Zone), so
+        // GameObject.Find (which skips inactive objects) won't find it — search everything.
+        GameObject hrDesk = null;
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (go.name == "HR Desk")
+            {
+                hrDesk = go;
+                break;
+            }
+        }
+
         if (hrDesk == null)
         {
             EditorUtility.DisplayDialog("Error", "HR Desk not found!\nRun Setup Lesson 45 first.", "OK");
@@ -1077,7 +1088,9 @@ public class SceneSetup
         GameObject hrLE = null;
         GameObject playerUpgradesLE = null;
 
-        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+        // HR LE / Player Upgrades LE are nested inside Office Zone LE's Unlocked Elements,
+        // which starts inactive — GameObject.Find-style active-only search would miss them.
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (go.name == "Office Zone LE") officeZoneLE = go;
             else if (go.name == "HR LE") hrLE = go;
