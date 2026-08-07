@@ -1,0 +1,389 @@
+Welcome back guys in this lesson we've got a bunch of stuff to fix so let's fix them one by one
+
+first off when upgrading the worker if we remember well in the previous one we had some issues we
+
+need to fix them so we need to clump the amount of yeah right here we need to clump the value
+
+that we want here when upgrading the the the worker the button here should not be interactable
+
+if we've maxed out the worker or maybe we should display max too yep should be nice okay so let's
+
+open our ui worker container here let's check what happens when we level up when we level up
+
+here we update the button visuals so when updating the button visuals we should check
+
+if we've reached the max level and if that's the case the upgrade buttons should not be
+
+intractable so let's add more conditions in here so first off yeah we will also need to
+
+edit the upgrade price here but inside of here we are going to check if the level is greater
+
+equals to the worker data dot max speed times three because we've got three stats then we are
+
+going to set the text so upgrade price text dot text equals max like so maybe without capital
+
+letters something like this we need also need to do it for the video button or maybe we can just
+
+hide the video button yeah hiding the button makes more sense but changing the interactability of our
+
+upgrade button is super important so let's add another condition here and level should also be
+
+less than the worker data worker data dot max speed times three okay so in here if it's greater equals
+
+to the value and this is why i told you that the three stats should have the same max value it
+
+makes more sense even when we want to uh to level them up so okay so this is good now we've tackled
+
+the interactability of our upgrade button we also need to tackle the video upgrade button so video
+
+upgrade button dot game object dot state active because i told you that we are going to hide it
+
+if it's not relevant anymore level is less than worker data dot max speed times three
+
+okay and finally we can handle the interactability but maybe it doesn't make any more sense because
+
+it's going to be hidden so let's not tackle the interactability of that button you can do it if
+
+you want just as a precaution but it should not matter okay so let's try this out all right so
+
+let's open this uh so we can still spot it have we updated the button visuals or not
+
+okay okay so now it's working so it's not working when we start the game
+
+so it has something to do with our load method update button visuals
+
+update button visuals stat levels okay so we grab the level from here
+
+okay level is greater or equals to this
+
+unlock so when we unlock uh level equals the maximum between the initial level and the level
+
+it should work come on why isn't it working
+
+let's double check that okay
+
+interesting
+
+so okay we are gonna we are gonna debug this so we've got our ui uh container where is it
+
+hr canvas somewhere around here in the scroll view let's start with the first one switch to
+
+debug mode and check out our level where is our level level level level level level 2121
+
+okay anyway let's say that our level here is 21 okay okay got this okay because yeah we've added
+
+uh we've added the logic after changing the interactability so of course it has
+
+been more than that so uh if the level is greater than certain max speed times three
+
+so level equals 21 now the max speed for that is two so it's greater
+
+uh-huh so yeah it should definitely not be interactable let's debug something here
+
+um upgrade button interactability
+
+uh-huh where do we change that is that the only place i don't think so
+
+okay anyway so let's exit come back okay let's try this out
+
+so we are not debugging anything it means that we haven't called that method
+
+we haven't called the update button visuals here or uh or we've disabled
+
+i'm missing something here
+
+do we enter here or not
+
+where is our hr manager hr canvas oh yeah this is why it happens at start we update the button
+
+visuals before unlocking yeah so we should first of unlock the button visuals
+
+or additionally what we can do is in our unlock method we can also update the button visuals in
+
+here so update button visuals yeah it makes sense okay now i understand so of course we should not
+
+be level 21 for uh angelo i think angelo uh we are definitely going to remove the settings
+
+from here so let's go ahead and do that let's go ahead and do that let's go ahead and do that
+
+uh we are definitely going to remove the save and come back but
+
+i first want to tackle this issue okay let's give it a shot yeah now it works properly
+
+perfect okay cool what about this one
+
+yep awesome nice really nice okay so now this is working perfectly what we can do is clear our save
+
+yep and we can not call it today yet unfortunately what we are going to do now
+
+is update the upgrade price um for each worker and for that we will need to do some calculations
+
+because we want to increase that for each actually you can do that on your own i guess
+
+but i'm just going to show you how i did it it can be a nice exercise by the way
+
+so the upgrade price here is not going to be fixed not just 100 we're going to use the hr
+
+manager or maybe it's going to be a static method so hr manager dot get um worker
+
+upgrade price from level and passing our level here okay so let's just pass in our level to
+
+calculate this let's create the static method boom public and because it is static we are just
+
+going to drop it at the end after the save method thank you and inside of here let's just return
+
+something like 10 so 10 is the base price plus the maximum between the level and 0 times 20 so
+
+10 for the first upgrade then it should increase by 20 for each one you can increase by 50 you
+
+can define another expression you're free to experiment here okay so this should be good
+
+what we can do is give that a shot i will definitely need to unlock everything again
+
+but it's going to be fast
+
+all right here we are so let's unlock this one for free okay so let's upgrade
+
+oh we haven't added the logic come on but normally it should work in here yeah perfect
+
+and maximum cool so 30 we have enough cash now we don't have enough cash but we've got an issue
+
+here the speed is not updated we've jumped straight to the capacity which is not what we want okay
+
+okay okay okay okay okay okay perfect so now if we come back normally we should have the maximum
+
+maximum value for the first worker and the second worker i guess
+
+boom okay yeah max and max cool so these are nice okay so now next step let's add the logic
+
+for this button here so let's open our hr manager i guess and inside of here we want to add quite
+
+the same logic again but we just want to grab money from our wallet so let's grab this drop it
+
+here and do something like currency manager dot instance dot add currency not 500 boom minus um
+
+we will need the upgrade price we need to grab it from uh from from from from here actually yeah
+
+get worker upgrade price from level and grab the worker level so workers
+
+worker levels at that index worker index
+
+yep there you go are we missing a parenthesis yep and now we are good to go perfect
+
+so let's try this out let's hit play all right boom so we've got 115 bucks
+
+why is this point not interactable come on we've got enough cash are you kidding me
+
+so let's unlock it for free now 70 okay so 70 plus 45 is a hundred and thingy okay so we've got
+
+enough cash uh two two two two two so now if i increase how many how much coin we have or how
+
+many currency we have it's not updating of course i need even if i exit and come back it's not going
+
+to update but why wasn't it right from the beginning so now if i upgrade it's going to work
+
+of course but we also need to update it at start come on okay so let's do this 130 so now it's
+
+valid this one not and it makes sense but just earlier i had 115 bucks and it was not available
+
+so we need to tackle this too so we still have two things to tackle the weird upgrade stuff when
+
+the capacity is upgraded before the speed and the fact that the currency is not taken into account
+
+by the hr manager at start okay let's tackle the second one it makes more sense we can actually
+
+exit the play mode here and in here in the hr manager we can add the awake method to subscribe
+
+to whenever the currency manager is being updated so currency manager dot updated plus equals
+
+on currency updated and let's also unsubscribe in the on destroy method
+
+let's create this method in here maybe at the end actually i think it would make more sense
+
+just before the static one thank you and basically we are just going to update the
+
+button visuals for each ui worker container so for i from zero to um the worker containers
+
+dot count let's do worker containers at index i dot update button visuals yep update
+
+button visuals and of course the method needs to be public so we do we have that
+
+uh no we can't unfortunately okay anyway i'm just going to open the ui worker container
+
+find that method update button visuals and turn it into a public method now we should be good
+
+all right so let's try this out normally it should be good here
+
+but we will still need to fix that speed and capacity issue that we had earlier
+
+okay and then we can call it a day so the coins are good boom so in here you can see that it is
+
+still intractable even though it should not be because we don't have any cash any cash here
+
+huh well well well well well where is our update button visuals has enough currency for the level so um
+
+it should be intractable if we have enough currency
+
+and if the level is less than the worker but why is it still
+
+yeah it's not updating
+
+i can still click it but that's the unlock button that is the unlock button
+
+oh update unlock button maybe we are missing some logic in here
+
+so this is the unlock price uh we should also update this whenever we update the currency
+
+the currency but i think we are already doing that we update the unlock button because
+
+that one was locked wasn't it
+
+wait wait wait i can't understand that right now intractable if we have enough cash
+
+yeah if the currency is greater or equals to the amount okay makes sense
+
+so let's do something like um debug.log
+
+i want to display the name so let's start with the name so worker data dot
+
+so let's start with the name so worker data dot name plus unlock price
+
+let's do worker data dot unlock price okay and then we are also going to display how many
+
+cash we have so let's do this dot currency let's do um available cash
+
+okay let's try that let's hit play okay so ethan
+
+okay okay let's collect oh i cleared everything come on we have minus 245 excuse me oh yeah
+
+because we've um yeah okay i guess that makes sense so let's add 500 currency okay
+
+okay so we can already notice here we've increased the amount of cash we had
+
+by adding 500 currency so we do add 500 currency save and update visuals we should call updated
+
+here because we've added 500 so we should call updated and updated has no don't tell me this
+
+because i did not save okay this can't be possible
+
+oh my gosh i think i did not save the hr manager you're kidding me why let's hit play
+
+okay so now if i grab this currency manager add 500 yeah now it's updating come on earlier it
+
+was not updating actually so now let's try and spend some cash in here okay so it has been
+
+updated correctly um what if i add 500 now it's good boom now yeah that's way better
+
+well if i can give you an advice save your scripts before playing
+
+yeah that's all i'm gonna say in this one so uh
+
+we need to tackle this issue here
+
+we definitely need to do so that's the last one before the next lesson
+
+okay so our boy is now level five
+
+so all of the earlier blobs should be green one two three four five
+
+now it's level six but it's not updating correctly
+
+yeah that's the issue here so we should take the initial level into account well
+
+first off let's go remove our debug lines i don't remember where they are but we need to remove
+
+are but we need to remove oh there we go so let's remove them that's the last thing i'm
+
+going to do this lesson so when we unlock our boy so uh where is the unlock button
+
+okay level equals this so the level is the maximum between these two we update the button visuals
+
+hmm so um worker stats here when initializing we do activate these if it's greater than i
+
+so where do we call this okay in three places
+
+we initialize it with the max speed stat levels dot x y and z speed capacity and revenue all right
+
+these look like they're correctly set up speed capacity and revenue speed capacity and revenue
+
+level divided by three these are yep that's weird i think the issue lies in here we need to grab the
+
+maximum between level and the worker day data dot initial level because that start
+
+this level might not have the expected value
+
+is that the case where do we initialize this okay in the load method right boom boom where is the
+
+load method yeah when loading we load our levels okay
+
+so it might be so it can be minus one when unlocked generate this okay so it's minus one
+
+yeah so it's not gonna work because at start when the the ui container the ui worker container is
+
+still locked the worker level is minus one so the initialization of our um
+
+blobs is not going to be correct we definitely need to grab the maximum between between level
+
+which might be minus one here and the worker data dot initial level so uh worker data dot initial
+
+level oh come on worker data dot initial level and level okay and now we should be good so even
+
+if the worker container is locked we are going to grab this value for reference to set up our stats
+
+so let's try this out okay oh of course it's not going to work now because
+
+ah but yeah we can spot that it is working because this one is level six right uh level six
+
+and we've got six loads active seven eight nine ten and so on okay but i had enough cash and it's
+
+not updating here so it should definitely update i think that we've fixed one issue but we haven't
+
+fixed the other one i definitely think that we've fixed the upgrades issue but the unlocking or
+
+interactability stuff not yet feels like let me try that again ah come on i should always stick
+
+to my plan dude come on why is it working now oh what the heck okay anyway so let's just try
+
+our um we are going to try that one more time of course i'm just going to time lapse this
+
+i'm just cleaning the save and starting over again
+
+okay let's try this out so we've got 200 bucks okay i'm gonna i want to try this one so we can
+
+already notice that it's already um upgraded in in a way because we've got active blobs here
+
+so if i unlock it boom boom boom now it makes sense yep definitely so that's really cool so i
+
+don't have enough cash uh what about adding more cash from here let's switch back to the normal
+
+mode okay so now i have enough cash to unlock these if i exit and come back okay yep now it
+
+seems like it is working okay let's unlock all of these and see if we've got a bug or not
+
+okay let's exit come back again one last time
+
+and we can call it a day my brain is fried i should stick to my course come on to my material
+
+uh yeah no it's not working okay okay so even if when i exit and come back it's not working
+
+so what we can do to fix that is whenever we display the human resources stuff we can update
+
+the buttons one more time because maybe sometimes the currency is being updating or initialized
+
+after the um our buddy here so let's fix that this way we are going to select our hr manager
+
+like so and uh whenever we display it what we want to do is update our buttons so do we have a
+
+code already ready for that or not yeah we can just call on currency updated like so that way
+
+we are going to update our button visuals and it should be good all right let's try it out
+
+yeah that's way better okay so now whenever we open the panel we are going to update the buttons
+
+to take into account some new state of the game maybe perfect okay that's it for this lesson
+
+in the next one we are actually going to apply the stats because we've added the stats to the
+
+workers but they are still working walking at the same speed they still have the same capacity
+
+and bring the same revenue so let's handle that in the next one see you there

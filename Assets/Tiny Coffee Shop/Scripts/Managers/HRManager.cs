@@ -19,6 +19,26 @@ public class HRManager : MonoBehaviour, IWantToBeSaved
 
     public bool IsPanelVisible => cg.blocksRaycasts;
 
+    private void Awake()
+    {
+        CurrencyManager.updated += OnCurrencyUpdated;
+    }
+
+    private void OnDestroy()
+    {
+        CurrencyManager.updated -= OnCurrencyUpdated;
+    }
+
+    private void OnCurrencyUpdated()
+    {
+        // Currency can change before Load() has built the containers
+        if (workerContainers == null)
+            return;
+
+        for (int i = 0; i < workerContainers.Count; i++)
+            workerContainers[i].UpdateButtonVisuals();
+    }
+
     private void GenerateWorkerContainers()
     {
         workerContainers = new List<UIWorkerContainer>();
@@ -64,7 +84,19 @@ public class HRManager : MonoBehaviour, IWantToBeSaved
 
     public void OnContainerUpgradeButtonClicked(UIWorkerContainer uiWorkerContainer)
     {
+        int workerIndex = uiWorkerContainer.transform.GetSiblingIndex();
 
+        // Charge the price shown on the button, i.e. based on the level
+        // before the upgrade is applied
+        CurrencyManager.instance.AddCurrency(
+            -GetWorkerUpgradePriceFromLevel(workerLevels[workerIndex]));
+
+        workerLevels[workerIndex]++;
+
+        uiWorkerContainer.LevelUp();
+        workerManager.LevelUpWorker(uiWorkerContainer.WorkerName);
+
+        Save();
     }
 
     public void OnContainerVideoUpgradeButtonClicked(UIWorkerContainer uiWorkerContainer)
@@ -81,6 +113,9 @@ public class HRManager : MonoBehaviour, IWantToBeSaved
     public void Display()
     {
         cg.Show();
+
+        // Refresh affordability: the wallet may have changed while the panel was closed
+        OnCurrencyUpdated();
     }
 
     public void Hide()
@@ -110,5 +145,11 @@ public class HRManager : MonoBehaviour, IWantToBeSaved
 
         GenerateWorkerContainers();
         workerManager.Initialize(workerDatas, workerLevels);
+    }
+
+    // 10 for the first upgrade, then +20 per level
+    public static int GetWorkerUpgradePriceFromLevel(int level)
+    {
+        return 10 + Mathf.Max(level, 0) * 20;
     }
 }

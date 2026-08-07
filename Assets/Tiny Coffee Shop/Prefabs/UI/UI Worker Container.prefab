@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 29447891175106808}
+  - component: {fileID: 2286916300431732433}
   m_Layer: 5
   m_Name: Speed Section
   m_TagString: Untagged
@@ -36,6 +37,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2286916300431732433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 156077224691237104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fcedf71610e0c04f80cd2f2e5cdc26e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIWorkerStat
+  upgradeBlobPrefab: {fileID: 3087607171384398652, guid: 4c876c8976dd46748a117fbe5accad48, type: 3}
+  blobsParent: {fileID: 1729788538546689758}
 --- !u!1 &451324890672616564
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,7 +281,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 33.5
+  m_fontSize: 38.85
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -441,6 +456,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1504525870432279367}
+  - component: {fileID: 3252846689264432007}
   m_Layer: 5
   m_Name: Revenue Section
   m_TagString: Untagged
@@ -468,6 +484,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &3252846689264432007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2367680348121759694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fcedf71610e0c04f80cd2f2e5cdc26e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIWorkerStat
+  upgradeBlobPrefab: {fileID: 3087607171384398652, guid: 4c876c8976dd46748a117fbe5accad48, type: 3}
+  blobsParent: {fileID: 7096714505259492707}
 --- !u!1 &3179596857165761464
 GameObject:
   m_ObjectHideFlags: 0
@@ -583,6 +613,10 @@ MonoBehaviour:
   videoUpgradeButton: {fileID: 488040337460265451}
   unlockPriceText: {fileID: 2680445611711536484}
   upgradePriceText: {fileID: 3036918998968545135}
+  stats:
+  - {fileID: 2286916300431732433}
+  - {fileID: 3816172675503691994}
+  - {fileID: 3252846689264432007}
 --- !u!1 &3626721778423293011
 GameObject:
   m_ObjectHideFlags: 0
@@ -1406,6 +1440,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4934565179475384541}
+  - component: {fileID: 3816172675503691994}
   m_Layer: 5
   m_Name: Capacity Section
   m_TagString: Untagged
@@ -1433,6 +1468,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &3816172675503691994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5421434242070392633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fcedf71610e0c04f80cd2f2e5cdc26e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIWorkerStat
+  upgradeBlobPrefab: {fileID: 3087607171384398652, guid: 4c876c8976dd46748a117fbe5accad48, type: 3}
+  blobsParent: {fileID: 8314977317796749772}
 --- !u!1 &5530848824777107334
 GameObject:
   m_ObjectHideFlags: 0
@@ -2171,7 +2220,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8089674995040008793, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_fontSize
-      value: 37.65
+      value: 63.15
       objectReference: {fileID: 0}
     - target: {fileID: 8957302896769244469, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_Pivot.x
@@ -2541,7 +2590,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8089674995040008793, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_fontSize
-      value: 40.5
+      value: 63.15
       objectReference: {fileID: 0}
     - target: {fileID: 8089674995040008793, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_spriteAsset

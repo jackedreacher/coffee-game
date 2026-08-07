@@ -55,7 +55,9 @@ public class UIWorkerContainer : MonoBehaviour
 
     private void InitializeStats()
     {
-        Vector3Int statLevels = GetStatLevelsFromLevel(level);
+        // While still locked, level is -1, so fall back to the data's initial
+        // level — otherwise a locked worker would show no earned blobs at all
+        Vector3Int statLevels = GetStatLevelsFromLevel(Mathf.Max(workerData.InitialLevel, level));
 
         stats[0].Initialize(workerData.MaxSpeed, statLevels.x);
         stats[1].Initialize(workerData.MaxCapacity, statLevels.y);
@@ -78,6 +80,10 @@ public class UIWorkerContainer : MonoBehaviour
     {
         lockedOverlay.SetActive(false);
         level = Mathf.Max(workerData.InitialLevel, level);
+
+        // Must run after the overlay is hidden, otherwise UpdateButtonVisuals
+        // would still take the "locked" branch
+        UpdateButtonVisuals();
     }
 
     public void LevelUp()
@@ -98,7 +104,7 @@ public class UIWorkerContainer : MonoBehaviour
         videoUpgradeButton.onClick.AddListener(() => hrManager.OnContainerVideoUpgradeButtonClicked(this));
     }
 
-    private void UpdateButtonVisuals()
+    public void UpdateButtonVisuals()
     {
         // Locked overlay still active means the worker hasn't been unlocked yet
         if (lockedOverlay.activeInHierarchy)
@@ -107,9 +113,18 @@ public class UIWorkerContainer : MonoBehaviour
             return;
         }
 
-        int upgradePrice = 100;
-        upgradePriceText.text = "<sprite=0> " + upgradePrice;
-        upgradeButton.interactable = CurrencyManager.instance.HasEnoughCurrency(upgradePrice);
+        // Three stat rows share one level, so this is the combined ceiling.
+        // Relies on the three maxes being equal (see WorkerDataSO).
+        int maxLevel = workerData.MaxSpeed * 3;
+        bool isMaxed = level >= maxLevel;
+
+        int upgradePrice = HRManager.GetWorkerUpgradePriceFromLevel(level);
+
+        upgradePriceText.text = isMaxed ? "max" : "<sprite=0> " + upgradePrice;
+        upgradeButton.interactable = CurrencyManager.instance.HasEnoughCurrency(upgradePrice) && !isMaxed;
+
+        // Nothing left to watch an ad for once the worker is maxed out
+        videoUpgradeButton.gameObject.SetActive(!isMaxed);
     }
 
     private void UpdateUnlockButton()

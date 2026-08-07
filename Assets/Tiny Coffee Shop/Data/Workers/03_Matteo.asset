@@ -16,4 +16,7 @@ MonoBehaviour:
   unlockPrice: 300
   initialLevel: 4
   profilePicture: {fileID: 21300000, guid: 0145b27cebd44284485fe51ff893723c, type: 3}
+  maxSpeed: 5
+  maxCapacity: 5
+  maxRevenue: 5
   prefab: {fileID: 6906712681422930541, guid: e1b840b0d5a635040b1066c3e86aafc1, type: 3}
