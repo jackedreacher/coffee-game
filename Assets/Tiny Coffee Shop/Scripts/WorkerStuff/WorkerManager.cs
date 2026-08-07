@@ -28,6 +28,18 @@ public class WorkerManager : MonoBehaviour
         Instance.pendingRequests.Add(request);
     }
 
+    public void Initialize(WorkerDataSO[] workerDatas, int[] workerLevels)
+    {
+        for (int i = 0; i < workerLevels.Length; i++)
+        {
+            // Negative level means this worker hasn't been unlocked yet
+            if (workerLevels[i] < 0)
+                continue;
+
+            SpawnWorker(workerDatas[i], workerLevels[i]);
+        }
+    }
+
     public void SpawnWorker(WorkerDataSO workerDataSO, int workerLevel)
     {
         Worker worker = Instantiate(

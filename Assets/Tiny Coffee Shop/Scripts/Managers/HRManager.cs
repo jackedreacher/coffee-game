@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Tabsil.Sijil;
 using UnityEngine;
 
-public class HRManager : MonoBehaviour
+public class HRManager : MonoBehaviour, IWantToBeSaved
 {
     [Header(" Elements ")]
     [SerializeField] private CanvasGroup cg;
@@ -14,23 +15,16 @@ public class HRManager : MonoBehaviour
     private List<UIWorkerContainer> workerContainers;
     private int[] workerLevels;
 
-    public bool IsPanelVisible => cg.blocksRaycasts;
+    private const string workerLevelKey = "worker_level_";
 
-    private void Start()
-    {
-        GenerateWorkerContainers();
-    }
+    public bool IsPanelVisible => cg.blocksRaycasts;
 
     private void GenerateWorkerContainers()
     {
         workerContainers = new List<UIWorkerContainer>();
-        workerLevels = new int[workerDatas.Length];
 
         for (int i = 0; i < workerDatas.Length; i++)
         {
-            // -1 marks the worker as locked; Load() overwrites this later
-            workerLevels[i] = -1;
-
             UIWorkerContainer containerInstance = Instantiate(uiWorkerContainerPrefab, workerContainersParent);
             containerInstance.Initialize(this, workerDatas[i], workerLevels[i]);
 
@@ -52,7 +46,7 @@ public class HRManager : MonoBehaviour
 
         workerManager.SpawnWorker(workerDatas[workerIndex], workerLevels[workerIndex]);
 
-        // Save
+        Save();
     }
 
     public void OnContainerUpgradeButtonClicked(UIWorkerContainer uiWorkerContainer)
@@ -73,5 +67,29 @@ public class HRManager : MonoBehaviour
     public void Hide()
     {
         cg.Hide();
+    }
+
+    public void Save()
+    {
+        // A negative level means the worker is still locked, so the level
+        // alone carries both the unlocked state and the upgrade progress
+        for (int i = 0; i < workerLevels.Length; i++)
+            Sijil.Save(this, workerLevelKey + i, workerLevels[i]);
+    }
+
+    public void Load()
+    {
+        workerLevels = new int[workerDatas.Length];
+
+        for (int i = 0; i < workerLevels.Length; i++)
+        {
+            if (Sijil.TryLoad(this, workerLevelKey + i, out object _workerLevel))
+                workerLevels[i] = (int)_workerLevel;
+            else
+                workerLevels[i] = -1;
+        }
+
+        GenerateWorkerContainers();
+        workerManager.Initialize(workerDatas, workerLevels);
     }
 }
