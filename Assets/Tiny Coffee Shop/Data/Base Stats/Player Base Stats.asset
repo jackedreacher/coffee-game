@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92b24ec34fe6e364b8f55b7dd9d6c98b, type: 3}
   m_Name: Player Base Stats
   m_EditorClassIdentifier: Assembly-CSharp::BaseCharacterStatsSO
-  speed: 2
+  speed: 3
   capacity: 7
-  revenue: 1
+  revenue: 1.5
+  speedIcon: {fileID: 0}
+  capacityIcon: {fileID: 0}
+  revenueIcon: {fileID: 0}

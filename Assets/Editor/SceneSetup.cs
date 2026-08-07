@@ -2068,6 +2068,149 @@ public class SceneSetup
     }
 
     // =====================
+    // LESSON 60 - Upgrade Desk Station + container spawning
+    // =====================
+    [MenuItem("Cooked Fast/Setup Lesson 60 (Upgrade Desk Station)")]
+    public static void SetupLesson60()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        // 1. Script on the container prefab, with its title and icon wired
+        string containerPrefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/UI Player Upgrade Container.prefab";
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(containerPrefabPath) == null)
+        {
+            EditorUtility.DisplayDialog("Error", "UI Player Upgrade Container.prefab not found!", "OK");
+            return;
+        }
+
+        GameObject prefabRoot = PrefabUtility.LoadPrefabContents(containerPrefabPath);
+
+        UIPlayerUpgradeContainer containerComp = prefabRoot.GetComponent<UIPlayerUpgradeContainer>();
+        if (containerComp == null)
+            containerComp = prefabRoot.AddComponent<UIPlayerUpgradeContainer>();
+
+        Transform titleSection = FindDeepChild(prefabRoot.transform, "Upgrade Title Section");
+        Transform iconSection = FindDeepChild(prefabRoot.transform, "Icon Section");
+
+        SerializedObject containerSO = new SerializedObject(containerComp);
+
+        if (titleSection != null)
+        {
+            TextMeshProUGUI titleTmp = titleSection.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (titleTmp != null)
+                containerSO.FindProperty("titleText").objectReferenceValue = titleTmp;
+        }
+
+        if (iconSection != null)
+        {
+            Image iconImg = iconSection.GetComponentInChildren<Image>(true);
+            if (iconImg != null)
+                containerSO.FindProperty("iconImage").objectReferenceValue = iconImg;
+        }
+
+        containerSO.ApplyModifiedProperties();
+
+        PrefabUtility.SaveAsPrefabAsset(prefabRoot, containerPrefabPath);
+        PrefabUtility.UnloadPrefabContents(prefabRoot);
+
+        GameObject containerPrefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(containerPrefabPath);
+
+        // 2. Player base stats: the course makes the player a bit faster than
+        // the workers and more generous on revenue. Icons stay for the user
+        BaseCharacterStatsSO playerBaseStats = AssetDatabase.LoadAssetAtPath<BaseCharacterStatsSO>(
+            "Assets/Tiny Coffee Shop/Data/Base Stats/Player Base Stats.asset");
+
+        if (playerBaseStats == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Player Base Stats.asset not found!\nRun Setup Lesson 57 first.", "OK");
+            return;
+        }
+
+        SerializedObject statsSO = new SerializedObject(playerBaseStats);
+        statsSO.FindProperty("speed").floatValue = 3f;
+        statsSO.FindProperty("capacity").intValue = 7;
+        statsSO.FindProperty("revenue").floatValue = 1.5f;
+        statsSO.ApplyModifiedProperties();
+        AssetDatabase.SaveAssets();
+
+        // 3. Canvas sort order 2, so it wins over the HR canvas if both ever open
+        GameObject canvasObj = GameObject.Find("Player Upgrades Canvas");
+        if (canvasObj == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Player Upgrades Canvas not found!\nRun Setup Lesson 59 first.", "OK");
+            return;
+        }
+
+        canvasObj.GetComponent<Canvas>().sortingOrder = 2;
+        CanvasGroup panelGroup = canvasObj.GetComponent<CanvasGroup>();
+
+        Transform buttonsParent = FindDeepChild(canvasObj.transform, "Upgrade Buttons Container");
+        Transform closeButtonT = FindDeepChild(canvasObj.transform, "Close Button");
+
+        // 4. The station itself, on the desk that already has the trigger collider
+        GameObject desk = null;
+        foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (go.name == "Player Upgrades Desk")
+            {
+                desk = go;
+                break;
+            }
+        }
+
+        if (desk == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Player Upgrades Desk not found in the scene!", "OK");
+            return;
+        }
+
+        UpgradeDeskStation station = desk.GetComponent<UpgradeDeskStation>();
+        if (station == null)
+            station = desk.AddComponent<UpgradeDeskStation>();
+
+        BoxCollider deskCollider = desk.GetComponent<BoxCollider>();
+        if (deskCollider == null)
+        {
+            deskCollider = desk.AddComponent<BoxCollider>();
+            deskCollider.size = new Vector3(2f, 2f, 2f);
+        }
+        deskCollider.isTrigger = true;
+
+        SerializedObject stationSO = new SerializedObject(station);
+        stationSO.FindProperty("upgradePanel").objectReferenceValue = panelGroup;
+        stationSO.FindProperty("upgradeContainerPrefab").objectReferenceValue =
+            containerPrefabAsset != null ? containerPrefabAsset.GetComponent<UIPlayerUpgradeContainer>() : null;
+        if (buttonsParent != null)
+            stationSO.FindProperty("upgradeContainersParent").objectReferenceValue = buttonsParent;
+        stationSO.FindProperty("playerBaseStats").objectReferenceValue = playerBaseStats;
+        stationSO.ApplyModifiedProperties();
+
+        // 5. Close button finally gets its callback
+        if (closeButtonT != null && closeButtonT.TryGetComponent(out Button closeButton))
+        {
+            for (int i = closeButton.onClick.GetPersistentEventCount() - 1; i >= 0; i--)
+                UnityEventTools.RemovePersistentListener(closeButton.onClick, i);
+
+            UnityEventTools.AddPersistentListener(closeButton.onClick, station.Hide);
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 60: Upgrade Desk Station wired!");
+        EditorUtility.DisplayDialog("Lesson 60 Done!",
+            "UpgradeDeskStation added to Player Upgrades Desk and wired to:\n" +
+            "  • Player Upgrades Canvas CanvasGroup\n" +
+            "  • UI Player Upgrade Container prefab\n" +
+            "  • Upgrade Buttons Container\n" +
+            "  • Player Base Stats (speed 3, capacity 7, revenue 1.5)\n\n" +
+            "Canvas sort order set to 2, Close Button calls Hide().\n\n" +
+            "STILL TO DO BY HAND: assign Speed/Capacity/Revenue icons on the\n" +
+            "Player Base Stats asset - the cards spawn without art otherwise.",
+            "OK");
+    }
+
+    // =====================
     // HELPERS
     // =====================
     private static void SetSerializedFieldObject(GameObject obj, string componentType, string fieldName, Object value)

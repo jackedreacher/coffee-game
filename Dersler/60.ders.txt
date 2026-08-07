@@ -1,0 +1,323 @@
+Welcome back guys in this lesson we are going to handle the logic for our player upgrades canvas
+
+so let's jump right in okay so like we've done for our hr desk which is right here we've added
+
+a box collider with a trigger along with a script to handle the hr manager well we are going to do
+
+the same thing for our player upgrades so what we can do is select this unlock our stuff here
+
+i feel like we already have the box collider with a trigger which is really nice so now what we need
+
+to add is a an upgrade desk station script so let's open our scripts folder where should i do
+
+that maybe here station i think the hr stuff was somewhere else table stuff no utilities worker
+
+gameplay maybe where was that oh in the managers oh it's not a manager i think it's a station i
+
+should have added it with the stations but yeah anyway so let's create our station thingy
+
+so this one is going to be the upgrade desk station all right when it's done compiling we
+
+are going to attach it to our player upgrades desk and open it boom so the first thing we want
+
+to do here is show or hide our panel as i've said earlier so we are basically going to use the logic
+
+that we've added to our hr desk station so let's do on trigger stay and on trigger exit okay so on
+
+trigger state let's first check if we have been triggered by a player controller so if other dot
+
+try get component out player controller player controller we can return only if it's not a player
+
+controller okay perfect then we need to check if the player is moving so if player controller that
+
+is moving let's also return thank you and finally we can just display the panel display okay so let's
+
+add the display and hide method methods okay so if the player has exited the thingy the trigger
+
+we can actually hide the panel but no again we just want to set has entered to false like we've
+
+done uh somewhere around here so let's copy it place it here in here has entered
+
+equals true and of course we are going to need that uh has entered field so private
+
+bool has entered thank you so uh the hide logic is going to be handled by the close button so it
+
+should be public and again we need a reference to our panel the one that we want to show or hide
+
+so serialize field private canvas group let's call this one upgrade panel okay display so show
+
+maybe we can call it show you can decide here and hide thank you so at this point we should
+
+be able to display and hide the panel let's just reference it first
+
+so let's do this we can hide it at start so you can either hide it from the inspector or add the
+
+logic inside of the awake method and it might be cleaner to add it inside of the awake method
+
+actually so uh let's hit play all right let's try and trigger it boom yay it does show so i
+
+can't control the player while upgrading him because the canvas here has a sort order of one
+
+and by the way if you want you can increase that sort order because the hr canvas already has a
+
+sort order of one even though they should not be triggered at the same time but who knows so let's
+
+do that right away let's select the canvas sort order of two and what i also want to do is select
+
+our back button okay let's add a callback let's grab our player desk upgrade and call the hide
+
+method so now if we hit play all right let's try and trigger it again boom and we can close it but
+
+it does open again uh-huh so this is something that we need to handle again we need to check
+
+like we've done for the hr desk station if it has entered or not so let's jump back here okay
+
+if has entered we want to return and i think we had another condition too uh it was if the panel
+
+is visible okay so if the panel is visible or we have entered we should return so let's also
+
+add that logic inside of our thingy where were you where are we oh right here so upgrade panel
+
+uh if the panel is visible so maybe we can check if the alpha is greater than zero
+
+or has entered we can return perfect let's give it a last shot i'm also going to switch back to the
+
+game mode not simulator mode because it's kind of tricky i don't like it boom let's hit play
+
+all right now we can exit and come back perfect nice so the first step is done successfully
+
+now that we can show it and hide it we are going to select uh we are going to need to sponsor our
+
+our player upgrades uh ui player upgrade containers these ones so let's open our desk
+
+manager again so the player upgrade desk station okay like so and add a reference to that but we
+
+don't have a script for our ui container yet so we will need to create that so private
+
+um let's call it ui layer upgrade
+
+container let's call it uh i don't know maybe upgrade container
+
+uh maybe prefab yeah something like that okay so let's create this script really quickly
+
+scripts ui ui ish thank you new mono behavior script nice okay so we've got that we will also
+
+need the parent so where do we want to spawn them so upgrade containers parent thank you
+
+and like we've done for our workers we also want to keep track of them so private list
+
+of ui player great container upgrade containers equals new list of blah blah blah and instead of
+
+spawning them in the start method again like we've done here it's quite the same logic actually in the
+
+hr manager we want to use sigil and spawn them in the load method so let's jump back to our
+
+upgrade desk station let's use sigil okay i want to be saved let's implement the interface
+
+we've got our load and save method boom and boom so let's try and load our data here
+
+even though the player stats are going to be a bit different from the worker stats what we're
+
+going to need here is some stat levels so it's going to be an array of integers stat levels
+
+equals new integer array of player base stats dot length okay so we are going to need two things here
+
+the stat levels and the player base stats again why are the player base stats different from the
+
+workers because regarding the ui we need more data we need an icon so what you could have done is
+
+use the same scripts like we that we've used for the the workers and the icon can be separate but
+
+i've decided to do it in another way using different scriptable objects and a different script
+
+so um boom boom boom yeah let's add our stat levels so data
+
+private integer array stat levels all right what else do we need the player base stats and this is
+
+going to be added in here so serialize field private i'm just going to drop it just above
+
+the stat levels player stat scriptable object is going to be an array player base stats
+
+each stat is going to be its own scriptable object because again we want different icons
+
+so what you could have done again is use what we've used in the hr manager here the worker data
+
+so not the worker data so the stat thingy the base character stats data so this one
+
+so for this one we don't have an icon we can add it you know what i think i'm going to challenge
+
+myself just a tiny bit and go outside of the row that i've taken when making the course
+
+i'm just going to add the icon right here maybe it will make more sense so um
+
+how can i call that maybe a ui yeah ui okay so serialize field private sprite icon this is
+
+going to be the icon for our base character stats we will definitely need a property to grab it
+
+on their icon let's return our icon okay so now that we've got this in our upgrade desk station
+
+it doesn't make any sense to have the player stats so we want the base character data so
+
+player base stats yep now that makes a bit more sense so no need to add this instead it should
+
+be a length of three so this should be hardcoded in our case because the base character stats have
+
+three uh stats okay how did we handle that in our hr manager here do we have the stat
+
+worker levels yep okay where do we initialize our boy here
+
+yeah worker data's dot length okay for the worker levels okay
+
+so now that we've got this we need to retrieve the data um and load it so for i from zero to
+
+stat levels dot length we want to grab the data from sigil so sigil dot try load this the key can
+
+be on stat level key something like that plus i the index for each stat and finally out object
+
+underscore stat level if we successfully grab that data we can do stat levels at index i equals
+
+integer cast of the stat level thank you let's just create this key quickly uh
+
+private constant string uh we can do something like player stat level underscore okay
+
+so at this point we should have loaded our data so we can definitely generate our
+
+upgrade containers oh come on
+
+cool okay let's create this method uh-huh and after that of course we will need to
+
+update the player stats okay we can tackle that later on all right so to generate our containers
+
+we are going to loop through all of our stats of course so stat levels dot length
+
+and we want to grab the level first so int stat level equals stat levels at index i
+
+then we can generate the container so ui player upgrade container container instance
+
+is going to be equals to instantiate on the prefab yeah this one under the parent
+
+parent parent parent upgrade containers parent okay so now we've instantiated our container we
+
+need to set it up and we are going to set it up using the stat level along with the um base base
+
+base base player base stats here because we need to grab the icon remember so i can already write
+
+the logic here and then we can add the initialize method inside of our ui player upgrade container
+
+so container instance dot initialize and what data do you do we want to pass well first off
+
+let's pass in the upgrade desk station again so we can have the callbacks of the buttons inside of
+
+this script then we want to paste pass in sorry the player base stats uh in here it's going to
+
+be different yeah different than from what i have in the course because we can't do at index i
+
+or the uh the thing is here okay we will definitely need to pass in the stat levels at index i
+
+so the stat level and for that we can do if the index is zero pass in the speed if the index is
+
+one pass in the um the the capacity and uh otherwise we can pass in the revenue but
+
+now that i'm thinking about it we might have an issue here because i've added one icon for
+
+three stats this is wrong we need a speed icon a capacity icon and a revenue icon oh come on
+
+so speed icon and of course we don't need two eyes okay speed so capacity icon and finally
+
+revenue icon okay nice nice nice nice we're getting there we're getting there don't worry
+
+don't worry boom boom and you can do that alongside with me let's see who is faster
+
+so capacity icon revenue icon let's do this and this so now we've got our three icons but the
+
+issue with this again is that for each base character stat that we create we are going to
+
+need to specify the icons again so it can be nice if you want different icons for the workers and
+
+the player but it can be tricky if you don't so if you don't you can create a um a map we've
+
+tackled that in kawaii survivor again that will map the icons with the stat okay you can add an
+
+enum for the stats to make things easier so uh now we can go back to our script so here i need
+
+to pass in the player base stat i think i'm gonna pass in the player base stats but no i just want
+
+the speed if it's the speed so one solution for that would be to pass the um player base stats
+
+along with the index and from the index we can either grab the speed or the capacity or the
+
+revenue yep if you don't want to do that we can just pass in um we can just pass in the value
+
+we can just pass in the value alongside the the icon so you can do something like value
+
+and icon yeah something like that okay so we've got multiple solutions actually cool
+
+okay so after initializing our boy we definitely want to add it to the upgrade containers list so
+
+add um the container instance thank you and we should be good for this method boom let's add
+
+the initialize method like so here it is public we've got the base character stats uh let's do
+
+stat index in here so that we don't mess this up okay nice so uh let's jump back here what we can
+
+do to wrap up this lesson is select our canvas the thingy the upgrade desk what can i close here
+
+not the office zone maybe this yeah thank you okay so we can do this we can reference our parent here
+
+so the horizontal layout group and the prefab the prefab is in the prefabs folder ui and ui
+
+player upgrade container oh we haven't added the script here so let's add the script really quickly
+
+boom ui player upgrade container thank you now we can reference it like so and also create the
+
+player base stats so in here we can duplicate this call it player base stats reference it and then
+
+unlock to set this up these up sorry so for the speed i'm just going to use uh do we have the
+
+bolt here speed maybe yeah speed okay well the capacity let's use capacity and finally uh the
+
+revenue there you go so we can actually make the player a bit faster than the workers at start
+
+and the capacity can be seven and the base revenue might be 1.5 come on we're generous
+
+okay so we've set these up now if we hit play we should see our containers appear they are not
+
+going to be configured of course we haven't done that yet but oh come on
+
+interesting haven't we call the generate method
+
+uh-huh so load
+
+okay stat levels can we actually switch to debug mode to check what's wrong here
+
+uh stat levels zero oh this has not been set up or initialized
+
+even though we've done this have i saved yeah i've saved okay so that's a good thing
+
+do we have cgl inside of here we've got cgl okay
+
+so why hasn't been hasn't this been uh created
+
+is it because okay yeah there is one thing that we need to fix at least okay
+
+because this is going to be unlocked right
+
+the desk is going to be unlocked but cgl calls the load method at start so what we need to do
+
+is check if this is loaded whenever we start this object okay
+
+yep i think it it should fix our issue here okay so uh boom boom boom what i'm gonna do here
+
+is add another boolean so private bool is loaded and at start if it is not loaded then load it
+
+and when calling the load method we are going to set is loaded to true okay that should do it
+
+all right let's try this out all right now now let's select our desk here let's switch to debug
+
+mode and we do have our stat levels now perfect that is awesome so now we've got our speed speed
+
+yay with the buttons not working yet awesome so in the next one let's configure these
+
+and apply the changes to the player see you in the next one
+
+
