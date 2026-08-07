@@ -818,7 +818,7 @@ public class SceneSetup
 
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = new Vector2(1080f, 1920f); // portrait, matches Main Canvas
         scaler.matchWidthOrHeight = 1f;
 
         canvasObj.AddComponent<GraphicRaycaster>();
@@ -1372,7 +1372,7 @@ public class SceneSetup
 
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.referenceResolution = new Vector2(1080f, 1920f); // portrait, matches Main Canvas
         scaler.matchWidthOrHeight = 1f;
 
         canvasObj.AddComponent<GraphicRaycaster>();
