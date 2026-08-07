@@ -981,6 +981,55 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 54 (Worker Stat Values)")]
+    public static void SetupLesson54()
+    {
+        // The blob math assumes the three maxes are equal, so each worker
+        // gets a single tier value applied to speed, capacity and revenue.
+        (string fileName, int tier)[] tiers = new (string, int)[]
+        {
+            ("00_Angelo", 2),
+            ("01_Kai", 3),
+            ("02_Jawed", 4),
+            ("03_Matteo", 5),
+            ("04_Ethan", 7),
+        };
+
+        string report = "";
+        int updated = 0;
+
+        foreach (var t in tiers)
+        {
+            string assetPath = "Assets/Tiny Coffee Shop/Data/Workers/" + t.fileName + ".asset";
+            WorkerDataSO data = AssetDatabase.LoadAssetAtPath<WorkerDataSO>(assetPath);
+
+            if (data == null)
+            {
+                report += "✗ " + t.fileName + "\n";
+                continue;
+            }
+
+            SerializedObject so = new SerializedObject(data);
+            so.FindProperty("maxSpeed").intValue = t.tier;
+            so.FindProperty("maxCapacity").intValue = t.tier;
+            so.FindProperty("maxRevenue").intValue = t.tier;
+            so.ApplyModifiedProperties();
+
+            report += "✓ " + t.fileName + " → " + t.tier + "/" + t.tier + "/" + t.tier + "\n";
+            updated++;
+        }
+
+        AssetDatabase.SaveAssets();
+
+        Debug.Log("✅ Lesson 54: " + updated + " worker stat sets written!");
+        EditorUtility.DisplayDialog("Lesson 54 Done!",
+            "Worker stat değerleri (speed/capacity/revenue):\n\n" + report +
+            "\n⚡ Değerleri Inspector'dan istediğin gibi değiştirebilirsin,\n" +
+            "   ama üçünü EŞİT tut — blob matematiği bunu varsayıyor.\n" +
+            "⚡ Tools > Clear Save → Play ile test et.",
+            "OK");
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 53 (Worker Stats + Upgrade Blobs)")]
     public static void SetupLesson53()
     {

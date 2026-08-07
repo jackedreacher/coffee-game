@@ -25,4 +25,10 @@ public class UIWorkerStat : MonoBehaviour
         // The blob right after the last active one is the "next upgrade" hint
         blinkingBlobIndex = activeBlobCount;
     }
+
+    public void Increment()
+    {
+        blobs[blinkingBlobIndex].Activate();
+        blinkingBlobIndex++;
+    }
 }

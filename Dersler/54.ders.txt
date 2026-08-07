@@ -1,0 +1,455 @@
+Welcome back guys! In this lesson, we are going to add stats to our workers.
+
+So let's jump right in.
+
+Okay, so first things first, we are going to open our scripts,
+
+ScriptableObjects, WorkerDataScriptableObject,
+
+because this is where we're going to store the stats for our workers.
+
+Just before the gameplay header, or maybe after, you decide here,
+
+I'm going to add some stats.
+
+So we are going to have three main stats.
+
+Let's add a range attribute, by the way, just between 2 and 8, something like that.
+
+The first one is going to be the private integer maxSpeed.
+
+The second one is going to be the maxCapacity.
+
+And the third one, the maxRevenue.
+
+So the speed is self-explanatory, it's the speed or the velocity of the worker.
+
+The capacity here is how many cups or food the worker can grab or hold,
+
+and the revenue needs an additional E.
+
+The revenue here is going to make sense when a worker delivers or is working at a certain station.
+
+So instead of earning one buck or one dollar per cup served,
+
+you can earn two, three, or more.
+
+So let's now add some properties for these.
+
+I'm just going to grab them, boom, drop them here.
+
+Maybe before, yeah, before the prefab, so that it makes sense.
+
+They need to be public, so let's add the public here.
+
+And we're also going to have a capital M. Nice, okay.
+
+So we've got our stuff here.
+
+maxCapacity, maxSpeed, sorry.
+
+Okay, this one is the maxCapacity, and this one, the maxRevenue.
+
+Let's make things a bit cleaner.
+
+Okay, maybe this one too can be here.
+
+Boom, boom, I think I'm going to do one more.
+
+Yeah, let's go for two more.
+
+Okay, nice, that is beautiful, beautiful.
+
+So now what we can do, because we've got our maxCapacity, revenue, and speed,
+
+we can jump back to Unity and set these up.
+
+So let's open our data, workers, Angelo, Kai, Jawed, and so on.
+
+What we can do is set the value to the minimum for all of them,
+
+and then tweak the values as we wish.
+
+So we can say, for instance, that Kai can have a maxSpeed of 3,
+
+maxCapacity of 3, and so on.
+
+And quick disclaimer here, for the current version of the game,
+
+make sure that the three stats have the same max value.
+
+It's going to make sense later on, but if you want to use different values,
+
+you will need to edit the code a tiny bit.
+
+So yeah, I'm just going to do maybe 5 and maybe 7 for this one.
+
+Okay, so these should be different. Thank you.
+
+Nice, it should do the trick.
+
+So now that we've got this, we can jump back to our UI worker container.
+
+Yeah, somewhere around here.
+
+Inside of here, what we can do is reference our stats.
+
+Do we have them?
+
+Yep, we've got the stats, so let's use them.
+
+Stats at index 0 is going to be initialized with the maxSpeed,
+
+so workerData.maxSpeed, and we also need to add the activeBlobCount.
+
+This is going to be determined using the level that we've specified right here,
+
+and we can calculate these later on.
+
+So for now, let's just say 1, okay?
+
+Same thing for the capacity and the revenue,
+
+but it should be index 1 and index 2. Perfect.
+
+So now let's go one step deeper and try and get these activeBlobCounts here, okay?
+
+So we need to grab them from the level value, the worker level that we've got here.
+
+We are going to create a helper method to grab them.
+
+So it should return a Vector3 int.
+
+Let's call this one statLevels,
+
+and let's maybe get statLevels from level,
+
+and pass in the worker level, so level.
+
+Okay, so let's create this helper method. Cool.
+
+When making the course, I've used a static class
+
+and stored the method in a static class, but you can use it here.
+
+It's actually quite similar.
+
+Okay, so let's start with the speed level.
+
+As I've told you, for this one, we are going to start from 1
+
+and increase it every 3 steps, or every 3 levels.
+
+So level 1, level 4, level 7, and so on.
+
+So we can do mathf.sealToInteger,
+
+convert the level into a float, and divide it by 3, okay?
+
+Same thing for the other ones with a tiny difference, a tiny bit offset.
+
+So this is going to be the capacity, and this is going to be the revenue level. Okay, boom.
+
+So for this one, it should be level minus 1,
+
+because the capacity is increased after the speed,
+
+and for this one, minus 2.
+
+But we are running into an issue here.
+
+First off, we need parentheses.
+
+Otherwise, we are just going to divide 2 by 3.
+
+So let's add some parentheses.
+
+Here, here, maybe here, and here.
+
+Okay, makes sense.
+
+So the float is casting this. Cool.
+
+But we've got another issue here.
+
+Level minus 1 might be negative.
+
+Level minus 2 might also be negative.
+
+So what we want to do is grab the maximum between that and 0.
+
+So mathf.max between 0f and that.
+
+And because we are using 0f here,
+
+level minus 1 is automatically going to be converted to a float, okay? So boom, boom.
+
+Actually, the result of this method is going to be converted to a float,
+
+so we will be able to divide it by 3.
+
+Additionally, we could have written 3f, okay?
+
+So let's use the same logic in here.
+
+Boom, and minus 2. Perfect.
+
+So now that we've got this, we can return a new Vector3 integer
+
+with the speed level, the capacity level, and the revenue level. Nice.
+
+And now what we can do is use statLevels.x, statLevels.y, and statLevels.z.
+
+Okay, perfect.
+
+So now we finally have our stat levels.
+
+And now that we've got this, we can finally increment our implement.
+
+Sorry, not increment.
+
+I'm just foreshadowing here.
+
+But implement our levelUp method.
+
+Okay, so first off, int statIndex.
+
+This is going to be equal to level modulo stats.length. Okay?
+
+So this is the index of our stat.
+
+Then the stat that we want to increment is going to be that index.
+
+So stats at index, statIndex.
+
+This stat is going to be incremented.
+
+So let's just call the increment method.
+
+And then we can tackle that later.
+
+After that, we're going to increment our level now.
+
+And finally, just blink the next one.
+
+So let's tackle that later, okay?
+
+Blinking for now is not important.
+
+So we can tackle this later on.
+
+Let's increment this.
+
+Boom, public void increment. Okay.
+
+So inside of here, what should we do?
+
+Well, like we've done in here, we need to activate the current blob,
+
+the one that was blinking,
+
+and then increment this blinkingBlobIndex
+
+so that we can blink the next one.
+
+So blobs at index, it's going to be blinkingBlobIndex.
+
+Yep, dot activate.
+
+And finally, blinkingBlobIndex++. Cool.
+
+What we can do is actually increment or implement the activate method
+
+so that we can spot things.
+
+So let's add a reference to our image, unityengine.ui. Yep.
+
+Boom, elements, image.
+
+Ah, come on.
+
+Image, let's call it renderer or just image, okay?
+
+Inside of here, let's actually add the new keyword
+
+so that we don't have these squiggly green lines.
+
+But instead of here, just render.color equals color.green,
+
+or maybe we can have that as a field right here, maybe.
+
+It might make more sense so that we can tweak stuff.
+
+So serialize field, private color, active color,
+
+and use it right here.
+
+Yep, that's nice.
+
+We can also remove the start and update method
+
+because we're not going to use them.
+
+And jump back to Unity, hopefully.
+
+And we should not have any error. Unity? Thank you. Okay.
+
+So where is our blob thingy?
+
+Prefabs, UI, worker, upgrade, blob.
+
+Let's add the UI upgrade blob. Thank you.
+
+Let's actually double click it and reference our image.
+
+And for the active color, I'm going to use this green here. Okay.
+
+So now we can open our upgrade...
+
+No, the UI worker container
+
+because we need to specify our stats here.
+
+So we are going to select the three of them
+
+and reference our blob.
+
+For the blobs parent,
+
+we're going to reference the horizontal layout
+
+for each one of these. Boom and boom. Perfect.
+
+So let's just make sure that we're using the right one. Yep, we are.
+
+Okay, so that's the second step.
+
+And the third step is going to be to reference the stats.
+
+So the speed is the first one,
+
+then the capacity,
+
+and finally the revenue. Okay.
+
+Are we good to go? I think we are.
+
+I just want to make sure that we are going to call the upgrade thingy.
+
+Where is the upgrade?
+
+Yep, we should be good.
+
+So we are going to level up and increment stuff.
+
+Okay, so I think we are still saving
+
+because we do save in here.
+
+So when loading, we load the worker levels
+
+and this is what gets used to level up.
+
+So it should be good.
+
+Okay, let's hit play.
+
+All right, let's try and open up our panel here.
+
+Okay, it hasn't been unlocked.
+
+So we need to unlock the container whenever,
+
+if it is unlocked actually.
+
+So let's just unlock Angelo.
+
+Let's do free, free, free, free, free, free. Yeah, awesome.
+
+So of course, we're going to have an error here
+
+because we don't have any more stats to increase.
+
+But it's working.
+
+Two for this one, three for this one,
+
+four, five, and seven. Perfect.
+
+Okay, so really quickly,
+
+if the worker has been unlocked,
+
+we should not see the locked overlay anymore.
+
+So we are going to do that first and call it a lesson
+
+because you've got a bunch of material to assimilate,
+
+okay, to digest here.
+
+So in our initialize method,
+
+boom, boom, boom, right here,
+
+maybe just after the stats,
+
+if our level is less than zero,
+
+it means that it is still locked.
+
+So we want to update the lock button,
+
+the unlock button, yep, and return.
+
+Otherwise, what we can do is unlock our container
+
+and later on, we are going to make the current stats blink
+
+if it should blink.
+
+So yep, let's try this out
+
+and then again, we can call it a lesson.
+
+That's enough for this one.
+
+All right, let's open up the panel. Perfect. Cool.
+
+Everything is working perfectly
+
+and the stats, the level of the player here,
+
+of the worker has been set up or loaded,
+
+which is really nice.
+
+So what should we do now?
+
+We should clamp the upgrade.
+
+We should update this button here
+
+to display the price of our boy.
+
+This one is not interactable
+
+because we don't have enough cash.
+
+This one is working perfectly
+
+and we've reduced 200 bucks from our wallet, which is nice. Okay, cool.
+
+Oh, we've got an issue here.
+
+Okay, for the speed.
+
+This one is already thingy.
+
+So are we going to have an issue here too or not? Nope, we don't.
+
+And we do for this one.
+
+Okay, so we will need to fix these two.
+
+Okay, so seems like we've got some work to do in the next one. See you there.

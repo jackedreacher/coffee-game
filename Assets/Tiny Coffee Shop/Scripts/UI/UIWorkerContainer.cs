@@ -42,7 +42,36 @@ public class UIWorkerContainer : MonoBehaviour
 
         InitializeButtonCallbacks();
         level = workerLevel;
-        UpdateButtonVisuals();
+        InitializeStats();
+
+        if (level < 0)
+        {
+            UpdateUnlockButton();
+            return;
+        }
+
+        Unlock();
+    }
+
+    private void InitializeStats()
+    {
+        Vector3Int statLevels = GetStatLevelsFromLevel(level);
+
+        stats[0].Initialize(workerData.MaxSpeed, statLevels.x);
+        stats[1].Initialize(workerData.MaxCapacity, statLevels.y);
+        stats[2].Initialize(workerData.MaxRevenue, statLevels.z);
+    }
+
+    // One shared level feeds three stat rows in column order:
+    // lvl1 -> speed, lvl2 -> capacity, lvl3 -> revenue, lvl4 -> speed, ...
+    // so each row gains a blob every 3 levels, offset by its position.
+    private Vector3Int GetStatLevelsFromLevel(int level)
+    {
+        int speedLevel = Mathf.CeilToInt(Mathf.Max(0f, level) / 3f);
+        int capacityLevel = Mathf.CeilToInt(Mathf.Max(0f, level - 1) / 3f);
+        int revenueLevel = Mathf.CeilToInt(Mathf.Max(0f, level - 2) / 3f);
+
+        return new Vector3Int(speedLevel, capacityLevel, revenueLevel);
     }
 
     public void Unlock()
@@ -53,7 +82,11 @@ public class UIWorkerContainer : MonoBehaviour
 
     public void LevelUp()
     {
+        int statIndex = level % stats.Length;
+        stats[statIndex].Increment();
+
         level++;
+
         UpdateButtonVisuals();
     }
 
