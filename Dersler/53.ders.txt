@@ -1,0 +1,203 @@
+Welcome back guys! In this lesson we are going to go on and add the logic for our three or other
+
+three methods in here. So let's start with the simple one, this one, because we already have
+
+half or actually 90% of the logic. So we basically want to do the same thing, like so, but the only
+
+difference here is that we want to reduce the currency that the player has to purchase this
+
+unlock actually. So for that we will need to do currencyManager.instance.addCurrency and add a
+
+negative amount, so minus. For the price here we will need to grab it from the worker data,
+
+so we can do something like workerDatas, the index is here, so we're going to do something
+
+like this actually. So let's grab these two, drop them here, and in there, workerDatas at
+
+workerIndex.unlockPrice. Yep, as simple as it gets. And this is going to work, why?
+
+Because our button's interactability is controlled by the UIWorkerContainer, so we can't
+
+click it if we don't have enough cache. If we have enough cache, it's interactable, so we can
+
+definitely apply this logic. Got it? And one thing we can ask ourselves here is why did we copy this
+
+code and paste it here? Isn't it better to just call this method, like so, with the UIWorkerContainer?
+
+Well, if we wouldn't have the video logic, of course it would have been better, but we need to copy
+
+the logic because in here, later on, we are going to have the video logic and so on. But yeah, I want
+
+to separate things to make it clearer that this is for the video and this is without the video,
+
+with cache, okay? So then I invite you to add your own logic if you want to add video ads.
+
+Okay, so let's now upgrade and video upgrade our boy here. And again, we are going to start with
+
+the free one because it's easier. Okay, so again, workerIndex, so I think we can grab it from here.
+
+Boom, now we've got the workerIndex. Then what we need to do is increment the level for that
+
+specific worker or add that workerIndex. So workerLevels at workerIndex dot nothing plus plus
+
+because this is an integer. But what we need to do is level up our container so that it updates
+
+its values and we will also need to level up the worker. So UIWorkerContainer, this one, dot
+
+levelUp. And we'll also need to level up the worker. So workerManager,
+
+workerManager dot levelUpWorker.
+
+And let's pass in the worker name, for instance. But what we could have done is passing the data
+
+or passing the index. Passing in the index might be tricky. So either passing the data
+
+or the worker name. In my case, I'm just going to pass in the worker name. So we can do something
+
+like UIWorkerContainer dot... Can we grab the data from here? No, we can't. So we are going
+
+to add a property for the worker name. Boom, like so. And finally, we can save. Okay, so we've got
+
+three things to add here. The levelUp method in the UIWorkerContainer, the levelUpWorker,
+
+and the worker name. Let's start with the worker name because that's the easiest one, actually.
+
+What did I do? No, let's hit ctrl z, maybe three times. Okay, because I think that I've
+
+used the wrong shortcut here. Generate property. Yeah, yeah, we need to generate the property.
+
+I don't know why it did not work. So this is going to be a string and this is going to return
+
+the workerData dot name. Perfect, that's done. Next, we need to level up our worker here. Oh,
+
+we've added the levelUpWorker method. I got it. So should we start with this one or the other one?
+
+This is a string, by the way. I think I want to start with... Let's start with the levelUp one
+
+just to keep working on the UI. So let's add this method. It's going to be a public method. Let's
+
+remove the exception. And inside of here, we are going to do multiple things, but the simplest
+
+ones are going to be a level plus plus. So increment the level and update the button visuals
+
+at some point, at the end of the logic. But now I think that we've reached the state where I need
+
+to explain how the blobs are going to work. So let's open our UIWorkerContainer. Okay,
+
+so we don't need to specify anything. Perfect. So let's tackle the speed section, for instance.
+
+We've got the HorizontalLayout group. We are going to add... Where are my... Yeah, workerUpgradeBlob.
+
+These blobs right here. So we are going to have blobs for the speed section,
+
+for the HorizontalLayout, for the capacity, and also for the revenue. But they are going to be
+
+spawned at runtime. We are not going to set these up. So at level 0, the player here has nothing
+
+updated or upgraded. Okay, let me just hide the locked overlay so that we can better spot things.
+
+If the worker is level 1, we are going to increase the speed. Level 2, increase the capacity. Level
+
+3, increase the revenue, and so on. Level 4, two blobs for the speed. So level 2 for the speed.
+
+Level 4, level 2 for the capacity, and so on. So it's like incrementing in a column fashion. Boom,
+
+boom, boom, and so on. Got it? This is how I've decided to do, but you can decide to do it in
+
+another way if you want. You've got the blobs here, you can decide to have a level for the speed,
+
+a level for the capacity, and one for the revenue. But I've decided to go with one level for the
+
+three, like in the original game actually, if I remember well. So yeah, let's jump right in. I'm
+
+just going to select all of these, boom, and remove them because they are going to be created at
+
+runtime again. So, level up here. We are going to need some stats, so we are definitely going to
+
+need some new scripts here. Let's create these. So at the top in here, we are going to create under
+
+maybe the stat visuals or with the settings. Yep, somewhere around here. Serialize field,
+
+private UI workers stat, and this is going to be an array. Let's call it stats. So let's now create
+
+this script here. Let's jump back to our scripts folder, maybe UI, and create a new MonoBehaviour
+
+script, UI workers stat. Boom! This script is going to be attached to the speed section,
+
+the capacity section, and the revenue section, like so. Now let's open the script. We are going to spawn
+
+the blobs, as I've told you, so we need a reference to the blobs along with the parent of these blobs.
+
+So header elements, serialize field, private UI upgrade blob. Again, it's going to be a script
+
+that will control the blob. Upgrade blob prefab. Let's add the parent, so transform
+
+blobs parent, like so. Okay, and of course we are going to keep track of our blobs, so private
+
+list of, oh come on, generic UI upgrade blob. Let's call this one blobs, equals new list of
+
+blobs. Okay, so let's quickly create this script so that we don't get an error. Boom, boom, and boom.
+
+Nice! Now we should be good. Okay, so once we've got this, we are going to initialize our workers
+
+stat. Again, we need to initialize it with the amount of blobs we want for each stat. So public
+
+void initialize. This is going to be initialized from somewhere else, from the UI worker container.
+
+Makes sense, because the UI worker container is the main parent or the manager of all of those
+
+elements, if it makes sense. Okay, so let's do that. We will need a maxBlobCount, so maxBlobCount,
+
+and we're also going to need an activeBlobCount. This is going to be determined by the level.
+
+So if we are level one, for instance, the speed is going to be active, the first blob of the speed
+
+stat. If we are level two, the first blob of the capacity stat is going to be active, and so on.
+
+So for the speed, it's going to be 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, and so on. So we start from 1,
+
+and then we increment it by 3, 1, 2, 3, 4, yeah, plus 3, plus 3, plus 3. Okay, so int activeBlobCount.
+
+Okay, so once we've got this, let's generate our blobs. From zero to maxBlobCount, we are going
+
+to generate the blob. So uiUpgradeBlob, blobInstance, equals, instantiates, our blobPrefab,
+
+where is the prefab? Oh, upgradeBlobPrefab, and under the blobs parent, of course, there you go.
+
+We also want to add it to the blobs list, so blobInstance, and finally, we are going to activate
+
+it if it needs to be activated. And by the way, activating a blob is simply going to be changing
+
+its color. So if activeBlobCount is greater than i, then we want to activate the blob. So blobInstance.activate.
+
+Okay, let's quickly add the method right now, later on, later on. Okay, and after that, what we can do
+
+is blinkingBlobIndex equals activeBlobCount. Yep, makes sense. We want to keep track of the
+
+current blob index, because later on, when incrementing or leveling up our boy here,
+
+where is it? Level up, yeah, right here, we want to hide or stop the blinking for the current blob
+
+that was blinking, just to indicate the player that, hey, we are at this level right here,
+
+and make the next one blink. So it will make sense. Let's add some settings in here.
+
+private integer blinkingBlobIndex. Okay, so let's create this method really quickly and
+
+jump back to our UI worker container, because I want to add more logic inside of here. Or actually,
+
+you know what? I think that it would make more sense to initialize our worker stats
+
+before leveling up. Yeah, yep, I think it's better. So in our initialize method in here,
+
+let's also initialize our blobs, blobs, okay? So we do update the button visuals. What we're also
+
+going to do here is initialize our stats. But for that, we need to know the max speed, max capacity,
+
+and max revenue of our worker. Uh-huh. So maybe it would make more sense to add the stats
+
+before that. I think it might make more sense. Yeah, definitely. So let's keep that for the
+
+next one. In the next one, we are going to start by adding the stats, the worker stats, and also
+
+initialize our blobs so that it makes sense, okay? See you in the next one.

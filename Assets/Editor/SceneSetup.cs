@@ -981,6 +981,106 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 53 (Worker Stats + Upgrade Blobs)")]
+    public static void SetupLesson53()
+    {
+        // 1. Put UIUpgradeBlob on the blob prefab and wire its Image
+        string blobPath = "Assets/Tiny Coffee Shop/Prefabs/UI/Worker Upgrade Blob.prefab";
+        GameObject blobAsset = AssetDatabase.LoadAssetAtPath<GameObject>(blobPath);
+        if (blobAsset == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Worker Upgrade Blob.prefab not found!", "OK");
+            return;
+        }
+
+        GameObject blobRoot = PrefabUtility.LoadPrefabContents(blobPath);
+
+        UIUpgradeBlob blobComp = blobRoot.GetComponent<UIUpgradeBlob>();
+        if (blobComp == null)
+            blobComp = blobRoot.AddComponent<UIUpgradeBlob>();
+
+        Image blobImage = blobRoot.GetComponentInChildren<Image>(true);
+        SerializedObject blobSo = new SerializedObject(blobComp);
+        AssignRef(blobSo, "blobImage", blobImage);
+        blobSo.ApplyModifiedProperties();
+
+        PrefabUtility.SaveAsPrefabAsset(blobRoot, blobPath);
+        PrefabUtility.UnloadPrefabContents(blobRoot);
+
+        UIUpgradeBlob blobPrefabComp = AssetDatabase
+            .LoadAssetAtPath<GameObject>(blobPath)
+            .GetComponent<UIUpgradeBlob>();
+
+        // 2. Put UIWorkerStat on the three stat sections of the container
+        string containerPath = "Assets/Tiny Coffee Shop/Prefabs/UI/UI Worker Container.prefab";
+        GameObject containerAsset = AssetDatabase.LoadAssetAtPath<GameObject>(containerPath);
+        if (containerAsset == null)
+        {
+            EditorUtility.DisplayDialog("Error", "UI Worker Container.prefab not found!", "OK");
+            return;
+        }
+
+        GameObject containerRoot = PrefabUtility.LoadPrefabContents(containerPath);
+
+        string[] sectionNames = { "Speed Section", "Capacity Section", "Revenue Section" };
+        UIWorkerStat[] statComps = new UIWorkerStat[sectionNames.Length];
+        string report = "";
+
+        for (int i = 0; i < sectionNames.Length; i++)
+        {
+            Transform section = FindDeepChild(containerRoot.transform, sectionNames[i]);
+
+            if (section == null)
+            {
+                report += "✗ " + sectionNames[i] + "\n";
+                continue;
+            }
+
+            UIWorkerStat statComp = section.GetComponent<UIWorkerStat>();
+            if (statComp == null)
+                statComp = section.gameObject.AddComponent<UIWorkerStat>();
+
+            statComps[i] = statComp;
+
+            // Blobs live next to the "Upgrade Label" inside the section's row
+            Transform blobsParent = section.childCount > 0 ? section.GetChild(0) : section;
+
+            SerializedObject statSo = new SerializedObject(statComp);
+            AssignRef(statSo, "upgradeBlobPrefab", blobPrefabComp);
+            AssignRef(statSo, "blobsParent", blobsParent);
+            statSo.ApplyModifiedProperties();
+
+            report += "✓ " + sectionNames[i] + " (blobs → " + blobsParent.name + ")\n";
+        }
+
+        // 3. Point the container's stats[] at those three sections
+        UIWorkerContainer container = containerRoot.GetComponent<UIWorkerContainer>();
+        if (container != null)
+        {
+            SerializedObject containerSo = new SerializedObject(container);
+            SerializedProperty statsProp = containerSo.FindProperty("stats");
+            statsProp.arraySize = statComps.Length;
+
+            for (int i = 0; i < statComps.Length; i++)
+                statsProp.GetArrayElementAtIndex(i).objectReferenceValue = statComps[i];
+
+            containerSo.ApplyModifiedProperties();
+        }
+
+        PrefabUtility.SaveAsPrefabAsset(containerRoot, containerPath);
+        PrefabUtility.UnloadPrefabContents(containerRoot);
+        AssetDatabase.SaveAssets();
+
+        Debug.Log("✅ Lesson 53: Worker stats + upgrade blobs wired!");
+        EditorUtility.DisplayDialog("Lesson 53 Done!",
+            "• Worker Upgrade Blob prefab → UIUpgradeBlob script + Image bağlandı\n" +
+            "• UI Worker Container'ın 3 stat bölümüne UIWorkerStat eklendi:\n" + report +
+            "• Container.stats[] → 3 bölüm bağlandı\n\n" +
+            "⚡ Blob'lar HENÜZ spawn olmuyor — Initialize() çağrısı 54. derste geliyor.\n" +
+            "⚡ Bu derste test edilebilir olan: paralı unlock butonu (para düşmeli).",
+            "OK");
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 51 (Worker Spawn Point)")]
     public static void SetupLesson51()
     {

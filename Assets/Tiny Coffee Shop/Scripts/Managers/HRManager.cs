@@ -34,7 +34,20 @@ public class HRManager : MonoBehaviour, IWantToBeSaved
 
     public void OnContainerUnlockButtonClicked(UIWorkerContainer uiWorkerContainer)
     {
+        // Deliberately not reusing the video version: that one will grow its own
+        // ad-watching logic, so keeping the two paths separate stays clearer
+        uiWorkerContainer.Unlock();
 
+        int workerIndex = uiWorkerContainer.transform.GetSiblingIndex();
+        workerLevels[workerIndex] = workerDatas[workerIndex].InitialLevel;
+
+        // Safe without a currency check: the button is only interactable
+        // when the player can afford it (see UIWorkerContainer.UpdateUnlockButton)
+        CurrencyManager.instance.AddCurrency(-workerDatas[workerIndex].UnlockPrice);
+
+        workerManager.SpawnWorker(workerDatas[workerIndex], workerLevels[workerIndex]);
+
+        Save();
     }
 
     public void OnContainerVideoUnlockButtonClicked(UIWorkerContainer uiWorkerContainer)
@@ -56,7 +69,13 @@ public class HRManager : MonoBehaviour, IWantToBeSaved
 
     public void OnContainerVideoUpgradeButtonClicked(UIWorkerContainer uiWorkerContainer)
     {
+        int workerIndex = uiWorkerContainer.transform.GetSiblingIndex();
+        workerLevels[workerIndex]++;
 
+        uiWorkerContainer.LevelUp();
+        workerManager.LevelUpWorker(uiWorkerContainer.WorkerName);
+
+        Save();
     }
 
     public void Display()

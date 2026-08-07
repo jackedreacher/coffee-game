@@ -19,6 +19,9 @@ public class UIWorkerContainer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI unlockPriceText;
     [SerializeField] private TextMeshProUGUI upgradePriceText;
 
+    [Header(" Stat Visuals ")]
+    [SerializeField] private UIWorkerStat[] stats;
+
     [Header(" Data ")]
     private HRManager hrManager;
     private WorkerDataSO workerData;
@@ -26,6 +29,8 @@ public class UIWorkerContainer : MonoBehaviour
     [Header(" Settings ")]
     // Negative means the worker hasn't been unlocked yet
     private int level;
+
+    public string WorkerName => workerData.Name;
 
     public void Initialize(HRManager hrManager, WorkerDataSO workerData, int workerLevel)
     {
@@ -44,6 +49,12 @@ public class UIWorkerContainer : MonoBehaviour
     {
         lockedOverlay.SetActive(false);
         level = Mathf.Max(workerData.InitialLevel, level);
+    }
+
+    public void LevelUp()
+    {
+        level++;
+        UpdateButtonVisuals();
     }
 
     private void InitializeButtonCallbacks()
