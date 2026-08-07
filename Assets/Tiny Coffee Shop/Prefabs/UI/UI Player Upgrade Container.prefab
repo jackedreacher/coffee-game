@@ -213,8 +213,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd5de440d8dc1d046b6dabbdb7261cd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIPlayerUpgradeContainer
-  titleText: {fileID: 2693898526964393783}
-  iconImage: {fileID: 837147362148789770}
+  nameText: {fileID: 2693898526964393783}
+  icon: {fileID: 837147362148789770}
+  blobsParent: {fileID: 7442438972611598444}
+  upgradeButton: {fileID: 6550737760118505391}
+  videoUpgradeButton: {fileID: 4618479517546801175}
+  upgradePriceText: {fileID: 3326950897515044693}
 --- !u!1 &2299992816857107836
 GameObject:
   m_ObjectHideFlags: 0
@@ -1264,6 +1268,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8957302896769244469, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
   m_PrefabInstance: {fileID: 4944740550338654900}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4618479517546801175 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 326262430955788963, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
+  m_PrefabInstance: {fileID: 4944740550338654900}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1001 &6804931043287966988
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1442,6 +1457,28 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8957302896769244469, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
   m_PrefabInstance: {fileID: 6804931043287966988}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3326950897515044693 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8089674995040008793, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
+  m_PrefabInstance: {fileID: 6804931043287966988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &6550737760118505391 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 326262430955788963, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
+  m_PrefabInstance: {fileID: 6804931043287966988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1001 &8695627234384748610
 PrefabInstance:
   m_ObjectHideFlags: 0

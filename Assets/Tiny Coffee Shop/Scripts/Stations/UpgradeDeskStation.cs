@@ -88,6 +88,23 @@ public class UpgradeDeskStation : MonoBehaviour, IWantToBeSaved
         }
     }
 
+    // Every stat shares the same pricing, so the level is all we need.
+    // Kept on the station rather than the card: it is game balance, not UI
+    public int GetUpgradePrice(int statLevel)
+    {
+        return statLevel * 50;
+    }
+
+    public void OnContainerUpgradeButtonClicked(UIPlayerUpgradeContainer container)
+    {
+        // Charging and levelling up land in the next lesson
+    }
+
+    public void OnContainerVideoUpgradeButtonClicked(UIPlayerUpgradeContainer container)
+    {
+        // Charging and levelling up land in the next lesson
+    }
+
     public void Save()
     {
         for (int i = 0; i < statLevels.Length; i++)

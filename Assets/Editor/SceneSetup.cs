@@ -2211,6 +2211,119 @@ public class SceneSetup
     }
 
     // =====================
+    // LESSON 61 - Wire the player upgrade card visuals
+    // =====================
+    [MenuItem("Cooked Fast/Setup Lesson 61 (Player Upgrade Card Visuals)")]
+    public static void SetupLesson61()
+    {
+        // 1. The blob prefab needs the script the container drives
+        string blobPrefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/Player Upgrade Blob.prefab";
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(blobPrefabPath) == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Player Upgrade Blob.prefab not found!", "OK");
+            return;
+        }
+
+        GameObject blobRoot = PrefabUtility.LoadPrefabContents(blobPrefabPath);
+
+        UIUpgradeBlob blobComp = blobRoot.GetComponent<UIUpgradeBlob>();
+        if (blobComp == null)
+            blobComp = blobRoot.AddComponent<UIUpgradeBlob>();
+
+        SerializedObject blobSO = new SerializedObject(blobComp);
+        SerializedProperty blobImageProp = blobSO.FindProperty("blobImage");
+        if (blobImageProp.objectReferenceValue == null)
+        {
+            Image blobImage = blobRoot.GetComponent<Image>();
+            if (blobImage == null)
+                blobImage = blobRoot.GetComponentInChildren<Image>(true);
+            blobImageProp.objectReferenceValue = blobImage;
+        }
+        blobSO.ApplyModifiedProperties();
+
+        PrefabUtility.SaveAsPrefabAsset(blobRoot, blobPrefabPath);
+        PrefabUtility.UnloadPrefabContents(blobRoot);
+
+        // 2. Wire the card's own references
+        string containerPrefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/UI Player Upgrade Container.prefab";
+        GameObject prefabRoot = PrefabUtility.LoadPrefabContents(containerPrefabPath);
+
+        UIPlayerUpgradeContainer containerComp = prefabRoot.GetComponent<UIPlayerUpgradeContainer>();
+        if (containerComp == null)
+            containerComp = prefabRoot.AddComponent<UIPlayerUpgradeContainer>();
+
+        // Buttons: the one named "Video" is the free/ad one, the other upgrades
+        Button upgradeButton = null;
+        Button videoUpgradeButton = null;
+
+        foreach (Button button in prefabRoot.GetComponentsInChildren<Button>(true))
+        {
+            if (button.name.Contains("Video"))
+                videoUpgradeButton = button;
+            else if (upgradeButton == null)
+                upgradeButton = button;
+        }
+
+        // The blobs' shared parent is whatever the first blob hangs off
+        Transform blobsParent = null;
+        UIUpgradeBlob firstBlob = prefabRoot.GetComponentInChildren<UIUpgradeBlob>(true);
+        if (firstBlob != null)
+            blobsParent = firstBlob.transform.parent;
+
+        // The price sits inside the upgrade button; the other label is the title
+        TextMeshProUGUI upgradePriceText = upgradeButton != null
+            ? upgradeButton.GetComponentInChildren<TextMeshProUGUI>(true)
+            : null;
+
+        TextMeshProUGUI nameText = null;
+        foreach (TextMeshProUGUI tmp in prefabRoot.GetComponentsInChildren<TextMeshProUGUI>(true))
+        {
+            if (tmp == upgradePriceText)
+                continue;
+
+            if (videoUpgradeButton != null && tmp.transform.IsChildOf(videoUpgradeButton.transform))
+                continue;
+
+            nameText = tmp;
+            break;
+        }
+
+        Image icon = null;
+        Transform iconT = FindDeepChild(prefabRoot.transform, "Icon");
+        if (iconT != null)
+            icon = iconT.GetComponent<Image>();
+
+        SerializedObject so = new SerializedObject(containerComp);
+        AssignRef(so, "nameText", nameText);
+        AssignRef(so, "icon", icon);
+        AssignRef(so, "blobsParent", blobsParent);
+        AssignRef(so, "upgradeButton", upgradeButton);
+        AssignRef(so, "videoUpgradeButton", videoUpgradeButton);
+        AssignRef(so, "upgradePriceText", upgradePriceText);
+        so.ApplyModifiedProperties();
+
+        PrefabUtility.SaveAsPrefabAsset(prefabRoot, containerPrefabPath);
+        PrefabUtility.UnloadPrefabContents(prefabRoot);
+
+        AssetDatabase.SaveAssets();
+
+        string missing = "";
+        if (nameText == null) missing += "\n  • Name Text";
+        if (icon == null) missing += "\n  • Icon";
+        if (blobsParent == null) missing += "\n  • Blobs Parent";
+        if (upgradeButton == null) missing += "\n  • Upgrade Button";
+        if (videoUpgradeButton == null) missing += "\n  • Video Upgrade Button";
+        if (upgradePriceText == null) missing += "\n  • Upgrade Price Text";
+
+        Debug.Log("✅ Lesson 61: player upgrade card wired!");
+        EditorUtility.DisplayDialog("Lesson 61",
+            missing == ""
+                ? "UIUpgradeBlob added to Player Upgrade Blob.prefab.\nAll six card references wired."
+                : "Wired what was found. STILL MISSING, assign by hand:" + missing,
+            "OK");
+    }
+
+    // =====================
     // HELPERS
     // =====================
     private static void SetSerializedFieldObject(GameObject obj, string componentType, string fieldName, Object value)

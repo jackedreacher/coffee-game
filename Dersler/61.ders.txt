@@ -1,0 +1,353 @@
+Welcome back guys! In this lesson, let's configure our UI player upgrade containers.
+
+So, let's open our script here. Boom! Let's go.
+
+So we've got the initialize method, but we still need to initialize our boys here.
+
+One thing is sure, we will definitely need the UnityEngine.UI library
+
+and TextMeshPro, ok?
+
+Because we've got text and images. Let's remove the system one for now.
+
+Ok, let's store everything we need to store.
+
+So this.station equals station.
+
+And the station here is this UpgradeDeskStation.
+
+So let's create the field, thank you. We can actually add an elements header.
+
+That's the first step.
+
+Then, let's also store the base stats.
+
+So this.baseStats equals playerBaseStats.
+
+We can actually rename that to baseStats, there you go.
+
+Let's create them, thank you.
+
+Maybe inside of data, yep, makes sense.
+
+This.statIndex equals statIndex.
+
+This is going to be super useful later on too, ok?
+
+And finally, the statLevel.
+
+So level equals statLevel.
+
+Nice! So, this is our basic setup.
+
+Now, we need to set up our elements.
+
+The images, the texts, and so on.
+
+So, let's do visuals maybe.
+
+We will have a private TextMeshProUGUI name text.
+
+We will have a private image.
+
+Let's call it image, or maybe icon, maybe if you want.
+
+We will have the BlobsParent, so transform BlobsParent.
+
+Of course, we will need to handle our Blobs.
+
+We will have the UpgradeButton, so
+
+BlobButtonUpgradeButton.
+
+We will also have the FreeUpgradeButton, or the VideoUpdateButton.
+
+So, VideoUpgradeButton.
+
+What else? The UpgradePrice.
+
+Yep, I think I'm going to drop it after these.
+
+TextMeshProUGUI, or UGUI.
+
+TextUpgradeTextPrice.
+
+Or UpgradePriceText. Yeah, I think it makes more sense.
+
+So, let's initialize these.
+
+Inside of here, let's start with the text.
+
+name text.text will be equal to the name of our base stats.
+
+So, if it is 0, it should be speed.
+
+If it is 1, it should be capacity. And so on.
+
+So, what we can do here is create a helper method.
+
+Maybe a getStatTitle, or a name, maybe, from the StatIndex.
+
+private string getStatName int StatIndex
+
+switch StatIndex
+
+Let's just check. return speed
+
+case 1, return capacity
+
+and finally, case 2, return revenue.
+
+And default, let's return nothing.
+
+OK, so now we've got our getStatName. Then, the icon.
+
+icon.sprite will be equal to the icon, depending on the StatIndex.
+
+Again, so getStatIcon with the StatIndex.
+
+And bear in mind that I'm improvising here.
+
+I did not do that while making the course.
+
+But it's actually quite straightforward.
+
+I'm sure that you can do that too. That's why I'm rushing a tiny bit.
+
+Let's just, again, have a switch statement.
+
+So, depending on the StatIndex here, if it's 0,
+
+I want to return, not this, but baseStats.speedIcon
+
+Inside of here, it's going to be the capacity, then revenue.
+
+So, capacity.icon
+
+Then revenue.icon
+
+And finally, we can just return null.
+
+For the default case.
+
+After that, the Blob's parent.
+
+Why or how are we going to determine
+
+or update the Blob's parent here?
+
+Well, we've got our StatLevel.
+
+So, we will need to activate all of the Blobs
+
+that are less or equal to the StatLevel.
+
+If we are level 0,
+
+all of them are going to be disabled.
+
+So, less or equal than StatLevel minus 1.
+
+So, let's do something like
+
+for i from 0 to level.
+
+And by the way, we want to make sure that level is between 0 and 5-ish.
+
+Yeah, level equals mathf.clump level
+
+or maybe we can just use the minimum between level and 5.
+
+Just a precaution here.
+
+We can do Blob's parent.getChild.index i.getComponentOfType
+
+UiUpgradeBlob.activate
+
+Okay? Make sense?
+
+Then we also want to set up our UpgradePriceText.
+
+So, UpgradePriceText.text
+
+equals getUpgradePriceText
+
+and this is going to be determined by the level, let's say,
+
+we are again, so you can decide how you want to stage that. Okay?
+
+So, the logic for this, in my opinion, should be handled by the Station.
+
+Okay? So, yeah, let's not do that actually.
+
+Let's do Station.getUpgradePrice
+
+and in our case, all of the upgrades will have the same upgrade prices
+
+depending on the level.
+
+So, we will just need to pass in the stat level. Okay?
+
+So, let's do this and in here we are going to do something simple, public string.
+
+No, I want this to be an integer
+
+and then I'm going to do a toString instead of here.
+
+So, toString. Yep.
+
+Because this is going to be used to check
+
+if the button should be interactable or not.
+
+So, let's just return stat level times 50. Okay? Cool.
+
+So, we are done for the upgradePriceText.
+
+We need to initialize our buttons now.
+
+So, initializeButtonCallbacks.
+
+But we also need to initialize our buttons
+
+like the interactability of the buttons.
+
+So, we should store the upgradePrice and use it too.
+
+So, let's grab this, drop it here. Okay.
+
+So, let's do this. Thank you.
+
+Now, let's handle the buttons and the upgradePriceText
+
+because if the level is actually greater or equal to 5,
+
+we've maxed out the upgradePrice.
+
+So, the upgradePriceText.text should be max
+
+if that's the case.
+
+If level is greater or equal to 5.
+
+Otherwise, we can do this. Yep.
+
+So, we are good for our upgradePriceText.
+
+Now, let's handle the upgradeButton.
+
+So, upgradeButton.interactable
+
+equals currencyManager.instance.hasEnoughCurrency
+
+to purchase the upgradePrice
+
+and level is less than 5
+
+like we've done earlier.
+
+So, no need to explain that again. Okay.
+
+Let's also handle our videoButton.
+
+So, videoUpgradeButton.gameObject.setActive
+
+level is less than 5.
+
+Otherwise, it should not be active.
+
+And videoUpgradeButton.interactable
+
+equals level is less than 5.
+
+For now, it's always going to be interactable
+
+if we can upgrade our stat.
+
+And finally, we can initialize our button callbacks. Finally.
+
+So, let's do this.
+
+Don't worry, we are going to refactor that
+
+because some of these will need to be updated. So, yeah.
+
+Let's do upgradeButton.onClick.addListener
+
+station.onContainerUpgradeButtonClicked
+
+and let's pass in this.
+
+So, the stat, the UIPlayerUpgradeContainer
+
+that we've clicked
+
+that is attached to the button, of course.
+
+And videoUpgradeButton.onClick.addListener
+
+station.onContainerVideoUpgradeButtonClicked this.
+
+Let's create this boy and this one.
+
+There is one thing that I forgot to add here.
+
+Inside of here, we want to add the
+
+sprite equals zeros thingy
+
+to display the cash icon
+
+just before the price.
+
+So, let's save this.
+
+Let's save this one too.
+
+Public and public.
+
+Okay. Thank you.
+
+So, for now, let's not tackle this.
+
+Let's check if we've got some errors in here or not.
+
+Normally, now, we should have
+
+our containers spawn
+
+and they should be configured.
+
+So, let's reference some of these stuff. Prefabs, UI,
+
+UIPlayerUpgradeContainer.
+
+Okay. So, the text is the title here.
+
+This is the icon, the blobs parent,
+
+the upgrade button,
+
+the video upgrade button
+
+and the upgrade price should be somewhere around here. Yeah, this one. Perfect.
+
+Let's save. Hit play or not.
+
+Yeah, I think we can.
+
+Alright, let's try and display the panel,
+
+speed, capacity and revenue.
+
+Yay! Everything is set up correctly. Awesome.
+
+So, in the next one, I think that we can go on
+
+and add some actions or logic
+
+to these buttons here, so that we can
+
+upgrade our player. Okay?
+
+See you in the next one.

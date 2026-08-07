@@ -15,6 +15,6 @@ MonoBehaviour:
   speed: 3
   capacity: 7
   revenue: 1.5
-  speedIcon: {fileID: 0}
-  capacityIcon: {fileID: 0}
-  revenueIcon: {fileID: 0}
+  speedIcon: {fileID: 21300000, guid: 0fe7f00ec02c796408606ac8a1c893a3, type: 3}
+  capacityIcon: {fileID: 21300000, guid: 6b463f56f8306a34c9f7d0ded57247b3, type: 3}
+  revenueIcon: {fileID: 21300000, guid: 04118f9d80c9aea42847f38222ecb4ec, type: 3}
