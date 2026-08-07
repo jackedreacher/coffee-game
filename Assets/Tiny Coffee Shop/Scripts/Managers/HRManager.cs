@@ -34,6 +34,26 @@ public class HRManager : MonoBehaviour
         }
     }
 
+    public void OnContainerUnlockButtonClicked(UIWorkerContainer container)
+    {
+
+    }
+
+    public void OnContainerVideoUnlockButtonClicked(UIWorkerContainer container)
+    {
+
+    }
+
+    public void OnContainerUpgradeButtonClicked(UIWorkerContainer container)
+    {
+
+    }
+
+    public void OnContainerVideoUpgradeButtonClicked(UIWorkerContainer container)
+    {
+
+    }
+
     public void Display()
     {
         cg.Show();

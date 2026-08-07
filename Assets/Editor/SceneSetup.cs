@@ -981,6 +981,87 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 50 (Wire UI Worker Container)")]
+    public static void SetupLesson50()
+    {
+        string prefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/UI Worker Container.prefab";
+        GameObject prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefabAsset == null)
+        {
+            EditorUtility.DisplayDialog("Error", "UI Worker Container.prefab not found!", "OK");
+            return;
+        }
+
+        GameObject root = PrefabUtility.LoadPrefabContents(prefabPath);
+
+        UIWorkerContainer container = root.GetComponent<UIWorkerContainer>();
+        if (container == null)
+            container = root.AddComponent<UIWorkerContainer>();
+
+        Transform workerIcon = FindDeepChild(root.transform, "Worker Icon");
+        Transform nameText = FindDeepChild(root.transform, "Name Text");
+        Transform lockedOverlay = FindDeepChild(root.transform, "Locked Overlay");
+        Transform unlockButton = FindDeepChild(root.transform, "Unlock Button");
+        Transform videoUnlockButton = FindDeepChild(root.transform, "Video Unlock Button");
+        Transform upgradeButton = FindDeepChild(root.transform, "Upgrade Button");
+        Transform videoUpgradeButton = FindDeepChild(root.transform, "Video Upgrade Button");
+
+        SerializedObject so = new SerializedObject(container);
+
+        AssignRef(so, "profileImage", workerIcon != null ? workerIcon.GetComponent<Image>() : null);
+        AssignRef(so, "nameText", nameText != null ? nameText.GetComponent<TextMeshProUGUI>() : null);
+        AssignRef(so, "lockedOverlay", lockedOverlay != null ? lockedOverlay.gameObject : null);
+
+        AssignRef(so, "unlockButton", unlockButton != null ? unlockButton.GetComponent<Button>() : null);
+        AssignRef(so, "videoUnlockButton", videoUnlockButton != null ? videoUnlockButton.GetComponent<Button>() : null);
+        AssignRef(so, "upgradeButton", upgradeButton != null ? upgradeButton.GetComponent<Button>() : null);
+        AssignRef(so, "videoUpgradeButton", videoUpgradeButton != null ? videoUpgradeButton.GetComponent<Button>() : null);
+
+        // Price texts live inside their respective buttons
+        AssignRef(so, "unlockPriceText", unlockButton != null ? unlockButton.GetComponentInChildren<TextMeshProUGUI>(true) : null);
+        AssignRef(so, "upgradePriceText", upgradeButton != null ? upgradeButton.GetComponentInChildren<TextMeshProUGUI>(true) : null);
+
+        so.ApplyModifiedProperties();
+
+        PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+        PrefabUtility.UnloadPrefabContents(root);
+        AssetDatabase.SaveAssets();
+
+        string report = "";
+        report += workerIcon != null ? "✓ Worker Icon\n" : "✗ Worker Icon\n";
+        report += nameText != null ? "✓ Name Text\n" : "✗ Name Text\n";
+        report += lockedOverlay != null ? "✓ Locked Overlay\n" : "✗ Locked Overlay\n";
+        report += unlockButton != null ? "✓ Unlock Button\n" : "✗ Unlock Button\n";
+        report += videoUnlockButton != null ? "✓ Video Unlock Button\n" : "✗ Video Unlock Button\n";
+        report += upgradeButton != null ? "✓ Upgrade Button\n" : "✗ Upgrade Button\n";
+        report += videoUpgradeButton != null ? "✓ Video Upgrade Button\n" : "✗ Video Upgrade Button\n";
+
+        Debug.Log("✅ Lesson 50: UI Worker Container references wired!");
+        EditorUtility.DisplayDialog("Lesson 50 Done!",
+            "UI Worker Container prefab referansları bağlandı:\n\n" + report +
+            "\n⚡ ✗ olanları prefab'ı açıp elle ata.\n" +
+            "⚡ Play'e bas: ilk worker FREE, diğerleri fiyatlı görünmeli.\n" +
+            "⚡ Yeterli parası olmayan butonlar pasif (gri) olmalı.",
+            "OK");
+    }
+
+    private static void AssignRef(SerializedObject so, string fieldName, Object value)
+    {
+        SerializedProperty prop = so.FindProperty(fieldName);
+        if (prop != null)
+            prop.objectReferenceValue = value;
+    }
+
+    private static Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent.GetComponentsInChildren<Transform>(true))
+        {
+            if (child.name == name)
+                return child;
+        }
+        return null;
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 49 (Worker Data + Containers)")]
     public static void SetupLesson49()
     {
