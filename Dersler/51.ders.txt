@@ -1,0 +1,243 @@
+Welcome back guys! In this lesson we are going to add some logic to the buttons
+
+we've added in the previous one. Okay, so these methods basically. So let's jump
+
+right in. We are going to tackle the first one which is the video unlock
+
+button clicked. This one is, I think it's the simplest one actually. So inside of
+
+here, what do we want to do? First off, we want to unlock the container, right? So
+
+uiWorkerContainer.unlock(). That's the first step. And by the way, I
+
+just want to rename this one to UI with a lowercase i. So let's also paste it
+
+here, here and here. Thank you! So this unlock method will simply unlock the
+
+container visually, but it's not going to do anything else. What we need to do is
+
+also unlock the worker or spawn the worker that is associated with that
+
+button. So we're gonna do multiple things first. First off, we want to grab
+
+the worker index that we need to unlock. So int workerIndex is going to be
+
+equals to uiWorkerContainer.transform.getSiblingIndex. So get
+
+sibling index. Perfect! After we've got this, we can set the level of this worker
+
+to the initial level we've set up inside of here. If you remember well, we've got
+
+for instance, Angelo here is level 0 at start. Jawed is level 2 and so on.
+
+So we want to initialize that. This will help us set up the stats later on. So
+
+here is what we're gonna do. We are first going to store the levels somewhere
+
+around here. So private IntegerArray workerLevels. Okay, so now we need to
+
+initialize these. workerLevels equals new IntegerArray of length workerDatas.length.
+
+There you go. Boom, boom, boom! So now we can use these. So we can do workerLevels
+
+at index workerIndex will be equals to workerDatas at index workerIndex.initialLevel.
+
+So we basically grab the initial level from the data of this worker. Okay, so we've
+
+got our two things here. We've unlocked the uiWorkerContainer, but we need to
+
+spawn the worker. And spawning the worker is not going to be done in the HR
+
+manager. We're actually going to do that in the worker manager because it makes
+
+more sense, in my opinion. But if you want to spawn them in here, please feel free
+
+to do so. So inside of here, what we're going to do is workerManager. And of
+
+course, we will need a reference to the workerManager. But .spawnWorker. And
+
+let's pass in the data of the worker along with its level or his level. So
+
+workerDatas at index workerIndex. And let's also pass in the workerLevels at
+
+index workerIndex. Perfect. So now the workerManager will be aware of the data
+
+of the worker he needs to spawn along with its level. Okay. But now that I'm
+
+thinking about it, this might be optional because we've got the initial level of
+
+the worker in our data. So maybe this is not relevant anymore. Anyway, we can
+
+tackle this later on. We can actually just remove it from the arguments if we
+
+don't need it or if we can grab it from here. Okay. So the last thing we need to
+
+do here is saving. So let's just add a comment. Okay. So let's save everything
+
+because we've unlocked a new worker. So now let's add these two things here. The
+
+first obvious thing we can add is the workerManager, I think. Yeah. Let's add
+
+it. So let's do something like serializeField, private workerManager,
+
+workerManager. Oh, come on. There you go. So now what we need to do is add the
+
+spawnWorker method. I can just do Alt-Enter. Boom. And we've added it. Thank
+
+you. So let's open it. Public void spawnWorker. And this is going to be the
+
+worker level. Okay. So now that we've got this, we can definitely spawn our worker.
+
+So worker is going to be equals to instantiate workerDataSO.prefab, I guess.
+
+Yeah, it was prefab. We want to spawn it at the worker spawn position. It's a
+
+position that we're going to set up in here. So worker spawn, let's say, point.position,
+
+quaternion.identity, and it will be a child of the workerManager. So let's
+
+create the worker spawn point really quickly. Boom, boom, boom. Yeah, maybe
+
+here. So serializeField, private transform, worker spawn point. There you
+
+go. We can now jump back to our method, which is right here. Thank you. Now that
+
+we've got our worker, we can give it its name. So worker.name equals workerDataSO.name
+
+with a capital N here. Really important. Otherwise, it's going to grab the name of
+
+the scriptable object. After that, we can add it to the list of workers. So
+
+workers.addWorker. Thank you. That way we can handle that worker and give it tasks.
+
+And finally, we can initialize the workers. So worker.initialize. And let's
+
+pass in the workerManager along with the workerLevel. So why is it important to
+
+initialize it? Well, we need to initialize the speed, the capacity, and the
+
+revenue. So these stats need to be initialized. And now that I'm thinking
+
+about it, the workerLevel argument here or parameter is really important because
+
+later on, we will upgrade our workers, right? And upgrading them means that they
+
+will have different workerLevels than the initial one. So this is relevant,
+
+actually. It makes sense. Okay. All right. So should we initialize the worker to
+
+prevent having issues or in our HRManager here at the unlock? I think we
+
+are going to follow this path here. Let's initialize the worker. So let's press
+
+Alt-Enter and generate the method. Public. Let's remove the exception.
+
+workerManager and workerLevel. Of course, we are going to need to store the
+
+workerManager somewhere. So private workerManager, workerManager. Thank you.
+
+So inside of here, we can do this.workerManager equals workerManager.
+
+Okay. We are also going to store the level. So this.level equals workerLevel.
+
+And let's actually rename this one level. Thank you. Now we can create our
+
+level field somewhere around here. Do we have some settings? No, we don't. So
+
+let's do settings. private int level. Okay. So now what we can do is store the
+
+level. And finally, we are going to set up our stats. But now let's just create
+
+the method, but let's not implement it. Okay. We're going to implement it later
+
+on. First off, what I want to do is stick with our canvas stuff. So unlocking the
+
+UI worker container here. So let's create this method. Boom. Public. Let's remove
+
+the exception again and see what we need to do inside of here. So the first thing
+
+we are going to do inside of here is disable the locked overlay. So locked
+
+overlay.setActive false. Perfect. So now we know that the button has been
+
+unlocked or the container has been unlocked. Sorry. And set up our level. So
+
+the level here is going to be the worker level. So let's create a field one more
+
+time for this settings. private int level. And this level is going to be really
+
+important, again, when we are going to upgrade the worker and updates. One
+
+second. Boom. The blobs that we are going to add here. In the next one, I think.
+
+Yeah. In the next lesson, we are going to add blobs. So we've got our upgrade level
+
+and we've got our player upgrade blob. No. Worker upgrade blob. These ones. Boom,
+
+boom, boom, boom, boom. That will help us visualize the worker level. Okay. Don't
+
+worry. We are going to tackle this later on. And I'm going to explain the logic
+
+for that too. Okay. So level, level, level. Level equals mathf.theMaximumBetween
+
+theWorkerData.initialLevel and level. Okay. Because at start, our level here is
+
+going to be minus one. It's going to be negative. Negative means that the worker
+
+has not been unlocked yet. So now that we've got this, we can actually add the
+
+level inside of the initialize method here. Maybe before, yeah. Somewhere around
+
+here. After initializing the callbacks. Level equals worker level. Is it negative
+
+at first? Let's do shift F12. Okay. Initialize with the worker levels. Worker
+
+level equals zero. I think here, yeah. We need to set that to minus one. Yeah.
+
+Makes more sense. Because again, minus one is going to mean locked. But this
+
+value is going to set up in the load method. So inside of here, we can simply
+
+do worker levels at the index i. Okay. Perfect. So what point have we reached
+
+now? If we jump back to Unity, we should not have any more errors, which is
+
+perfect. Do we need to specify anything? Nope. So at this point, we are going to
+
+be able to unlock the worker. Oh, we need to specify the worker manager here. But
+
+we will need to be able to unlock the worker watching a video. But we can't
+
+watch a video, so it's going to be free. Okay. But let's first specify our worker
+
+spawn point here. What we can do is not turn it... should it be a child of this?
+
+Because the workers are going to be children of the worker manager. So let's
+
+not do that. So worker spawn point. And let's not turn it into a child of the
+
+worker manager here. Okay. So let's switch to a top view, drop it here. Maybe we can
+
+use an icon here. Yep. The gizmos are selected. Okay. Yep. We can spot it. So
+
+let's spawn the workers somewhere around here. Okay. Let's try that. So worker
+
+manager. Let's reference our spawn point and hit play. Okay. So I should have
+
+hidden the HR canvas to be honest. So let's hide it. Try and trigger it. Perfect.
+
+Let's unlock this boy. Yeah, here we go. And now this is free. So this button is
+
+the upgrade, but not the unlock one. So we've got the first worker working. Let's
+
+unlock the other ones. Okay. There you go. Three and four. So now we've got
+
+Angelo, Kai, Jawed, Matteo and Ethan working in our restaurant. Yay. Well done.
+
+But if we exit and come back, of course, they're not going to be here. So we need
+
+to save and load our stuff again. Let's do that in the next one. I think it's the
+
+most logical step to follow here. Okay. So last thing, but not least, let's just
+
+hide our HR canvas. Perfect. So see you in the next one.

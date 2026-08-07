@@ -2,7 +2,7 @@
 	"data": {
 		"JoystickPlayerController_LAST_POSITION": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": -5.29882956,\r\n\t\t\"y\": 5.96046448E-08,\r\n\t\t\"z\": 10.69086\r\n\t}\r\n}"
+			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": -4.69416046,\r\n\t\t\"y\": 1.1920929E-07,\r\n\t\t\"z\": 6.615272\r\n\t}\r\n}"
 		},
 		"LockedElement_b4b634b2-c18a-4f6f-88b9-a88ae44afeacLockedElementCurrentPrice": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -10,7 +10,7 @@
 		},
 		"ProgressionManager_ProgressionIndex": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": 2\r\n}"
+			"value": "{\r\n\t\"myObject\": 3\r\n}"
 		},
 		"LockedElement_b4b634b2-c18a-4f6f-88b9-a88ae44afeac": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -18,13 +18,37 @@
 		},
 		"CurrencyManager_currency": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": 515\r\n}"
+			"value": "{\r\n\t\"myObject\": 459\r\n}"
+		},
+		"LockedElement_eb325192-867f-4c4e-ab1f-435ed43a5833LockedElementCurrentPrice": {
+			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+			"value": "{\r\n\t\"myObject\": 2\r\n}"
+		},
+		"LockedElement_eb325192-867f-4c4e-ab1f-435ed43a5833": {
+			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+			"value": "{\r\n\t\"myObject\": true\r\n}"
+		},
+		"LockedElement_1522c248-6d48-423e-a7a3-a686b995aaa9LockedElementCurrentPrice": {
+			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+			"value": "{\r\n\t\"myObject\": 2\r\n}"
+		},
+		"LockedElement_1522c248-6d48-423e-a7a3-a686b995aaa9": {
+			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+			"value": "{\r\n\t\"myObject\": true\r\n}"
 		},
 		"LockedElement_8ed4282d-b7d7-4d87-b069-30bbddd16729LockedElementCurrentPrice": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
 			"value": "{\r\n\t\"myObject\": 1\r\n}"
 		},
 		"LockedElement_8ed4282d-b7d7-4d87-b069-30bbddd16729": {
+			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+			"value": "{\r\n\t\"myObject\": true\r\n}"
+		},
+		"LockedElement_d4b24cbf-4f3e-4886-8d55-db3b2565a16cLockedElementCurrentPrice": {
+			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+			"value": "{\r\n\t\"myObject\": 1\r\n}"
+		},
+		"LockedElement_d4b24cbf-4f3e-4886-8d55-db3b2565a16c": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
 			"value": "{\r\n\t\"myObject\": true\r\n}"
 		}
