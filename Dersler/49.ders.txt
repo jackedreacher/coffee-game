@@ -1,0 +1,209 @@
+Welcome back, guys! In this lesson, we are going to spawn and configure, hopefully,
+
+these worker containers. Or maybe we might split that into lessons. Anyway, let's go on and see
+
+what point we can reach. Okay, so this currently is a prefab, which is really cool. We want this
+
+to be a prefab. The only thing that we are missing here is a script that will help us
+
+configure this prefab. So here's what we're going to do. Let's remove these from here, okay?
+
+We are going to create a script and attach it to this one. So let's create the script
+
+somewhere around here. Maybe UI. Yep, makes sense. And let's call this one UIWorkerContainer.
+
+There you go. Okay, let's now open the script. So it should be in prefabs,
+
+UIUIWorkerContainer or WorkerUI. Yeah, I think we're going to rename that one UIWorkerContainer.
+
+So UIWorkerContainer. There you go. Nice. So this is the script, again, that we are going to use to
+
+configure this prefab. Next, we want to open our HRManager. And here is what we are going to do.
+
+The HRManager is going to be responsible for spawning these containers. These containers
+
+will then help us determine or upgrade the workers and so on. But it means that the HRManager
+
+needs to be aware of the WorkerContainer, the UIPrefab. It needs to be aware of some data
+
+about our workers. And it will also need to load their levels because, come on, you know that we
+
+can upgrade the workers. So the HRManager is going to be responsible for multiple things.
+
+Okay, so let's do things one by one. Let's open our HRManager. Inside of here, we first want to
+
+add a reference to our prefab. So under elements here, we can do something like serializeField,
+
+private UIWorkerContainer. Let's call this one UIWorkerContainerPrefab. Yep, something like that.
+
+We've got the prefab, but we also need to know where we want to spawn these. So transform.
+
+Let's call this one WorkerContainersParent. Okay, and now in our start method, we're going to do
+
+things step by step. Of course, we're going to load some data later on and so on, but
+
+for now, let's do things one by one. So let's call generateWorkerContainers. There you go.
+
+Let's create that method maybe somewhere around here. GenerateWorkerContainers. Thank you.
+
+And inside of here, what do we want to do? Well, we've got our prefab, we've got the parent,
+
+so we can definitely instantiate that, but we need some data. How many workers are we going
+
+to have? Well, we are going to store that in an array. An array of what? You know if you've taken
+
+one of my previous courses that it's a good practice to store data in scriptable objects.
+
+So this is exactly what we are going to do. So inside of here, we can do something like data,
+
+and you know what? I'm going to do settings for this one too. Yep, thank you. So data
+
+serialized field, private. Now this is going to be an array, so workerDataSO for scriptable object,
+
+workerDatas. Okay, so we will need to create that one. And yep, let's do that right away,
+
+actually. So let's open back Unity and create our scriptable object. So we can drop it in
+
+a new folder, scriptable objects, right click, create a new MonoBehaviour script, workerDataSO.
+
+And quick tip here, I shouldn't have created this from a MonoBehaviour script, because what we can
+
+do now in Unity is right click, create, scripting, scriptable object script. This is way faster
+
+because it gives you the boilerplate code for scriptable objects. So I'm just going to do that
+
+actually. So let's just copy the name here, delete it, right click, create a new scripting,
+
+scriptable object script. Boom, like so. And as you can see, we've got the create asset menu
+
+attribute set up for us, basically. So let's now open our workerData scriptable object. Each one
+
+of our workers is going to have multiple settings or data attached to them. So let's start with the
+
+basics, settings. Each one of them is going to have a name, so name, like so. And of course we
+
+need the new keyword. Then we are also going to have an unlock price, so private int unlockPrice.
+
+After that we can have an initial level, so serializeField private int initialLevel. Some
+
+of the workers are initially going to be level zero, some of them are initially going to be
+
+level four, and so on. And of course you can play with these values. After that we are going
+
+to need a profilePicture, so profilePicture. There you go. For the stats, we can tackle
+
+the stats later on, I think. So let's tackle them later on. We can simply have a new
+
+field for our prefab, so the worker prefab. If you ever want your workers to be different, maybe some
+
+of your workers can be blue, some of them can be white, some of them can be black, and so on. You
+
+decide here. I think that in our case we might use one worker prefab and then change its name and so
+
+on. So let's do gameplay, something like that maybe. SerializeField private GameObject prefab.
+
+Perfect. Actually it's going to be a worker, not a GameObject. There you go. So now we've got some
+
+fields for our thingies, our settings. Let's create some properties. So I'm just going to
+
+drop that in a new region. Properties and region. There you go. Thank you. Okay, so public string
+
+name. Let's return the name. Public int unlockPrice. Let's return the unlockPrice.
+
+Public int initialLevel. Let's return the initial level. And finally sprite
+
+profilePicture. Let's return the profilePicture. And inside of here we need a
+
+majuscule in French, an uppercase. Okay, so we will also need the workers. So public worker
+
+worker or maybe prefab to keep some consistency. And we should be good to go. Perfect. So now we've
+
+got our basic data set up. Of course later on I just told you that we are going to add the maxSpeed,
+
+the maxCapacity and the maxRevenue. But for now let's keep it kind of simple.
+
+Okay, okay, okay. We've got our data. I think that we can now create our scriptable objects
+
+and link them to the HR manager. All right, so we need the prefab. First off let's lock our HR
+
+manager here. Prefabs, UI, UIWorkerContainer. The parent is going to be the content that we've got
+
+here from the viewport and from the worker container scroll. And the worker datas need to
+
+be created. So I'm just going to grab a floating window for all this because I'm going to create
+
+the worker datas here. So let's do create new folder data. Let's do new folder again for the
+
+workers. And finally we can create our voice. So where is my scriptable objects? WorkerDataSO.
+
+Let's call the first one 00Angelo. Grab it and drop it here. Perfect. So we can give it a name.
+
+Angelo. Unlock price can be, I don't know, maybe 100 initial level 0. And the profile picture.
+
+Do we have a profile picture or not? Worker. Yeah, this one. All of our workers are going to
+
+have the same profile picture for now. Let's not over complicate things. So again what we can do
+
+is turn that into a properties window. Can we? Yeah, properties. Thank you. Because now I want
+
+to do something else. I want to grab the prefab which is in prefabs, characters and worker.
+
+Boom. Right here. Perfect. So now our first worker is set up. We can close this window,
+
+close this one and we can add more later on. But now let's jump back to our HR manager.
+
+Now that we've got our worker datas or at least one worker, we can definitely generate the
+
+containers. So let's loop through our datas. So from i equals 0 to workerDatas.length.
+
+What we want to do is first off create the container of course. So UiWorkerContainer,
+
+let's call this one. Container instance is going to be equals to instantiate
+
+the UiWorkerContainer prefab under the parent. Perfect. Then now that we've got our container,
+
+we definitely want to configure it with the name, the profile picture, the levels and so on. We
+
+don't have the levels yet in here but we will have them later on. So what we can do is container
+
+instance.initialize and pass in this. So the HR manager. This is going to be important whenever
+
+we click one of the buttons. WorkerDatas at index i so that the container is aware of its data.
+
+And finally the worker level that we are going to configure later on. So int worker level equals
+
+zero for now. And finally we can keep track of our worker containers. So let's create a list of
+
+these private list. Of course we need the system.collections.generic. UiWorkerContainers
+
+workerContainers equals new list of UiWorkerContainers and add it. So add container instance.
+
+Thank you. So now we should be able to create our containers. So we just need to initialize them.
+
+Let's quickly add this method public void HRManager and so on. We can remove the exception here
+
+and jump back to Unity to give it a shot. So if we select our HRManager, everything is set up.
+
+Let's hit play and we should have our first container. Boom! Perfect! And you've just seen
+
+that the buttons did match the other buttons that they are supposed to match. Perfect! So that's the
+
+first step. Now what we can do before jumping to the next one because I think it's good for now.
+
+So in the next one we will need to configure this container with the data that we've just passed.
+
+So let's add more workers right now. So data, workers, Angelo. Let's add 01 underscore
+
+Kai. Let's add Jawed. Let's add Matteo. And finally maybe Ethan. Okay. So let's rename this Kai.
+
+This one can be like 200 bucks and initial level 1, initial level 2. This is Jawed.
+
+300 bucks. Okay. Bim bam boom. This is Matteo.400 bucks. Level 4, I guess. Nope, 3. Okay, thank you.
+
+And finally Ethan. I think I'm at 500 bucks and level 4. Okay. Boom boom. Yeah, should be good.
+
+Nice! So now we can reference these. Let's lock the inspector. Yeah, there you go. Let's now hit play.
+
+Perfect! So we've got 12345. I can't scroll down because the HRCanvas is not
+
+intractable and so on. So now I can. So 12345. We've got our 5 workers.

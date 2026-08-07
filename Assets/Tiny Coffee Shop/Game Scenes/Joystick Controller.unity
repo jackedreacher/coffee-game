@@ -460,7 +460,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &89275287
 MonoBehaviour:
@@ -475,7 +475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 0
-  m_VerticalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &89275288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -514,6 +514,7 @@ GameObject:
   - component: {fileID: 108778488}
   - component: {fileID: 108778487}
   - component: {fileID: 108778486}
+  - component: {fileID: 108778489}
   m_Layer: 0
   m_Name: HR Canvas
   m_TagString: Untagged
@@ -608,6 +609,18 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
+--- !u!225 &108778489
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108778484}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &111135886
 GameObject:
   m_ObjectHideFlags: 0
@@ -1709,7 +1722,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.3535534, y: -0.3535534, z: 0.14644663, w: 0.85355335}
-  m_LocalPosition: {x: 17.516987, y: 24.74874, z: -22.014011}
+  m_LocalPosition: {x: 17.530203, y: 24.74874, z: -22.000795}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9920,6 +9933,51 @@ Transform:
   - {fileID: 1016678651}
   m_Father: {fileID: 1527018232}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1757446843
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1757446844}
+  - component: {fileID: 1757446845}
+  m_Layer: 0
+  m_Name: HR Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1757446844
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1757446843}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2124703505}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1757446845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1757446843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994d8465010c71d4f9a245492077682f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HRManager
+  cg: {fileID: 108778489}
 --- !u!1 &1757884472
 GameObject:
   m_ObjectHideFlags: 0
@@ -9948,7 +10006,7 @@ Transform:
   m_GameObject: {fileID: 1757884472}
   serializedVersion: 2
   m_LocalRotation: {x: 0.3535534, y: -0.3535534, z: 0.14644663, w: 0.85355335}
-  m_LocalPosition: {x: 17.516987, y: 24.74874, z: -22.014011}
+  m_LocalPosition: {x: 17.530203, y: 24.74874, z: -22.000795}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10266,6 +10324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1773051004}
   - component: {fileID: 1773051005}
+  - component: {fileID: 1773051006}
   m_Layer: 0
   m_Name: HR Desk
   m_TagString: Untagged
@@ -10314,6 +10373,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.1132393, y: 1.72, z: 1.7804289}
   m_Center: {x: 0.24768591, y: 1, z: -0.28896666}
+--- !u!114 &1773051006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1773051003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c4567b0b9aead94fb7c10ce37f98833, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeskStation
+  hrManager: {fileID: 1757446845}
 --- !u!1 &1798602199
 GameObject:
   m_ObjectHideFlags: 0
@@ -11144,7 +11216,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 10
   m_Viewport: {fileID: 801227572}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
@@ -11307,7 +11379,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1961790858}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1757446845}
+        m_TargetAssemblyTypeName: HRManager, Assembly-CSharp
+        m_MethodName: Hide
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1961790858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12927,6 +13011,7 @@ Transform:
   - {fileID: 424107834}
   - {fileID: 318500672}
   - {fileID: 1072324023}
+  - {fileID: 1757446844}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2128507178

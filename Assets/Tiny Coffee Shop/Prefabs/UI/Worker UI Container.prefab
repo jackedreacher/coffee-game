@@ -266,7 +266,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38.85
+  m_fontSize: 33.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1724,7 +1724,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 20
+  m_Spacing: 29
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -2149,7 +2149,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8089674995040008793, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_fontSize
-      value: 63.15
+      value: 37.65
       objectReference: {fileID: 0}
     - target: {fileID: 8957302896769244469, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_Pivot.x
@@ -2486,7 +2486,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8089674995040008793, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_fontSize
-      value: 63.15
+      value: 40.5
       objectReference: {fileID: 0}
     - target: {fileID: 8089674995040008793, guid: 0bd3af7be407f2742aead2ba845bcfdd, type: 3}
       propertyPath: m_spriteAsset

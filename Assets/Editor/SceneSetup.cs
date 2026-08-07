@@ -981,6 +981,126 @@ public class SceneSetup
             "OK");
     }
 
+    [MenuItem("Cooked Fast/Setup Lesson 49 (Worker Data + Containers)")]
+    public static void SetupLesson49()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        // 1. Add UIWorkerContainer to the prefab asset
+        string prefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/Worker UI Container.prefab";
+        GameObject prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefabAsset == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Worker UI Container.prefab not found!\nRun Setup Lesson 47 first.", "OK");
+            return;
+        }
+
+        GameObject prefabRoot = PrefabUtility.LoadPrefabContents(prefabPath);
+        if (prefabRoot.GetComponent<UIWorkerContainer>() == null)
+            prefabRoot.AddComponent<UIWorkerContainer>();
+        PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
+        PrefabUtility.UnloadPrefabContents(prefabRoot);
+
+        // 2. Create WorkerDataSO assets
+        string dataFolder = "Assets/Tiny Coffee Shop/Data";
+        if (!AssetDatabase.IsValidFolder(dataFolder))
+            AssetDatabase.CreateFolder("Assets/Tiny Coffee Shop", "Data");
+
+        string workersFolder = dataFolder + "/Workers";
+        if (!AssetDatabase.IsValidFolder(workersFolder))
+            AssetDatabase.CreateFolder(dataFolder, "Workers");
+
+        Sprite profilePicture = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Tiny Coffee Shop/Sprites/Worker_Icons/Worker_Icon.png");
+        Worker workerPrefabComp = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Tiny Coffee Shop/Prefabs/Characters/Worker.prefab")?.GetComponent<Worker>();
+
+        (string fileName, string workerName, int price, int level)[] workersToCreate = new (string, string, int, int)[]
+        {
+            ("00_Angelo", "Angelo", 100, 0),
+            ("01_Kai", "Kai", 200, 1),
+            ("02_Jawed", "Jawed", 300, 2),
+            ("03_Matteo", "Matteo", 400, 3),
+            ("04_Ethan", "Ethan", 500, 4),
+        };
+
+        System.Collections.Generic.List<WorkerDataSO> createdDatas = new System.Collections.Generic.List<WorkerDataSO>();
+
+        foreach (var w in workersToCreate)
+        {
+            string assetPath = workersFolder + "/" + w.fileName + ".asset";
+            WorkerDataSO data = AssetDatabase.LoadAssetAtPath<WorkerDataSO>(assetPath);
+
+            if (data == null)
+            {
+                data = ScriptableObject.CreateInstance<WorkerDataSO>();
+                AssetDatabase.CreateAsset(data, assetPath);
+            }
+
+            SerializedObject so = new SerializedObject(data);
+            so.FindProperty("name").stringValue = w.workerName;
+            so.FindProperty("unlockPrice").intValue = w.price;
+            so.FindProperty("initialLevel").intValue = w.level;
+            if (profilePicture != null)
+                so.FindProperty("profilePicture").objectReferenceValue = profilePicture;
+            if (workerPrefabComp != null)
+                so.FindProperty("prefab").objectReferenceValue = workerPrefabComp;
+            so.ApplyModifiedProperties();
+
+            createdDatas.Add(data);
+        }
+
+        AssetDatabase.SaveAssets();
+
+        // 3. Wire HR Manager
+        GameObject hrManagerObj = GameObject.Find("HR Manager");
+        if (hrManagerObj == null)
+        {
+            EditorUtility.DisplayDialog("Error", "HR Manager not found!\nRun Setup Lesson 48 first.", "OK");
+            return;
+        }
+
+        UIWorkerContainer prefabComp = prefabAsset.GetComponent<UIWorkerContainer>();
+        SetSerializedFieldObject(hrManagerObj, "HRManager", "uiWorkerContainerPrefab", prefabComp);
+
+        // Content = HR Canvas > Worker Container Scroll > Viewport > Content
+        GameObject hrCanvas = GameObject.Find("HR Canvas");
+        Transform content = hrCanvas != null
+            ? hrCanvas.transform.Find("Worker Container Scroll/Viewport/Content")
+            : null;
+
+        if (content != null)
+        {
+            SetSerializedFieldObject(hrManagerObj, "HRManager", "workerContainersParent", content);
+
+            // Remove any leftover manually-placed preview instances (HRManager spawns its own at runtime)
+            for (int i = content.childCount - 1; i >= 0; i--)
+            {
+                Transform child = content.GetChild(i);
+                if (child.name == "Worker UI Container")
+                    Object.DestroyImmediate(child.gameObject);
+            }
+        }
+
+        SerializedObject hrManagerSo = new SerializedObject(hrManagerObj.GetComponent<HRManager>());
+        SerializedProperty workerDatasProp = hrManagerSo.FindProperty("workerDatas");
+        workerDatasProp.arraySize = createdDatas.Count;
+        for (int i = 0; i < createdDatas.Count; i++)
+            workerDatasProp.GetArrayElementAtIndex(i).objectReferenceValue = createdDatas[i];
+        hrManagerSo.ApplyModifiedProperties();
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 49: Worker Data + Containers wired!");
+        EditorUtility.DisplayDialog("Lesson 49 Done!",
+            "Oluşturulan/bağlanan yapı:\n" +
+            "• Worker UI Container prefab → UIWorkerContainer script eklendi\n" +
+            "• 5 adet WorkerDataSO (Data/Workers/): Angelo, Kai, Jawed, Matteo, Ethan\n" +
+            "• HR Manager → prefab, parent (Content), workerDatas[] bağlandı\n" +
+            "• Content içindeki eski önizleme kartı temizlendi\n\n" +
+            "⚡ Play'e bas, HR Desk'e git, panel içinde 5 worker kartı görünmeli.",
+            "OK");
+    }
+
     [MenuItem("Cooked Fast/Setup Lesson 48 (HR Manager + Desk Station)")]
     public static void SetupLesson48()
     {
