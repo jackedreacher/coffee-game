@@ -32,6 +32,12 @@ public class HoldFoodAbility : MonoBehaviour
         if (plateau.IsFull)
             return;
 
+        // The activeInHierarchy guard matters: while the plateau is off its
+        // FoodPositions have not run Awake, so the emptiness check lies
+        if (plateau.gameObject.activeInHierarchy &&
+            !plateau.CanAccept(station.SpawnableFoodPrefab))
+            return;
+
         if (grabFoodTimer < canGrabFoodDelay)
         {
             grabFoodTimer += Time.deltaTime;

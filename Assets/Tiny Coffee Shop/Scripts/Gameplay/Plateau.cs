@@ -73,6 +73,18 @@ public class Plateau : MonoBehaviour
         }
     }
 
+    // An empty plateau takes anything; after that it is one food type only,
+    // otherwise the stack mixes cups and pizzas and the spacing goes wrong
+    public bool CanAccept(SpawnableFood food)
+    {
+        FoodPosition firstFullPosition = GetFirstFullPosition();
+
+        if (firstFullPosition == null)
+            return true;
+
+        return firstFullPosition.Peek().GetType() == food.GetType();
+    }
+
     // Mirrors Pop: whoever asks gets the food Pop would hand out next
     public SpawnableFood Peek()
     {

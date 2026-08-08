@@ -2,7 +2,7 @@
 	"data": {
 		"JoystickPlayerController_LAST_POSITION": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": 0.186734989,\r\n\t\t\"y\": 4.172325E-07,\r\n\t\t\"z\": 1.63597322\r\n\t}\r\n}"
+			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": 18.7942753,\r\n\t\t\"y\": -6.735325E-06,\r\n\t\t\"z\": 12.4870539\r\n\t}\r\n}"
 		},
 		"LockedElement_b4b634b2-c18a-4f6f-88b9-a88ae44afeacLockedElementCurrentPrice": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -18,7 +18,7 @@
 		},
 		"CurrencyManager_currency": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": 185\r\n}"
+			"value": "{\r\n\t\"myObject\": 245\r\n}"
 		},
 		"LockedElement_8ed4282d-b7d7-4d87-b069-30bbddd16729LockedElementCurrentPrice": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -74,7 +74,7 @@
 		},
 		"CashFile_d6588455-54b9-4e66-aebe-942568148147": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": 0\r\n}"
+			"value": "{\r\n\t\"myObject\": 27\r\n}"
 		}
 	}
 }
