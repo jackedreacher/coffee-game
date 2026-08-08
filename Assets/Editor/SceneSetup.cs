@@ -2324,6 +2324,94 @@ public class SceneSetup
     }
 
     // =====================
+    // LESSON 62 - Player stats handler + upgrade wiring
+    // =====================
+    [MenuItem("Cooked Fast/Setup Lesson 62 (Player Stats Handler)")]
+    public static void SetupLesson62()
+    {
+        var scene = EditorSceneManager.GetActiveScene();
+
+        GameObject player = null;
+        foreach (var go in Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (go.name == "Player" && go.GetComponent<PlayerController>() != null)
+            {
+                player = go;
+                break;
+            }
+        }
+
+        if (player == null)
+        {
+            EditorUtility.DisplayDialog("Error", "Player (with a PlayerController) not found in the scene!", "OK");
+            return;
+        }
+
+        // CharacterStats should already be there from Lesson 57
+        CharacterStats characterStats = player.GetComponent<CharacterStats>();
+        if (characterStats == null)
+        {
+            characterStats = player.AddComponent<CharacterStats>();
+
+            BaseCharacterStatsSO playerBaseStats = AssetDatabase.LoadAssetAtPath<BaseCharacterStatsSO>(
+                "Assets/Tiny Coffee Shop/Data/Base Stats/Player Base Stats.asset");
+
+            SerializedObject csSO = new SerializedObject(characterStats);
+            csSO.FindProperty("baseStats").objectReferenceValue = playerBaseStats;
+            csSO.ApplyModifiedProperties();
+        }
+
+        PlayerStatsHandler handler = player.GetComponent<PlayerStatsHandler>();
+        if (handler == null)
+            handler = player.AddComponent<PlayerStatsHandler>();
+
+        // The player's plateau is the same one HoldFoodAbility carries
+        Plateau plateau = player.GetComponentInChildren<Plateau>(true);
+        if (plateau == null)
+        {
+            HoldFoodAbility holdFood = player.GetComponent<HoldFoodAbility>();
+            if (holdFood != null)
+                plateau = holdFood.Plateau;
+        }
+
+        SerializedObject handlerSO = new SerializedObject(handler);
+        AssignRef(handlerSO, "characterStats", characterStats);
+        AssignRef(handlerSO, "playerController", player.GetComponent<PlayerController>());
+        AssignRef(handlerSO, "plateau", plateau);
+        handlerSO.ApplyModifiedProperties();
+
+        // Hand the station its reference to the handler
+        UpgradeDeskStation station = null;
+        foreach (var s in Object.FindObjectsByType<UpgradeDeskStation>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            station = s;
+            break;
+        }
+
+        if (station == null)
+        {
+            EditorUtility.DisplayDialog("Error", "UpgradeDeskStation not found!\nRun Setup Lesson 60 first.", "OK");
+            return;
+        }
+
+        SerializedObject stationSO = new SerializedObject(station);
+        AssignRef(stationSO, "playerStatsHandler", handler);
+        stationSO.ApplyModifiedProperties();
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        Debug.Log("✅ Lesson 62: player stats handler wired!");
+        EditorUtility.DisplayDialog("Lesson 62",
+            "PlayerStatsHandler added to the Player and wired to:\n" +
+            "  • CharacterStats\n" +
+            "  • PlayerController\n" +
+            (plateau != null ? "  • Plateau\n" : "  • Plateau -> NOT FOUND, assign by hand\n") +
+            "\nUpgradeDeskStation now references the handler.",
+            "OK");
+    }
+
+    // =====================
     // HELPERS
     // =====================
     private static void SetSerializedFieldObject(GameObject obj, string componentType, string fieldName, Object value)

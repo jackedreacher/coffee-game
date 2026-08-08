@@ -1,0 +1,3 @@
+alta basılı tut canvas imageıne strech verirken ki bütün ekranı kaplasın image.
+
+assetlerin en altında game data var onu sil ve edit e bas en yukarıdan ordan da clear allplayer prebvs şeçeneğini seç 

@@ -1,0 +1,195 @@
+Welcome back guys! In this lesson, we are finally going to upgrade our player.
+
+So let's jump right in. We've set up our UI in the previous lessons, so now what we can do is open
+
+our upgrade desk station and set up these two boys right here. Let's start with the free one actually.
+
+So first things first, we want to grab the index of this container here. So let's not rename it
+
+container. I think we can give... yeah, I think I'm going to call it container. It makes more sense,
+
+to me at least. If it doesn't make sense to you, please do not rename it. So int containerIndex
+
+is going to be equal to container.transform.getSiblingIndex, like we've done in the HR
+
+Manager. Again, statLevels at containerIndex++. We increment the level. We level up the container,
+
+so container.levelUp. We need to handle the stats, so handle the stats for the player.
+
+And finally, we are going to save. Okay, really simple. And the other one is going to be quite
+
+similar, so we can just copy, paste. The only difference is that we are going to remove some
+
+money from the player. It's not free. Okay, so we need to calculate the price just before updating
+
+the level in here. So let's do int upgradePrice equals getUpgradePrice and pass in the level,
+
+so container.statLevels at containerIndex. Now that we've got the upgrade price, we can
+
+remove the cash from the CurrencyManager. Instance.addCurrency minus upgradePrice,
+
+like so. Thank you, and I think that we are now good to go. We just need to level up the container,
+
+boom, and then we can handle the stats from the player's perspective. So let's level up in here.
+
+We can do level++ and update our visuals. So let's do, maybe before leveling up, we want to
+
+update the blobs. So getChildAtIndexLevel.getComponent of type UIUpgradeBlob.activate
+
+level++ and finally update our button visuals. So updateButtonVisuals.
+
+Okay, let's update the button visuals in here. So what we will need to do is basically
+
+to edit the upgrade price, the interactability of our boys. So let's grab these.
+
+Yeah, but we need the upgrade price too. So let's do loop. Okay, let's drop this here,
+
+and what we can do now is refactor a tiny bit. Oh, we need the stat level. The stat level is
+
+actually our level, right? Yep. So updateButtonVisuals here can be
+
+like so, and we are saving some space. Awesome. Okay, we are now done in here. We've got level up.
+
+We need to update our station here and save our data. Yeah, we haven't saved our data yet.
+
+So let's do for i from 0 to statLevels.length. We're just going to do cgl.save this. The key
+
+is going to be statLevelKey plus i, and let's save statLevels at index i, like so. Perfect.
+
+So we can now save here, here, and nowhere else. So the last thing to do here is going to be
+
+handling the stats for the player. Otherwise, I think we are now set up regarding our UI.
+
+So let's try that. Do we need to set up anything?
+
+I don't think so. So let's hit play. Alrighty, righty. Let's collect this pile of cash here.
+
+Yeah, I'm rich. Yay. So we've got the capacity, speed, and revenue. Why is it zero? Because
+
+it is level zero. So another condition we can add is if the value is zero, we can simply write
+
+three. Otherwise, if you don't want that when calculating the price here, you can do statLevel
+
+plus one to start at 50, or maybe have a base price here. Okay, so let's just exit and come
+
+back to check if it has been applied. Okay, so yeah, everything is starting at 50 bucks now.
+
+So speed and no reference exception. What's that? Come on.
+
+We can't find the child at index zero. Did we add the blob script or not yet?
+
+Oh, that's better. Okay, but we are not going to add them here. We're going to add it to the
+
+prefab. Yeah, it's cleaner. So prefab, blob. Here is my renderer. Blink color, this one. We could
+
+have used the worker one, but I wanted to have something different here just in case. So let's
+
+hit play. Okay, let's upgrade. Boom. Yeah, that's way better. Okay, perfect. So now we are able to
+
+save. Nice. Max. So let's exit and come back, see if it has been saved or not. And it has. Perfect.
+
+And the free button is also working perfectly. Really cool. So now we need to apply these changes
+
+to the player stats. And for that, we are going to have a character stats added to the player,
+
+like we've done for the workers, along with a player stats handler or something like that. We
+
+can actually add the logic to the player controller, but you decide here where you want to
+
+add the logic. Okay. I think we still have plenty of time to do that in this lesson. So let's tackle
+
+that. Let's select our player. Let's add the character stats. Boom. Thank you. So we need some
+
+base stats. Base stats. Here they are. Thank you. Character stats. Okay, okay, okay. So now we need to
+
+add another script that will handle these stats. So for that, we can do player,
+
+create a new script, player stats handler. So let's again select our player, add the player
+
+stats handler, and open it. So basically, this player stats handler is going to be a bridge
+
+between, oh my God, the different components of our player and the stats. So we definitely need
+
+a reference to our player stats. Serialize field, character stats, not character controller,
+
+character stats. Let's also add a reference to our player controller.
+
+And finally, a reference to our plateau for the capacity.
+
+Perfect. So let's remove these and add a method to update the stats. So public void
+
+update stats or update self. We can actually call it update self, because if we call it update,
+
+it's going to interfere with the MonoBehaviour's update method. So int stat levels,
+
+stat levels. We can do character stats.setupStats with the stat levels. Oh, it's a Vector3 int.
+
+So we can do new Vector3 int with stat levels at index zero, stat levels at index one,
+
+and stat levels at index two. Nice. Finally, playerController.setMoveSpeed.
+
+Okay, and let's pass in the characterStats.speed. We can also do plateau.updateMaxCapacity,
+
+and the capacity here should be characterStats.capacity. Yep, perfect. And no need to
+
+update the revenue, because it's already updated in the character stats here. Remember,
+
+we use that directly in our food serving station. Where is it? Character stats right here. So no
+
+need to update that in the handler. Okay, so now that we've got this, we've got a way to update
+
+our stats. We're just going to reference the scripts that we need. So this one,
+
+the joystick playerController, and finally our plateau, which is right here. Thank you.
+
+Open again our upgrade desk station, which is here. And at some point, somewhere around here
+
+in the load method, for instance, we want to update our stats. So we need a reference to
+
+our playerStats handler. I think I'm going to add it as the first element.
+
+PlayerStats handler. Okay, let's grab it.
+
+Up right here. Update self with the stat levels. We are also going to update it after
+
+leveling up our stat. And finally, right here. Okay, I think we're good to go. Not yet. There
+
+are two things we still need to do. Remember in the HR manager, we've subscribed to the updated
+
+event of our currency manager. And also when displaying, we actually call onCurrencyUpdated
+
+to update our buttons, to update the button visuals here. So we kind of need to do the same
+
+thing inside of here. So let's jump back to our upgrade desk station. Okay, let's subscribe to
+
+that event. So inside of the awake method, let's also add the onDestroyCurrencyManager.Updated.
+
+onCurrencyUpdated. We can also unsubscribe.
+
+Like so. Boom. Let's grab it, drop it at the bottom. But actually I'm going to grab it from
+
+here, you know what? Yep. Let's do this, this, and this. So we don't have any worker container
+
+inside of here, of course. We've got the upgrade containers. And we want to call the updateButton
+
+visuals method, which is private. So we need to turn it into a public one and update the buttons.
+
+Perfect. So that's the first step. We also need to do that when displaying. So let's do
+
+onCurrencyUpdated. Thank you. Now we should be good. So let's jump back to Unity and try this out.
+
+Let's select our desk-ish. Where is our desk? Right here. We need the PlayerStatsHandler.
+
+So let's reference our player. Boom. And hit play. Alrighty, righty. I think that we are now faster.
+
+And we are, right? Feels like we are faster. What about our plateau? 12. Okay. Let's grab cups.
+
+Yeah, we can definitely grab more than seven cups here.
+
+From 0 to 11 equals 12. Yeah, definitely. Perfect. So we can now upgrade our players successfully,
+
+which is super cool. Awesome. So what's the next step now? In the next one, I think that we can
+
+safely start working on our pickup station. See you in the next one.
+
+

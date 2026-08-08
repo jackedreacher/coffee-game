@@ -23,6 +23,10 @@ public class UIPlayerUpgradeContainer : MonoBehaviour
     // The player's cards ship with five blobs each
     private const int maxLevel = 5;
 
+    // The station indexes statLevels by this. Deliberately NOT the sibling
+    // index: any extra child under the parent would silently shift every card
+    public int StatIndex => statIndex;
+
     public void Initialize(UpgradeDeskStation station, BaseCharacterStatsSO baseStats, int statIndex, int statLevel)
     {
         this.station = station;
@@ -74,7 +78,20 @@ public class UIPlayerUpgradeContainer : MonoBehaviour
         }
     }
 
-    private void UpdateButtonVisuals()
+    public void LevelUp()
+    {
+        // Fill the blob the level is about to consume, then move on
+        if (level < blobsParent.childCount &&
+            blobsParent.GetChild(level).TryGetComponent(out UIUpgradeBlob blob))
+            blob.Activate();
+
+        level++;
+
+        UpdateButtonVisuals();
+    }
+
+    // Public so the station can refresh affordability when the wallet changes
+    public void UpdateButtonVisuals()
     {
         bool isMaxed = level >= maxLevel;
         int upgradePrice = station.GetUpgradePrice(level);

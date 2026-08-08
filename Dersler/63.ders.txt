@@ -1,0 +1,217 @@
+Welcome back guys! In this lesson we are going to start adding our pizza station.
+
+So let's jump right in! Okay, so we already know how to unlock stuff, we all already know about
+
+progression, so what I'm gonna do is simply add the pizza station right away. No need for
+
+progression, we need to save time here. So the right wall here should be a bit less taller than
+
+this one. Same thing for the the wall inside of our office zone. So let's do something like this.
+
+Okay, I'm actually going to zoom in a tiny bit, maybe let's zoom on this one. Okay, top view,
+
+thank you. So let's diminish its size to something like that. Yeah,
+
+they should be somewhere around the same point. Okay, somewhere around here. Then we want to
+
+duplicate one of these two walls, so let's duplicate the other one. Which one was it?
+
+This one. Let's duplicate it, rotate it by 90 degrees. Okay, let's press V but W first
+
+to move it to this vertex maybe. Okay, is it good? Yep, that's perfect actually. Do we have some
+
+weird overlap or Z-fighting? No, I don't think so, so that's nice. We can move this tree a tiny bit
+
+to the left. Okay, I'm just going to create a zone for our pizza zone actually. Okay,
+
+so this tree should be moved or deleted. Thank you. We are going to duplicate this wall again.
+
+Let's do this. Don't worry, these walls are going to be children of another game object.
+
+Well, now I just want to set this up. Okay, let's duplicate this, press W again,
+
+keep pressing V. Maybe we can move this vertex to somewhere around here and
+
+I don't like it. I need to move it there. Yeah, okay, that's better. Let's zoom in a tiny bit.
+
+Nope, like so and like so. Okay, so customers are going to come in from, yeah, I think I'm
+
+going to make them come in from somewhere around here and exit this way. So keep in mind that this
+
+pizza station is going to be a pickup station and you can create or use it to serve cars like in the
+
+original game instead of customers. So let's just duplicate this ground right here. Can I select it?
+
+I don't want to select the UI, I want to select the ground. Let's duplicate it, move it somewhere
+
+around here and arrange it as we wish. Okay, so it should be a bit higher..005, thank you.
+
+Okay, so something like that should be decent. Let's remove the gizmos. This is due to the
+
+selection. Yep, I think it's decent. Come on, we are not here to make things pretty. We just want
+
+to make them work and then you are way better than me at design, I'm sure. So after that, what we can
+
+do is create a new game object and it's not going to be a child of the office zone. So let's rename
+
+it pizza zone. Okay, perfect. So now we can just reset its transform, create a new game object that
+
+is going to hold the walls. All right, how many walls do we have? One, two, three, three walls.
+
+Yeah, boom, like so. All right, so then you can enable it, disable it, but of course we also need
+
+the ground by the way. So let's do ground. Okay, but I told you that we were not going to
+
+unlock it, so let's keep it active. All right, so now our boys are able to go through here and walk
+
+in this zone, which is perfect. So the first thing we are going to do is create a station to spawn
+
+the pizzas. We already have one to spawn the other things. Where is it? Service ground stations.
+
+Okay, coffee station locked element. Yep, we don't want this one to be locked, so I'm just going to
+
+grab the coffee station, duplicate it, drop it as a child of the pizza zone and call it pizza station.
+
+Cool, so now we can move it to somewhere around here. Okay, so this is where our workers will come
+
+to grab some pizzas. Okay, this spot right here. So we don't want to spawn cups, we want to spawn pizzas.
+
+So let's now hit play and see how it goes. What is going to happen now? I'm going to unlock some stuff.
+
+Okay, so we are already getting some errors here. Pizza station, the variable renderer of pizza has
+
+not been assigned. Oh, didn't we assign it? I think we did not. Anyway, so here is it. Here is the filter.
+
+We need the dirty mesh, so dirty pizza. Okay, and for the offsets, should we keep these values or not?
+
+Let's duplicate the pizza, grab this value, drop it here. Yeah, that's decent. Okay, nice, I like it.
+
+So let's hit play again. All right, so I'm just going to unlock stuff really quickly. Boom, here's the
+
+first thing. We'll need the workers, by the way. So let's switch to the main scene. The pizzas have been
+
+spawned. I can grab them normally, but I'm going to show you something here. Let's not add the workers.
+
+I'm going to try and grab some pizzas. Okay, thank you. Perfect. So now let's try and drop them
+
+on the coffee cashier station, and as you can see, it is working. This is really bad. We don't want
+
+this to happen. This cashier station should only serve coffee cups, not pizzas. So there is one
+
+thing we need to do. We need to check if the food that we are trying to drop corresponds to the food
+
+that is supposed to be served. Okay, so we don't have any reference to the food that is supposed to
+
+be served right now, so we should add it first. So for that, we are going to open our
+
+cashier station's scripts. Where is it? Right here. The food serving station. Let's open it. Do we have
+
+a reference to the food? Yeah, here is the food served prefab. Where is it used? Create task request.
+
+Okay, so for the workers only. Fine. So when do we drop food inside of here? I think it is
+
+linked to the food drop zone. Food drop zone. Okay, push. Who is calling the push method in here?
+
+Uh-huh, the handle in drop zone, the hold food ability. Okay, so the conditions are is dirty, is
+
+full and so on. We need to check another condition. We need to check if the food that is in the plateau
+
+is the food that is supposed to be collected by the drop zone. Okay, so for that, let's jump back
+
+to our food serving station. In the awake method, we want to call the drop zone and set the accepted
+
+food to the food that is supposed to be served. So the food served prefab, this one. Once it's done,
+
+we can create this method. Okay, no thank you NVIDIA. Okay, so let's hit do public, remove this.
+
+Okay, and add a reference to the accepted food. So let's do something like serialize field,
+
+private spawnable food, accepted food. We will definitely need to check it somewhere else. So
+
+let's add a reference to it, spawnable food, accepted food, or maybe not, wait. Anyway, we are
+
+going to do that, but maybe we are not going to use it. Okay, and in here, set accepted food this,
+
+that accepted food equals food served prefab, and we can actually rename this accepted food. Perfect.
+
+So let's apply some OOP principles in here. We are going to check if we can accept the food,
+
+and we are not going to grab the food from here actually. So can accept food, spawnable food,
+
+spawnable food, like so. And in here, we want to compare is this food the same as this one
+
+that is supposed to be accepted or not. We're just going to return spawnable food dot get type
+
+equals accepted food dot get type. Okay, perfect. So now we can use this additional condition in our
+
+hold food ability, if I remember well. Yeah, handle in drop zone right here. So somewhere around here
+
+maybe, just before the delay, if the drop zone, or should we increment the delay? Yeah, I think we are
+
+still going to increment the delay. That's fine. If the drop zone dot can accept the food
+
+that we are holding, so we need to ask the plateau for that. Plateau dot peak. Can we do that? No,
+
+we can't, but we are going to be able to do so. So let's just return. Let's add the peak method
+
+in here. Okay, public, and the plateau should just return us the spawnable food that is at the top.
+
+So let's just return. I think it's food position, get last food position dot peak.
+
+Yeah, last food pushed in here. Yeah. So let's do last food pushed. Or additionally,
+
+what you can do is get first full position dot peak. Okay.
+
+And inside of here, we can add again the peak method, public,
+
+peak. Okay, food position. And what we can do is just return the food to return. Yeah,
+
+the food here. So return food. Thank you. All right. So at this point, we can try this out,
+
+I think. So let's hit play. All right. So let's go grab some pizzas.
+
+Okay. Thank you. Let's try and drop them in the cashier station, the coffee one.
+
+And we can still do that. Interesting. Why? Our cashier station has the cup food here. Okay.
+
+So it's this one. Interesting. What about the drop zone? If we switch to debug mode,
+
+cup, it should accept cup. Okay. So why can we still drop pizzas in here?
+
+Food drop zone. Okay. Can accept food. Oh, I think I forgot to add a, yeah. If we can accept food.
+
+Yeah. Boom. I forgot again. Come on, these exclamations. So now I can't drop coffee cups,
+
+right? Yeah, I can't. So I've added the opposite logic. So let's try that again,
+
+really quickly. Come on, hurry up, my boy. Hey. And I can drop them, but can I collect cups?
+
+I can't collect cups. Really cool. I can still drop, wait, wait, wait. I can't collect cups
+
+because the plateau looks full. Yeah. So let's drop these. Oh, I can't drop these in the trash.
+
+Didn't we add the logic for that?
+
+Uh-huh. Here is the trash. Okay. I'm inside of it. Okay. Trash.
+
+On trigger enter hold dish ability has dishes. Oh yeah. We can only drop dishes. We can't,
+
+right now we can't put clean food in the trash. So yeah, it makes sense. Let me try that one more
+
+time. We are going to try and grab maybe two or three pizzas and try and come to grab some cups
+
+and see if it works. Or we can do it the other way around, actually. So let's grab two cups.
+
+Thank you. So now we should not be full. One, two, three, four, five. Yeah, it's Tapseel coffee.
+
+So we've got five cups. Can we grab two pizzas or not? If that's the case, we need to edit our code.
+
+And of course that's the case. But there is another issue. Now the plateau considered that
+
+the spacing between the elements should be the pizza spacing. Yep. So we've got cups and pizzas.
+
+Yay. Awesome. So we need to add more logic to our code now that we've added pizzas.
+
+You see? So in the next one, let's prevent this from happening and keep going,
+
+finding more issues with this new type of food. OK, see you in the next one.

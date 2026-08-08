@@ -5,6 +5,7 @@ using UnityEngine;
 public class UpgradeDeskStation : MonoBehaviour, IWantToBeSaved
 {
     [Header(" Elements ")]
+    [SerializeField] private PlayerStatsHandler playerStatsHandler;
     [SerializeField] private CanvasGroup upgradePanel;
     [SerializeField] private UIPlayerUpgradeContainer upgradeContainerPrefab;
     [SerializeField] private Transform upgradeContainersParent;
@@ -26,6 +27,19 @@ public class UpgradeDeskStation : MonoBehaviour, IWantToBeSaved
     private void Awake()
     {
         upgradePanel.Hide();
+
+        CurrencyManager.updated += OnCurrencyUpdated;
+    }
+
+    private void OnDestroy()
+    {
+        CurrencyManager.updated -= OnCurrencyUpdated;
+    }
+
+    private void OnCurrencyUpdated()
+    {
+        for (int i = 0; i < upgradeContainers.Count; i++)
+            upgradeContainers[i].UpdateButtonVisuals();
     }
 
     private void Start()
@@ -65,6 +79,9 @@ public class UpgradeDeskStation : MonoBehaviour, IWantToBeSaved
     private void Display()
     {
         upgradePanel.Show();
+
+        // The wallet may have changed while the panel was closed
+        OnCurrencyUpdated();
     }
 
     // Public because the panel's close button calls it
@@ -90,19 +107,40 @@ public class UpgradeDeskStation : MonoBehaviour, IWantToBeSaved
 
     // Every stat shares the same pricing, so the level is all we need.
     // Kept on the station rather than the card: it is game balance, not UI
+    // Max(1, ..) so the very first upgrade isn't free
     public int GetUpgradePrice(int statLevel)
     {
-        return statLevel * 50;
+        return Mathf.Max(1, statLevel) * 50;
     }
 
     public void OnContainerUpgradeButtonClicked(UIPlayerUpgradeContainer container)
     {
-        // Charging and levelling up land in the next lesson
+        int containerIndex = container.StatIndex;
+
+        // Priced off the level before the increment, so it matches the button
+        int upgradePrice = GetUpgradePrice(statLevels[containerIndex]);
+
+        // Safe without a currency check: the button is only interactable
+        // when the player can afford it
+        CurrencyManager.instance.AddCurrency(-upgradePrice);
+
+        statLevels[containerIndex]++;
+
+        container.LevelUp();
+        playerStatsHandler.UpdateSelf(statLevels);
+
+        Save();
     }
 
     public void OnContainerVideoUpgradeButtonClicked(UIPlayerUpgradeContainer container)
     {
-        // Charging and levelling up land in the next lesson
+        int containerIndex = container.StatIndex;
+        statLevels[containerIndex]++;
+
+        container.LevelUp();
+        playerStatsHandler.UpdateSelf(statLevels);
+
+        Save();
     }
 
     public void Save()
@@ -124,5 +162,8 @@ public class UpgradeDeskStation : MonoBehaviour, IWantToBeSaved
         }
 
         GenerateUpgradeContainers();
+
+        // Apply the saved levels to the player right away, not just on upgrade
+        playerStatsHandler.UpdateSelf(statLevels);
     }
 }
