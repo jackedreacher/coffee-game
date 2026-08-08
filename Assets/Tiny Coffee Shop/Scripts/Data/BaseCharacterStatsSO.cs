@@ -5,7 +5,8 @@ public class BaseCharacterStatsSO : ScriptableObject
 {
     [Header(" Stats ")]
     [SerializeField][Range(1, 4)] private float speed;
-    [SerializeField][Range(7, 14)] private int capacity;
+    // Starts at 1 so a hand-serving game can limit the player to a single item
+    [SerializeField][Range(1, 14)] private int capacity;
     [SerializeField][Range(1, 2)] private float revenue;
 
     [Header(" UI ")]

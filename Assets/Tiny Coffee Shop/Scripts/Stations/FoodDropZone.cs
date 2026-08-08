@@ -11,6 +11,9 @@ public class FoodDropZone : MonoBehaviour
     // Serialized only to make it readable in the inspector while debugging
     [SerializeField] private SpawnableFood acceptedFood;
 
+    // OrderCounter reads this to learn what each of its zones sells
+    public SpawnableFood AcceptedFood => acceptedFood;
+
     public bool IsFull => plateau.IsFull;
     public int FoodCount => plateau.GetFoodCount();
     public Vector3 WorkerTargetPosition => workerTargetPoint.position;

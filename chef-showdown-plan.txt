@@ -1,0 +1,378 @@
+CHEF SHOWDOWN — PROTOTIP PLANI
+Hazırlanma tarihi: 2026-08-08
+Kaynak proje: Cooked Fast (Udemy kursu, Lesson 1-65)
+
+Bu doküman asset toplama + Mixamo + Animator hattının planı. Oyun tasarımı
+kararları PHASE 0'da, kod tarafı PHASE 5'te.
+
+
+================================================================
+PHASE 0 — KİLİTLENEN KARARLAR
+================================================================
+
+0.1 OYUN TİPİ: Bölüm bazlı meydan okuma
+    Rakip AI yok. Her level bir hedef veriyor (X sipariş / Y saniye),
+    performansa göre yıldız. Kendi rekorunla yarışıyorsun.
+    SONUÇ: Rakip AI yazılmayacak. Level/sipariş/skor sistemi çekirdek iş.
+
+0.2 PLATFORM: Mobil. Kontrol şeması A/B DENENECEK.
+    Cooked Fast'teki joystick ve portrait UI aynen taşınır.
+
+    AÇIK KARAR — joystick mi, tıkla-git mi:
+    PlayerController zaten abstract (UpdateMovement + IsMoving), yani ikisi
+    de birer alt sınıf ve prefab'da component değiştirerek anında geçiş
+    yapılıyor. Cooked Fast reposuna ClickToMovePlayerController.cs eklendi;
+    aynı leveli iki kontrolle de oynayıp karar verilecek.
+      Tıkla-git lehine: portrait ekranda başparmak mutfağı kapatmıyor,
+        yol bulmayı NavMesh hallediyor, istasyona dokun-git-etkileş akışı
+        bedava geliyor.
+      Joystick lehine: süreli oyunda anlık yön düzeltmesi ve mikro
+        manevra sadece joystick'le mümkün.
+    KABA AYRIM: leveller rota planlama üstüne kuruluysa tıkla-git,
+    el becerisi üstüne kuruluysa joystick.
+    Karar vertical slice'ta (PHASE 6) verilecek, öncesinde değil.
+    NOT: Portrait (1080x1920) kalsın — mevcut UI, kamera ve joystick'i
+    yeniden kurmak zorunda kalmazsın. Overcooked tarzı geniş mutfak
+    istersen landscape'e geçmen gerekir ama o zaman UI'ı sıfırdan
+    kurarsın. Prototipte portrait + tek odalı kompakt mutfak öneriyorum.
+
+0.3 PİŞİRME DERİNLİĞİ: Doğrama etkileşimi var
+    Chopping animasyonu istediğine göre "al-taşı"nın bir seviye üstü.
+    MOBİLDE ÖNEMLİ AVANTAJ: doğrama butonla değil, YAKINLIK ile
+    tetiklenmeli — tıpkı Cooked Fast'teki FoodSpawnerStation /
+    FoodDropZone'un OnTriggerStay mantığı gibi. Yani mevcut istasyon
+    deseni birebir çalışıyor, sadece araya bir "işleme süresi" ve
+    Chop animasyonu giriyor. Ekstra buton, ekstra UI yok.
+
+0.4 REPO: Yeni Unity projesi, yeni repo
+    Sebep: "Tiny Coffee Shop" asset paketi kursla geldi; ticari yayında
+    lisansını ayrıca doğrulaman gerekir. Kendi yazdığın C# scriptleri senin —
+    onları taşı, kurs sanatını geride bırak. Temiz bir CC0 tabanı ile
+    başlarsan lisans sorusu hiç doğmaz.
+    Taşınacaklar: Scripts/ altındaki kendi yazdıkların + Tabsil/Sijil
+    (lisansını kontrol et) + LeanTween (MIT, sorun yok).
+
+0.5 WORKER SİSTEMİNİN AKIBETİ
+    Bölüm bazlı tek kişilik oyunda işçi yok — mutfakta sen varsın.
+    KARAR: Worker / WorkerManager / TaskRequester / HRManager PROTOTIPE
+    GİRMİYOR. Bu, Cooked Fast kodunun en karmaşık %40'ı; onsuz çok daha
+    hızlı ilerlersin.
+    İleride "yardımcı şef" mekaniği istersen task sistemi hazır duruyor,
+    eski repodan çekersin. Şimdi taşıma.
+
+
+================================================================
+PHASE 1 — ASSET TOPLAMA (CC0)
+================================================================
+
+1.1 Kenney.nl  (hepsi CC0, atıf gerekmez)
+    KESİN VAR:
+    - Food Kit          -> yemek/malzeme modelleri
+    - Furniture Kit     -> masa, sandalye, dolap, tezgah parçaları
+    KONTROL ET (adı değişmiş veya birleşmiş olabilir):
+    - Kitchen/Restaurant temalı ayrı bir kit var mı; yoksa mutfak parçalarının
+      çoğu Furniture Kit içinde çıkıyor.
+    Her kit ZIP içinde OBJ / FBX / GLTF ve genelde TEK bir renk atlası
+    (colormap.png benzeri) ile geliyor. FBX klasörünü kullan.
+
+1.2 Quaternius  (CC0)
+    - Ultimate Modular Characters (Men/Women) -> Mixamo auto-rigger ile
+      uyumlu, şef karakteri için en hızlı yol
+    - Food / Kitchen prop paketleri varsa Kenney ile birleştir
+    UYARI: Quaternius'un stil dili Kenney'den biraz farklı. İkisini
+    karıştırmadan önce bir sahnede yan yana koyup göz testi yap.
+
+1.3 Mixamo  (Adobe hesabı gerekli, ücretsiz)
+    Animasyon listesi:
+    - Idle                  (boşta durma)
+    - Walking / Running     (In Place işaretli)
+    - Carry Idle            ("carry", "carrying box" araması)
+    - Carry Walk            (In Place işaretli)
+    - Chopping              *** RİSK — aşağıya bak ***
+
+    *** CHOPPING RİSKİ ***
+    Mixamo'da mutfak doğrama animasyonu OLMAYABİLİR. Kütüphanede odun kesme /
+    çekiçleme tarzı hareketler var, mutfak bıçağı için birebir bir şey yok.
+    Üç plan:
+      Plan A: "chop", "hammer", "stab", "slash" ara; bulduğunu Mixamo'nun
+              kendi slider'larıyla (Overdrive, Character Arm-Space) mutfak
+              tezgahı yüksekliğine yaklaştır.
+      Plan B: Idle animasyonunu al, Unity'de sadece sağ kol için 3-4
+              keyframe'lik kısa bir loop yaz (Animation penceresi yeterli).
+              Low-poly stilde bu fazlasıyla ikna edici olur.
+      Plan C: Chopping'i animasyonla değil, VFX + prop hareketiyle anlat
+              (bıçak prop'u tween ile aşağı-yukarı, karakter Carry Idle'da).
+              En ucuzu, prototip için tamamen kabul edilebilir.
+    KARAR: Prototipte Plan C ile başla, vertical slice çalışınca A/B'ye geç.
+
+1.4 Lisans hijyeni
+    - CC0 atıf gerektirmez ama yine de CREDITS.txt tut. İleride "bu model
+      nereden geldi" sorusunun cevabı olsun.
+    - Mixamo animasyonlarını oyunda kullanmak serbest; animasyonu tek başına
+      dağıtmak/satmak serbest DEĞİL. Oyunun içinde kalsın.
+    - Kurs asset'lerini (Tiny Coffee Shop) yeni projeye TAŞIMA.
+
+
+================================================================
+PHASE 2 — UNITY PROJE KURULUMU
+================================================================
+
+2.1 Proje ayarları
+    - Unity 6000.3.x (mevcutla aynı sürüm, alışkanlığını bozma)
+    - URP (Cooked Fast'te zaten var, low-poly + URP iyi eşleşiyor)
+    - Renk uzayı: Linear
+    - Hedef platform PHASE 0.2'ye göre
+
+2.2 Klasör yapısı
+    Assets/
+      _Project/              <- kendi işlerin, alfabetik en üstte dursun
+        Scripts/
+        Prefabs/
+        Materials/
+        Animations/
+        Scenes/
+      ThirdParty/
+        Kenney/
+        Quaternius/
+        Mixamo/
+    KURAL: ThirdParty klasörünün içine ASLA elle dosya yazma. Güncelleme
+    geldiğinde klasörü silip yenisini atabilmelisin.
+
+2.3 Model import ayarları (Kenney/Quaternius FBX'leri)
+    - Scale Factor: modeli sahneye at, kapı/tezgah yüksekliğiyle karşılaştır.
+      Kenney kitleri genelde 1 birim = 1 metre, ama kite göre değişebilir.
+    - Materials -> Extract Materials ile TEK atlas materyalini çıkar,
+      tüm parçalara onu ata. Bu batching'i ciddi iyileştirir.
+    - Read/Write Enabled: kapalı (gerekmedikçe)
+    - Generate Colliders: kapalı, collider'ları prefab'da elle koy
+
+2.4 Ölçek referansı
+    Sahneye ilk iş olarak 1.8m yüksekliğinde bir capsule koy ve sil-me.
+    Bütün proplar ona göre ölçeklenir. Bu adımı atlarsan Mixamo karakteri
+    tezgahın üstünde bir devmiş gibi durur ve her şeyi baştan ölçeklersin.
+
+
+================================================================
+PHASE 3 — KARAKTER + MIXAMO HATTI
+================================================================
+
+3.1 Karakteri hazırla
+    Yol A (hızlı): Quaternius Ultimate Modular Character'ı FBX olarak
+                   Mixamo'ya yükle -> auto-rigger -> şef karakteri hazır
+    Yol B (en hızlı): Mixamo'nun kendi hazır karakterlerinden birini seç
+                      (prototip için fazlasıyla yeterli)
+    ÖNERİ: Prototipte Yol B. Oyun tutarsa Yol A ile kendi şefini yap.
+
+3.2 İNDİRME SIRASI — bu sıra önemli
+    (1) Karakteri T-pose'da, "With Skin", format "FBX for Unity(.fbx)"
+        -> Chef_Base.fbx
+    (2) Her animasyonu "Without Skin", format "FBX for Unity(.fbx)"
+        -> Anim_Idle.fbx, Anim_Walk.fbx, Anim_Run.fbx,
+           Anim_CarryIdle.fbx, Anim_CarryWalk.fbx, Anim_Chop.fbx
+
+    Neden "FBX for Unity": normal FBX Binary'de Mixamo karakteri Unity'ye
+    100 kat büyük/küçük geliyor ve scale ile uğraşıyorsun. Bu seçenek onu
+    çözüyor. Yine de import inspector'da Scale Factor'ü gözle doğrula.
+
+    LOCOMOTION İÇİN "IN PLACE" İŞARETLE:
+    Walk / Run / Carry Walk indirirken Mixamo'daki "In Place" kutusunu işaretle.
+    İşaretlemezsen animasyonun kendi root motion'ı karakteri sürükler ve
+    CharacterController/NavMeshAgent ile çakışır. Cooked Fast'teki
+    NavigationAbility zaten agent ile hareket ettiriyor — aynı mantık.
+
+    FPS: 30 yeterli. Keyframe Reduction: none (prototipte fark etmez).
+
+3.3 Unity import ayarları
+    Chef_Base.fbx:
+      Rig -> Animation Type: Humanoid
+      Rig -> Avatar Definition: Create From This Model
+      Configure... ile kemik eşleşmesini bir kez göz kontrolü yap
+      -> Bu avatar'ın adını not al (Chef_BaseAvatar)
+
+    Anim_*.fbx (hepsi):
+      Rig -> Animation Type: Humanoid
+      Rig -> Avatar Definition: COPY FROM OTHER AVATAR -> Chef_BaseAvatar
+      Animation sekmesi:
+        - Loop Time: Idle, Walk, Run, CarryIdle, CarryWalk -> AÇIK
+        - Loop Time: Chop -> duruma göre (loop'lu doğrama istiyorsan açık)
+        - Root Transform Rotation: Bake Into Pose AÇIK, Based Upon: Original
+        - Root Transform Position (Y): Bake Into Pose AÇIK
+        - Root Transform Position (XZ): Bake Into Pose AÇIK  <- in-place için
+      Loop match göstergesi yeşil değilse Loop Pose'u aç.
+
+3.4 Prefab
+    Chef_Base'i sahneye at -> Animator + CharacterController (veya NavMeshAgent)
+    + kendi Player script'in -> Prefab olarak kaydet.
+    Elde tutulan yemek için el kemiğinin altına boş bir "HandSocket" transform
+    ekle. Cooked Fast'teki Plateau mantığı buraya birebir taşınır.
+
+
+================================================================
+PHASE 4 — ANIMATOR CONTROLLER
+================================================================
+
+4.1 Parametreler
+    float Speed          (0 = idle, 1 = walk, 2 = run — normalize edilmiş hız)
+    bool  IsCarrying
+    trigger Chop
+
+4.2 Katman yapısı
+
+    BASE LAYER (mask yok, weight 1)
+      |
+      +-- [Locomotion] Blend Tree (1D, parametre: Speed)
+      |       0.0 -> Idle
+      |       0.5 -> Walk
+      |       1.0 -> Run
+      |
+      +-- [CarryLocomotion] Blend Tree (1D, parametre: Speed)
+              0.0 -> Carry Idle
+              1.0 -> Carry Walk
+
+      Geçişler: Locomotion <-> CarryLocomotion, koşul IsCarrying
+      Has Exit Time: KAPALI (elinde tabak varken anında geçmeli)
+      Transition Duration: 0.15 sn civarı
+
+    ACTION LAYER (Avatar Mask: sadece üst gövde, Blending: Override)
+      |
+      +-- [Empty] (boş state, weight 0 gibi davranır)
+      +-- [Chopping]
+      Geçiş: Empty -> Chopping (trigger Chop)
+             Chopping -> Empty (Has Exit Time açık)
+      Layer weight'i kodla 0'dan 1'e yumuşat, ya da sabit 1 bırakıp
+      Empty state'i base ile aynı pozda tut.
+
+    NEDEN İKİ KATMAN: doğrama sırasında karakterin bacakları hâlâ
+    idle/walk oynasın istiyorsun. Tek katmanla yaparsan doğrarken
+    yürüyemez.
+
+4.3 Avatar Mask
+    Assets > Create > Avatar Mask
+    Humanoid bölümünde bacakları ve root'u KAPAT, gövde+kollar+kafa AÇIK.
+    Action Layer'a ata.
+
+4.4 Sık yapılan hatalar
+    - Blend Tree eşiklerini raw m/s ile doldurmak: hız değişince bozulur.
+      Speed'i her zaman 0-1 aralığına normalize et.
+    - Transition Duration'ı 0 bırakmak: hareket robotik görünür.
+    - Chop trigger'ını her frame set etmek: ResetTrigger'ı unutma.
+    - Loop Time'ı açmayı unutmak: animasyon bir kez oynayıp donar.
+
+
+================================================================
+PHASE 5 — COOKED FAST'TEN NE TAŞINIYOR
+================================================================
+
+DOĞRUDAN TAŞINABİLİR (senin yazdığın, işe yarayan kod):
+  Plateau.cs + FoodPosition.cs   -> elde yemek taşıma, tip kontrolü,
+                                    kapasite. Chef Showdown'da aynen çalışır.
+  SpawnableFood.cs               -> soyut yemek tabanı, alt sınıflar
+  FoodDropZone.cs                -> CanAcceptFood tip kontrolü hazır
+  FoodSpawnerStation.cs          -> malzeme kaynağı
+  NavigationAbility.cs           -> NavMeshAgent sarmalayıcı
+  CharacterStats + BaseCharacterStatsSO -> hız/kapasite/kazanç sistemi
+  Sijil save entegrasyonu        -> IWantToBeSaved deseni
+  LockedElement.cs               -> ilerleme/kilit açma
+
+  PlayerController + joystick    -> mobil kontrol aynen kalıyor (PHASE 0.2)
+  UI panel/CanvasGroup desenleri -> Show()/Hide() extension'ları, panel akışı
+
+DEĞİŞECEK:
+  FoodServingStation hiyerarşisi -> müşteri kuyruğu yerine SİPARİŞ kuyruğu.
+                                    Abstract base + alt sınıf deseni aynen
+                                    kalır, sadece "kim servis edilecek"
+                                    sorusunun cevabı Customer değil Order olur.
+  CustomerAnimator               -> ChefAnimator olarak yeniden yazılır,
+                                    PHASE 4'teki parametrelere göre
+  CashFile / CurrencyManager     -> para yerine SKOR/YILDIZ. Aynı arc
+                                    animasyonu, farklı anlam.
+
+ATILMAYACAK AMA PROTOTIPE GİRMEYECEK (PHASE 0.5):
+  Worker.cs, WorkerManager.cs, TaskRequester ve tüm Request sınıfları,
+  HRManager, UIWorkerContainer/UIWorkerStat, WorkerDataSO
+  -> Eski repoda dursun. "Yardımcı şef" mekaniği gelirse geri çekilir.
+
+ATILACAK:
+  Tiny Coffee Shop sanat varlıkları (lisans)
+  Kursa özgü SceneSetup.cs menü item'ları
+  Customer.cs / TableManager / TableSet — masaya oturma mekaniği yok
+
+
+================================================================
+PHASE 5.5 — LEVEL VE SİPARİŞ SİSTEMİ (yeni çekirdek)
+================================================================
+
+Bölüm bazlı oyunun kalbi bu. Cooked Fast'te karşılığı yok, sıfırdan.
+
+5.5.1 LevelDataSO (ScriptableObject)
+    - int levelIndex
+    - float timeLimit
+    - OrderDefinition[] possibleOrders   (bu levelde çıkabilecek tarifler)
+    - float orderInterval                (kaç saniyede bir yeni sipariş)
+    - int maxSimultaneousOrders
+    - int[] starThresholds               (ör. {3, 6, 10} tamamlanan sipariş)
+    BaseCharacterStatsSO'yu nasıl kurduysan aynı desen.
+
+5.5.2 RecipeSO (ScriptableObject)
+    - SpawnableFood[] requiredIngredients
+    - bool[] requiresChopping            (hangi malzeme doğranmalı)
+    - Sprite icon                        (sipariş kartında gösterilecek)
+    - float baseScore
+
+5.5.3 OrderManager (MonoBehaviour)
+    - Aktif siparişleri tutar, süresi dolanları düşürür
+    - Cooked Fast'teki FoodServingCustomerManager'ın kuyruk mantığı
+      birebir uyarlanır — Customer yerine Order
+    - Sipariş tamamlanınca skor + yıldız kontrolü
+
+5.5.4 LevelManager (MonoBehaviour, IWantToBeSaved)
+    - Geri sayım, level bitiş koşulu, sonuç ekranı
+    - Sijil ile kaydedilecek: her level için kazanılan yıldız
+      key deseni: "level_stars_" + levelIndex
+    - LockedElement mantığı level kilidi için birebir kullanılır
+
+5.5.5 ProcessingStation (yeni istasyon tipi)
+    - Doğrama tezgahı. OnTriggerStay + süre + Chop animasyonu tetikleme
+    - Girdi: ham malzeme, Çıktı: doğranmış malzeme
+    - FoodDropZone'un CanAcceptFood tip kontrolü aynen kullanılır
+    - SpawnableFood'a bir "IsProcessed" bayrağı eklenir (IsDirty gibi)
+
+
+================================================================
+PHASE 6 — VERTICAL SLICE HEDEFİ
+================================================================
+
+Prototipin "çalışıyor" sayılması için gereken minimum — TEK LEVEL:
+  [ ] Şef karakteri joystick ile geziniyor, Idle/Walk/Run çalışıyor
+  [ ] Bir malzemeyi alabiliyor -> Carry animasyonuna geçiyor
+  [ ] Doğrama tezgahına yaklaşınca Chop tetikleniyor, malzeme dönüşüyor
+  [ ] Doğranmış malzemeyi servis noktasına bırakabiliyor
+  [ ] Ekranda bir sipariş görünüyor, doğru tabak gelince tamamlanıyor
+  [ ] Süre doluyor, skor ve yıldız sayısı gösteriliyor
+
+Bu altısı çalışınca elinde oyun var demektir. Öncesinde ses, menü,
+level seçim ekranı, ilerleme sistemi ile uğraşma — hepsi bundan sonra.
+
+SIRALAMA UYARISI: Level 2'yi yapmadan önce Level 1'i onlarca kez oyna.
+Bölüm bazlı oyunda asıl iş level tasarımı, ve tek bir level eğlenceli
+değilse yirmi tanesi de olmayacak.
+
+TAHMİNİ SÜRE (haftada birkaç akşam):
+  Phase 1-2 (asset + kurulum)        : 1 hafta
+  Phase 3 (Mixamo hattı)             : 2-3 gün
+  Phase 4 (Animator)                 : 2-3 gün
+  Phase 5 (kod taşıma)               : 4-5 gün   <- worker sistemi gelmediği
+                                                    için 1 haftadan kısaldı
+  Phase 5.5 (level + sipariş)        : 1 hafta   <- yeni, sıfırdan
+  Phase 6 (vertical slice)           : 2 hafta
+  TOPLAM                             : ~5 hafta
+
+
+================================================================
+AÇIK RİSKLER
+================================================================
+1. Chopping animasyonu Mixamo'da bulunmayabilir -> Plan C ile başla (1.3)
+2. Kenney + Quaternius stil uyumsuzluğu -> önce göz testi yap (1.2)
+3. Ölçek karmaşası -> 1.8m capsule referansı (2.4)
+4. Mixamo root motion çakışması -> "In Place" işaretle (3.2)
+5. PHASE 0 kararları verilmeden asset toplamak -> yanlış asset toplarsın

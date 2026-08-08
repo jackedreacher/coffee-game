@@ -1,0 +1,213 @@
+Welcome back guys! In this lesson we are going to use abstraction to create our pizza station.
+
+I told you that in the previous one. Okay so the first thing we need to do is to open our
+
+scripts folder and create inside of the stations here a pickup station script. So pickup
+
+station and this will be available for pizzas, for anything you want your customers to just
+
+pick up and leave instead of sitting at the tables. So now our pizza cashier station this one
+
+we can just collapse the box collider, the GUI generator and the task requester
+
+and add the pickup station script. Okay so this pickup station script is going to inherit from
+
+the food serving station script. Really important! Then we are going to abstract that boy but first
+
+off let's check what we need, what are going to be the main differences between the pickup station
+
+and the other station, the coffee one. Well the food serving station, sorry the pickup station
+
+doesn't need a table manager, it does need a drop zone, it does need a task requester, a worker
+
+target point, a cash pile, the food served, the serving delay of course, but what we don't need
+
+is our table manager here. We still need customers but we need something else, we need the
+
+customer's exit point. So we can play with this customer spawn point, let's say that we
+
+want the customers to spawn here but we need to add an exit point. All right so we can also
+
+max out the customer count to five, makes sense and keep the same orientation.
+
+So let's do something like this, let's open our food serving station. What we can already do is
+
+specify the exit point for our customers. So private transform,
+
+transform, thank you, customer exit point. Okay.
+
+Next what do we want to do? Well we want to dequeue customers in a different way and we also want to
+
+handle the customers served. So let's grab the pickup station script and drop it right here, okay?
+
+Not right here, just right here. What we can do is open our food serving station and see what we can
+
+grab from here, then we are going to turn it into an abstract method. So the first thing we need is
+
+the actually serve food method, it's right here. So let's do something like protect it, override,
+
+void, actually serve food and we are going to pass in the character stats as we've done in
+
+the original script. Character stats, thank you. This might be a bit too small, can we do
+
+this? No, I don't want any breakpoint, yeah. This is better, already a bit better.
+
+Not optimal but better, okay. Then inside of here we want to serve the customers, so serve
+
+customers, pass in the character stats and we also want to set the serving timer to zero, okay?
+
+Nice. Then we will also need to dequeue the customers but as I've told you in a different
+
+way. So protect it, override, void, dequeue customers, dequeue customers, sorry.
+
+Like so, thank you. So to dequeue it we are going to dequeue it from the customer manager, so
+
+customerManager.dequeue, okay, with a lowercase c by the way because we will have the customer
+
+manager from the abstract class. We want to handle the customer served and that's it. So
+
+let's create this method, okay? This is going to be private, we want to handle the customer served.
+
+Customer, thank you, boom and boom, like so. So to handle the customer served again is going to
+
+be quite simple. We just want to tell him to reach or go towards the target exit point or
+
+customer exit point that we have here. So go to then, let's do customerExitPoint.position
+
+and the callback is going to destroy the customer. Yeah, we can be bad persons from time to time,
+
+that's okay. We just need to repent, okay? So we've got different things to handle in here.
+
+We need to first off turn this one into an abstract class, that's the first step. Turn
+
+these methods into abstract methods in the main class, so the food serving station.
+
+And yep, so let's tackle things step by step. First off, this is going to be an abstract class,
+
+so abstract class food serving station. Next, our actually serve food method. Next,
+
+our actually serve food method is here. Okay, perfect. So it needs to be protected,
+
+abstract, abstract, void, actually serve food. But we've got a bunch of calculations in here,
+
+so how are we going to handle that? Well, we are going to grab these and drop them in another
+
+method. So because this is an abstract one, we now need to do a semicolon in here. Okay,
+
+that's the first step. And then protected void serve customers, so this one, the one that we've
+
+created right here with the character stats, character stats. There you go. Then this
+
+serving timer here can be removed from here, and we can mark it as protected, so that we can reset
+
+it from the inherited script, okay? The script that inherits from the food serving station.
+
+Nice. Then that's the first step. After that, we can dequeue customer. This one
+
+also needs to be abstract, but I don't want to lose the logic, so I'm just going to do
+
+protected, abstract, void, dequeue customer, customer, customer. That way we don't break
+
+this one, I'm just going to comment it, okay? Because this is the logic that we're using for
+
+our table thingy, the other serving station, the coffee one. Then, then, then, then, then,
+
+the customer manager. Do we have the customer manager in here or not? Yep, we should have it,
+
+food serving, customer manager, here it is. So it should be protected, thank you. What else?
+
+So now we've got it, and we are now good in our pickup station. Okay, so let's create the other
+
+one, the usual or the normal serving station, so that we can go step by step. So let's jump back
+
+to Unity, and in our station folder here, we are just going to create a new script for the normal
+
+one. So let's call it cashier station. Okay, let's open it right away before it compiles.
+
+We are quite kind of quick. So this is going to inherit from the food serving station again,
+
+one more time. We can remove these, and in here, we will need the table manager, but we did not
+
+need it in our pickup station. So we will be able to remove it from the abstract food serving
+
+station right here. So let's grab the table manager, drop it here under elements, maybe.
+
+Thank you. Next, what are we going to need? Well, let's start with these simple ones, and then we
+
+can tackle the other methods. So first off, protected override actually serve food, come on,
+
+this one, thank you, with the character stats. So in here, we simply want to grab the logic from the
+
+other actually serve food, which is, don't tell me that we've removed it.
+
+We did not, or did we? Because we want to check if the table manager has some available tables.
+
+So if the table manager.isAnyTableAvailable, we can simply return. Otherwise, we can apply
+
+the same logic here. So let's do this and this. Okay, then let's dequeue the customer. So protected
+
+override dequeueCustomer. Okay, again, we want to check if we've got any table available. So if
+
+table manager.isAnyTableAvailable, let's just return. We can't dequeue our customer.
+
+And let's do customerManager.dequeue. I think that's the logic we had in our food serving station.
+
+Yeah, this logic right here. Boom. Let's just grab it and paste it. Yeah, sometimes I like to write
+
+and I forget. So now we can finally remove the logic from here. Okay, thank you. And what else do
+
+we need in here? Let's remove the table manager from this abstract class and everything is going
+
+to, any error is going to show up. So boom. I think we're good. Yep, we're good to go. No more errors.
+
+So let's check if this is working. Okay, let's set up our stations one more time. So we've got
+
+the pizza station or the cashier station, this one. So the food serving station now is not relevant
+
+anymore because it is abstract. You can't add an abstract class to a game object. We need to
+
+reference our drop zone, the task requester, the worker target point, the cash pile, the food served
+
+prefab is going to be, oh come on, I can't link it from here. So let's do pizza. Yeah, the prefab.
+
+Yep, thank you. Actually, I'm going to lock this one, unlock this one, but wait, wait, wait,
+
+one more thing. Serving delay dot three and the customer exit point is going to be somewhere
+
+around here. So we can create a game object somewhere around here. Let's duplicate actually
+
+the spawn point, move it here, and this is going to be our exit point. Customer exit
+
+point. Thank you. Perfect. Maybe just behind the tree so that we don't spot them.
+
+Okay, so let's reference this one. So now we still need to reference our other elements from here.
+
+Let's remove the old one, add the new, what was that, cashier station? Yeah, cashier station.
+
+So drop zone, task requester, worker target point, cash pile, spawn food, which is the cup,
+
+dot three, and the table manager. Where is the table manager? Right here. Perfect.
+
+So why do I still have that error? I don't know, but it's gone. So that's perfect. Okay,
+
+so let's now hit play. Okay, so we've got some warnings given in the coffee cashier
+
+station reference runtime script in scene file fixing. Where is our coffee cashier station?
+
+Coffee cashier station. Coffee cashier station. Here it is. Does it reference?
+
+Oh, I think it was in the task requester. No, no, no, no, it was not here.
+
+Anyway, let's try this out. These are just warnings, not errors. So we are serving the
+
+customers. Okay, and they exit through the exit point behind the tree. Please, thank you. Okay,
+
+so this is working. What about the other one? The other ones should sit at the table. So let's try
+
+and serve them. Let's grab some coffee cups. Okay, drop them here. Let's serve them, and they are
+
+walking towards the table, which is really cool. Awesome. That's working perfectly. Nice.
+
+So in the next one, we are going to check if it's still working with our workers. Okay,
+
+can I serve this boy? Yep, I can. Nice. See you in the next one.

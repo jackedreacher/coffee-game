@@ -382,9 +382,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3157976498061604877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41edad5344f36a04d99a6e66eed2f4ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FoodServingStation
+  m_Script: {fileID: 11500000, guid: bda3316a099f476bb08e4c82b0d4c838, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CashierStation
   dropZone: {fileID: 603196114954984585}
   tableManager: {fileID: 0}
   taskRequester: {fileID: 975368457658677149}

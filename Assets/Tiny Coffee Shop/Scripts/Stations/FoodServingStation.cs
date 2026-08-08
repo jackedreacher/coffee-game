@@ -3,15 +3,17 @@ using UnityEngine.Serialization;
 
 [RequireComponent(typeof(FoodServingCustomerManager))]
 [RequireComponent(typeof(GuidGenerator))]
-public class FoodServingStation : MonoBehaviour
+// Abstract on purpose: how a served customer leaves is the only thing that
+// differs between a sit-down cashier and a grab-and-go pickup counter.
+// CashierStation and PickupStation fill in that gap
+public abstract class FoodServingStation : MonoBehaviour
 {
     [Header(" Components ")]
-    private FoodServingCustomerManager customerManager;
+    protected FoodServingCustomerManager customerManager;
     private GuidGenerator guidGenerator;
 
     [Header(" Elements ")]
     [SerializeField] private FoodDropZone dropZone;
-    [SerializeField] private TableManager tableManager;
     [SerializeField] private TaskRequester taskRequester;
     // Renamed from foodServedPrefab: it is both what workers fetch and the only
     // thing the drop zone will take. FormerlySerializedAs keeps the scene wiring
@@ -22,14 +24,17 @@ public class FoodServingStation : MonoBehaviour
 
     [Header(" Settings ")]
     [SerializeField] private float servingDelay;
-    private float servingTimer;
+
+    // protected so a subclass can decide NOT to reset it: a cashier with no free
+    // table leaves the timer full and retries on the very next frame
+    protected float servingTimer;
     private int workerCount;
 
     [Header(" Request Settings ")]
     private const float requestCheckDelay = 1f;
     private float requestCheckTimer;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         customerManager = GetComponent<FoodServingCustomerManager>();
         guidGenerator = GetComponent<GuidGenerator>();
@@ -139,9 +144,14 @@ public class FoodServingStation : MonoBehaviour
         if (GetFirstFullPosition() == null)
             return;
 
-        servingTimer = 0;
-        ServeFood(characterStats);
+        // The subclass resets servingTimer itself, since it may refuse to serve
+        ActuallyServeFood(characterStats);
     }
+
+    protected abstract void ActuallyServeFood(CharacterStats characterStats);
+
+    // Where a served customer goes next: a table, or the exit
+    protected abstract void DequeueCustomer(Customer customer);
 
     private FoodPosition GetFirstFullPosition()
     {
@@ -153,9 +163,16 @@ public class FoodServingStation : MonoBehaviour
         return dropZone.Pop();
     }
 
-    private void ServeFood(CharacterStats characterStats)
+    // The part that is identical everywhere: take money, hand over one food.
+    // Subclasses call this once they have decided they are willing to serve
+    protected void ServeCustomers(CharacterStats characterStats)
     {
         Customer customerToServe = customerManager.PeekFirstCustomer();
+
+        // Null once the queue hands out fixed slots: the servable customer can
+        // vanish between the readiness check and here
+        if (customerToServe == null)
+            return;
 
         // Fully subjective formula — tweak baseRevenue to be more generous.
         // Max(1, ...) keeps a worker with no revenue upgrades earning something
@@ -171,14 +188,5 @@ public class FoodServingStation : MonoBehaviour
             return;
 
         DequeueCustomer(customerToServe);
-    }
-
-    private void DequeueCustomer(Customer customer)
-    {
-        if (!tableManager.IsAnyTableAvailable())
-            return;
-
-        customerManager.Dequeue();
-        tableManager.HandleCustomerServed(customer);
     }
 }

@@ -53,8 +53,10 @@ public class SceneSetup
         if (cashierStation != null)
         {
             // Add scripts if not present
+            // FoodServingStation went abstract in Lesson 65; the coffee counter
+            // is the sit-down variant
             if (cashierStation.GetComponent<FoodServingStation>() == null)
-                cashierStation.AddComponent<FoodServingStation>();
+                cashierStation.AddComponent<CashierStation>();
 
             if (cashierStation.GetComponent<FoodServingCustomerManager>() == null)
                 cashierStation.AddComponent<FoodServingCustomerManager>();
@@ -342,7 +344,7 @@ public class SceneSetup
         // Link CashFile to FoodServingStation
         CashFile cashFileComp = cashFileObj.GetComponent<CashFile>();
         if (cashFileComp != null)
-            SetSerializedFieldObject(cashierStation, "FoodServingStation", "cashFile", cashFileComp);
+            SetSerializedFieldObject(cashierStation, "CashierStation", "cashFile", cashFileComp);
 
         Undo.RegisterCreatedObjectUndo(cashFileObj, "Create Cash File");
 

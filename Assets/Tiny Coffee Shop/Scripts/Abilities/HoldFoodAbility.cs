@@ -27,6 +27,23 @@ public class HoldFoodAbility : MonoBehaviour
         plateau.UpdateMaxCapacity(capacity);
     }
 
+    public SpawnableFood PeekFood()
+    {
+        return plateau.Peek();
+    }
+
+    // Hands the top item over and hides the tray once it runs dry, the same
+    // bookkeeping HandleFoodDropZone does when dropping onto a counter
+    public SpawnableFood PopFood()
+    {
+        SpawnableFood food = plateau.Pop();
+
+        if (food != null && plateau.IsEmpty)
+            plateau.gameObject.SetActive(false);
+
+        return food;
+    }
+
     public void HandleFoodSpawnerStation(FoodSpawnerStation station)
     {
         if (plateau.IsFull)

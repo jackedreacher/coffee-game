@@ -26,8 +26,14 @@ public class Customer : MonoBehaviour
     [Header(" Actions ")]
     private Action reachedDestinationCallback;
 
+    [Header(" Order ")]
+    // What this customer walked in for. Null means "whatever the counter
+    // serves", which is how the coffee shop scene has always worked
+    private SpawnableFood requestedFood;
+
     public int FoodNeededCount => foodNeededCount;
     public int FoodTakenCount => foodTakenCount;
+    public SpawnableFood RequestedFood => requestedFood;
 
     private void Update()
     {
@@ -49,6 +55,14 @@ public class Customer : MonoBehaviour
         this.foodNeededCount = foodNeededCount;
         this.finalFacing = finalFacing;
         GoToThen(targetPosition, FaceFinalFacing);
+    }
+
+    // Overload for counters that sell more than one thing. The old signature
+    // stays so the existing coffee shop scene keeps working untouched
+    public void Initialize(int foodNeededCount, Vector3 targetPosition, Vector3 finalFacing, SpawnableFood requestedFood)
+    {
+        this.requestedFood = requestedFood;
+        Initialize(foodNeededCount, targetPosition, finalFacing);
     }
 
     public void GoTo(Vector3 targetPosition)
