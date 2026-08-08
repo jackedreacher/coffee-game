@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(FoodServingCustomerManager))]
 [RequireComponent(typeof(GuidGenerator))]
@@ -12,7 +13,10 @@ public class FoodServingStation : MonoBehaviour
     [SerializeField] private FoodDropZone dropZone;
     [SerializeField] private TableManager tableManager;
     [SerializeField] private TaskRequester taskRequester;
-    [SerializeField] private SpawnableFood foodServedPrefab;
+    // Renamed from foodServedPrefab: it is both what workers fetch and the only
+    // thing the drop zone will take. FormerlySerializedAs keeps the scene wiring
+    [FormerlySerializedAs("foodServedPrefab")]
+    [SerializeField] private SpawnableFood acceptedFood;
     [SerializeField] private Transform workerServingTargetPoint;
     [SerializeField] private CashFile cashFile;
 
@@ -29,6 +33,10 @@ public class FoodServingStation : MonoBehaviour
     {
         customerManager = GetComponent<FoodServingCustomerManager>();
         guidGenerator = GetComponent<GuidGenerator>();
+
+        // The zone has no business knowing this on its own — the station owns
+        // what it serves, so it tells the zone what to let through
+        dropZone.SetAcceptedFood(acceptedFood);
     }
 
     private void Update()
@@ -69,7 +77,7 @@ public class FoodServingStation : MonoBehaviour
     private void EmitFillRequest()
     {
         taskRequester.CreateTaskRequest(
-            new FillStationPlateauRequest(guidGenerator.GUID, foodServedPrefab, dropZone.WorkerTargetPosition)
+            new FillStationPlateauRequest(guidGenerator.GUID, acceptedFood, dropZone.WorkerTargetPosition)
         );
     }
 

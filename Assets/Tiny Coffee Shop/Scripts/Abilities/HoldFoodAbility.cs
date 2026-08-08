@@ -60,6 +60,11 @@ public class HoldFoodAbility : MonoBehaviour
         if (dropZone.IsFull)
             return;
 
+        // A coffee cashier must not take pizzas. Peek rather than Pop: refusing
+        // has to leave the plateau exactly as it was
+        if (!dropZone.CanAcceptFood(plateau.Peek()))
+            return;
+
         if (dropFoodTimer < canGrabFoodDelay)
         {
             dropFoodTimer += Time.deltaTime;

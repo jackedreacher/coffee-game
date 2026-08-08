@@ -29,6 +29,12 @@ public class FoodPosition : MonoBehaviour
         isEmpty = false;
     }
 
+    // Look at the food without taking it, so callers can inspect its type first
+    public SpawnableFood Peek()
+    {
+        return food;
+    }
+
     public SpawnableFood Pop()
     {
         isEmpty = true;

@@ -73,6 +73,14 @@ public class Plateau : MonoBehaviour
         }
     }
 
+    // Mirrors Pop: whoever asks gets the food Pop would hand out next
+    public SpawnableFood Peek()
+    {
+        FoodPosition foodPosition = GetLastFullPosition();
+
+        return foodPosition == null ? null : foodPosition.Peek();
+    }
+
     public SpawnableFood Pop()
     {
         FoodPosition foodPosition = GetLastFullPosition();

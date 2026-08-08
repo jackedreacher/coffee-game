@@ -1,0 +1,175 @@
+Welcome back guys! In this lesson we are going to fix some bugs and go on.
+
+So in our previous lesson we've seen that we were able to able to collect pizzas along with
+
+coffee cups. This is bad. So in our hold food ability right here, not handle in drop zone but
+
+in the handle in food spawner station, we need to check if we are holding some food in our plateau
+
+and if that's the case it needs to be the same type as the food spawner station's food prefab.
+
+So inside of here if plateau.last, can't we grab our last food pushed? We can't.
+
+So maybe we can use OOP again and check for that. So let's do
+
+at the bottom here, somewhere around here, public bool can accept a certain type of food.
+
+So let's do spawnable food. What are the conditions here? If the plateau is not full or is empty,
+
+if the plateau is empty we can return true. Because we don't have anything yet in our
+
+plateau or on our plateau serving. If the last food, so getFirstFullPosition,
+
+this is a food position.peak, this should be a spawnable food.
+
+.getType equals or is different than the spawnable food we want to accept.getType,
+
+let's return false because they have different types. Otherwise let's return true because it
+
+means that the plateau, if the plateau is empty actually, we'd simply return true so that's fine.
+
+If the food is different, we return false. Otherwise we've got the same type of food so
+
+we can accept that. Fine. So now let's jump back to our hold food ability, I guess. Yep,
+
+somewhere around here. Let's remove this. If plateau.canAccept, station.spawnable,
+
+we have the spawnable food here, spawnable food prefab. Yeah, we want to create a property for
+
+that. So private spawnable food, spawnable food prefab, spawnable food prefab. Thank you.
+
+So now we can use it inside of here. Spawnable. Oh, come on.
+
+Oh, I've added it to the serving station. Come on, food spawner station. Oh no, I've added it
+
+in the right position but it's private. Yay, focus please, focus Tapseel. So if the plateau.canAccept
+
+it, or should I say if it can't accept it, we are simply going to return. So now let's give
+
+that a shot. All right, let's hit play. So we are getting an error here. Why? Because we haven't,
+
+we don't have any, oh, we don't have anything in our plateau yet. Yeah, that's true. Oh,
+
+crap. So we need to grab, but if it is empty, we return true.
+
+So is it, are you telling me that the plateau is not empty at that point? Is empty at start
+
+getFirstFullPosition equals null. Well, the plateau is empty here.
+
+Oh, come on. Do you like bug fixing? Plateau 253, yep, of course. Okay.
+
+Because we call it here, makes sense. Player detector. So if we follow this path,
+
+of course, that's the correct path here. If the plateau cannot accept, but it is empty.
+
+Let's see if we reach this point. Okay, here. Boom, boom, and let's hit play again. All right.
+
+So we do reach that point. It feels like the plateau is not empty, or it thinks that the
+
+plateau is not empty. Okay. getFirstFullPosition equals null. So we are not, this does not return
+
+null. So the food position here is not empty, you're telling me? Oh, interesting.
+
+But we can't spot...
+
+Are you telling me that the food has been collected?
+
+This is really interesting here. Okay, so here is the plateau,
+
+animPositions, foodPosition. We've got one food position. Is it holding anything?
+
+It's not holding anything.
+
+Uh-huh. But it's not empty. Why isn't it empty? That's the question.
+
+That's the question. Okay, let's remove these. I don't think we need them.
+
+So isEmpty is true by default at awake, in awake.
+
+So if it's not empty, please tell me the name of that food position. Can you?
+
+debug.log. getFirstFullPosition.name. I just want to see who is not full here. I'm not the fool.
+
+Come on, let's hit play. If you don't like debugging, I'm going to try and drop a timestamp
+
+of when we find this bug here. Okay, so foodPosition is the name of our boy.
+
+Oh, yeah, I also need to check if the plateau is enabled or not, not just if it's empty.
+
+So, yep, inside of here, do I check if it's enabled or not? No, I don't.
+
+But the plateau is not enabled. So maybe when calling canAccept here.
+
+Wait, okay, it's called here, of course.
+
+But the plateau needs to be active here. ifPlateau.gameObject.activeInHierarchy and
+
+we can accept, so that we've got time to initialize our boy here. Yeah.
+
+So if it's not active in the hierarchy, we are not going to return, so we can grab that food.
+
+Makes sense? Let's give it a shot. There you go. That's way better. Awesome. So now let's try
+
+something else. Can we grab... First of all, how many things do we have? One, two, three, four,
+
+five, six, seven. Oh, come on. Let me try and increase that value here, maybe four, five, six,
+
+let me try and increase that value here, maybe 14. Can we grab coffee cups now or not? We can't.
+
+Okay, perfect. Let's drop maybe one pizza. No, we can't, of course, because this is the coffee place.
+
+Can we grab more pizzas? If we can grab more pizzas,
+
+it means that our code is working because we were not able to grab coffee cups.
+
+Okay, so I need to try that again. The maximum amount of the plateau has not been updated
+
+correctly. So let's grab one pizza. Okay, let's try and grab some coffee cups.
+
+I can't drop it here. Perfect. And I can't grab coffee cups. Awesome. But I can still grab
+
+more pizzas, which is super cool. Let me just try that.
+
+Let me just try that. Yeah, perfect. Awesome. Phew, finally. It's finally working. Nice.
+
+So now that this is working perfectly, what we need to do is add our serving station,
+
+so the pizza serving station, right? So let's do something like this. We are going to grab
+
+our other serving station, so cashier station, this one. Let's duplicate it,
+
+drop it in the pizza zone. Okay, so let's do pizza serving or maybe cashier station.
+
+Okay, thank you. Let's move it next to the other one, somewhere around here, maybe. Makes sense.
+
+Yep, quite close. Okay, cool. What we want to do here is not serve cups, but serve pizzas.
+
+So we will be able to grab the pizzas and drop them here. We can try this out really quickly.
+
+Let's change the GUID, by the way, of this boy and this boy too. Do we have a GUID here? No,
+
+we don't, so that's fine. So yeah, let's try this out. And we are going to have a difference.
+
+Now this is going to spawn customers and they are going to go to the tables normally. Where
+
+are my customers? Here they are. Okay, they are coming. Perfect. So we've got customers coming in
+
+here and here. Nice. So now if I drop pizzas inside of there, okay. Now if I serve them,
+
+they are going to try and go towards the tables. This is not what we want. We want them to grab
+
+the pizzas and quit our beautiful restaurant. What the heck is happening here? Oh my God.
+
+Anyway, I think I need to give him more pizzas. Wait, but the other one has that. Oh, I don't
+
+want to clean the tables. Anyway, so our food serving, the pizza serving station is now working,
+
+but the issue again is that we need to spawn customers here and they need to exit towards
+
+this place. This is why in the beginning of the course, if you remember well, what I've told you
+
+is, hey, okay, we are going to create the food serving station, but we are not going to abstract
+
+it right now. We are going to abstract it later on. And now time has come. We need to abstract
+
+the food serving station. Let's do that in the next one.
