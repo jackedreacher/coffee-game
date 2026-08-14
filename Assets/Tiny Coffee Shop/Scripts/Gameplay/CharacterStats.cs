@@ -26,29 +26,13 @@ public class CharacterStats : MonoBehaviour
         revenue = baseStats.Revenue;
     }
 
+    // Per-level increments and the ceilings live on the stats asset now, so a
+    // character can be rebalanced without touching a script
     public void SetupStats(Vector3Int statsLevels)
     {
-        speed = baseStats.Speed + CalculateAdditionalSpeed(statsLevels.x);
-        capacity = baseStats.Capacity + CalculateAdditionalCapacity(statsLevels.y);
-        revenue = baseStats.Revenue + CalculateAdditionalRevenue(statsLevels.z);
-    }
-
-    private float CalculateAdditionalSpeed(int level)
-    {
-        float increment = .2f;
-        return level * increment;
-    }
-
-    private int CalculateAdditionalCapacity(int level)
-    {
-        return level;
-    }
-
-    private float CalculateAdditionalRevenue(int level)
-    {
-        // The course uses level * 2f, which pays a maxed worker 15 bills per cup
-        // against an unupgraded worker's 1 — far too steep, so we scale it down
-        return level * .2f;
+        speed = baseStats.SpeedAtLevel(statsLevels.x);
+        capacity = baseStats.CapacityAtLevel(statsLevels.y);
+        revenue = baseStats.RevenueAtLevel(statsLevels.z);
     }
 }
 

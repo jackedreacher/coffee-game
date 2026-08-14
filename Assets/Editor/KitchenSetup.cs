@@ -16,7 +16,9 @@ public static class KitchenSetup
     // more. Bump this if the stations run dry too fast
     private const int spawnerCapacity = 3;
 
+#if COOKED_FAST_SETUP
     [MenuItem("Cooked Fast/Setup Kitchen Scene")]
+#endif
     public static void SetupKitchenScene()
     {
         string report = "";
@@ -136,6 +138,64 @@ public static class KitchenSetup
 
         Debug.Log("Click to move:\n" + report);
         EditorUtility.DisplayDialog("Click To Move", report, "Tamam");
+    }
+
+    // Swapping the player model can destroy the tray, and a replacement one
+    // does not reconnect itself: three separate scripts hold a reference to it
+    [MenuItem("Cooked Fast/Repair Player Plateau Links")]
+    public static void RepairPlayerPlateauLinks()
+    {
+        PlayerController[] controllers = FindAll<PlayerController>();
+
+        if (controllers.Length <= 0)
+        {
+            EditorUtility.DisplayDialog("Hata", "Sahnede PlayerController yok", "Tamam");
+            return;
+        }
+
+        GameObject playerRoot = controllers[0].gameObject;
+        Plateau[] plateaus = playerRoot.GetComponentsInChildren<Plateau>(true);
+
+        if (plateaus.Length <= 0)
+        {
+            EditorUtility.DisplayDialog("Hata",
+                "Player altinda Plateau yok.\n" +
+                "Customer prefabindaki Plateau'yu kopyalayip Player'in altina koy, sonra tekrar calistir.",
+                "Tamam");
+            return;
+        }
+
+        Plateau plateau = plateaus[0];
+        string report = "- Bulunan plateau: " + plateau.name + "\n";
+
+        if (plateaus.Length > 1)
+            report += "- UYARI: " + plateaus.Length + " plateau var, ilki kullanildi\n";
+
+        report += Relink(playerRoot.GetComponent<HoldFoodAbility>(), "plateau", plateau);
+        report += Relink(playerRoot.GetComponent<PlayerStatsHandler>(), "plateau", plateau);
+        report += Relink(playerRoot.GetComponent<PlayerAnimator>(), "plateau", plateau.gameObject);
+
+        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+
+        Debug.Log("Plateau baglantilari:\n" + report);
+        EditorUtility.DisplayDialog("Plateau", report, "Tamam");
+    }
+
+    private static string Relink(Component target, string fieldName, Object value)
+    {
+        if (target == null)
+            return "";
+
+        SerializedObject so = new SerializedObject(target);
+        SerializedProperty property = so.FindProperty(fieldName);
+
+        if (property == null)
+            return "- " + target.GetType().Name + ": " + fieldName + " alani yok\n";
+
+        property.objectReferenceValue = value;
+        so.ApplyModifiedProperties();
+
+        return "- " + target.GetType().Name + "." + fieldName + " baglandi\n";
     }
 
     // Puts the joystick back. Tapping a customer still works, the player just

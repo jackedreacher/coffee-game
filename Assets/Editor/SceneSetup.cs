@@ -1,3 +1,7 @@
+#if COOKED_FAST_SETUP
+// One-time lesson scaffolding. Every one of these has already been run and
+// none is called from anywhere else -- kept as the record of how the scene
+// was assembled, hidden from the menu by SetupMenuToggle
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -2488,3 +2492,4 @@ public class SceneSetup
         }
     }
 }
+#endif

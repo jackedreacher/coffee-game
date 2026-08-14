@@ -14,6 +14,12 @@ public class Plateau : MonoBehaviour
     private float positionsYOffset;
     private SpawnableFood lastFoodPushed;
 
+    // Where the stack starts, taken from wherever the first slot was placed by
+    // hand. Rearranging used to write a bare Vector3.up * offset over the slots,
+    // so the first pickup snapped the food back to the plateau's own origin and
+    // no amount of tuning in the editor ever survived into play mode
+    private Vector3 baseFoodOffset;
+
     public bool IsFull => isFull;
     public bool IsEmpty => isEmpty;
     public bool IsDirty => isDirty;
@@ -22,6 +28,9 @@ public class Plateau : MonoBehaviour
     {
         isFull = false;
         isEmpty = true;
+
+        if (foodPositionsParent.childCount > 0)
+            baseFoodOffset = foodPositionsParent.GetChild(0).localPosition;
     }
 
     // Deliberately not touching isFull here: this runs while setting up the
@@ -159,7 +168,8 @@ public class Plateau : MonoBehaviour
             : foodInstance.CleanYOffsetOnPlateau;
 
         for (int i = 0; i < foodPositionsParent.childCount; i++)
-            foodPositionsParent.GetChild(i).localPosition = Vector3.up * i * positionsYOffset;
+            foodPositionsParent.GetChild(i).localPosition =
+                baseFoodOffset + Vector3.up * i * positionsYOffset;
     }
 
     // Her cup kendi offset'ini kullanır; gizli (hidden) cup'lar yığına dahil edilmez
@@ -173,18 +183,18 @@ public class Plateau : MonoBehaviour
 
             if (!child.TryGetComponent(out FoodPosition foodPosition) || foodPosition.IsEmpty)
             {
-                child.localPosition = Vector3.up * yPos;
+                child.localPosition = baseFoodOffset + Vector3.up * yPos;
                 continue;
             }
 
             if (!foodPosition.IsFoodVisible)
             {
                 // Gizli cup: görünmez, yığına yer açma
-                child.localPosition = Vector3.zero;
+                child.localPosition = baseFoodOffset;
                 continue;
             }
 
-            child.localPosition = Vector3.up * yPos;
+            child.localPosition = baseFoodOffset + Vector3.up * yPos;
             yPos += foodPosition.FoodYOffset;
         }
     }
@@ -279,11 +289,19 @@ public class Plateau : MonoBehaviour
         FoodPosition foodPositionInstance = new GameObject("FoodPosition " + foodPositionsParent.childCount)
             .AddComponent<FoodPosition>();
 
-        foodPositionInstance.transform.SetParent(foodPositionsParent);
+        // Same trap as FoodPosition.Push: world-preserving would give the new
+        // slot a local scale of one-over-the-plateau's, so the second item in
+        // the stack comes out a different size from the first
+        foodPositionInstance.transform.SetParent(foodPositionsParent, false);
 
+        // The slot below carries the hand placed base offset already, so building
+        // on top of it keeps the whole stack over the same spot on the plate
         int bottomChildIndex = foodPositionInstance.transform.GetSiblingIndex() - 1;
-        foodPositionInstance.transform.localPosition =
-            foodPositionsParent.GetChild(bottomChildIndex).localPosition + Vector3.up * positionsYOffset;
+        Vector3 bottom = bottomChildIndex >= 0
+            ? foodPositionsParent.GetChild(bottomChildIndex).localPosition
+            : baseFoodOffset;
+
+        foodPositionInstance.transform.localPosition = bottom + Vector3.up * positionsYOffset;
         foodPositionInstance.transform.localRotation = Quaternion.identity;
 
         isFull = false;

@@ -42,7 +42,9 @@ public static class CharacterSetup
         "Jump_Idle", "Sitting_Idle", "Sitting_Eating",
     };
 
+#if COOKED_FAST_SETUP
     [MenuItem("Cooked Fast/Setup New Characters")]
+#endif
     public static void SetupNewCharacters()
     {
         List<string> searchFolders = new List<string>();
@@ -85,7 +87,9 @@ public static class CharacterSetup
 
     // Swaps only the visible model on the Player. Every gameplay component
     // stays where it is, so movement, carrying and serving keep working
+#if COOKED_FAST_SETUP
     [MenuItem("Cooked Fast/Make Panda The Player")]
+#endif
     public static void MakePandaThePlayer()
     {
         SwapPlayerModel("Panda");
@@ -195,11 +199,16 @@ public static class CharacterSetup
         report += "- PlayerAnimator yeni modele baglandi\n";
 
         // Put the tray back inside the new body, keeping the world placement it
-        // had, so a hand-tuned position survives the swap
+        // had, so a hand-tuned position survives the swap. It goes on the hand
+        // bone rather than the body root: parented to the root it hangs rigidly
+        // in front of the character while the arms animate straight through it
         foreach (Plateau plateau in plateaus)
         {
-            Undo.SetTransformParent(plateau.transform, newVisual.transform, "Reattach plateau");
-            report += "- Plateau yeni modele geri kondu: " + plateau.name + "\n";
+            Transform hand = PlateauAttach.FindHand(newVisual.transform, plateau.transform);
+            Transform parent = hand != null ? hand : newVisual.transform;
+
+            Undo.SetTransformParent(plateau.transform, parent, "Reattach plateau");
+            report += "- Plateau geri kondu: " + parent.name + "\n";
         }
 
         if (oldVisual != null && oldVisual != playerRoot.transform && oldVisual != newVisual.transform)
@@ -218,7 +227,9 @@ public static class CharacterSetup
 
     // Builds one Customer prefab per rabbit and hands the set to CustomerManager,
     // so every customer that walks in looks different
+#if COOKED_FAST_SETUP
     [MenuItem("Cooked Fast/Make Rabbits The Customers")]
+#endif
     public static void MakeRabbitsTheCustomers()
     {
         const string sourcePath = "Assets/Tiny Coffee Shop/Prefabs/Characters/Customer.prefab";
@@ -282,6 +293,206 @@ public static class CharacterSetup
         EditorUtility.DisplayDialog("Musteriler", report, "Tamam");
     }
 
+    private const string customersFolder = "Assets/Tiny Coffee Shop/Prefabs/Characters/Customers";
+    private const string sampleName = "SAMPLE Customer";
+
+    // Drops one customer into the scene so the tray can be nudged by eye
+    [MenuItem("Cooked Fast/Add Sample Customer")]
+    public static void AddSampleCustomer()
+    {
+        GameObject prefab = FindSpawningCustomerPrefab();
+
+        if (prefab == null)
+        {
+            EditorUtility.DisplayDialog("Hata",
+                "Once Make Rabbits The Customers calistir", "Tamam");
+            return;
+        }
+
+        GameObject existing = GameObject.Find(sampleName);
+
+        if (existing != null)
+            Undo.DestroyObjectImmediate(existing);
+
+        GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+        instance.name = sampleName;
+        instance.transform.position = FindSampleSpot();
+
+        Undo.RegisterCreatedObjectUndo(instance, "Add sample customer");
+
+        Plateau plateau = instance.GetComponentInChildren<Plateau>(true);
+
+        if (plateau == null)
+        {
+            EditorUtility.DisplayDialog("Hata", prefab.name + " icinde Plateau yok", "Tamam");
+            return;
+        }
+
+        // A customer's tray is switched off until they are handed something, and
+        // it now hangs several bones deep inside the rig. Both together are why
+        // it could not be found in the Hierarchy
+        plateau.gameObject.SetActive(true);
+
+        AddSampleFood(plateau);
+
+        // Select the tray itself rather than the customer, so the transform
+        // fields in the Inspector are already the ones being tuned
+        Selection.activeGameObject = plateau.gameObject;
+        SceneView.lastActiveSceneView?.FrameSelected();
+
+        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+
+        string path = PathOf(plateau.transform, instance.transform);
+
+        Debug.Log("Ornek musteri plateau yolu:\n" + path);
+
+        EditorUtility.DisplayDialog("Ornek Musteri",
+            prefab.name + " sahneye eklendi ve Plateau secildi.\n\n" +
+            "Yol:\n" + path + "\n\n" +
+            "Tutma pozunda ayarlamak icin:\n" +
+            "Cooked Fast > Plateau Hand Adjuster\n\n" +
+            "Bitince Apply Sample Plateau To All Customers.",
+            "Tamam");
+    }
+
+    // The variant CustomerManager actually spawns, not whatever the folder scan
+    // happens to return first. Tuning a rabbit the game never shows is wasted work
+    private static GameObject FindSpawningCustomerPrefab()
+    {
+        CustomerManager manager =
+            Object.FindFirstObjectByType<CustomerManager>(FindObjectsInactive.Include);
+
+        if (manager != null)
+        {
+            SerializedProperty list = new SerializedObject(manager).FindProperty("customerPrefabs");
+
+            for (int i = 0; list != null && i < list.arraySize; i++)
+            {
+                Object entry = list.GetArrayElementAtIndex(i).objectReferenceValue;
+
+                if (entry is Customer customer)
+                    return customer.gameObject;
+            }
+        }
+
+        string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { customersFolder });
+
+        return guids.Length <= 0
+            ? null
+            : AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guids[0]));
+    }
+
+    // Something on the tray, otherwise there is no way to see whether the food
+    // sits on the plate or floats above it
+    private static void AddSampleFood(Plateau plateau)
+    {
+        FoodPosition foodPosition = plateau.GetComponentInChildren<FoodPosition>(true);
+
+        if (foodPosition == null)
+            return;
+
+        GameObject foodPrefab = FindSceneFood();
+
+        if (foodPrefab == null)
+            return;
+
+        GameObject food = (GameObject)PrefabUtility.InstantiatePrefab(foodPrefab, foodPosition.transform);
+
+        food.transform.localPosition = Vector3.zero;
+        food.transform.localRotation = Quaternion.identity;
+    }
+
+    // Whatever the stations in this scene actually hand out. The kitchen runs on
+    // pizza, and a folder scan kept returning the coffee shop's Cup
+    private static GameObject FindSceneFood()
+    {
+        FoodSpawnerStation[] stations = Object.FindObjectsByType<FoodSpawnerStation>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        GameObject first = null;
+
+        foreach (FoodSpawnerStation station in stations)
+        {
+            SpawnableFood food = station.SpawnableFoodPrefab;
+
+            if (food == null)
+                continue;
+
+            if (first == null)
+                first = food.gameObject;
+
+            if (food.name.ToLowerInvariant().Contains("pizza"))
+                return food.gameObject;
+        }
+
+        return first;
+    }
+
+    private static string PathOf(Transform transform, Transform root)
+    {
+        string path = transform.name;
+
+        while (transform.parent != null && transform != root)
+        {
+            transform = transform.parent;
+            path = transform.name + "/" + path;
+        }
+
+        return path;
+    }
+
+    private static Vector3 FindSampleSpot()
+    {
+        FoodServingCustomerManager manager =
+            Object.FindFirstObjectByType<FoodServingCustomerManager>(FindObjectsInactive.Include);
+
+        if (manager != null)
+        {
+            SerializedObject so = new SerializedObject(manager);
+            Transform queueStart = so.FindProperty("queueStartPoint").objectReferenceValue as Transform;
+
+            if (queueStart != null)
+                return queueStart.position;
+        }
+
+        return Vector3.zero;
+    }
+
+    // Copies the tray placement off the sample and into every variant prefab.
+    // Superseded by Copy Selected Customer Plateau To Others, which reads the
+    // same numbers off whatever is selected instead of only off the sample
+#if COOKED_FAST_SETUP
+    [MenuItem("Cooked Fast/Apply Sample Plateau To All Customers")]
+#endif
+    public static void ApplySamplePlateauToAllCustomers()
+    {
+        GameObject sample = GameObject.Find(sampleName);
+
+        if (sample == null)
+        {
+            EditorUtility.DisplayDialog("Hata",
+                "Sahnede '" + sampleName + "' yok.\nOnce Add Sample Customer calistir.", "Tamam");
+            return;
+        }
+
+        Plateau samplePlateau = sample.GetComponentInChildren<Plateau>(true);
+
+        if (samplePlateau == null)
+        {
+            EditorUtility.DisplayDialog("Hata", "Ornekte Plateau bulunamadi", "Tamam");
+            return;
+        }
+
+        // Hands off to the copy path rather than repeating it. That one reads the
+        // bone the sample's tray actually hangs off; this used to run FindHand on
+        // each variant and re-guess, which is how hand placing kept getting
+        // thrown away on characters that were already correct
+        string report = PlateauAttach.CopyPlacementFrom(samplePlateau, sample.transform);
+
+        Debug.Log("Plateau ayari:\n" + report);
+        EditorUtility.DisplayDialog("Plateau Ayari", report, "Tamam");
+    }
+
     private static bool BuildCustomerVariant(string sourcePath, string variantPath, string characterName)
     {
         GameObject model = FindCharacterModel(characterName);
@@ -324,14 +535,30 @@ public static class CharacterSetup
             animatorProperty.objectReferenceValue = newAnimator;
             animatorSo.ApplyModifiedProperties();
 
-            if (oldVisual != null && oldVisual != root.transform)
+            // Move the tray inside the new body and KEEP its local transform.
+            // World-preserving would leave it hanging at the old character's
+            // height, so a half-size rabbit ends up with food above its head
+            foreach (Plateau plateau in root.GetComponentsInChildren<Plateau>(true))
             {
-                // The tray lives under the old body; keep it alive
-                foreach (Plateau plateau in oldVisual.GetComponentsInChildren<Plateau>(true))
-                    plateau.transform.SetParent(root.transform, true);
+                Vector3 plateauPosition = plateau.transform.localPosition;
+                Quaternion plateauRotation = plateau.transform.localRotation;
 
-                oldVisual.gameObject.SetActive(false);
+                plateau.transform.SetParent(newVisual.transform, false);
+                plateau.transform.localPosition = plateauPosition;
+                plateau.transform.localRotation = plateauRotation;
+                plateau.transform.localScale = Vector3.one;
+
+                // Only now, with the tray sitting at the right height on the new
+                // body, hang it off the hand so the carry animation moves it.
+                // World-preserving this time, since the placement is already right
+                Transform hand = PlateauAttach.FindHand(newVisual.transform, plateau.transform);
+
+                if (hand != null)
+                    plateau.transform.SetParent(hand, true);
             }
+
+            if (oldVisual != null && oldVisual != root.transform)
+                oldVisual.gameObject.SetActive(false);
 
             PrefabUtility.SaveAsPrefabAsset(root, variantPath);
             return true;

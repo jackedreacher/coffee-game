@@ -22,8 +22,14 @@ public class FoodPosition : MonoBehaviour
 
     public void Push(SpawnableFood foodInstance)
     {
-        foodInstance.transform.SetParent(transform);
+        // Explicitly NOT world-preserving. The plateau hangs off a hand bone
+        // now, so a world-preserving reparent bakes whatever pose the arm
+        // happened to be in into the food's local rotation, and the bone's scale
+        // into its local scale. Same pizza, different angle and size on every
+        // single pickup, and a stack that never lines up
+        foodInstance.transform.SetParent(transform, false);
         foodInstance.transform.localPosition = Vector3.zero;
+        foodInstance.transform.localRotation = Quaternion.identity;
 
         food = foodInstance;
         isEmpty = false;
