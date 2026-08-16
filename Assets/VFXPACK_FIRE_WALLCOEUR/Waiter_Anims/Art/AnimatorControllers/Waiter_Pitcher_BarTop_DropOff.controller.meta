@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7cfea071f17375a4b8caee5324f4e624
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Pitcher_BarTop_DropOff.controller
+  uploadId: 513988

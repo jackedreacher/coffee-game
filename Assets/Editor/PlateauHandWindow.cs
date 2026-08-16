@@ -64,9 +64,49 @@ public class PlateauHandWindow : EditorWindow
         window.Reload();
     }
 
+    private void OnEnable()
+    {
+        EditorApplication.playModeStateChanged += OnPlayModeChanged;
+    }
+
+    // A food prefab added while this window was open never showed up in the
+    // dropdown, because the list was only ever built when it was empty. The
+    // dropdown then went on pointing at whatever it held before, so reading a
+    // bread off the scene filled the fields under the word Pizza
+    private void OnFocus()
+    {
+        RebuildFoods(true);
+    }
+
     private void OnDisable()
     {
+        EditorApplication.playModeStateChanged -= OnPlayModeChanged;
         StopPose();
+    }
+
+    // Tuning only reads true in play mode, where the rig is in a real pose and
+    // real food is on the tray -- and everything done there is thrown away on
+    // stop. Carrying the snapshot back across that boundary is the whole loop
+    private const string autoApplyKey = "CookedFast.Plateau.AutoApply";
+
+    private static bool AutoApply
+    {
+        get => EditorPrefs.GetBool(autoApplyKey, false);
+        set => EditorPrefs.SetBool(autoApplyKey, value);
+    }
+
+    private void OnPlayModeChanged(PlayModeStateChange change)
+    {
+        if (change != PlayModeStateChange.EnteredEditMode || !AutoApply || !HasSnapshot())
+            return;
+
+        RestoreSnapshot();
+
+        // Something writing to the scene without being asked has to leave a
+        // trace, or the next surprising value has no explanation
+        Debug.Log("[Plateau] Play bitti, kayitli ayar uygulandi: " + status);
+
+        Repaint();
     }
 
     private void OnGUI()
@@ -215,6 +255,22 @@ public class PlateauHandWindow : EditorWindow
             EditorGUILayout.LabelField("Duzenlenen", PathUnder(plateau.transform, FindRoot()));
         }
 
+        // Clicking a character in the Hierarchy while the dropdown still points
+        // somewhere else edits one tray and shows another's numbers. It reads as
+        // the tool ignoring you, and whatever gets copied out is the wrong tray
+        if (targetIndex != 2)
+        {
+            GameObject selected = Selection.activeGameObject;
+            Plateau clicked = selected == null ? null : selected.GetComponentInParent<Plateau>(true);
+
+            if (clicked != null && clicked != plateau)
+                EditorGUILayout.HelpBox(
+                    "Hierarchy'de '" + clicked.transform.root.name + "' secili ama duzenlenen " +
+                    targets[targetIndex] + ".\n" +
+                    "Sectigini duzenlemek icin Hedef = 'Secili obje' yap.",
+                    MessageType.Warning);
+        }
+
         EditorGUILayout.LabelField("Bagli kemik", EditorStyles.boldLabel);
 
         EditorGUILayout.LabelField("Su an",
@@ -307,17 +363,68 @@ public class PlateauHandWindow : EditorWindow
 
         // Whichever box was actually touched drives the other two. Falling
         // through to z covers the case where two read equal already
-        float driver = !Mathf.Approximately(typed.x, value.x) ? typed.x
-            : !Mathf.Approximately(typed.y, value.y) ? typed.y
-            : typed.z;
+        float driver;
+        float before;
 
-        return new Vector3(driver, driver, driver);
+        if (!Mathf.Approximately(typed.x, value.x))
+        {
+            driver = typed.x;
+            before = value.x;
+        }
+        else if (!Mathf.Approximately(typed.y, value.y))
+        {
+            driver = typed.y;
+            before = value.y;
+        }
+        else
+        {
+            driver = typed.z;
+            before = value.z;
+        }
+
+        // In proportion, not all three set equal. Meat is 1.88 wide and 2.14
+        // tall on purpose, and the pizza carries a 6.32 stretch on Y alone:
+        // flattening those to one number does not resize a food, it reshapes it.
+        // Where the numbers already match, in proportion and equal are the same
+        if (Mathf.Abs(before) < .0001f)
+            return new Vector3(driver, driver, driver);
+
+        return value * (driver / before);
+    }
+
+    // A station's tray is not a character's. Everything in this section that
+    // pushes the current numbers outwards -- into all seven rabbit prefabs, into
+    // the Plateau prefab the player and every rabbit share -- would carry a
+    // cutting board's placement out with it and there is no undo for that
+    private static bool IsCharacterPlateau(Plateau plateau)
+    {
+        for (Transform step = plateau.transform; step != null; step = step.parent)
+        {
+            if (step.GetComponent<Customer>() != null ||
+                step.GetComponent<PlayerController>() != null ||
+                step.GetComponent<CustomerAnimator>() != null ||
+                step.GetComponent<PlayerAnimator>() != null)
+                return true;
+        }
+
+        return false;
     }
 
     private void DrawSaving(Plateau plateau)
     {
+        bool character = IsCharacterPlateau(plateau);
+
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Kaydet", EditorStyles.boldLabel);
+
+        if (!character)
+        {
+            EditorGUILayout.HelpBox(
+                "Istasyon tepsisi -- karakter degil.\n" +
+                "Paylasilan prefaba ve tavsanlara yazan butonlar kapatildi.\n" +
+                "Buradaki sayilar sadece bu sahne objesine ait, Ctrl+S ile kaydedilir.",
+                MessageType.Info);
+        }
 
         using (new EditorGUILayout.HorizontalScope())
         {
@@ -331,15 +438,27 @@ public class PlateauHandWindow : EditorWindow
             }
         }
 
+        AutoApply = EditorGUILayout.ToggleLeft(
+            "Play bitince kayitli ayari uygula", AutoApply);
+
+        if (AutoApply && HasSnapshot())
+            EditorGUILayout.HelpBox(
+                "Play'de ayarla -> 'Ayari kaydet' -> Play'i durdur.\n" +
+                "Ayar sahneye kendiliginden gecer, Ctrl+S ile kaydet.",
+                MessageType.None);
+
         // The plate visual lives in the shared prefab, so it is the one thing
         // here that is not per character. Writing it from an instance is the
         // only way to settle its size without opening the prefab by hand
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Tabagi prefaba yaz"))
+            using (new EditorGUI.DisabledScope(!character))
             {
-                status = PlateauSetup.WriteVisual(
-                    platePosition, Quaternion.Euler(plateEuler), plateScale);
+                if (GUILayout.Button("Tabagi prefaba yaz"))
+                {
+                    status = PlateauSetup.WriteVisual(
+                        platePosition, Quaternion.Euler(plateEuler), plateScale);
+                }
             }
 
             if (GUILayout.Button("Tabagi prefabdan oku"))
@@ -364,21 +483,26 @@ public class PlateauHandWindow : EditorWindow
         // Two of those and no amount of editing the prefab makes every tray agree
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Tabak override'ini temizle"))
+            if (GUILayout.Button(character
+                    ? "Tabak override'ini temizle"
+                    : "Tabagi geri getir (tahtayi kaldirir)"))
                 RevertPlateOverride(plateau);
 
-            if (GUILayout.Button("Tavsanlarda temizle"))
+            using (new EditorGUI.DisabledScope(!character))
             {
-                string report = PlateauAttach.RevertPlateVisualOnCustomers();
+                if (GUILayout.Button("Tavsanlarda temizle"))
+                {
+                    string report = PlateauAttach.RevertPlateVisualOnCustomers();
 
-                Debug.Log(report);
-                status = report;
+                    Debug.Log(report);
+                    status = report;
+                }
             }
         }
 
         // The panda's numbers on a rabbit put the pizza in mid air, so this only
-        // ever runs from a rabbit outwards
-        using (new EditorGUI.DisabledScope(targetIndex == 0))
+        // ever runs from a rabbit outwards -- and never from a station tray
+        using (new EditorGUI.DisabledScope(targetIndex == 0 || !character))
         {
             if (GUILayout.Button("Tum tavsanlara yaz", GUILayout.Height(26f)))
                 WriteToCustomers(plateau);
@@ -437,6 +561,11 @@ public class PlateauHandWindow : EditorWindow
 
     private string[] foodPaths = new string[0];
     private string[] foodLabels = new string[0];
+
+    // The component name, not the file name. bread.prefab carries a Bread, and
+    // matching a scene selection against the label would have compared "Bread"
+    // to "bread" and quietly failed
+    private string[] foodTypes = new string[0];
     private int foodIndex;
 
     private Vector3 foodModelPosition;
@@ -453,7 +582,7 @@ public class PlateauHandWindow : EditorWindow
         EditorGUILayout.LabelField("Yemek prefabi", EditorStyles.boldLabel);
 
         if (foodPaths.Length <= 0)
-            RebuildFoods();
+            RebuildFoods(false);
 
         if (foodPaths.Length <= 0)
         {
@@ -461,12 +590,18 @@ public class PlateauHandWindow : EditorWindow
             return;
         }
 
-        int picked = EditorGUILayout.Popup("Yemek", foodIndex, foodLabels);
-
-        if (picked != foodIndex)
+        using (new EditorGUILayout.HorizontalScope())
         {
-            foodIndex = picked;
-            ReadFood();
+            int picked = EditorGUILayout.Popup("Yemek", foodIndex, foodLabels);
+
+            if (picked != foodIndex)
+            {
+                foodIndex = picked;
+                ReadFood();
+            }
+
+            if (GUILayout.Button("Yenile", GUILayout.Width(60f)))
+                RebuildFoods(false);
         }
 
         EditorGUI.BeginChangeCheck();
@@ -504,35 +639,80 @@ public class PlateauHandWindow : EditorWindow
                 ReadFood();
         }
 
+        // Station trays are empty until the game fills them, so their food can
+        // only be judged in play mode -- where every change is thrown away on
+        // stop. A stand-in placed exactly the way Push would place it makes the
+        // edit mode view honest
+        using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Onizleme yemegi koy"))
+                    AddPreviewFood();
+
+                if (GUILayout.Button("Onizlemeyi kaldir"))
+                    RemovePreviewFood();
+            }
+        }
+
         // Play mode clones are the only place a salad is ever seen at its real
         // size on a real tray, so previewing has to reach them too
         if (edited || GUILayout.Button("Sahnedekilere uygula"))
             ApplyFoodLive();
     }
 
-    private void RebuildFoods()
+    // keepValues: a rebuild triggered by the window merely regaining focus must
+    // not throw away numbers half typed into the fields. Only a rebuild the user
+    // asked for, or the very first one, reloads them
+    private void RebuildFoods(bool keepValues)
     {
+        string previous = foodPaths.Length > 0 && foodIndex < foodPaths.Length
+            ? foodPaths[foodIndex]
+            : null;
+
         List<string> paths = new List<string>();
         List<string> labels = new List<string>();
+        List<string> types = new List<string>();
 
         foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { foodFolder }))
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            SpawnableFood food = prefab == null ? null : prefab.GetComponent<SpawnableFood>();
 
-            if (prefab == null || prefab.GetComponent<SpawnableFood>() == null)
+            if (food == null)
                 continue;
 
             paths.Add(path);
             labels.Add(System.IO.Path.GetFileNameWithoutExtension(path));
+            types.Add(food.GetType().Name);
         }
 
         foodPaths = paths.ToArray();
         foodLabels = labels.ToArray();
-        foodIndex = Mathf.Clamp(foodIndex, 0, Mathf.Max(0, foodPaths.Length - 1));
+        foodTypes = types.ToArray();
 
-        if (foodPaths.Length > 0)
-            ReadFood();
+        if (foodPaths.Length <= 0)
+        {
+            foodIndex = 0;
+            return;
+        }
+
+        int stillThere = previous == null ? -1 : System.Array.IndexOf(foodPaths, previous);
+
+        if (stillThere >= 0)
+        {
+            foodIndex = stillThere;
+
+            if (!keepValues)
+                ReadFood();
+
+            return;
+        }
+
+        foodIndex = Mathf.Clamp(foodIndex, 0, foodPaths.Length - 1);
+
+        ReadFood();
     }
 
     private static Transform FindFoodModel(GameObject root)
@@ -569,16 +749,41 @@ public class PlateauHandWindow : EditorWindow
         // Follow the selection rather than write a salad's numbers into whatever
         // the dropdown happened to be showing
         SpawnableFood food = model.GetComponentInParent<SpawnableFood>();
-        int match = System.Array.IndexOf(foodLabels, food.GetType().Name);
+        string wanted = food.GetType().Name;
 
-        if (match >= 0)
-            foodIndex = match;
+        int match = System.Array.IndexOf(foodTypes, wanted);
+
+        if (match < 0)
+        {
+            // The list can be a build behind: a prefab created since the window
+            // opened is not in it yet
+            RebuildFoods(true);
+            match = System.Array.IndexOf(foodTypes, wanted);
+        }
+
+        // Refusing rather than reading. Filling the fields while the dropdown
+        // still says Pizza is how a bread's numbers end up written into the
+        // pizza prefab by the very next button press
+        if (match < 0)
+        {
+            status = wanted + " icin " + foodFolder + " icinde prefab yok.\n" +
+                     "Okumadim -- yazsaydim '" + foodLabels[foodIndex] + "' prefabina giderdi.";
+            return;
+        }
+
+        foodIndex = match;
 
         foodModelPosition = model.localPosition;
         foodModelEuler = model.localRotation.eulerAngles;
         foodModelScale = model.localScale;
 
-        status = food.name + " sahneden okundu. 'Prefaba yaz' ile kalici yap.";
+        SerializedObject live = new SerializedObject(food);
+
+        cleanOffset = live.FindProperty("cleanYOffsetOnPlateau").floatValue;
+        dirtyOffset = live.FindProperty("dirtyYOffsetOnPlateau").floatValue;
+
+        status = food.name + " okundu -> " + foodLabels[foodIndex] +
+                 ".prefab. 'Prefaba yaz' ile kalici yap.";
     }
 
     private void ReadFood()
@@ -654,6 +859,83 @@ public class PlateauHandWindow : EditorWindow
     // says nothing: the prefab open in Prefab Mode, a missing component, a save
     // that returns false. Each one is checked, and the values are read back off
     // disk afterwards so "written" means the file actually says so
+    private const string previewPrefix = "PREVIEW ";
+
+    private void AddPreviewFood()
+    {
+        Plateau plateau = FindPlateau();
+        Transform slot = plateau == null ? null : PlateauAttach.FirstSlot(plateau);
+
+        if (slot == null)
+        {
+            status = "Hedefte yemek slotu bulunamadi";
+            return;
+        }
+
+        RemovePreviewFood();
+
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(foodPaths[foodIndex]);
+
+        if (prefab == null)
+        {
+            status = "Yemek prefabi okunamadi";
+            return;
+        }
+
+        GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, slot);
+
+        Undo.RegisterCreatedObjectUndo(instance, "Preview food");
+
+        instance.name = previewPrefix + prefab.name;
+
+        // Exactly what FoodPosition.Push does, scale included: it never touches
+        // localScale, so the prefab's own one is what the game will show
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = Quaternion.identity;
+        instance.transform.localScale = prefab.transform.localScale;
+
+        Selection.activeGameObject = instance;
+        EditorSceneManager.MarkSceneDirty(instance.scene);
+
+        status = "Onizleme kondu. Bitince 'Onizlemeyi kaldir' -- oyuna girmemeli.";
+    }
+
+    private void RemovePreviewFood()
+    {
+        Plateau plateau = FindPlateau();
+
+        if (plateau == null)
+            return;
+
+        // Collected before anything is destroyed. Killing a preview takes its
+        // children with it, and the entries already read out of the array turn
+        // into missing references the moment they are touched
+        List<GameObject> doomed = new List<GameObject>();
+
+        foreach (Transform candidate in plateau.GetComponentsInChildren<Transform>(true))
+        {
+            if (candidate != null && candidate.name.StartsWith(previewPrefix))
+                doomed.Add(candidate.gameObject);
+        }
+
+        int removed = 0;
+
+        foreach (GameObject target in doomed)
+        {
+            if (target == null)
+                continue;
+
+            Undo.DestroyObjectImmediate(target);
+            removed++;
+        }
+
+        if (removed > 0)
+        {
+            EditorSceneManager.MarkSceneDirty(plateau.gameObject.scene);
+            status = removed + " onizleme kaldirildi";
+        }
+    }
+
     private void WriteFood()
     {
         string path = foodPaths[foodIndex];
@@ -1044,11 +1326,23 @@ public class PlateauHandWindow : EditorWindow
 
     // Stored outside the scene on purpose: the point is to survive whatever
     // wrecks the scene copy, play mode included
-    private string SnapshotKey => "CookedFast.Plateau." + targets[targetIndex];
+    // One slot per tray, keyed by where the tray actually is.
+    //
+    // Keying it by the target name meant every object ever edited under "Secili
+    // obje" shared a single slot. Save a rabbit, then tune a station tray in play
+    // mode: the station had nowhere of its own to save to, and on stopping, the
+    // owner check -- correctly -- refused to paste the rabbit's numbers over it.
+    // The refusal was right and the work was lost anyway
+    private static string SnapshotKeyFor(Plateau plateau)
+    {
+        return "CookedFast.Plateau.tray." + FullPath(plateau.transform).Replace('/', '.');
+    }
 
     private bool HasSnapshot()
     {
-        return EditorPrefs.HasKey(SnapshotKey);
+        Plateau plateau = FindPlateau();
+
+        return plateau != null && EditorPrefs.HasKey(SnapshotKeyFor(plateau));
     }
 
     private void SaveSnapshot()
@@ -1067,22 +1361,48 @@ public class PlateauHandWindow : EditorWindow
             return;
         }
 
-        EditorPrefs.SetString(SnapshotKey, JsonUtility.ToJson(placement));
-        status = "Kaydedildi: " + (placement.bonePath.Length <= 0 ? "(model koku)" : placement.bonePath);
+        EditorPrefs.SetString(SnapshotKeyFor(plateau), JsonUtility.ToJson(placement));
+
+        status = "Kaydedildi: " + FullPath(plateau.transform) +
+                 "\nkemik " + (placement.bonePath.Length <= 0 ? "(model koku)" : placement.bonePath);
+    }
+
+    private static string FullPath(Transform transform)
+    {
+        string path = transform.name;
+
+        while (transform.parent != null)
+        {
+            transform = transform.parent;
+            path = transform.name + "/" + path;
+        }
+
+        return path;
     }
 
     private void RestoreSnapshot()
     {
         Plateau plateau = FindPlateau();
 
-        if (plateau == null || !HasSnapshot())
+        if (plateau == null)
         {
-            status = "Kayit yok";
+            status = TargetHelp();
+            return;
+        }
+
+        string key = SnapshotKeyFor(plateau);
+
+        // Each tray reads its own slot, so there is nothing left to mismatch:
+        // a tray with no saved setting simply has none, rather than being handed
+        // whatever was saved last from somewhere else
+        if (!EditorPrefs.HasKey(key))
+        {
+            status = "Bu tepsi icin kayit yok: " + FullPath(plateau.transform);
             return;
         }
 
         PlateauAttach.Placement placement =
-            JsonUtility.FromJson<PlateauAttach.Placement>(EditorPrefs.GetString(SnapshotKey));
+            JsonUtility.FromJson<PlateauAttach.Placement>(EditorPrefs.GetString(key));
 
         Transform visual = PlateauAttach.FindVisual(FindRoot());
         Transform bone = PlateauAttach.ResolveBone(visual, placement.bonePath);
@@ -1240,8 +1560,11 @@ public class PlateauHandWindow : EditorWindow
             return;
 
         SpawnableFood food = model.GetComponentInParent<SpawnableFood>();
-        int match = System.Array.IndexOf(foodLabels, food.GetType().Name);
+        int match = System.Array.IndexOf(foodTypes, food.GetType().Name);
 
+        // Only when the dropdown is already on this food. Mirroring a drag onto
+        // some other food's fields would put it one button press from being
+        // written into the wrong prefab
         if (match < 0 || match != foodIndex)
             return;
 

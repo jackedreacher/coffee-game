@@ -32,9 +32,24 @@ public abstract class PlayerController : MonoBehaviour, IWantToBeSaved
         TrySaveLastPosition();
     }
 
+    // Not "agent": ClickToMovePlayerController already has a field by that name,
+    // and Unity refuses to serialize the same name twice in one hierarchy
+    private UnityEngine.AI.NavMeshAgent pinAgent;
+
     private void LateUpdate()
     {
-        transform.position = transform.position.With(y: 0);   
+        // The joystick pushes a CharacterController, which drifts on Y and has
+        // to be pinned back down every frame. A NavMeshAgent is not being
+        // pushed -- it places the transform itself, at navmesh height plus its
+        // own base offset -- and writing over that position every LateUpdate
+        // fights the agent for the transform it is trying to drive
+        if (pinAgent == null)
+            pinAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+
+        if (pinAgent != null && pinAgent.enabled && pinAgent.isOnNavMesh)
+            return;
+
+        transform.position = transform.position.With(y: 0);
     }
 
     protected abstract void UpdateMovement();

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // A counter that sells several different foods at once. Each drop zone holds
@@ -30,14 +31,23 @@ public class OrderCounter : MonoBehaviour
         customerManager.SetPossibleOrders(GetSellableFoods());
     }
 
+    // Only the zones that actually sell something. One row per drop zone was
+    // the obvious shape and the wrong one: a zone whose accepted food is not
+    // set yet contributed a null, the queue handed that null to a customer as
+    // their order, and the bubble opened over their head with nothing in it
     private SpawnableFood[] GetSellableFoods()
     {
-        SpawnableFood[] foods = new SpawnableFood[dropZones.Length];
+        List<SpawnableFood> foods = new List<SpawnableFood>();
 
         for (int i = 0; i < dropZones.Length; i++)
-            foods[i] = dropZones[i].AcceptedFood;
+        {
+            if (dropZones[i] == null || dropZones[i].AcceptedFood == null)
+                continue;
 
-        return foods;
+            foods.Add(dropZones[i].AcceptedFood);
+        }
+
+        return foods.ToArray();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -134,6 +144,10 @@ public class OrderCounter : MonoBehaviour
         if (heldFood == null)
             return false;
 
+        // Raw food never reaches a customer, whatever they ordered
+        if (!heldFood.CanBeServed)
+            return false;
+
         // Refuse silently when it is not what they ordered, so a mistap does
         // not quietly burn the item the player is carrying
         if (customer.RequestedFood != null &&
@@ -145,8 +159,8 @@ public class OrderCounter : MonoBehaviour
         if (foodToServe == null)
             return false;
 
-        GenerateRevenue(characterStats);
         customer.CollectFood(foodToServe);
+        customer.ShowEarnings(GenerateRevenue(characterStats, customer.RewardMultiplier));
 
         if (!customer.NeedsMoreFood())
             SendCustomerHome(customer);
@@ -154,20 +168,31 @@ public class OrderCounter : MonoBehaviour
         return true;
     }
 
-    private void GenerateRevenue(CharacterStats characterStats)
+    // Collect first, pay second. CollectFood is what stops the patience clock,
+    // and a multiplier read before it stops is read off a clock still running.
+    //
+    // The mood is new here. This path paid a flat rate whoever was kept waiting,
+    // so the whole patience system only counted when the player served by hand
+    private int GenerateRevenue(CharacterStats characterStats, float moodMultiplier)
     {
         float revenueMultiplier = Mathf.Max(1f, characterStats.Revenue);
-        int revenue = Mathf.CeilToInt(baseRevenue * revenueMultiplier);
+
+        int revenue = Mathf.CeilToInt(
+            baseRevenue * revenueMultiplier * Mathf.Max(.05f, moodMultiplier));
 
         cashFile?.GenerateCash(revenue);
+
+        return revenue;
     }
 
     private void Serve(Customer customer, FoodDropZone zone, CharacterStats characterStats)
     {
-        GenerateRevenue(characterStats);
-
+        // Only reached once the zone has been checked for stock, so this pops
+        // something. Moved above the till so the clock is stopped first
         SpawnableFood foodToServe = zone.Pop();
+
         customer.CollectFood(foodToServe);
+        customer.ShowEarnings(GenerateRevenue(characterStats, customer.RewardMultiplier));
 
         if (customer.NeedsMoreFood())
             return;

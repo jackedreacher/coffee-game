@@ -2,7 +2,7 @@
 	"data": {
 		"JoystickPlayerController_LAST_POSITION": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": 22.14792,\r\n\t\t\"y\": -2.38418579E-07,\r\n\t\t\"z\": 10.8541527\r\n\t}\r\n}"
+			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": 21.7530937,\r\n\t\t\"y\": 1.1920929E-07,\r\n\t\t\"z\": 11.9644833\r\n\t}\r\n}"
 		},
 		"LockedElement_b4b634b2-c18a-4f6f-88b9-a88ae44afeacLockedElementCurrentPrice": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -18,7 +18,7 @@
 		},
 		"CurrencyManager_currency": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": 3469\r\n}"
+			"value": "{\r\n\t\"myObject\": 11407\r\n}"
 		},
 		"LockedElement_8ed4282d-b7d7-4d87-b069-30bbddd16729LockedElementCurrentPrice": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -74,11 +74,11 @@
 		},
 		"CashFile_d6588455-54b9-4e66-aebe-942568148147": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": 124\r\n}"
+			"value": "{\r\n\t\"myObject\": 68\r\n}"
 		},
 		"ClickToMovePlayerController_LAST_POSITION": {
 			"dataType": "Tabsil.Sijil.SerializableObject`1[[UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": 19.1411629,\r\n\t\t\"y\": 0.0333333,\r\n\t\t\"z\": 14.3163319\r\n\t}\r\n}"
+			"value": "{\r\n\t\"myObject\": {\r\n\t\t\"x\": 24.40133,\r\n\t\t\"y\": 0.11359787,\r\n\t\t\"z\": 11.3489256\r\n\t}\r\n}"
 		}
 	}
 }

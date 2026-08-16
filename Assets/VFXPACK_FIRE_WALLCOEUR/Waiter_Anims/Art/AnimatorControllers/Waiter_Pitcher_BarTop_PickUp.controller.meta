@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 87c440eb69423154e93f14fc018e3eb2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Pitcher_BarTop_PickUp.controller
+  uploadId: 513988

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e47fcb087ad6d794d8e66991a1856b2b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Tray_Turn_180.controller
+  uploadId: 513988

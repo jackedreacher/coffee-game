@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 92efa80f2d7966046b817a34f7310883
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/Models/Props/Dishes/ClothRag/Animations/Prop_Waiter_Idle_WipeTable_Start.controller
+  uploadId: 513988

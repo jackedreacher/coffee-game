@@ -31,7 +31,9 @@ public class FoodSpawnerStation : MonoBehaviour
         }
     }
 
-    private void TrySpawnFood()
+    // Virtual so a station can keep the timer and change what a tick means.
+    // The cheese wheel refills all at once instead of one piece at a time
+    protected virtual void TrySpawnFood()
     {
         if (plateau.IsFull)
             return;
@@ -45,7 +47,7 @@ public class FoodSpawnerStation : MonoBehaviour
         plateau.Push(foodInstance);
     }
 
-    public SpawnableFood Pop()
+    public virtual SpawnableFood Pop()
     {
         SpawnableFood food = plateau.Pop();
 

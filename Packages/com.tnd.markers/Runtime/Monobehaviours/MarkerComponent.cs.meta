@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 234a84fc6772a4440b30f11643928634
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 323949
+  packageName: Markers!
+  packageVersion: 1.0
+  assetPath: Packages/com.tnd.markers/Runtime/Monobehaviours/MarkerComponent.cs
+  uploadId: 784998

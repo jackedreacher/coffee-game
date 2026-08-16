@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5e87bcf7347d12e40999b83f8a659b62
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 323949
+  packageName: Markers!
+  packageVersion: 1.0
+  assetPath: Packages/com.tnd.markers/Editor/MarkerManagerEditor.cs
+  uploadId: 784998

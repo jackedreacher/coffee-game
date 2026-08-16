@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9e4706b71c0739846b857a84997d97b7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Tray_Walk_BackRight.controller
+  uploadId: 513988

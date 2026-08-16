@@ -17,20 +17,58 @@ public class Plateau : MonoBehaviour
     // Where the stack starts, taken from wherever the first slot was placed by
     // hand. Rearranging used to write a bare Vector3.up * offset over the slots,
     // so the first pickup snapped the food back to the plateau's own origin and
-    // no amount of tuning in the editor ever survived into play mode
+    // no amount of tuning in the editor ever survived into play mode.
+    //
+    // Rotation and scale travel with it: the first item sits on the authored
+    // slot while every one after it sits on a slot this class builds, and a
+    // built slot that ignores them lays the second item at a different angle
+    // from the first
     private Vector3 baseFoodOffset;
+    private Quaternion baseFoodRotation = Quaternion.identity;
+    private Vector3 baseFoodScale = Vector3.one;
 
     public bool IsFull => isFull;
     public bool IsEmpty => isEmpty;
     public bool IsDirty => isDirty;
+
+    // Read only. The carrier raises its own tray while a recipe is half built
+    // and has to be able to put the old number back afterwards
+    public int MaxCapacity => maxCapacity;
+
+    // Everything on the tray without taking any of it. Peek only ever answered
+    // with the top one, which cannot tell "holding bread" from "holding bread
+    // and a patty"
+    public SpawnableFood[] PeekAll()
+    {
+        List<SpawnableFood> foods = new List<SpawnableFood>();
+
+        for (int i = 0; i < foodPositionsParent.childCount; i++)
+        {
+            if (!foodPositionsParent.GetChild(i).TryGetComponent(out FoodPosition foodPosition))
+                continue;
+
+            if (foodPosition.IsEmpty)
+                continue;
+
+            foods.Add(foodPosition.Peek());
+        }
+
+        return foods.ToArray();
+    }
 
     private void Awake()
     {
         isFull = false;
         isEmpty = true;
 
-        if (foodPositionsParent.childCount > 0)
-            baseFoodOffset = foodPositionsParent.GetChild(0).localPosition;
+        if (foodPositionsParent.childCount <= 0)
+            return;
+
+        Transform first = foodPositionsParent.GetChild(0);
+
+        baseFoodOffset = first.localPosition;
+        baseFoodRotation = first.localRotation;
+        baseFoodScale = first.localScale;
     }
 
     // Deliberately not touching isFull here: this runs while setting up the
@@ -169,7 +207,23 @@ public class Plateau : MonoBehaviour
 
         for (int i = 0; i < foodPositionsParent.childCount; i++)
             foodPositionsParent.GetChild(i).localPosition =
-                baseFoodOffset + Vector3.up * i * positionsYOffset;
+                baseFoodOffset + StackStep(i * positionsYOffset);
+    }
+
+    // Direction from the world, distance from the tray.
+    //
+    // Vector3.up on its own meant the tray's own up, which points sideways the
+    // moment the tray is turned to sit in a hand -- so the stack grew off to one
+    // side. Converting the whole vector through world space instead fixed the
+    // direction and broke the distance: food inherits the tray's scale, so the
+    // gap has to scale with it or a small tray stacks its food metres apart.
+    // InverseTransformDirection ignores scale, which is exactly the half wanted
+    private Vector3 StackStep(float gap)
+    {
+        if (gap <= 0f)
+            return Vector3.zero;
+
+        return foodPositionsParent.InverseTransformDirection(Vector3.up).normalized * gap;
     }
 
     // Her cup kendi offset'ini kullanır; gizli (hidden) cup'lar yığına dahil edilmez
@@ -183,7 +237,7 @@ public class Plateau : MonoBehaviour
 
             if (!child.TryGetComponent(out FoodPosition foodPosition) || foodPosition.IsEmpty)
             {
-                child.localPosition = baseFoodOffset + Vector3.up * yPos;
+                child.localPosition = baseFoodOffset + StackStep(yPos);
                 continue;
             }
 
@@ -194,7 +248,7 @@ public class Plateau : MonoBehaviour
                 continue;
             }
 
-            child.localPosition = baseFoodOffset + Vector3.up * yPos;
+            child.localPosition = baseFoodOffset + StackStep(yPos);
             yPos += foodPosition.FoodYOffset;
         }
     }
@@ -301,8 +355,9 @@ public class Plateau : MonoBehaviour
             ? foodPositionsParent.GetChild(bottomChildIndex).localPosition
             : baseFoodOffset;
 
-        foodPositionInstance.transform.localPosition = bottom + Vector3.up * positionsYOffset;
-        foodPositionInstance.transform.localRotation = Quaternion.identity;
+        foodPositionInstance.transform.localPosition = bottom + StackStep(positionsYOffset);
+        foodPositionInstance.transform.localRotation = baseFoodRotation;
+        foodPositionInstance.transform.localScale = baseFoodScale;
 
         isFull = false;
     }

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ffd4e9565176a2d40933193f33692d5b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/Models/Props/Misc/DrinkTap/Animations/Prop_Waiter_Tray_BarTop_PintGlass_DrinkTap.controller
+  uploadId: 513988

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44cd863c485352549be3eb789c2c8842, type: 3}
+  m_Name: MarkerSettings
+  m_EditorClassIdentifier: 
+  MarkerTemplatePrefab: {fileID: 6098381601274202741, guid: c88b7a165fd783545ae28894eaf6bb36, type: 3}
+  MarkerTypes:
+  - TypeName: Short Range
+    DisplayName: 1
+    DisplayDistance: 0
+    DisplayOffscreenArrow: 1
+    OffscreenNameFadeout: 1
+    OffscreenDistanceFadeout: 1
+    Visual: {fileID: 2800000, guid: 0ffa21f38e91c1e4ca7d39511ec8f60f, type: 3}
+    OffscreenArrowVisual: {fileID: 2800000, guid: 1c4afdb8ab834054caf1c23d0fb83205, type: 3}
+    MinimumDistance: 0
+    MaximumDistance: 10
+    DistanceSuffix: m
+  - TypeName: Long Range
+    DisplayName: 1
+    DisplayDistance: 0
+    DisplayOffscreenArrow: 1
+    OffscreenNameFadeout: 1
+    OffscreenDistanceFadeout: 1
+    Visual: {fileID: 2800000, guid: e0017ace400fb1f4cb368136424b99f6, type: 3}
+    OffscreenArrowVisual: {fileID: 2800000, guid: 1c4afdb8ab834054caf1c23d0fb83205, type: 3}
+    MinimumDistance: 2
+    MaximumDistance: Infinity
+    DistanceSuffix: m

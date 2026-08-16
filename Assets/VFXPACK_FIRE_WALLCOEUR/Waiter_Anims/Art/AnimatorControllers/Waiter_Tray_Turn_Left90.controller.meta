@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fb0d3ac96a80fde448ff2aeec1b65915
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Tray_Turn_Left90.controller
+  uploadId: 513988

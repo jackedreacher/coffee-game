@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6f8632e487b886b4fa8a48fbf0af528a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/Models/Props/Dishes/Plate_HandR/Animations/Prop_Waiter_Tray_TableTop_Plate_PickUp.controller
+  uploadId: 513988

@@ -214,6 +214,187 @@ public static class PlateauAttach
         return "Bilinen iyi ayara donuluyor.\n\n" + CopyPlacementToCustomers(KnownGoodCustomer);
     }
 
+    // FoodPosition.Push hands every food the slot's own rotation, so the slot is
+    // shared ground: Cup and Pizza are both authored to read correctly at zero
+    // rotation, and game-guide states the rule outright -- "Prefab renderer
+    // localPosition must be zero". Turning a slot to suit one food turns it for
+    // all of them, which is how fixing the salad broke the pizza.
+    //
+    // Only rotations are touched. The slot POSITIONS are hand tuning that took
+    // a long time to get right and mean nothing to this rule
+    [MenuItem("Cooked Fast/Fix Food Slot Convention")]
+    public static void FixFoodSlotConvention()
+    {
+        string report = "YEMEK PREFABLARI (Renderer konum sifir, rotasyon sifir)\n" +
+                        FixFoodPrefabs() +
+                        "\nSLOT ROTASYONLARI (konumlara dokunulmadi)\n" +
+                        FixSlotRotations();
+
+        AssetDatabase.SaveAssets();
+
+        Debug.Log("Yemek slotu kurali:\n" + report);
+        EditorUtility.DisplayDialog("Yemek Slotu Kurali", report, "Tamam");
+    }
+
+    private static string FixFoodPrefabs()
+    {
+        string report = "";
+
+        foreach (string guid in AssetDatabase.FindAssets(
+                     "t:Prefab", new[] { "Assets/Tiny Coffee Shop/Prefabs/GamePlay" }))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+
+            if (asset == null || asset.GetComponent<SpawnableFood>() == null)
+                continue;
+
+            string name = System.IO.Path.GetFileNameWithoutExtension(path);
+            GameObject root = PrefabUtility.LoadPrefabContents(path);
+
+            try
+            {
+                MeshFilter filter = root.GetComponentInChildren<MeshFilter>(true);
+
+                if (filter == null)
+                {
+                    report += "- " + name + ": mesh yok\n";
+                    continue;
+                }
+
+                Transform model = filter.transform;
+
+                bool offset = model.localPosition.sqrMagnitude > .000001f;
+                bool turned = Quaternion.Angle(model.localRotation, Quaternion.identity) > .01f;
+
+                if (!offset && !turned)
+                {
+                    report += "- " + name + ": zaten kurala uygun\n";
+                    continue;
+                }
+
+                report += "- " + name + ": konum " + model.localPosition.ToString("0.000") +
+                          " rot " + model.localRotation.eulerAngles.ToString("0.0") + " -> sifirlandi\n";
+
+                model.localPosition = Vector3.zero;
+                model.localRotation = Quaternion.identity;
+
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        return report;
+    }
+
+    private static string FixSlotRotations()
+    {
+        string report = "";
+
+        PlayerController[] controllers = Object.FindObjectsByType<PlayerController>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (PlayerController controller in controllers)
+        {
+            Plateau plateau = FindPlateau(controller.transform);
+
+            if (plateau == null)
+                continue;
+
+            report += "- Player: " + ZeroSlotRotation(plateau, true) + "\n";
+            EditorSceneManager.MarkSceneDirty(controller.gameObject.scene);
+        }
+
+        // Station and table trays live in the scene too, and the same rule holds
+        foreach (FoodSpawnerStation station in Object.FindObjectsByType<FoodSpawnerStation>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            Plateau plateau = station.GetComponentInChildren<Plateau>(true);
+
+            if (plateau == null)
+                continue;
+
+            report += "- " + station.name + ": " + ZeroSlotRotation(plateau, true) + "\n";
+            EditorSceneManager.MarkSceneDirty(station.gameObject.scene);
+        }
+
+        PrefabStage openStage = PrefabStageUtility.GetCurrentPrefabStage();
+
+        foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { customersFolder }))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            string name = System.IO.Path.GetFileNameWithoutExtension(path);
+
+            if (openStage != null && openStage.assetPath == path)
+            {
+                report += "- " + name + ": Prefab Mode'da acik, atlandi\n";
+                continue;
+            }
+
+            GameObject root = PrefabUtility.LoadPrefabContents(path);
+
+            try
+            {
+                Plateau plateau = FindPlateau(root.transform);
+
+                if (plateau == null)
+                {
+                    report += "- " + name + ": Plateau yok\n";
+                    continue;
+                }
+
+                string line = ZeroSlotRotation(plateau, false);
+
+                report += "- " + name + ": " + line + "\n";
+
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        return report;
+    }
+
+    private static string ZeroSlotRotation(Plateau plateau, bool undo)
+    {
+        Transform slot = FirstSlot(plateau);
+        Transform stack = slot == null ? null : slot.parent;
+
+        if (stack == null)
+            return "slot bulunamadi";
+
+        string line = "";
+
+        if (Quaternion.Angle(stack.localRotation, Quaternion.identity) > .01f)
+        {
+            if (undo)
+                Undo.RecordObject(stack, "Slot rotation");
+
+            line += "yigin " + stack.localRotation.eulerAngles.ToString("0.0") + " -> sifir  ";
+            stack.localRotation = Quaternion.identity;
+        }
+
+        foreach (FoodPosition each in plateau.GetComponentsInChildren<FoodPosition>(true))
+        {
+            if (Quaternion.Angle(each.transform.localRotation, Quaternion.identity) <= .01f)
+                continue;
+
+            if (undo)
+                Undo.RecordObject(each.transform, "Slot rotation");
+
+            line += each.name + " " + each.transform.localRotation.eulerAngles.ToString("0.0") + " -> sifir  ";
+            each.transform.localRotation = Quaternion.identity;
+        }
+
+        return line.Length <= 0 ? "zaten sifir" : line;
+    }
+
     // The plate's own mesh node lives in the shared Plateau prefab, so it is not
     // a per-character setting. An instance that has overridden it stops hearing
     // about changes to the prefab and drifts away from every other tray in the
@@ -361,7 +542,12 @@ public static class PlateauAttach
                 return step;
         }
 
-        return plateau;
+        // A station tray: no character anywhere above it, no rig, no bones. Its
+        // root is whatever it hangs off -- the zone. Answering with the tray
+        // itself made the tray its own model, and then every question asked
+        // relative to that model ("which bone is this parented to?") had no
+        // answer, so saving a station tray's placement always refused
+        return plateau.parent != null ? plateau.parent : plateau;
     }
 
     // Three transforms decide where a pizza ends up, and copying only some of
@@ -461,15 +647,33 @@ public static class PlateauAttach
         if (bone == null)
             return "Tepsinin ebeveyni yok.";
 
-        float reach = Vector3.Distance(source.transform.position, bone.position);
         float height = CharacterHeight(sourceRoot);
 
-        if (height < .0001f || reach < height * .5f)
+        if (height < .0001f)
             return null;
 
-        return "Tepsi bagli oldugu kemikten " + reach.ToString("0.00") + " birim uzakta.\n" +
-               "Karakterin boyu " + height.ToString("0.00") + " birim -- tepsi elinde degil.\n" +
-               "local pos " + source.transform.localPosition.ToString("0.000");
+        float reach = Vector3.Distance(source.transform.position, bone.position);
+
+        if (reach > height * .5f)
+            return "Tepsi bagli oldugu kemikten " + reach.ToString("0.00") + " birim uzakta.\n" +
+                   "Karakterin boyu " + height.ToString("0.00") + " birim -- tepsi elinde degil.\n" +
+                   "local pos " + source.transform.localPosition.ToString("0.000");
+
+        // Distance alone missed a tray sitting right on the bone at four times
+        // the size it should be, which copies just as badly
+        Renderer plate = source.GetComponentInChildren<Renderer>(true);
+
+        if (plate == null)
+            return null;
+
+        float width = Mathf.Max(plate.bounds.size.x, plate.bounds.size.z);
+
+        if (width < height)
+            return null;
+
+        return "Tabak " + width.ToString("0.00") + " birim genis, karakterin boyu " +
+               height.ToString("0.00") + " birim -- tepsi karakterden buyuk.\n" +
+               "local scale " + source.transform.localScale.ToString("0.000");
     }
 
     private static float CharacterHeight(Transform root)

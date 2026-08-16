@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b91eefdc2281d884c915f5826e3187de
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/Models/Props/Dishes/Tray/Animations/Prop_Waiter_Tray_BarTop_DropOff.controller
+  uploadId: 513988

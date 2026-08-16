@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1c80fdaaf4f08e14e944ce403a7a64b5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Pitcher_TableTop_Pour.controller
+  uploadId: 513988

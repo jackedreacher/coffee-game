@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: eb341dcf44e837947bdf79d62af11b43
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/Models/Props/Dishes/Pitcher/Animations/Prop_Waiter_Pitcher_TableTop_DropOff.controller
+  uploadId: 513988

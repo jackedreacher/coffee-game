@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4a3265e1ca1e4f044bb23360b6be6803
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Idle_Greeting_Bow_Direct_Right.controller
+  uploadId: 513988

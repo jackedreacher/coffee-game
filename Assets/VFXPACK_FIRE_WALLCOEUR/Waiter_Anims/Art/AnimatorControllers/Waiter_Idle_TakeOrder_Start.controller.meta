@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8c1ad9acd42fb774dbe694a3ab539370
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Idle_TakeOrder_Start.controller
+  uploadId: 513988

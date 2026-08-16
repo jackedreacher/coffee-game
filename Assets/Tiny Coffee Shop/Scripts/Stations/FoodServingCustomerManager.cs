@@ -22,6 +22,18 @@ public class FoodServingCustomerManager : MonoBehaviour
 
     [SerializeField] private Vector2Int minMaxCustomerFoodCount;
 
+    // Was one second, hard coded, for both. Three slots filled in three seconds
+    // and a freed one refilled before the player had turned around -- the queue
+    // was always full, which is the same as there being no queue to manage
+    [Tooltip("Ilk musteri kac saniye sonra gelir. 0 = varsayilan 2")]
+    [SerializeField] private float firstCustomerDelay = 2f;
+
+    [Tooltip("Iki musteri arasi sure, saniye. 0 = varsayilan 4")]
+    [SerializeField] private float customerInterval = 4f;
+
+    private float FirstCustomerDelay => firstCustomerDelay > .01f ? firstCustomerDelay : 2f;
+    private float CustomerInterval => customerInterval > .01f ? customerInterval : 4f;
+
     // Fixed standing spots rather than a queue. A customer keeps their spot
     // for as long as they are here, so nobody shuffles sideways when someone
     // else is served — only the column that opened up moves forward
@@ -30,13 +42,29 @@ public class FoodServingCustomerManager : MonoBehaviour
     // Handed over by OrderCounter in Awake, so the orders a customer can ask
     // for are always exactly what the counter is able to serve. Left null by
     // the single-item coffee shop stations, which fall back to the old behaviour
-    private SpawnableFood[] possibleOrders;
+    // Serialised so it can be filled by hand.
+    //
+    // It was private and set only by OrderCounter, which meant a scene without
+    // one -- or with one whose drop zones are empty -- produced customers with
+    // no order at all, and nothing anywhere said so. The field being invisible
+    // was the reason it could not even be checked
+    [Tooltip("Musterilerin isteyebilecegi yemekler. Bos birakilirsa OrderCounter doldurur")]
+    [SerializeField] private SpawnableFood[] possibleOrders;
 
     private const float arrivedDistance = .1f;
+
+    private Interactable standPoint;
+
+    // Where the player has to be to hand anything over. Walking towards the
+    // CUSTOMER is the wrong move and was the old one: it ends up on their side
+    // of the counter, which is the one place the serving trigger is not
+    public Vector3 ServePosition =>
+        standPoint != null ? standPoint.StandPosition : transform.position;
 
     private void Awake()
     {
         slots = new Customer[Mathf.Max(1, maxCustomers)];
+        standPoint = GetComponent<Interactable>();
     }
 
     private void Start()
@@ -46,7 +74,7 @@ public class FoodServingCustomerManager : MonoBehaviour
 
     private void StartSpawningCustomers()
     {
-        InvokeRepeating("SpawnNewCustomer", 1f, 1f);
+        InvokeRepeating("SpawnNewCustomer", FirstCustomerDelay, CustomerInterval);
     }
 
     private void SpawnNewCustomer()
@@ -64,19 +92,63 @@ public class FoodServingCustomerManager : MonoBehaviour
         int foodCount = Random.Range(minMaxCustomerFoodCount.x, minMaxCustomerFoodCount.y + 1);
         Vector3 targetPosition = GetTargetCustomerPosition(slot);
 
-        if (possibleOrders == null || possibleOrders.Length <= 0)
+        SpawnableFood order = PickOrder();
+
+        if (order == null)
         {
             newCustomer.Initialize(foodCount, targetPosition, -QueueOffset.normalized);
             return;
         }
 
-        SpawnableFood order = possibleOrders[Random.Range(0, possibleOrders.Length)];
         newCustomer.Initialize(foodCount, targetPosition, -QueueOffset.normalized, order);
+    }
+
+    // Empty rows skipped rather than handed out.
+    //
+    // The list arrives one entry per drop zone, and a zone whose accepted food
+    // has not been set yet contributes a null. Handing that out produces a
+    // customer whose order is nothing, which on screen is an empty bubble --
+    // indistinguishable from the bubble being broken, and that is exactly how
+    // it was read
+    private SpawnableFood PickOrder()
+    {
+        if (possibleOrders == null)
+            return null;
+
+        int filled = 0;
+
+        for (int i = 0; i < possibleOrders.Length; i++)
+        {
+            if (possibleOrders[i] != null)
+                filled++;
+        }
+
+        if (filled <= 0)
+            return null;
+
+        int wanted = Random.Range(0, filled);
+
+        for (int i = 0; i < possibleOrders.Length; i++)
+        {
+            if (possibleOrders[i] == null)
+                continue;
+
+            if (wanted-- <= 0)
+                return possibleOrders[i];
+        }
+
+        return null;
     }
 
     // Called by OrderCounter before the first spawn tick fires
     public void SetPossibleOrders(SpawnableFood[] orders)
     {
+        // An empty answer from the counter does not wipe a list somebody filled
+        // in by hand. The counter builds its list from drop zones, and a scene
+        // being rebuilt has moments where it has none
+        if (orders == null || orders.Length <= 0)
+            return;
+
         possibleOrders = orders;
     }
 
@@ -149,6 +221,48 @@ public class FoodServingCustomerManager : MonoBehaviour
             float distance = Vector3.Distance(
                 customer.transform.position.With(y: 0),
                 worldPoint.With(y: 0));
+
+            if (distance > nearestDistance)
+                continue;
+
+            nearestDistance = distance;
+            nearest = customer;
+        }
+
+        return nearest;
+    }
+
+    // The same question asked on the screen instead of on the ground.
+    //
+    // A tap ray in an isometric view lands on whatever is nearest the camera --
+    // the counter, the floor in front, a cabinet door -- and that point can be
+    // metres from the customer standing behind it while being directly under the
+    // finger. Measuring in pixels is measuring what the player actually aimed at
+    public Customer FindNearestOnScreen(Camera camera, Vector2 screenPoint, float maxPixels, float aimHeight)
+    {
+        if (camera == null)
+            return null;
+
+        Customer nearest = null;
+        float nearestDistance = maxPixels;
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            Customer customer = slots[i];
+
+            if (customer == null)
+                continue;
+
+            // Aimed at the body rather than the feet: a tap lands on the middle
+            // of a character, and their pivot is on the floor
+            Vector3 screen = camera.WorldToScreenPoint(
+                customer.transform.position + Vector3.up * aimHeight);
+
+            // Behind the camera projects to a valid looking point in front of it
+            if (screen.z <= 0f)
+                continue;
+
+            float distance = Vector2.Distance(screenPoint, new Vector2(screen.x, screen.y));
 
             if (distance > nearestDistance)
                 continue;

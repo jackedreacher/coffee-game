@@ -24,6 +24,8 @@ public class PlayerDetector : MonoBehaviour
 
         if (other.TryGetComponent(out FoodSpawnerStation station))
             HandleFoodSpawnerStationTriggered(station);
+        else if (other.TryGetComponent(out CookingStation cooker))
+            holdFoodAbility.HandleCookingStation(cooker);
         else if (other.TryGetComponent(out FoodDropZone dropZone))
             HandleFoodDropZoneTriggered(dropZone);
         else if (other.TryGetComponent(out TableSet table))

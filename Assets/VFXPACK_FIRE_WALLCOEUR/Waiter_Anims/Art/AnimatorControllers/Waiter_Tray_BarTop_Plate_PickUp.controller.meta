@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 713455738ca2ff54fafa98caea68427b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Tray_BarTop_Plate_PickUp.controller
+  uploadId: 513988

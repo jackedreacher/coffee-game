@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cb44b052800e0c84bbbce208b42324ec
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Scripts/SimpleCameraController.cs
+  uploadId: 513988

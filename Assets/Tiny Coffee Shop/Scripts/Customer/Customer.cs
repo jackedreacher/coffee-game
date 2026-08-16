@@ -33,6 +33,7 @@ public class Customer : MonoBehaviour
     // way never reports reaching its destination, so it never runs its callback
     // and is left pointing along whatever its last step happened to be
     private bool wantsQueueFacing;
+    private bool orderShown;
     private int foodNeededCount;
     private int foodTakenCount;
 
@@ -44,9 +45,17 @@ public class Customer : MonoBehaviour
     // serves", which is how the coffee shop scene has always worked
     private SpawnableFood requestedFood;
 
+    [Tooltip("Kafasinin ustundeki siparis balonu. Bos birakilabilir")]
+    [SerializeField] private CustomerOrder order;
+
     public int FoodNeededCount => foodNeededCount;
     public int FoodTakenCount => foodTakenCount;
     public SpawnableFood RequestedFood => requestedFood;
+
+    // How well this customer was treated, as a multiplier on what they pay.
+    // One when there is no bubble, so a scene without the order system behaves
+    // exactly as it did before
+    public float RewardMultiplier => order == null ? 1f : order.RewardMultiplier;
 
     // Awake rather than Start: the manager calls Initialize the moment it spawns
     // a customer, and that walks them off before Start would have run. Switching
@@ -90,6 +99,13 @@ public class Customer : MonoBehaviour
     {
         this.foodNeededCount = foodNeededCount;
         this.finalFacing = finalFacing;
+
+        // Not shown here. The bubble is nailed to a fixed spot once it opens,
+        // and a spot picked while they are still crossing the floor is a spot
+        // they were walking through -- the card would end up hanging over the
+        // doorway. It opens when they come to rest instead
+        orderShown = false;
+
         GoTo(targetPosition);
     }
 
@@ -125,6 +141,28 @@ public class Customer : MonoBehaviour
         plateau.gameObject.SetActive(true);
         plateau.Push(food);
         foodTakenCount++;
+
+        if (order == null)
+            return;
+
+        // Settled on the last item, and settled BEFORE the reward is worked
+        // out. Reading the live clock later would score whatever it had drained
+        // to by then rather than what the player was looking at when they served
+        if (NeedsMoreFood())
+            order.SetCount(foodNeededCount - foodTakenCount);
+        else
+            order.Settle();
+    }
+
+    // Called by whoever rang it up, after the last item changed hands. Split
+    // from CollectFood because the two halves are known in different places:
+    // the bubble works out the mood, and only the till knows the money
+    public void ShowEarnings(int amount)
+    {
+        if (order == null || NeedsMoreFood())
+            return;
+
+        order.Celebrate(amount);
     }
 
     public bool NeedsMoreFood()
@@ -169,6 +207,10 @@ public class Customer : MonoBehaviour
 
     public void GetUpAndGo(Vector3 targetPosition, Action callback)
     {
+        // Whatever they wanted, they have it or they are giving up on it
+        if (order != null)
+            order.Hide();
+
         // Off to the exit. Snapping back to face the counter on the way out
         // would be the queue facing applied to someone no longer in the queue
         wantsQueueFacing = false;
@@ -205,7 +247,17 @@ public class Customer : MonoBehaviour
     private void HandleIdleState()
     {
         if (navigationAbility.IsMoving)
+        {
             StartWalkingState();
+            return;
+        }
+
+        // A customer who never got a path never walks, so never reaches
+        // StartIdleState, so would never open their bubble at all -- and the
+        // failure would look like the bubble being broken rather than the
+        // navigation. Standing still is having arrived, as far as an order goes
+        if (wantsQueueFacing && !orderShown)
+            ShowOrder();
     }
 
     private void HandleWalkingState()
@@ -241,8 +293,32 @@ public class Customer : MonoBehaviour
 
         // Covers both ways a queued customer comes to rest: reaching their slot,
         // and giving up short of it because someone is standing in the way
-        if (wantsQueueFacing)
-            FaceFinalFacing();
+        if (!wantsQueueFacing)
+            return;
+
+        FaceFinalFacing();
+        ShowOrder();
+    }
+
+    // Opened once, re-pinned every time after.
+    //
+    // Every stop after the first is the queue shuffling forward, and calling
+    // Show again would restart the patience clock -- being moved up the line
+    // would make a customer patient again, which is the opposite of what
+    // standing in a queue does to anybody
+    private void ShowOrder()
+    {
+        if (order == null)
+            return;
+
+        if (orderShown)
+        {
+            order.Pin();
+            return;
+        }
+
+        orderShown = true;
+        order.Show(requestedFood, foodNeededCount);
     }
 
     private void ReachDestination()

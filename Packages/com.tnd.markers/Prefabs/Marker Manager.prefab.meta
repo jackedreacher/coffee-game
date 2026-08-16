@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: aa6f71e982dd2f2438af0f27fd46b81f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 323949
+  packageName: Markers!
+  packageVersion: 1.0
+  assetPath: Packages/com.tnd.markers/Prefabs/Marker Manager.prefab
+  uploadId: 784998

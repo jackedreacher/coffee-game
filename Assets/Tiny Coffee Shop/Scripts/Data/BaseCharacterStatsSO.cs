@@ -5,8 +5,9 @@ public class BaseCharacterStatsSO : ScriptableObject
 {
     [Header(" Stats ")]
     // Where an unupgraded character starts. The old ceiling of 4 was the reason
-    // a player who felt slow could not simply be made faster
-    [SerializeField][Range(1, 20)] private float speed = 3f;
+    // a player who felt slow could not simply be made faster, and 20 became the
+    // same wall once the player was asked to move at twice that
+    [SerializeField][Range(1, 200)] private float speed = 3f;
     // Starts at 1 so a hand-serving game can limit the player to a single item
     [SerializeField][Range(1, 14)] private int capacity = 1;
     [SerializeField][Range(1, 5)] private float revenue = 1.5f;

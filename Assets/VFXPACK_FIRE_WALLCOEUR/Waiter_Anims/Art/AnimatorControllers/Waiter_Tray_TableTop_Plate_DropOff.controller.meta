@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c611a8c46b0de3d409ae73fd9d394841
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Tray_TableTop_Plate_DropOff.controller
+  uploadId: 513988

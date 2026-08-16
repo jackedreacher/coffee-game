@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e6a43d5c5fbc4854faf6687daebbe2da
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Pitcher_Walk_BackRight.controller
+  uploadId: 513988

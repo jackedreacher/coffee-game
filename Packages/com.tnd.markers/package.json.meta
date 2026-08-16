@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d9d74de0fb70a7746a99c79fc309f41f
+PackageManifestImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 323949
+  packageName: Markers!
+  packageVersion: 1.0
+  assetPath: Packages/com.tnd.markers/package.json
+  uploadId: 784998

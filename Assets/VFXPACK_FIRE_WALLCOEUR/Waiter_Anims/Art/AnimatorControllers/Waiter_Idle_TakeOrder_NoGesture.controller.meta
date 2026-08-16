@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 70802b114c2482541822aa9ef7ac4dab
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Idle_TakeOrder_NoGesture.controller
+  uploadId: 513988

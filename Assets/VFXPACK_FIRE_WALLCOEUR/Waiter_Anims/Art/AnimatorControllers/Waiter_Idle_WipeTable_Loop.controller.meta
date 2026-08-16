@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b972f5e8fe4e5f34f9e64d9a5ceb60cc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Idle_WipeTable_Loop.controller
+  uploadId: 513988

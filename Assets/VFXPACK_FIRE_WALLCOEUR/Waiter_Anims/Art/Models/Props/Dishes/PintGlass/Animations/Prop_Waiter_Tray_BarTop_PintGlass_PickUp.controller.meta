@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 57116da407db40d4d91a6b9c4ebf3f7b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/Models/Props/Dishes/PintGlass/Animations/Prop_Waiter_Tray_BarTop_PintGlass_PickUp.controller
+  uploadId: 513988

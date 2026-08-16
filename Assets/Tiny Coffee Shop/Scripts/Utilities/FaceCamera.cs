@@ -20,6 +20,10 @@ public class FaceCamera : MonoBehaviour
         if (mainCamera == null)
             return;
 
-        transform.forward = mainCamera.forward;
+        // The camera's whole orientation, not only where it points.
+        //
+        // Setting forward alone leaves the roll to be guessed from world up, so
+        // a camera with any twist in it lands the card at an angle to the screen
+        transform.rotation = mainCamera.rotation;
     }
 }

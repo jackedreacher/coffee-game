@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8cc4b928488e1234eb495c771ec637a9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Pitcher_Walk_Forward.controller
+  uploadId: 513988

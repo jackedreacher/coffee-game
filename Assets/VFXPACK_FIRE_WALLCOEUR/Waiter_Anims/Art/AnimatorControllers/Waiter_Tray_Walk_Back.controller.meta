@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7925dda48fca62948bdbf8f8b3004fb1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Tray_Walk_Back.controller
+  uploadId: 513988

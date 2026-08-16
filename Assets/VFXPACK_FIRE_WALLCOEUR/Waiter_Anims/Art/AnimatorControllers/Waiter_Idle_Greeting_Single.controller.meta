@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9a944eb0509d23849b5a8a11ebb95adf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 227368
+  packageName: Waiter Anims
+  packageVersion: 1.0
+  assetPath: Assets/Waiter_Anims/Art/AnimatorControllers/Waiter_Idle_Greeting_Single.controller
+  uploadId: 513988

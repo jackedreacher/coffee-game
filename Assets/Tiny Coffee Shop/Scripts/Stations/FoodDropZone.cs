@@ -30,6 +30,11 @@ public class FoodDropZone : MonoBehaviour
         if (food == null || acceptedFood == null)
             return false;
 
+        // Right type, still refused. Burnt food matches the type it burnt from,
+        // so without this it parks on the shelf and comes back out as stock
+        if (food.IsBurnt)
+            return false;
+
         return food.GetType() == acceptedFood.GetType();
     }
 

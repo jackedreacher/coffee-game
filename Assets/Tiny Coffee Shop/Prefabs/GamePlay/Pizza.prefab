@@ -47,9 +47,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Pizza
   filter: {fileID: 1287054011463407538}
   meshRenderer: {fileID: 3907012881691206520}
-  cleanYOffsetOnPlateau: 0.067
+  cleanYOffsetOnPlateau: 0.09
   dirtyYOffsetOnPlateau: 0.025
   dirtyMesh: {fileID: 1073339379530274863, guid: d79d15a0ebe00d74f95afdec60be2c06, type: 3}
+  ingredientOnly: 0
+  icon: {fileID: 21300000, guid: eec62d1898cf8804687237534e71f52f, type: 3}
+  burntColour: {r: 0.08, g: 0.06, b: 0.05, a: 1}
 --- !u!1001 &2448245320588918780
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -80,15 +83,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: dafef512d42488e4e9eeb8d478451c51, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
