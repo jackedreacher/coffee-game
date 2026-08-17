@@ -355,21 +355,48 @@ public class HoldFoodAbility : MonoBehaviour
         return dumped;
     }
 
+    // A drop zone used to be one way: things went onto it and only a customer
+    // ever took them off. So a hand holding the wrong thing could do nothing
+    // with a counter holding the right one -- the tap was simply ignored, and
+    // the only way out was the bin.
+    //
+    // Three cases now, decided by what is in each hand rather than by a mode:
+    // empty hand takes, full hand puts down, and a full hand meeting a full
+    // counter swaps. The last one is the whole point, and it falls out of the
+    // first two rather than being a fourth rule
+    // Standing in the zone. PlayerDetector calls this every frame the player is
+    // inside the trigger, which is why it may only ever put things DOWN: taking
+    // and swapping have to be asked for, or an item would shuttle between the
+    // counter and the hand for as long as somebody stood there
     public void HandleFoodDropZone(FoodDropZone dropZone)
     {
-        if (!plateau.gameObject.activeSelf)
-            return;
+        HandleFoodDropZone(dropZone, false);
+    }
 
+    public void HandleFoodDropZone(FoodDropZone dropZone, bool byTap)
+    {
         if (plateau.IsDirty)
             return;
 
-        if (dropZone.IsFull)
-            return;
+        bool handEmpty = !plateau.gameObject.activeSelf || plateau.IsEmpty;
 
-        // A coffee cashier must not take pizzas. Peek rather than Pop: refusing
-        // has to leave the plateau exactly as it was
-        if (!dropZone.CanAcceptFood(plateau.Peek()))
+        if (handEmpty)
+        {
+            if (byTap)
+                TakeFromZone(dropZone);
+
             return;
+        }
+
+        // The drop is refused -- no room, or the wrong type for this counter.
+        // Which is exactly when there is something here worth trading for
+        if (dropZone.IsFull || !dropZone.CanAcceptFood(plateau.Peek()))
+        {
+            if (byTap)
+                SwapWithZone(dropZone);
+
+            return;
+        }
 
         if (dropFoodTimer < canGrabFoodDelay)
         {
@@ -388,5 +415,67 @@ public class HoldFoodAbility : MonoBehaviour
 
         if (plateau.IsEmpty)
             plateau.gameObject.SetActive(false);
+    }
+
+    private bool TakeFromZone(FoodDropZone dropZone)
+    {
+        SpawnableFood waiting = dropZone.Peek();
+
+        // Peek and check before popping, the same as everywhere else here. A
+        // refusal has to leave the counter exactly as it was
+        if (waiting == null || !CanTake(waiting))
+            return false;
+
+        SpawnableFood taken = dropZone.Pop();
+
+        return taken != null && TryPush(taken);
+    }
+
+    // Both emptied before either is asked whether it will accept.
+    //
+    // Asking first is asking the wrong question: a full container answers no to
+    // everything, so "will the hand take this" gets answered by whatever is
+    // already in it. Emptying both and then asking is the only order in which
+    // the question means what it is meant to
+    private bool SwapWithZone(FoodDropZone dropZone)
+    {
+        SpawnableFood waiting = dropZone.Peek();
+        SpawnableFood held = plateau.Peek();
+
+        if (waiting == null || held == null)
+            return false;
+
+        // Burnt food does not get parked and forgotten about. The point of
+        // burning it is the walk to the bin
+        if (held.IsBurnt)
+            return false;
+
+        SpawnableFood given = PopFood();
+
+        if (given == null)
+            return false;
+
+        SpawnableFood taken = dropZone.Pop();
+
+        if (taken == null)
+        {
+            TryPush(given);
+            return false;
+        }
+
+        if (CanTake(taken) && dropZone.CanAcceptFood(given))
+        {
+            TryPush(taken);
+            dropZone.Push(given);
+
+            return true;
+        }
+
+        // Refused after all. Both go back exactly where they were -- nothing
+        // here may destroy an item by half completing
+        dropZone.Push(taken);
+        TryPush(given);
+
+        return false;
     }
 }

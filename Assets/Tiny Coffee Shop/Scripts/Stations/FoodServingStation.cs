@@ -180,9 +180,16 @@ public abstract class FoodServingStation : MonoBehaviour
         float revenueMultiplier = Mathf.Max(1f, characterStats.Revenue);
         int revenue = Mathf.CeilToInt(baseRevenue * revenueMultiplier);
 
-        cashFile?.GenerateCash(revenue);
         SpawnableFood foodToServe = Pop();
         customerToServe.CollectFood(foodToServe);
+
+        // Rung up per item, paid once. Moved below CollectFood so the order can
+        // answer whether it is finished -- while it is not, RingUp answers 0 and
+        // nothing flies. A customer buying three things is one sale
+        int due = customerToServe.RingUp(revenue);
+
+        if (due > 0)
+            cashFile?.GenerateCash(due, customerToServe.transform.position);
 
         if (customerToServe.NeedsMoreFood())
             return;

@@ -48,6 +48,14 @@ public class FoodDropZone : MonoBehaviour
         return plateau.Pop();
     }
 
+    // What is sitting here, without taking it. Every hand-off in this project
+    // looks before it takes, so that refusing leaves the counter exactly as it
+    // was rather than half emptied
+    public SpawnableFood Peek()
+    {
+        return plateau.Peek();
+    }
+
     public FoodPosition GetFirstFullPosition()
     {
         return plateau.GetFirstFullPosition();

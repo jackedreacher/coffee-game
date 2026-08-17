@@ -35,11 +35,20 @@ public class CustomerOrder : MonoBehaviour
     [Tooltip("Kac adet istedigi -- x2 gibi")]
     [SerializeField] private TextMeshPro countText;
 
-    [Tooltip("Emojinin etrafindaki halka. Cocuklari tek tek sondurulur")]
-    [SerializeField] private Transform patienceRing;
+    // A number, not a bar and not a ring.
+    //
+    // A drained ring says "some of the time is gone", which is a thing you have
+    // to look at and compare. A digit says how long you have, and the colour
+    // says how you should feel about it -- the same answer at a glance from the
+    // far side of the screen, which is where the player usually is
+    [Tooltip("Emojinin etrafinda saat yonunde bosalan halka")]
+    [SerializeField] private RadialTimer timerRing;
 
-    [Tooltip("Duz cubuk isteyenler icin. Halka varsa bos birakilabilir")]
-    [SerializeField] private Transform patienceBar;
+    [Tooltip("Son saniyelerde beliren rakam")]
+    [SerializeField] private TextMeshPro countdownText;
+
+    [Tooltip("Rakamin arkasindaki daire. Rengi yesilden kirmiziya doner")]
+    [SerializeField] private SpriteRenderer countdownDisc;
 
     [SerializeField] private SpriteRenderer emoji;
 
@@ -51,6 +60,32 @@ public class CustomerOrder : MonoBehaviour
     [Header(" Sabir ")]
     [Tooltip("Musterinin bastan sona sabri, saniye. 0 = varsayilan 45")]
     [SerializeField] private float patience = 45f;
+
+    // The ring carries the whole wait; the digits are the alarm at the end of
+    // it. One is something you glance at, the other is something you react to,
+    // and a number that has been ticking for forty seconds is neither
+    [Tooltip("Son kac saniyede rakam belirsin. 0 = varsayilan 5")]
+    [SerializeField] private float countdownSeconds = 5f;
+
+    // The last beat of the countdown, and the only one that was missing.
+    //
+    // Ceil holds each digit for the whole second it stands for -- 1 is on
+    // screen from one second left all the way down -- so zero was reached on
+    // the single frame the clock expired, which is the same frame the customer
+    // left. The number went 5 4 3 2 1 and then they were gone. This is zero
+    // getting a moment of its own before that happens
+    [Tooltip("Sayac sifiri gosterip kac saniye bekler, sonra musteri gider. " +
+             "0 = varsayilan 0.5")]
+    [SerializeField] private float zeroHold = .5f;
+
+    [Tooltip("Bol bol vakit varken")]
+    [SerializeField] private Color calmColour = new Color(.29f, .78f, .35f);
+
+    [Tooltip("Azalirken")]
+    [SerializeField] private Color warnColour = new Color(.98f, .76f, .16f);
+
+    [Tooltip("Bitmek uzereyken")]
+    [SerializeField] private Color panicColour = new Color(.90f, .24f, .21f);
 
     [Tooltip("Sabrin bu oraninin ustunde servis edilirse MUTLU")]
     [Range(.1f, 1f)][SerializeField] private float happyAbove = .6f;
@@ -88,6 +123,13 @@ public class CustomerOrder : MonoBehaviour
     [Tooltip("Isinin saniyedeki donusu, derece. 0 = donmez, sadece pop yapar")]
     [SerializeField] private float sunburstSpin;
 
+    [Tooltip("Kazanc yazisi, kutlama basladiktan kac saniye sonra sayaca dogru kalkar. " +
+             "0 = varsayilan 0.5. Kutlamanin kendisinden kisa olmali, yoksa balon once kapanir")]
+    [SerializeField] private float moneyDelay = .5f;
+
+    [Tooltip("Yazinin sayaca varis suresi, saniye. 0 = varsayilan 0.55")]
+    [SerializeField] private float moneyFlightTime = .55f;
+
     [Header(" Acilis / Kapanis ")]
     [Tooltip("Balonun acilis pop suresi, saniye. 0 = varsayilan 0.25")]
     [SerializeField] private float appearTime = .25f;
@@ -98,10 +140,37 @@ public class CustomerOrder : MonoBehaviour
     [Tooltip("Kaybolurken sonme suresi, saniye. 0 = varsayilan 0.3")]
     [SerializeField] private float fadeTime = .3f;
 
+    // The mood changing is the one thing on this card that happens without the
+    // player doing anything, which is exactly why it needs announcing. A sprite
+    // quietly swapping for another sprite is a change nobody sees happen -- they
+    // only ever notice that it already has
+    [Header(" Emoji Degisimi ")]
+    [Tooltip("Degisince kac katina buyusun. 0 = varsayilan 1.35")]
+    [SerializeField] private float moodPopScale = 1.35f;
+
+    [Tooltip("Sallanma suresi, saniye. 0 = varsayilan 0.45")]
+    [SerializeField] private float moodShakeTime = .45f;
+
+    [Tooltip("Saga sola kac derece. 0 = varsayilan 18")]
+    [SerializeField] private float moodShakeAngle = 18f;
+
+    [Tooltip("Saniyede kac gidip gelme. 0 = varsayilan 3.5")]
+    [SerializeField] private float moodShakeSpeed = 3.5f;
+
     // Sentinels, for the same reason every other number in this project has
     // them: these fields land on prefabs that already exist, and a serialised
     // zero is indistinguishable from a field nobody filled in
-    private float Patience => patience > .01f ? patience : 45f;
+    // Handed in per customer where there is one, so a queue is not three
+    // identical clocks started at different times. Falls back to the prefab's
+    // own value, which is what a scene with nobody setting it still gets
+    private float given;
+
+    public void SetPatience(float seconds)
+    {
+        given = seconds;
+    }
+
+    private float Patience => given > .01f ? given : patience > .01f ? patience : 45f;
     private float HappyReward => happyReward > .01f ? happyReward : 2f;
     private float AngryReward => angryReward > .01f ? angryReward : .5f;
     private float CelebrationScale => celebrationScale > .01f ? celebrationScale : 1.7f;
@@ -110,15 +179,28 @@ public class CustomerOrder : MonoBehaviour
     private float AppearTime => appearTime > .01f ? appearTime : .25f;
     private float PopDelay => popDelay > .001f ? popDelay : .12f;
     private float FadeTime => fadeTime > .01f ? fadeTime : .3f;
+    private float MoodPopScale => moodPopScale > 1.001f ? moodPopScale : 1.35f;
+    private float MoodShakeTime => moodShakeTime > .01f ? moodShakeTime : .45f;
+    private float MoodShakeAngle => moodShakeAngle > .01f ? moodShakeAngle : 18f;
+    private float MoodShakeSpeed => moodShakeSpeed > .01f ? moodShakeSpeed : 3.5f;
+
+    // Never later than the celebration itself, or the bubble closes on a label
+    // that was supposed to leave it
+    private float MoneyDelay => Mathf.Min(moneyDelay > .01f ? moneyDelay : .5f, CelebrationHold * .5f);
+    private float MoneyFlightTime => moneyFlightTime > .01f ? moneyFlightTime : .55f;
 
     private float left;
     private bool running;
     private GameObject icon;
-    private Vector3 barFullScale = Vector3.one;
-    private Vector3 barFullPosition;
 
     private bool celebrating;
     private float celebrationAge;
+
+    // What this sale is worth, held only for as long as it takes the label to
+    // reach the counter. Cleared the moment it is handed over so it can never
+    // be paid twice
+    private int owed;
+    private bool moneySent;
 
     // Where the bubble is nailed. Still a child of the customer -- it belongs to
     // them and dies with them -- but its world position is overwritten every
@@ -133,6 +215,12 @@ public class CustomerOrder : MonoBehaviour
     // things to keep in step, and the age is what the animation reads anyway
     private float appearAge = -1f;
     private float fadeAge = -1f;
+    private float shakeAge = -1f;
+
+    // Nullable so the first face of a visit is not a change from something.
+    // Opening the bubble with the emoji already shaking would announce a
+    // transition that never happened
+    private Mood? shown;
 
     // Captured rather than assumed, because the card is authored slightly
     // see-through and the fade has to end at nothing from THERE. Multiplying a
@@ -154,7 +242,26 @@ public class CustomerOrder : MonoBehaviour
     private Mood settled = Mood.Mutlu;
     private bool hasSettled;
 
+    private float CountdownSeconds => countdownSeconds > .01f ? countdownSeconds : 5f;
+    private float ZeroHold => zeroHold > .001f ? zeroHold : .5f;
+
     public float Remaining01 => Patience <= 0f ? 0f : Mathf.Clamp01(left / Patience);
+
+    // Waited the whole way and got nothing. Read by the queue, which is the only
+    // thing that knows where the door is and who to bill for it.
+    //
+    // Past zero, not at it. The clock keeps running below zero for the length
+    // of the hold so the badge has somewhere to sit while it reads 0
+    public bool RanOut => running && left <= -ZeroHold;
+
+    // For the one line printed when somebody walks out. "A customer left" says
+    // nothing about whether the clock was fair; the clock it was given and the
+    // time it actually ran say everything.
+    //
+    // Capped at the patience itself: the hold is the badge being read, not the
+    // customer waiting longer, and a line saying 20 of 19.5 reads as a bug
+    public float PatienceGiven => Patience;
+    public float Waited => Mathf.Clamp(Patience - left, 0f, Patience);
 
     public Mood CurrentMood
     {
@@ -171,6 +278,19 @@ public class CustomerOrder : MonoBehaviour
 
     public Mood SettledMood => hasSettled ? settled : CurrentMood;
 
+    private Color MoodColour
+    {
+        get
+        {
+            switch (CurrentMood)
+            {
+                case Mood.Mutlu: return calmColour;
+                case Mood.Kizgin: return panicColour;
+                default: return warnColour;
+            }
+        }
+    }
+
     public float RewardMultiplier
     {
         get
@@ -186,12 +306,6 @@ public class CustomerOrder : MonoBehaviour
 
     private void Awake()
     {
-        if (patienceBar != null)
-        {
-            barFullScale = patienceBar.localScale;
-            barFullPosition = patienceBar.localPosition;
-        }
-
         if (emoji != null)
             emojiBaseScale = emoji.transform.localScale;
 
@@ -294,6 +408,18 @@ public class CustomerOrder : MonoBehaviour
     {
         if (detached && bubbleRoot != null)
             Destroy(bubbleRoot);
+
+        // The graceful way out is Hide, which pays on its way. This is the
+        // other one: a customer who reaches the door and is destroyed while the
+        // number is still sitting on their bubble. The sale happened either
+        // way. Guarded on the manager so a scene being torn down at the end of
+        // play does not try to build a counter to pay into
+        if (moneySent || owed <= 0 || CurrencyManager.instance == null)
+            return;
+
+        moneySent = true;
+        MoneyCounter.Instance.Deposit(owed);
+        owed = 0;
     }
 
     // A pooled customer switched off would otherwise leave their card hanging
@@ -320,17 +446,28 @@ public class CustomerOrder : MonoBehaviour
         celebrating = false;
         celebrationAge = 0f;
 
+        // Anything still owed was paid by Hide on the way out. Cleared rather
+        // than carried, so a reused bubble cannot pay the last order again
+        owed = 0;
+        moneySent = false;
+
         Switch(card, true);
         Switch(iconAnchor, true);
         Switch(countText, true);
-        Switch(patienceRing, true);
-        Switch(patienceBar, true);
+        Switch(countdownText, true);
+        Switch(countdownDisc, true);
 
         Switch(sunburst, false);
         Switch(earningsText, false);
 
+        shown = null;
+        shakeAge = -1f;
+
         if (emoji != null)
+        {
             emoji.transform.localScale = emojiBaseScale;
+            emoji.transform.localRotation = Quaternion.identity;
+        }
 
         if (sunburst != null)
             sunburst.localScale = sunburstBaseScale;
@@ -374,10 +511,13 @@ public class CustomerOrder : MonoBehaviour
     // The number comes from outside because the bubble has no way to know it:
     // the mood is worked out here, but base revenue and the player's own upgrade
     // multiplier both live at the till
-    public void Celebrate(int earnings)
+    // Answers whether it took the job. A bubble that cannot celebrate cannot
+    // carry the money either, and the till has to know that so the sale is not
+    // dropped between the two of them
+    public bool Celebrate(int earnings)
     {
         if (bubbleRoot == null || celebrating)
-            return;
+            return false;
 
         // A handover that somehow skipped Settle would score off a clock still
         // running, and the emoji would keep sinking while they walk out
@@ -388,11 +528,17 @@ public class CustomerOrder : MonoBehaviour
         celebrationAge = 0f;
         running = false;
 
+        // Held, not banked. The player reads the number here and it lands in
+        // the counter there, and the money moving when the number moves is the
+        // whole point -- paying now would put it in before anything left
+        owed = earnings;
+        moneySent = false;
+
         Switch(card, false);
         Switch(iconAnchor, false);
         Switch(countText, false);
-        Switch(patienceRing, false);
-        Switch(patienceBar, false);
+        Switch(countdownText, false);
+        Switch(countdownDisc, false);
 
         // Opened at nothing, so the first frame of the pop is a pop and not a
         // full sized burst appearing and then growing
@@ -407,6 +553,8 @@ public class CustomerOrder : MonoBehaviour
             earningsText.gameObject.SetActive(true);
             earningsText.text = "$" + earnings;
         }
+
+        return true;
     }
 
     // Shrinks and fades rather than blinking out. Whatever ends it -- the
@@ -417,6 +565,16 @@ public class CustomerOrder : MonoBehaviour
     {
         running = false;
         celebrating = false;
+
+        // Whatever brought the bubble down early -- a customer sent home, a
+        // scene torn out from under it -- the sale still happened. Paid without
+        // the flight rather than not paid
+        if (!moneySent && owed > 0)
+        {
+            moneySent = true;
+            MoneyCounter.Instance.Deposit(owed);
+            owed = 0;
+        }
 
         if (bubbleRoot == null || !bubbleRoot.activeSelf)
         {
@@ -448,9 +606,18 @@ public class CustomerOrder : MonoBehaviour
         if (!running)
             return;
 
-        left = Mathf.Max(0f, left - Time.deltaTime);
+        // Allowed below zero now, and stopped at the bottom of the hold rather
+        // than at zero. Clamping here was what made the badge unable to show a
+        // zero: the value it would have printed never existed for a whole frame
+        left = Mathf.Max(-ZeroHold, left - Time.deltaTime);
 
         Apply();
+
+        // After Apply, which is what notices the change and starts it. Skipped
+        // while the bubble is still opening -- two things driving one scale in
+        // the same frame is a fight, and the arrival should win it
+        if (shakeAge >= 0f && appearAge < 0f)
+            Shake();
     }
 
     // The card lands, then the face. Two things popping on the same frame read
@@ -618,6 +785,12 @@ public class CustomerOrder : MonoBehaviour
         if (emoji != null)
             emoji.transform.localScale = emojiBaseScale * (1f + (CelebrationScale - 1f) * t);
 
+        // Long enough after the pop to have been read, early enough that the
+        // burst is still up behind it. The number has to be seen leaving --
+        // if the bubble closes first there is nothing to watch go anywhere
+        if (!moneySent && celebrationAge >= MoneyDelay)
+            SendMoney();
+
         if (sunburst == null)
             return;
 
@@ -627,6 +800,74 @@ public class CustomerOrder : MonoBehaviour
 
         if (Mathf.Abs(sunburstSpin) > .001f)
             sunburst.Rotate(0f, 0f, sunburstSpin * Time.deltaTime, Space.Self);
+    }
+
+    // The number leaves the bubble and goes to the counter.
+    //
+    // A copy flies and the original switches off in the same frame, which reads
+    // as the label itself lifting off. Sending the real one would take it out
+    // of the bubble -- the card is built once per customer prefab, and the
+    // label has to still be there for the next order this customer takes.
+    //
+    // The copy is made by the counter, as UI on a canvas above the whole
+    // interface. This label is a world object and a world object cannot be
+    // drawn over an overlay canvas at any sorting order there is
+    private void SendMoney()
+    {
+        moneySent = true;
+
+        int amount = owed;
+        owed = 0;
+
+        if (amount <= 0)
+            return;
+
+        // Deposits on its own if the copy could not be made, so a sale is never
+        // lost to a missing label
+        MoneyCounter.Instance.FlyText(earningsText, amount, MoneyFlightTime, .06f);
+
+        Switch(earningsText, false);
+    }
+
+    // Swells and rocks, then settles.
+    //
+    // Both halves fade out together on the same 1-to-0 term, so it lands back
+    // at exactly the size and the angle it started at. An animation that
+    // finishes near its start leaves a face very slightly crooked, and that
+    // never corrects itself -- it only accumulates on the next change
+    private void Shake()
+    {
+        if (emoji == null)
+        {
+            shakeAge = -1f;
+            return;
+        }
+
+        shakeAge += Time.deltaTime;
+
+        float t = Mathf.Clamp01(shakeAge / MoodShakeTime);
+
+        if (t >= 1f)
+        {
+            shakeAge = -1f;
+
+            emoji.transform.localRotation = Quaternion.identity;
+            emoji.transform.localScale = emojiBaseScale;
+
+            return;
+        }
+
+        float dying = 1f - t;
+
+        float wobble = Mathf.Sin(shakeAge * MoodShakeSpeed * Mathf.PI * 2f) *
+                       MoodShakeAngle * dying;
+
+        emoji.transform.localRotation = Quaternion.Euler(0f, 0f, wobble);
+
+        // Up and back down on one hump, so there is no seam where a two stage
+        // tween would hand over
+        emoji.transform.localScale =
+            emojiBaseScale * (1f + (MoodPopScale - 1f) * Mathf.Sin(t * Mathf.PI));
     }
 
     // Goes past the target size and settles back into it. A straight lerp
@@ -645,40 +886,49 @@ public class CustomerOrder : MonoBehaviour
     {
         float fraction = Remaining01;
 
-        // A ring of separate pieces switched off one at a time, rather than a
-        // filled Image. A radial fill is a UI feature and needs a Canvas, and
-        // the two canvas versions of the oven timer both came out invisible for
-        // reasons that could only be found by playing. Counting quads cannot
-        if (patienceRing != null)
-        {
-            int total = patienceRing.childCount;
-            int lit = Mathf.CeilToInt(fraction * total);
+        // Green, amber, red -- read off the SAME thresholds the emoji uses.
+        //
+        // Two sets of numbers for the same question is two ways to disagree,
+        // and a customer scowling next to a green counter is a bug nobody can
+        // report because both halves look right on their own
+        Color mood = MoodColour;
 
-            for (int i = 0; i < total; i++)
-                patienceRing.GetChild(i).gameObject.SetActive(i < lit);
+        if (timerRing != null)
+        {
+            timerRing.SetFill(fraction);
+            timerRing.SetColour(mood);
         }
 
-        if (patienceBar != null)
+        // Real seconds now, and only at the end. The ring says how much of the
+        // wait is left; this says how long you have, which is a different
+        // question and only worth asking when the answer is small
+        bool closing = left <= CountdownSeconds;
+
+        if (countdownText != null)
         {
-            Vector3 scale = barFullScale;
+            countdownText.gameObject.SetActive(closing);
 
-            scale.x = barFullScale.x * fraction;
+            // Zero included. Ceil holds each digit for the second it stands
+            // for, so 1 is on screen through the whole last second and 0 only
+            // arrives once the clock has passed it -- which is exactly what the
+            // hold below zero is for. Clamped at the bottom so the badge never
+            // shows a negative
+            if (closing)
+                countdownText.text = Mathf.Max(0, Mathf.CeilToInt(left)).ToString();
+        }
 
-            patienceBar.localScale = scale;
-
-            // Shrinks towards its left edge instead of towards its middle. A bar
-            // that empties from both ends at once does not read as a bar
-            Vector3 position = barFullPosition;
-
-            position.x = barFullPosition.x - barFullScale.x * .5f * (1f - fraction);
-
-            patienceBar.localPosition = position;
+        if (countdownDisc != null)
+        {
+            countdownDisc.gameObject.SetActive(closing);
+            countdownDisc.color = mood;
         }
 
         if (emoji == null)
             return;
 
-        switch (CurrentMood)
+        Mood now = CurrentMood;
+
+        switch (now)
         {
             case Mood.Mutlu:
                 if (happySprite != null) emoji.sprite = happySprite;
@@ -692,6 +942,14 @@ public class CustomerOrder : MonoBehaviour
                 if (neutralSprite != null) emoji.sprite = neutralSprite;
                 break;
         }
+
+        // Only a real change starts it, and only after the first one has been
+        // seen. shown is null on the frame the bubble opens, so arriving with a
+        // face is not the same event as changing to one
+        if (shown.HasValue && shown.Value != now)
+            shakeAge = 0f;
+
+        shown = now;
     }
 
     // The food's own model, shrunk. There are no 2D icons for these foods and

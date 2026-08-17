@@ -49,6 +49,26 @@ public class TapToServe : MonoBehaviour
     [SerializeField] private float maxRayDistance = 200f;
     [SerializeField] private int baseRevenue = 1;
 
+    // A whitelist instead of a blacklist, and that is the whole argument for
+    // it. Naming every patch of floor the player may not walk on means
+    // enumerating the mistakes; naming what may be tapped leaves nowhere to go
+    // that nobody chose. Every walk then ends on an authored stand point, so
+    // the facing, the reach and the station's trigger are all already right.
+    //
+    // Written false-is-the-new-way on purpose: this field is new on a component
+    // already saved in the scene, and a field the file does not have comes back
+    // false whatever the initialiser says
+    [Tooltip("Acikken bos zemine tiklayinca oyuncu oraya yurur. " +
+             "Kapaliyken sadece tiklanabilir seyler -- istasyonlar, tabaklar, musteriler")]
+    [SerializeField] private bool walkOnGroundTap;
+
+    [Tooltip("Bir duvarin kac birim arkasindaki istasyon hala secilebilir. " +
+             "0 = varsayilan 0.5. Eksi = duvarlar hic engellemez, eski hali")]
+    [SerializeField] private float reachThrough = .5f;
+
+    private float ReachThrough => reachThrough < 0f ? float.MaxValue
+        : reachThrough > .01f ? reachThrough : .5f;
+
     // Prints why a tap did nothing. Turn off once serving works
     [SerializeField] private bool logTaps = true;
 
@@ -356,7 +376,9 @@ public class TapToServe : MonoBehaviour
 
         if (go.TryGetComponent(out FoodDropZone dropZone))
         {
-            holdFoodAbility.HandleFoodDropZone(dropZone);
+            // byTap, so this one may take and swap. The trigger version that
+            // fires every frame may only put down
+            holdFoodAbility.HandleFoodDropZone(dropZone, true);
             Log(target.Label + ": teslim" + Holding());
             return;
         }
@@ -404,6 +426,9 @@ public class TapToServe : MonoBehaviour
         Interactable trigger = null;
         float triggerDistance = float.MaxValue;
 
+        float wall = NearestWall(hits);
+        int throughWall = 0;
+
         for (int i = 0; i < hits.Length; i++)
         {
             Collider collider = hits[i].collider;
@@ -415,6 +440,16 @@ public class TapToServe : MonoBehaviour
 
             if (candidate == null)
                 continue;
+
+            // Behind a wall. The ray does not stop at one -- a wall is not an
+            // Interactable, so it never appeared in this list at all and never
+            // blocked anything. Tapping the back wall picked the station in the
+            // next room and walked the player out to it
+            if (hits[i].distance > wall + ReachThrough)
+            {
+                throughWall++;
+                continue;
+            }
 
             if (collider.isTrigger)
             {
@@ -439,7 +474,46 @@ public class TapToServe : MonoBehaviour
                 ")  ve  " + trigger.Label + " (trigger, " + triggerDistance.ToString("0.0") +
                 ") -- kati secildi");
 
+        // Said out loud, because the other way this goes wrong is a wall the
+        // player is meant to reach past -- a serving hatch, a rail. Then this
+        // number is high on taps that ought to work, and the fix is the field
+        if (throughWall > 0)
+            Log(throughWall + " aday duvarin arkasinda kaldi (duvar " + wall.ToString("0.0") +
+                " birimde). Yanlissa: Player > Tap To Serve > Reach Through");
+
         return solid != null ? solid : trigger;
+    }
+
+    // How far the first solid thing that is NOT a station is.
+    //
+    // A wall, a floor, a crate. The floor never gets in the way of a station
+    // standing on it -- from this camera the station is always the nearer of
+    // the two -- so the only thing this really measures is walls
+    private float NearestWall(RaycastHit[] hits)
+    {
+        float nearest = float.MaxValue;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider collider = hits[i].collider;
+
+            // The player stands between the camera and everything else, so
+            // their own capsule is the nearest solid thing on most taps. Left
+            // in, it would be the wall and nothing would ever be reachable
+            if (collider.transform.IsChildOf(transform))
+                continue;
+
+            // Triggers are the oversized walk-into boxes, not solid geometry
+            if (collider.isTrigger)
+                continue;
+
+            if (collider.GetComponentInParent<Interactable>() != null)
+                continue;
+
+            nearest = Mathf.Min(nearest, hits[i].distance);
+        }
+
+        return nearest;
     }
 
     private string Holding()
@@ -493,18 +567,13 @@ public class TapToServe : MonoBehaviour
             // the stand point is outside it and only a log will ever say so
             serveWait += Time.deltaTime;
 
-            if (serveWait > 4f)
+            // Was four seconds. A message that arrives after the player has
+            // already tapped three more times is a message about a different
+            // tap than the one they are looking at
+            if (serveWait > 1.5f)
             {
                 serveWait = 0f;
-
-                FoodServingCustomerManager counter = CounterOf(pendingCustomer);
-
-                Log("SERVIS BEKLIYOR: oyuncu " +
-                    (counter == null ? "tezgahin" : counter.name + "'in") +
-                    " servis alaninin ICINDE degil.\n" +
-                    "  Durma noktasini tezgahin trigger kutusunun icine tasi:\n" +
-                    "  " + (counter == null ? "tezgah" : counter.name) +
-                    " > Interactable > Stand Point");
+                ReportServeBlocked();
             }
 
             return;
@@ -519,6 +588,56 @@ public class TapToServe : MonoBehaviour
     }
 
     private float serveWait;
+
+    // Names the reason instead of the symptom.
+    //
+    // "Not inside the serving area" was true and useless: it is the same
+    // sentence whether the stand point is in the wrong place, the trigger is
+    // the wrong size, the player never got there, or a no-walk zone is sitting
+    // on the spot they were sent to. Each of those is a different fix
+    private void ReportServeBlocked()
+    {
+        FoodServingCustomerManager counter = CounterOf(pendingCustomer);
+
+        if (counter == null)
+        {
+            Log("SERVIS BEKLIYOR: bu musteriyi hicbir tezgah sahiplenmiyor.\n" +
+                "  Player > Tap To Serve > Customer Managers listesine tezgahi ekle");
+            return;
+        }
+
+        Vector3 serve = counter.ServePosition;
+        float away = Vector3.Distance(transform.position.With(y: 0), serve.With(y: 0));
+
+        string reason;
+
+        if (away > 1.5f)
+        {
+            reason = "oyuncu servis noktasina VARMADI (" + away.ToString("0.0") + " birim uzakta).\n" +
+                     "  Yol kapali olabilir: " + counter.name + " > Interactable > Stand Point";
+        }
+        else if (NoWalkZone.Blocks(transform.position) || NoWalkZone.Blocks(serve))
+        {
+            // The one this command can create by itself, so it gets named
+            // first and with the way out attached
+            reason = "servis noktasi bir NoWalkZone'un ICINDE -- alan yanlis yere kurulmus.\n" +
+                     "  Cooked Fast > Etkilesim: Tezgah Arkasini Ac";
+        }
+        else
+        {
+            reason = "oyuncu servis noktasinda ama tezgahin TRIGGER kutusunun disinda.\n" +
+                     "  " + counter.name + " uzerindeki Collider'i buyut ya da\n" +
+                     "  " + counter.name + " > Interactable > Stand Point'i kutunun icine tasi";
+        }
+
+        Log("SERVIS BEKLIYOR: " + reason +
+            "\n  oyuncu           : " + transform.position.ToString("0.00") +
+            "\n  servis noktasi   : " + serve.ToString("0.00") +
+            "\n  aradaki mesafe   : " + away.ToString("0.00") +
+            "\n  NoWalkZone oyuncuda: " + NoWalkZone.Blocks(transform.position) +
+            "\n  NoWalkZone servis noktasinda: " + NoWalkZone.Blocks(serve) +
+            "\n  girilen alan sayisi: " + zonesInside.Count);
+    }
 
     private void HandleTap()
     {
@@ -564,6 +683,13 @@ public class TapToServe : MonoBehaviour
             if (hits[i].collider.transform.IsChildOf(transform))
                 continue;
 
+            // A no-walk zone is a region, not a thing in the room. Left in the
+            // list it becomes the nearest surface over a whole corner of the
+            // floor, and every tap there reports hitting it instead of the
+            // ground it is drawn over
+            if (hits[i].collider.GetComponent<NoWalkZone>() != null)
+                continue;
+
             if (!haveHit || hits[i].distance < hit.distance)
             {
                 hit = hits[i];
@@ -605,6 +731,28 @@ public class TapToServe : MonoBehaviour
 
         if (customer == null)
         {
+            // Nothing was aimed at. Whether that means "walk there" or "you
+            // tapped nothing" is the one setting on this component that changes
+            // how the game is played
+            if (!walkOnGroundTap)
+            {
+                Log("bos zemin: " + hit.collider.name + " -- tiklanabilir degil, durdu");
+                return;
+            }
+
+            // Refused rather than walked around. This is the floor behind the
+            // counter, and the only way to it is round the end and in among the
+            // customers -- the one side the serving trigger is not on.
+            //
+            // Checked here and not inside WalkToPoint on purpose: a stand point
+            // is a spot somebody chose, and a zone drawn slightly too wide
+            // should never be able to lock the player out of their own counter
+            if (NoWalkZone.Blocks(hit.point))
+            {
+                Log("tezgah arkasi: " + hit.collider.name + " -> gidilmez");
+                return;
+            }
+
             // Nothing was aimed at, so this is a plain move order. It cancels
             // anything pending: walking away is how you change your mind
             DropPendingAction();
@@ -656,6 +804,23 @@ public class TapToServe : MonoBehaviour
 
         Log("  " + counter.name + " tezgahina yuruyor, varinca servis eder");
         WalkToPoint(counter.ServePosition);
+    }
+
+    // Asked by the counters themselves at startup. One that nobody answers yes
+    // to can only ever cost lives, and it says so rather than waiting to be
+    // noticed as hearts vanishing for no visible reason
+    public bool Serves(FoodServingCustomerManager counter)
+    {
+        if (customerManagers == null)
+            return false;
+
+        for (int i = 0; i < customerManagers.Length; i++)
+        {
+            if (customerManagers[i] == counter)
+                return true;
+        }
+
+        return false;
     }
 
     private FoodServingCustomerManager CounterOf(Customer customer)
@@ -809,6 +974,16 @@ public class TapToServe : MonoBehaviour
         // Stop at the edge of serving range, not on top of them. Walking into
         // the customer looks wrong and paths the player around the counter
         Vector3 target = customer.transform.position + fromCustomer.normalized * (serveRange * .95f);
+
+        // Standing off a customer still puts the player on the customers' side
+        // when the approach comes from that side. This is the fallback for a
+        // customer no counter claims, and it is worth nothing if it walks the
+        // player into the queue
+        if (NoWalkZone.Blocks(target))
+        {
+            Log("YURUYEMEDI: musterinin yani tezgah arkasinda kaliyor");
+            return;
+        }
 
         // Tight sample radius on purpose. A wide one snaps to the far side of
         // a counter and sends the player all the way around it. If there is no
@@ -1051,7 +1226,7 @@ public class TapToServe : MonoBehaviour
         // score is taken from a clock still running
         customer.CollectFood(foodToServe);
 
-        customer.ShowEarnings(GenerateRevenue(customer.RewardMultiplier));
+        Pay(customer);
 
         if (!customer.NeedsMoreFood())
             SendCustomerHome(customer);
@@ -1064,14 +1239,23 @@ public class TapToServe : MonoBehaviour
     // Hands the amount back as well as banking it. The bubble shows the player
     // what a happy customer was worth, and that only means anything if it is the
     // same number that went into the till rather than one worked out twice
-    private int GenerateRevenue(float moodMultiplier = 1f)
+    // Rung up on every item, but only paid out when the order is finished --
+    // RingUp answers 0 until then. That is the same moment the bubble shows
+    // what it was worth, so the money in the air and the number over their head
+    // arrive together and say the same thing
+    private void Pay(Customer customer)
     {
         float revenueMultiplier = Mathf.Max(1f, characterStats.Revenue);
-        int revenue = Mathf.CeilToInt(baseRevenue * revenueMultiplier * Mathf.Max(.05f, moodMultiplier));
+        int revenue = Mathf.CeilToInt(
+            baseRevenue * revenueMultiplier * Mathf.Max(.05f, customer.RewardMultiplier));
 
-        cashFile?.GenerateCash(revenue);
+        int due = customer.RingUp(revenue);
 
-        return revenue;
+        if (due <= 0)
+            return;
+
+        // Off the customer, because paying is something the customer does
+        cashFile?.GenerateCash(due, customer.transform.position);
     }
 
     private void SendCustomerHome(Customer customer)

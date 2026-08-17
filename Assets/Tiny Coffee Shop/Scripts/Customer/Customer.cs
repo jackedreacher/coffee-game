@@ -37,6 +37,10 @@ public class Customer : MonoBehaviour
     private int foodNeededCount;
     private int foodTakenCount;
 
+    // What this customer owes so far. Runs up over a multi-item order and is
+    // handed over in one piece when the last item lands
+    private int earnings;
+
     [Header(" Actions ")]
     private Action reachedDestinationCallback;
 
@@ -106,6 +110,11 @@ public class Customer : MonoBehaviour
         // doorway. It opens when they come to rest instead
         orderShown = false;
 
+        // Cleared here rather than trusted to be zero: a reused customer would
+        // otherwise arrive already owed the last one's order
+        earnings = 0;
+        foodTakenCount = 0;
+
         GoTo(targetPosition);
     }
 
@@ -154,15 +163,77 @@ public class Customer : MonoBehaviour
             order.Settle();
     }
 
-    // Called by whoever rang it up, after the last item changed hands. Split
-    // from CollectFood because the two halves are known in different places:
-    // the bubble works out the mood, and only the till knows the money
-    public void ShowEarnings(int amount)
+    // Rung up per item, paid once.
+    //
+    // Someone ordering three of something is ONE sale to the player. Paying
+    // them item by item puts money in the air three times for a single order,
+    // and the number that flashes over their head is a third of what was
+    // earned. So it is added up here and handed over in one piece at the end.
+    //
+    // Answers what is left for the TILL to pay. A customer with a bubble pays
+    // through it -- the number lifts off the card and lands in the counter, and
+    // the money goes in when it lands -- so there is nothing left to do and
+    // this answers 0. One without a bubble has nothing to fly, and the till
+    // pays for them directly
+    public int RingUp(int amount)
     {
-        if (order == null || NeedsMoreFood())
-            return;
+        earnings += amount;
 
-        order.Celebrate(amount);
+        if (NeedsMoreFood())
+            return 0;
+
+        int total = earnings;
+        earnings = 0;
+
+        // The one measurement worth having, printed on every completed sale.
+        //
+        // How long an order takes is the number every patience setting is
+        // guessed from, and guessing it twice already got it wrong twice. This
+        // is the same number measured instead: seconds per item, straight into
+        // the food prefab's Prep Seconds
+        if (order != null)
+            Debug.Log("SATIS: " + foodNeededCount + " x " +
+                      (requestedFood == null ? "?" : requestedFood.GetType().Name) +
+                      "   verilen " + order.PatienceGiven.ToString("0.0") + " sn" +
+                      ",  harcanan " + order.Waited.ToString("0.0") + " sn" +
+                      ",  PARCA BASI " +
+                      (order.Waited / Mathf.Max(1, foodNeededCount)).ToString("0.0") + " sn", this);
+
+        if (order == null)
+            return total;
+
+        // A bubble that refuses the job -- no card built, or already
+        // celebrating -- hands the sale straight back rather than swallowing it
+        return order.Celebrate(total) ? 0 : total;
+    }
+
+    // Waited the whole way and got nothing. Answered here rather than read off
+    // the bubble by everyone, so a customer with no bubble simply never gives up
+    public bool PatienceRanOut => order != null && order.RanOut;
+
+    public float PatienceGiven => order == null ? 0f : order.PatienceGiven;
+    public float Waited => order == null ? 0f : order.Waited;
+
+    // Off without their food, and it costs a life. No callback and no reward:
+    // this is the one exit that is not a sale
+    public void GiveUp(Vector3 exitPosition)
+    {
+        if (order != null)
+            order.Hide();
+
+        wantsQueueFacing = false;
+
+        EnableNavigation();
+        GoToThen(exitPosition, () => Destroy(gameObject));
+    }
+
+    // Set before the bubble opens, because the clock starts when it opens.
+    // Silently ignored by a customer with no bubble, which is right: no bubble
+    // means no clock to give a length to
+    public void SetPatience(float seconds)
+    {
+        if (order != null)
+            order.SetPatience(seconds);
     }
 
     public bool NeedsMoreFood()

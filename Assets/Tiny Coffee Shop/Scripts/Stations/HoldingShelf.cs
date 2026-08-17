@@ -44,10 +44,64 @@ public class HoldingShelf : MonoBehaviour
         if (hand.Merges(plateau.Peek()))
             return PickUp(hand);
 
-        if (hand.IsPlateauActive && !hand.IsPlateauEmpty)
-            return PutDown(hand);
+        if (!(hand.IsPlateauActive && !hand.IsPlateauEmpty))
+            return PickUp(hand);
 
-        return PickUp(hand);
+        // Full hand, so put down -- and if there is no room to put down, the
+        // reason there is no room is that something is here worth trading for.
+        //
+        // Without this the tap did nothing at all: a hand holding a burger and
+        // a plate holding fries refused each other, said "no room or wrong
+        // type", and left the only way out through the bin
+        return PutDown(hand) || Trade(hand);
+    }
+
+    // Both emptied before either is asked whether it will accept.
+    //
+    // Asking first is asking the wrong question: a full container answers no to
+    // everything, so "will the hand take these fries" is answered by the burger
+    // already in it. Emptying both and then asking is the only order in which
+    // the question means what it is meant to mean
+    private bool Trade(HoldFoodAbility hand)
+    {
+        SpawnableFood waiting = plateau.Peek();
+        SpawnableFood held = hand.PeekFood();
+
+        if (waiting == null || held == null)
+            return false;
+
+        // Burnt food does not get parked and forgotten about. The point of
+        // burning it is the walk to the bin
+        if (held.IsBurnt)
+            return false;
+
+        SpawnableFood given = hand.PopFood();
+
+        if (given == null)
+            return false;
+
+        SpawnableFood taken = plateau.Pop();
+
+        if (taken == null)
+        {
+            hand.TryPush(given);
+            return false;
+        }
+
+        if (hand.CanTake(taken) && plateau.CanAccept(given))
+        {
+            hand.TryPush(taken);
+            plateau.Push(given);
+
+            return true;
+        }
+
+        // Refused after all. Both go back exactly where they were -- nothing
+        // here may destroy an item by half completing
+        plateau.Push(taken);
+        hand.TryPush(given);
+
+        return false;
     }
 
     private bool PutDown(HoldFoodAbility hand)

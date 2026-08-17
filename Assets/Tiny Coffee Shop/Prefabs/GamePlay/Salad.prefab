@@ -51,6 +51,7 @@ MonoBehaviour:
   dirtyYOffsetOnPlateau: 0.22054185
   dirtyMesh: {fileID: 7113742550581899826, guid: 11b34f1140d0f5043bf3e29ba541ea2e, type: 3}
   ingredientOnly: 0
+  prepSeconds: 6
   icon: {fileID: 21300000, guid: 292d329277b70a5489ba0afd8a78116a, type: 3}
   burntColour: {r: 0.08, g: 0.06, b: 0.05, a: 1}
 --- !u!1001 &2056481827568642430

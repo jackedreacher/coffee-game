@@ -24,6 +24,19 @@ public abstract class SpawnableFood : MonoBehaviour
     [FormerlySerializedAs("needsCooking")]
     [SerializeField] private bool ingredientOnly;
 
+    // How long one of these is worth waiting for, and it lives here for the
+    // same reason the icon does: a new food arrives knowing its own answer and
+    // there is no list anywhere to fall out of step with the prefabs.
+    //
+    // Not a guess at how long the player needs -- that is what it has to BE,
+    // and it is different for a drink taken off a shelf and a burger built out
+    // of three parts and cooked
+    [Tooltip("Bu yemegin bir tanesi kac saniyelik is. Musterinin sabri buradan " +
+             "hesaplanir. 0 = tezgahin varsayilani kullanilir")]
+    [SerializeField] private float prepSeconds;
+
+    public float PrepSeconds => prepSeconds;
+
     // Carried by the food itself rather than looked up in a table somewhere.
     // A new food that arrives with its own picture needs nothing else told
     // about it, and there is no list to fall out of step with the prefabs

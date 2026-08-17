@@ -160,7 +160,7 @@ public class OrderCounter : MonoBehaviour
             return false;
 
         customer.CollectFood(foodToServe);
-        customer.ShowEarnings(GenerateRevenue(characterStats, customer.RewardMultiplier));
+        Pay(customer, characterStats);
 
         if (!customer.NeedsMoreFood())
             SendCustomerHome(customer);
@@ -172,17 +172,26 @@ public class OrderCounter : MonoBehaviour
     // and a multiplier read before it stops is read off a clock still running.
     //
     // The mood is new here. This path paid a flat rate whoever was kept waiting,
-    // so the whole patience system only counted when the player served by hand
-    private int GenerateRevenue(CharacterStats characterStats, float moodMultiplier)
+    // so the whole patience system only counted when the player served by hand.
+    //
+    // Rung up per item, paid once: RingUp answers 0 until the order is done, so
+    // the money only leaves the customer at the moment the bubble says what the
+    // order was worth -- and it is the same number, added up rather than the
+    // last item's share
+    private void Pay(Customer customer, CharacterStats characterStats)
     {
         float revenueMultiplier = Mathf.Max(1f, characterStats.Revenue);
 
         int revenue = Mathf.CeilToInt(
-            baseRevenue * revenueMultiplier * Mathf.Max(.05f, moodMultiplier));
+            baseRevenue * revenueMultiplier * Mathf.Max(.05f, customer.RewardMultiplier));
 
-        cashFile?.GenerateCash(revenue);
+        int due = customer.RingUp(revenue);
 
-        return revenue;
+        if (due <= 0)
+            return;
+
+        // Off the customer, because paying is something the customer does
+        cashFile?.GenerateCash(due, customer.transform.position);
     }
 
     private void Serve(Customer customer, FoodDropZone zone, CharacterStats characterStats)
@@ -192,7 +201,7 @@ public class OrderCounter : MonoBehaviour
         SpawnableFood foodToServe = zone.Pop();
 
         customer.CollectFood(foodToServe);
-        customer.ShowEarnings(GenerateRevenue(characterStats, customer.RewardMultiplier));
+        Pay(customer, characterStats);
 
         if (customer.NeedsMoreFood())
             return;

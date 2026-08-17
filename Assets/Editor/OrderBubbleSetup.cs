@@ -110,8 +110,9 @@ public static class OrderBubbleSetup
         report.AppendLine();
         report.AppendLine("Nasil isliyor");
         report.AppendLine("  musteri girer   -> balon acilir, istedigi yemegin ikonu");
-        report.AppendLine("                     ve adedi gorunur, halka dolu");
-        report.AppendLine("  bekledikce      -> halka bosalir, emoji sinirlenir");
+        report.AppendLine("                     ve adedi gorunur, sayac 5'te");
+        report.AppendLine("  bekledikce      -> sayac geri sayar, yesil-sari-kirmizi");
+        report.AppendLine("  sayac 0 olunca  -> musteri kacar, bir can gider");
         report.AppendLine("  siparis biter   -> kart kapanir, o andaki emoji buyur,");
         report.AppendLine("                     arkasinda isin doner, alt tarafta kazanc");
         report.AppendLine("                     yazar. Musteri o yuzle cikar gider");
@@ -251,20 +252,47 @@ public static class OrderBubbleSetup
             // Clear of the box rather than half over it. The badge is nearly as
             // tall as the food is now, so overlapping the top edge would put the
             // emoji on the pizza
-            Vector3 badge = new Vector3(0f, boxTop + size * .26f, -.03f);
+            Vector3 badge = new Vector3(0f, boxTop + size * .30f, -.03f);
 
-            // Sized from the emoji rather than from the card, so the two stay a
-            // collar and its face instead of drifting apart when either changes
-            const float badgeHeight = size * .34f;
+            // The hole in the middle of the ring, and the ONE number everything
+            // that sits in it is measured from. The face, the disc and the
+            // digits all fill it exactly, so nothing can end up rattling around
+            // inside the collar or spilling out past it
+            const float hole = size * .40f;
 
-            GameObject ring = Ring(bubble, badge + new Vector3(0f, 0f, .01f), badgeHeight * .68f);
+            GameObject timer = Radial(bubble, badge + new Vector3(0f, 0f, .012f),
+                hole * .5f, hole * .66f);
+
+            // In the emoji's place, not above it. For the last few seconds the
+            // number IS the face -- it takes the spot the eye is already on
+            // rather than asking it to look somewhere else at the one moment
+            // there is no time to
+            Vector3 clock = badge + new Vector3(0f, 0f, -.01f);
+
+            // A hair over the hole. The drawn circle stops two pixels short of
+            // its own texture edge for the anti-aliasing, and at this size that
+            // reads as a gap between the disc and the collar
+            GameObject disc = Disc(bubble, clock, hole * 1.05f);
+
+            GameObject number = Text(bubble, "Countdown",
+                clock + new Vector3(0f, 0f, -.01f), size, 130);
+
+            TextMeshPro digits = number.GetComponent<TextMeshPro>();
+
+            digits.fontSize = size * 4.2f;
+            digits.color = Color.white;
+
+            RectTransform digitRect = number.GetComponent<RectTransform>();
+
+            if (digitRect != null)
+                digitRect.sizeDelta = new Vector2(hole, hole);
 
             // Behind the emoji as well, and that is settled by SORTING ORDER,
             // not by where these sit in the hierarchy. Sprites are sorted by
             // their order first and their place in the list never comes into it
-            GameObject burst = Sunburst(bubble, badge + new Vector3(0f, 0f, .005f), badgeHeight * 2.4f);
+            GameObject burst = Sunburst(bubble, badge + new Vector3(0f, 0f, .005f), hole * 2.4f);
 
-            GameObject face = Emoji(bubble, happy, badge, badgeHeight);
+            GameObject face = Emoji(bubble, happy, badge, hole);
 
             // Under the emoji, where the box used to be -- by the time this is
             // on screen the card is gone and the space is free
@@ -286,8 +314,10 @@ public static class OrderBubbleSetup
             so.FindProperty("card").objectReferenceValue = card;
             so.FindProperty("iconAnchor").objectReferenceValue = anchor.transform;
             so.FindProperty("countText").objectReferenceValue = count.GetComponent<TextMeshPro>();
-            so.FindProperty("patienceRing").objectReferenceValue = ring.transform;
-            so.FindProperty("patienceBar").objectReferenceValue = null;
+            so.FindProperty("timerRing").objectReferenceValue = timer.GetComponent<RadialTimer>();
+            so.FindProperty("countdownText").objectReferenceValue = digits;
+            so.FindProperty("countdownDisc").objectReferenceValue =
+                disc.GetComponent<SpriteRenderer>();
             so.FindProperty("emoji").objectReferenceValue = face.GetComponent<SpriteRenderer>();
             so.FindProperty("sunburst").objectReferenceValue = burst.transform;
             so.FindProperty("earningsText").objectReferenceValue = money;
@@ -418,53 +448,101 @@ public static class OrderBubbleSetup
         return piece;
     }
 
-    // A clock face built from pieces, because a radial fill is a Canvas feature
-    // and this bubble deliberately has no Canvas. Twenty of them is fine enough
-    // that the step between one and the next reads as movement
-    private const int ringSegments = 20;
+    private const string discPath = "Assets/food-icons/Countdown_Disc.png";
 
-    private static GameObject Ring(GameObject parent, Vector3 offset, float radius)
+    // The disc behind the number, drawn here rather than found.
+    //
+    // Every pack in the project has a folder of shapes and one of them is
+    // probably a circle, but "probably" means opening twenty files to find out
+    // and then depending on that pack forever. A circle is four lines of code
+    // and it comes out white, which is what a thing that gets tinted green,
+    // amber and red at runtime needs to be
+    private static Sprite DiscSprite()
     {
-        GameObject ring = new GameObject("Patience Ring");
+        Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(discPath);
 
-        ring.transform.SetParent(parent.transform, false);
-        ring.transform.localPosition = offset;
-        ring.transform.localRotation = Quaternion.identity;
-        ring.transform.localScale = Vector3.one;
+        if (existing != null)
+            return existing;
 
-        Material material = UnlitMaterial("Ring", new Color(.35f, .82f, .4f, 1f));
+        const int pixels = 128;
 
-        float thickness = radius * .3f;
+        Texture2D texture = new Texture2D(pixels, pixels, TextureFormat.ARGB32, false);
 
-        for (int i = 0; i < ringSegments; i++)
+        Vector2 middle = new Vector2(pixels * .5f - .5f, pixels * .5f - .5f);
+
+        float radius = pixels * .5f - 2f;
+
+        for (int y = 0; y < pixels; y++)
         {
-            // Clockwise from the top, which is the direction a clock empties in
-            // and the direction anyone reads a ring
-            float angle = 90f - i * (360f / ringSegments);
-            float radians = angle * Mathf.Deg2Rad;
+            for (int x = 0; x < pixels; x++)
+            {
+                // One pixel of feather at the rim. Without it the edge is a
+                // staircase, and a staircase is what a circle is not
+                float edge = radius - Vector2.Distance(new Vector2(x, y), middle);
 
-            GameObject piece = GameObject.CreatePrimitive(PrimitiveType.Quad);
-
-            piece.name = "Seg " + i.ToString("00");
-
-            Object.DestroyImmediate(piece.GetComponent<Collider>());
-
-            piece.transform.SetParent(ring.transform, false);
-
-            piece.transform.localPosition = new Vector3(
-                Mathf.Cos(radians) * radius,
-                Mathf.Sin(radians) * radius,
-                0f);
-
-            // Turned to point outwards, so the pieces make a ring rather than a
-            // circle of squares all facing the same way
-            piece.transform.localRotation = Quaternion.Euler(0f, 0f, angle - 90f);
-            piece.transform.localScale = new Vector3(thickness * .55f, thickness, 1f);
-
-            piece.GetComponent<Renderer>().sharedMaterial = material;
+                texture.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(edge)));
+            }
         }
 
-        return ring;
+        texture.Apply();
+
+        System.IO.File.WriteAllBytes(discPath, texture.EncodeToPNG());
+
+        Object.DestroyImmediate(texture);
+
+        AssetDatabase.Refresh();
+        FoodIconBaker.MakeSprite(discPath);
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(discPath);
+    }
+
+    // The draining collar. A mesh rather than a filled Image, for the reason
+    // written on RadialTimer itself -- a radial fill needs a Canvas, and this
+    // bubble has spent two rounds proving it does not want one
+    private static GameObject Radial(GameObject parent, Vector3 offset, float inner, float outer)
+    {
+        GameObject piece = new GameObject("Patience Ring",
+            typeof(MeshFilter), typeof(MeshRenderer), typeof(RadialTimer));
+
+        piece.transform.SetParent(parent.transform, false);
+        piece.transform.localPosition = offset;
+        piece.transform.localRotation = Quaternion.identity;
+
+        // White on the asset, tinted per customer at runtime off an instanced
+        // copy -- so one customer running out of time does not turn every other
+        // ring in the queue red
+        piece.GetComponent<MeshRenderer>().sharedMaterial = UnlitMaterial("Timer", Color.white);
+
+        SerializedObject so = new SerializedObject(piece.GetComponent<RadialTimer>());
+
+        so.FindProperty("innerRadius").floatValue = inner;
+        so.FindProperty("outerRadius").floatValue = outer;
+
+        so.ApplyModifiedProperties();
+
+        return piece;
+    }
+
+    private static GameObject Disc(GameObject parent, Vector3 offset, float height)
+    {
+        GameObject piece = new GameObject("Countdown Disc");
+
+        piece.transform.SetParent(parent.transform, false);
+        piece.transform.localPosition = offset;
+        piece.transform.localRotation = Quaternion.identity;
+
+        SpriteRenderer renderer = piece.AddComponent<SpriteRenderer>();
+
+        renderer.sprite = DiscSprite();
+
+        // Over the card and under its own number
+        renderer.sortingOrder = 125;
+
+        float own = renderer.bounds.size.y;
+
+        piece.transform.localScale = own > .0001f ? Vector3.one * (height / own) : Vector3.one;
+
+        return piece;
     }
 
     private static GameObject Quad(GameObject parent, string name, Color colour,

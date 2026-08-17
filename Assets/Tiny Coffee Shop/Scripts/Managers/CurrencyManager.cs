@@ -11,6 +11,11 @@ public class CurrencyManager : MonoBehaviour, IWantToBeSaved
 
     [Header(" Settings ")]
     [SerializeField] private int initialCurrency = 525;
+
+    [Tooltip("Kapaliyken her acilista para initialCurrency'den baslar. " +
+             "Test ederken birikmis bir kasayla baslamak, dengeyi olculemez yapiyor")]
+    [SerializeField] private bool keepBetweenSessions;
+
     private bool shouldSave;
 
     public int Currency { get; private set; }
@@ -32,10 +37,16 @@ public class CurrencyManager : MonoBehaviour, IWantToBeSaved
 
     public void Load()
     {
-        if (Sijil.TryLoad(this, currencyKey, out object _currency))
+        if (keepBetweenSessions && Sijil.TryLoad(this, currencyKey, out object _currency))
             Currency = (int)_currency;
         else
             Currency = initialCurrency;
+
+        // Not writing the old total is not the same as clearing it. Left in the
+        // file, the previous session's money comes back the day this is turned
+        // on again -- so the key goes out of the save now, not later
+        if (!keepBetweenSessions && Sijil.instance != null)
+            Sijil.Remove(this, currencyKey);
 
         UpdateTexts();
     }
@@ -94,5 +105,13 @@ public class CurrencyManager : MonoBehaviour, IWantToBeSaved
         Save();
     }
 
-    public void Save() => Sijil.Save(this, currencyKey, Currency);
+    // Sijil cikista da cagirir, InvokeRepeating'den bagimsiz olarak. Bayragi
+    // burada sormak gerek, yoksa oyunu kapatmanin kendisi kaydeder
+    public void Save()
+    {
+        if (!keepBetweenSessions)
+            return;
+
+        Sijil.Save(this, currencyKey, Currency);
+    }
 }
