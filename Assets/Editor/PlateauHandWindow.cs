@@ -508,6 +508,31 @@ public class PlateauHandWindow : EditorWindow
                 WriteToCustomers(plateau);
         }
 
+        // Promotes what is in the hand now to the baseline.
+        //
+        // Kept next to the restore button on purpose, and NOT wired to the
+        // snapshot buttons above: a snapshot is scratch space, one slot per
+        // tray, overwritten constantly. This is the one placement the project
+        // comes back to when everything else has gone wrong, so it changes only
+        // when somebody looks at a rabbit holding food and decides that is it
+        using (new EditorGUI.DisabledScope(!character))
+        {
+            if (GUILayout.Button("Simdiki ayari \"bilinen iyi\" yap"))
+            {
+                if (EditorUtility.DisplayDialog("Bilinen Iyi Ayar",
+                        "Su anki tepsi yerlesimi yeni temel ayar olacak.\n\n" +
+                        "Bundan sonra \"bilinen iyi ayara dondur\" buraya doner.\n" +
+                        "Prefablara dokunmuyor, sadece temel ayari yaziyor.",
+                        "Kaydet", "Vazgec"))
+                {
+                    string report = PlateauAttach.RememberKnownGood(plateau, FindRoot());
+
+                    Debug.Log(report);
+                    status = report;
+                }
+            }
+        }
+
         // The way back when a copy went wrong and the trays are somewhere off
         // the character. Independent of the snapshot buttons, which hold
         // whatever was saved last -- this holds a placement known to have worked

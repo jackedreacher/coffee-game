@@ -188,11 +188,71 @@ public static class PlateauAttach
         return parent != null && parent != visual && parent.IsChildOf(visual);
     }
 
+    // The baseline, in a file rather than in these lines.
+    //
+    // It was literals, for a good reason: the only other copy was in git, and
+    // reverting a .prefab through git throws away everything else in the file
+    // with it. A json beside the script keeps that immunity -- it is not a
+    // prefab, so reverting it costs nothing else -- and it can be rewritten
+    // from the editor the moment a better placement is found by hand, which is
+    // how every good placement in this project has actually come about.
+    //
+    // The literals below stay on as the factory default, for when the file is
+    // missing or unreadable
+    public const string knownGoodFile = "Assets/Editor/PlateauKnownGood.json";
+
+    public static Placement KnownGoodCustomer
+    {
+        get
+        {
+            if (!System.IO.File.Exists(knownGoodFile))
+                return Factory;
+
+            Placement saved = JsonUtility.FromJson<Placement>(
+                System.IO.File.ReadAllText(knownGoodFile));
+
+            // A json that parses to nothing is worse than no json at all: a
+            // zero scale is a placement that would stamp seven invisible trays
+            return saved.trayScale == Vector3.zero ? Factory : saved;
+        }
+    }
+
+    // Whatever is in the hand right now becomes the thing to come back to.
+    //
+    // Guarded by the same two checks that guard copying to all seven, because
+    // this is the more consequential of the two writes -- a bad copy is undone
+    // by the button next to it, and a bad baseline poisons the undo itself
+    public static string RememberKnownGood(Plateau source, Transform sourceRoot)
+    {
+        if (source == null || sourceRoot == null)
+            return "Plateau yok\n";
+
+        if (!ReadPlacement(source, sourceRoot, out Placement placement))
+            return "Plateau modelin disinda -- once elin kemigine bagla\n";
+
+        string doubt = Suspicious(source, sourceRoot);
+
+        if (doubt != null && !EditorUtility.DisplayDialog("Ayar supheli",
+                doubt + "\n\nYine de \"bilinen iyi\" olarak kaydedilsin mi?",
+                "Kaydet", "Vazgec"))
+            return "Vazgecildi. Bilinen iyi ayar degismedi.\n";
+
+        System.IO.File.WriteAllText(knownGoodFile, JsonUtility.ToJson(placement, true));
+
+        AssetDatabase.Refresh();
+
+        return "Bilinen iyi ayar guncellendi.\n" +
+               "  kemik " + (placement.bonePath.Length <= 0 ? "(model koku)" : placement.bonePath) + "\n" +
+               "  tepsi " + placement.trayPosition.ToString("0.0000") +
+               "  olcek " + placement.trayScale.ToString("0.0000") + "\n" +
+               "  yigin " + placement.stackPosition.ToString("0.0000") + "\n" +
+               "  slot  " + placement.slotPosition.ToString("0.0000") + "\n" +
+               "  dosya " + knownGoodFile + "\n";
+    }
+
     // The placement the rabbits carried while the food last sat correctly in
-    // their hands, read straight off Customer_Rabbit_Bald.prefab at the time.
-    // Kept as literals because the only other copy is in git, and reverting a
-    // .prefab through git would throw away everything else in the file with it
-    public static Placement KnownGoodCustomer => new Placement
+    // their hands, read straight off Customer_Rabbit_Bald.prefab at the time
+    private static Placement Factory => new Placement
     {
         bonePath = "CharacterArmature/Root/Body/Hips/Abdomen/Torso/Shoulder.R/UpperArm.R",
 
