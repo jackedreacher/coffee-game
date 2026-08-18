@@ -23,7 +23,7 @@ public static class InteractionSetup
     // two stations side by side are still two stations
     private const float defaultReach = 1.6f;
 
-    [MenuItem("Cooked Fast/Etkilesim: 1 - Tiklamaya Gecir", priority = 200)]
+    [MenuItem("Cooked Fast/Etkilesim/1 - Tiklamaya Gecir", priority = 200)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)
@@ -64,7 +64,7 @@ public static class InteractionSetup
     // somebody dragged in by hand and wrong for the ones it wrote itself in an
     // earlier version -- and from the field there is no telling the two apart.
     // So the overwrite is its own command rather than a rule inside the first
-    [MenuItem("Cooked Fast/Etkilesim: 2 - Pop Hedeflerini Yenile", priority = 201)]
+    [MenuItem("Cooked Fast/Etkilesim/2 - Pop Hedeflerini Yenile", priority = 201)]
     public static void RefreshPopTargets()
     {
         if (EditorApplication.isPlaying)

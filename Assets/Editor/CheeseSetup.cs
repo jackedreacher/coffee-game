@@ -17,7 +17,7 @@ public static class CheeseSetup
 
     private const int defaultPieces = 6;
 
-    [MenuItem("Cooked Fast/Cheese: 1 - Istasyonu Kur (yemek dahil)", priority = 110)]
+    [MenuItem("Cooked Fast/Istasyon/Cheese: 1 - Istasyonu Kur (yemek dahil)", priority = 110)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)
@@ -71,7 +71,7 @@ public static class CheeseSetup
     // to aim at and every radius has to be judged from memory between play
     // sessions. This lays out the same ring with the same arithmetic, in edit
     // mode, where the numbers it is judged against can actually be saved
-    [MenuItem("Cooked Fast/Cheese: 2 - Onizleme Cemberini Yenile", priority = 111)]
+    [MenuItem("Cooked Fast/Istasyon/Cheese: 2 - Onizleme Cemberini Yenile", priority = 111)]
     public static void RefreshPreview()
     {
         if (EditorApplication.isPlaying)
@@ -137,7 +137,7 @@ public static class CheeseSetup
                   "\nBitince 'Cheese: 3 - Onizlemeyi Kaldir' -- oyuna girmemeli.");
     }
 
-    [MenuItem("Cooked Fast/Cheese: 3 - Onizlemeyi Kaldir", priority = 112)]
+    [MenuItem("Cooked Fast/Istasyon/Cheese: 3 - Onizlemeyi Kaldir", priority = 112)]
     public static void RemovePreview()
     {
         GameObject zone = ResolveZone(out _);

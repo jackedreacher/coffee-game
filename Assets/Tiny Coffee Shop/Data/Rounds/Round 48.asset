@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
   totalCustomers: 45
   spawnInterval: 2.9
+  maxOrderTypes: 2
   note: 'Raund 48 -- Usta: saniyeler kritik'

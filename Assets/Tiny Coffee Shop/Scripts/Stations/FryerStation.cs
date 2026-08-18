@@ -75,6 +75,15 @@ public class FryerStation : MonoBehaviour
     [Tooltip("Yanmak uzereyken yanip sonecek uyari isareti")]
     [SerializeField] private GameObject warningRoot;
 
+    // The oven's pair, on the fryer.
+    //
+    // The two stations say the same two things -- come and get it, and come and
+    // get it NOW -- and the fryer only had the second one. A machine that warns
+    // but never says it is done teaches the player to watch it instead of
+    // trusting it
+    [Tooltip("Kizardigini soyleyen tik. Yanma uyarisi cikinca gizlenir")]
+    [SerializeField] private GameObject readyRoot;
+
     [Tooltip("Yanik patatesin uzerinde cikacak ates. Patates alininca yok olur")]
     [SerializeField] private GameObject burnEffect;
 
@@ -213,6 +222,23 @@ public class FryerStation : MonoBehaviour
 
         ShowTimer();
         ShowWarning();
+        ShowReady();
+    }
+
+    // The tick, and it steps aside for the warning.
+    //
+    // The two marks are a pair and read as one: the tick says come and get it,
+    // the flashing one says come and get it NOW. Both on the same fryer at once
+    // would be the machine arguing with itself
+    private void ShowReady()
+    {
+        if (readyRoot == null)
+            return;
+
+        bool ready = state == State.Ready && !AboutToBurn;
+
+        if (readyRoot.activeSelf != ready)
+            readyRoot.SetActive(ready);
     }
 
     // Past the grace period and not yet alight -- the window the mark is asking
@@ -333,6 +359,12 @@ public class FryerStation : MonoBehaviour
 
         if (warningRoot != null && warningRoot.activeSelf)
             warningRoot.SetActive(false);
+
+        // On the same frame the portion leaves, not on the next one. A tick
+        // still up over an empty fryer is a tick that means nothing, and it is
+        // up for exactly as long as it takes the player to look back
+        if (readyRoot != null && readyRoot.activeSelf)
+            readyRoot.SetActive(false);
 
         ApplyOil();
 

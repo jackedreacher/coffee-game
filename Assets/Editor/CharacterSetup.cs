@@ -43,7 +43,7 @@ public static class CharacterSetup
     };
 
 #if COOKED_FAST_SETUP
-    [MenuItem("Cooked Fast/Setup New Characters")]
+    [MenuItem("Cooked Fast/Arac/Setup New Characters")]
 #endif
     public static void SetupNewCharacters()
     {
@@ -88,7 +88,7 @@ public static class CharacterSetup
     // Swaps only the visible model on the Player. Every gameplay component
     // stays where it is, so movement, carrying and serving keep working
 #if COOKED_FAST_SETUP
-    [MenuItem("Cooked Fast/Make Panda The Player")]
+    [MenuItem("Cooked Fast/Arac/Make Panda The Player")]
 #endif
     public static void MakePandaThePlayer()
     {
@@ -228,7 +228,7 @@ public static class CharacterSetup
     // Builds one Customer prefab per rabbit and hands the set to CustomerManager,
     // so every customer that walks in looks different
 #if COOKED_FAST_SETUP
-    [MenuItem("Cooked Fast/Make Rabbits The Customers")]
+    [MenuItem("Cooked Fast/Arac/Make Rabbits The Customers")]
 #endif
     public static void MakeRabbitsTheCustomers()
     {
@@ -297,7 +297,7 @@ public static class CharacterSetup
     private const string sampleName = "SAMPLE Customer";
 
     // Drops one customer into the scene so the tray can be nudged by eye
-    [MenuItem("Cooked Fast/Add Sample Customer")]
+    [MenuItem("Cooked Fast/Arac/Add Sample Customer")]
     public static void AddSampleCustomer()
     {
         GameObject prefab = FindSpawningCustomerPrefab();
@@ -462,7 +462,7 @@ public static class CharacterSetup
     // Superseded by Copy Selected Customer Plateau To Others, which reads the
     // same numbers off whatever is selected instead of only off the sample
 #if COOKED_FAST_SETUP
-    [MenuItem("Cooked Fast/Apply Sample Plateau To All Customers")]
+    [MenuItem("Cooked Fast/Arac/Apply Sample Plateau To All Customers")]
 #endif
     public static void ApplySamplePlateauToAllCustomers()
     {
@@ -611,7 +611,7 @@ public static class CharacterSetup
 
     // Dragging an FBX into a scene wires the avatar but leaves the controller
     // empty, so the character just stands in its bind pose
-    [MenuItem("Cooked Fast/Assign Character Controllers In Scene")]
+    [MenuItem("Cooked Fast/Arac/Assign Character Controllers In Scene")]
     public static void AssignControllersInScene()
     {
         Animator[] animators =

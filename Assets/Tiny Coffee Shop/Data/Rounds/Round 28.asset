@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
   totalCustomers: 17
   spawnInterval: 6
+  maxOrderTypes: 2
   note: 'Raund 28 -- Ileri: kaos basliyor'

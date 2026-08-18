@@ -16,7 +16,7 @@ public static class OvenFire
 
     private const string fireName = "Fire";
 
-    [MenuItem("Cooked Fast/Ocak: Ates Efektini Bagla", priority = 500)]
+    [MenuItem("Cooked Fast/Istasyon/Ocak: Ates Efektini Bagla", priority = 500)]
     public static void Attach()
     {
         if (EditorApplication.isPlaying)
@@ -133,7 +133,7 @@ public static class OvenFire
 
     // The second half of the mechanic: the mark that says "take this now" and
     // the fire that says "too late"
-    [MenuItem("Cooked Fast/Ocak: Yanma Uyarisini Kur", priority = 501)]
+    [MenuItem("Cooked Fast/Istasyon/Ocak: Yanma Uyarisini Kur", priority = 501)]
     public static void SetupBurnWarning()
     {
         if (EditorApplication.isPlaying)
@@ -300,7 +300,7 @@ public static class OvenFire
     // The ring is placed by hand and ends up near the pan rather than on it,
     // because the pan is a small thing inside a big prop and the difference is
     // hard to judge from a scene view looking down at the kitchen
-    [MenuItem("Cooked Fast/Ocak: Sayaci Ortala", priority = 502)]
+    [MenuItem("Cooked Fast/Istasyon/Ocak: Sayaci Ortala", priority = 502)]
     public static void CentreTimers()
     {
         if (EditorApplication.isPlaying)

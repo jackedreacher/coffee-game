@@ -24,14 +24,14 @@ public static class PlateauAttach
 
     // Moves a tray that is on the wrong parent and leaves alone one that is
     // already right, so running it twice never costs an afternoon of hand placing
-    [MenuItem("Cooked Fast/Attach Plateaus To Hands")]
+    [MenuItem("Cooked Fast/Arac/Attach Plateaus To Hands")]
     public static void AttachPlateausToHands()
     {
         Run(false);
     }
 
     // For when the placement is beyond saving and a clean start beats nudging
-    [MenuItem("Cooked Fast/Reset Plateau Placement")]
+    [MenuItem("Cooked Fast/Arac/Reset Plateau Placement")]
     public static void ResetPlateauPlacement()
     {
         if (!EditorUtility.DisplayDialog("Plateau Sifirla",
@@ -222,7 +222,7 @@ public static class PlateauAttach
     //
     // Only rotations are touched. The slot POSITIONS are hand tuning that took
     // a long time to get right and mean nothing to this rule
-    [MenuItem("Cooked Fast/Fix Food Slot Convention")]
+    [MenuItem("Cooked Fast/Arac/Fix Food Slot Convention")]
     public static void FixFoodSlotConvention()
     {
         string report = "YEMEK PREFABLARI (Renderer konum sifir, rotasyon sifir)\n" +
@@ -461,7 +461,7 @@ public static class PlateauAttach
     // For fixing one rabbit by hand and letting the other six follow. Reads
     // whatever is open in Prefab Mode, or whatever is selected -- a prefab in the
     // Project window and a customer in the scene both work
-    [MenuItem("Cooked Fast/Copy Selected Customer Plateau To Others")]
+    [MenuItem("Cooked Fast/Arac/Copy Selected Customer Plateau To Others")]
     public static void CopySelectedCustomerPlateau()
     {
         GameObject source = FindSelectedCustomer(out string origin);

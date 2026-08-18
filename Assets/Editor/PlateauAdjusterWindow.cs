@@ -17,7 +17,7 @@ public class PlateauAdjusterWindow : EditorWindow
 
     private const string sampleName = "SAMPLE Plateau";
 
-    [MenuItem("Cooked Fast/Plateau Adjuster")]
+    [MenuItem("Cooked Fast/Arac/Plateau Adjuster")]
     public static void Open()
     {
         PlateauAdjusterWindow window = GetWindow<PlateauAdjusterWindow>(true, "Plateau Ayari");

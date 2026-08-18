@@ -11,7 +11,7 @@ public static class ShelfSetup
     private const string plateauPrefabPath = "Assets/Tiny Coffee Shop/Prefabs/GamePlay/Plateau.prefab";
     private const string standPointName = "Stand Point";
 
-    [MenuItem("Cooked Fast/Malzeme Rafi: Secili Objeye Kur", priority = 170)]
+    [MenuItem("Cooked Fast/Istasyon/Malzeme Rafi: Secili Objeye Kur", priority = 170)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)
@@ -262,7 +262,7 @@ public static class ShelfSetup
 
     // Moving the plate leaves the click box behind. Re-running the whole setup
     // would work too, but this touches nothing else
-    [MenuItem("Cooked Fast/Malzeme Rafi: Tik Kutusunu Tabaga Oturt", priority = 171)]
+    [MenuItem("Cooked Fast/Istasyon/Malzeme Rafi: Tik Kutusunu Tabaga Oturt", priority = 171)]
     public static void RefitClickBox()
     {
         GameObject zone = Selection.activeGameObject;

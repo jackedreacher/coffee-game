@@ -11,7 +11,7 @@ using UnityEngine;
 // box was the wrong one
 public static class WalkZoneClear
 {
-    [MenuItem("Cooked Fast/Etkilesim: Tezgah Arkasini Ac", priority = 214)]
+    [MenuItem("Cooked Fast/Etkilesim/Tezgah Arkasini Ac", priority = 214)]
     public static void Clear()
     {
         if (EditorApplication.isPlaying)

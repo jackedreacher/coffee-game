@@ -56,7 +56,7 @@ public class PlateauHandWindow : EditorWindow
     private Vector2 scroll;
     private string status;
 
-    [MenuItem("Cooked Fast/Plateau Hand Adjuster")]
+    [MenuItem("Cooked Fast/Arac/Plateau Hand Adjuster")]
     public static void Open()
     {
         PlateauHandWindow window = GetWindow<PlateauHandWindow>(true, "Plateau Ayari");

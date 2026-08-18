@@ -24,7 +24,7 @@ public static class FriesSetup
 
     private const float defaultTimerSize = .35f;
 
-    [MenuItem("Cooked Fast/Patates: 1 - Fritozlari Kur", priority = 150)]
+    [MenuItem("Cooked Fast/Istasyon/Patates: 1 - Fritozlari Kur", priority = 150)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)

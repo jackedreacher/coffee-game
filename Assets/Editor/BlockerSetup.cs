@@ -14,7 +14,7 @@ public static class BlockerSetup
     // Unity's built-in areas: 0 walkable, 1 not walkable, 2 jump
     private const int notWalkableArea = 1;
 
-    [MenuItem("Cooked Fast/Make Selected Solid")]
+    [MenuItem("Cooked Fast/Arac/Make Selected Solid")]
     public static void MakeSolid()
     {
         GameObject[] selected = Selection.gameObjects;
@@ -43,7 +43,7 @@ public static class BlockerSetup
     // whether it came from the asset pack, an older version of this tool, or a
     // hand edit that went wrong. Prints both sets of numbers so a box that was
     // right all along is visible as such rather than silently rewritten
-    [MenuItem("Cooked Fast/Fit Collider To Mesh")]
+    [MenuItem("Cooked Fast/Arac/Fit Collider To Mesh")]
     public static void FitColliderToMesh()
     {
         GameObject[] selected = Selection.gameObjects;
@@ -118,7 +118,7 @@ public static class BlockerSetup
     // around them is a trigger any more. A station in that state looks fine and
     // silently never fires -- which is what an earlier version of Make Selected
     // Solid did to every trigger it was pointed at
-    [MenuItem("Cooked Fast/Find Broken Triggers")]
+    [MenuItem("Cooked Fast/Arac/Find Broken Triggers")]
     public static void FindBrokenTriggers()
     {
         StringBuilder text = new StringBuilder();
@@ -203,7 +203,7 @@ public static class BlockerSetup
     // For "what is this thing in my scene". Names every component on it, calls
     // out the ones that draw a gizmo and would never appear in the game, and
     // says whether it renders at all
-    [MenuItem("Cooked Fast/Report Selected Object")]
+    [MenuItem("Cooked Fast/Arac/Report Selected Object")]
     public static void ReportSelected()
     {
         GameObject target = Selection.activeGameObject;

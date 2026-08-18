@@ -32,7 +32,7 @@ public static class CustomerSetup
     // touch long before the shoulders do, and this number now answers to them
     private const float sideGap = 2.05f;
 
-    [MenuItem("Cooked Fast/Musteriler: Hiz + Toz + Sayi + Mesafe", priority = 190)]
+    [MenuItem("Cooked Fast/Musteri/Hiz + Toz + Sayi + Mesafe", priority = 190)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)

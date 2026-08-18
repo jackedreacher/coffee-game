@@ -30,7 +30,7 @@ public static class BreadSetup
     // it read as a board lying on a table rather than a new table top
     private const float boardCoverage = .55f;
 
-    [MenuItem("Cooked Fast/Bread: 1 - Istasyonu Kur (yemek dahil)", priority = 100)]
+    [MenuItem("Cooked Fast/Istasyon/Bread: 1 - Istasyonu Kur (yemek dahil)", priority = 100)]
     public static void Setup()
     {
         // Everything below adds components and children to a scene object, and
@@ -105,7 +105,7 @@ public static class BreadSetup
     // Moving the table, or scaling it, leaves the board hanging in the old spot.
     // Re-running the whole setup would work too, but this touches nothing but
     // the placement, so hand tuned capacity and trigger sizes survive
-    [MenuItem("Cooked Fast/Bread: 2 - Sadece Tahtayi Oturt", priority = 101)]
+    [MenuItem("Cooked Fast/Istasyon/Bread: 2 - Sadece Tahtayi Oturt", priority = 101)]
     public static void ReseatBoard()
     {
         if (EditorApplication.isPlaying)

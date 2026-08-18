@@ -10,7 +10,7 @@ using UnityEditor.SceneManagement;
 // isometric view the ray usually lands on the counter in front of them instead
 public static class ServeSetup
 {
-    [MenuItem("Cooked Fast/Servis: Musteri Tikini Kontrol Et (bagla)", priority = 160)]
+    [MenuItem("Cooked Fast/Istasyon/Servis: Musteri Tikini Kontrol Et (bagla)", priority = 160)]
     public static void Check()
     {
         TapToServe tap = UnityEngine.Object.FindFirstObjectByType<TapToServe>(FindObjectsInactive.Include);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -111,6 +112,39 @@ public class CustomerOrder : MonoBehaviour
     [Tooltip("Kazanilan para -- $10")]
     [SerializeField] private TextMeshPro earningsText;
 
+    [Tooltip("Verilen urunun uzerine konacak tik")]
+    [SerializeField] private Sprite readyIcon;
+
+    // The customer who has not decided.
+    //
+    // Their order row names no food, which every serving path already reads as
+    // "anything will do" -- but a bubble with nothing in it is a bubble that
+    // looks broken. This is what goes there instead, and it says the same thing
+    // to the player that the empty row says to the code
+    [Tooltip("Ne istedigini bilmeyen musterinin balonundaki isaret")]
+    [SerializeField] private Sprite undecidedIcon;
+
+    [Tooltip("O isaretin rengi")]
+    [SerializeField] private Color undecidedTint = new Color(.99f, .78f, .21f);
+
+    [Tooltip("Tikin rengi")]
+    [SerializeField] private Color readyTint = new Color(.24f, .78f, .35f);
+
+    // The tick was landing on a burger and disappearing into it: green on
+    // browns and yellows at the size of a thumbnail is one shape, not two.
+    // Darkening the food underneath turns it into a silhouette, and a silhouette
+    // is a background rather than a competing picture
+    // Faded, not blacked out.
+    //
+    // Darkening it was the wrong instinct: a dark shape behind a tick is still
+    // a shape competing for the same glance, and at thumbnail size the two read
+    // as one object. Washing it out drops its contrast instead, which is what
+    // actually lets the tick sit on top -- and leaves the food recognisable,
+    // which matters, because the player still has to see what was ordered
+    [Tooltip("Verilmis urunun rengi. Alfa sadece cizilmis ikonlarda etkili -- " +
+             "model ikonlarin materyali saydam degil")]
+    [SerializeField] private Color servedTint = new Color(.66f, .66f, .70f, .48f);
+
     [Tooltip("Emoji kac katina buyusun. 0 = varsayilan 1.7")]
     [SerializeField] private float celebrationScale = 1.7f;
 
@@ -191,7 +225,45 @@ public class CustomerOrder : MonoBehaviour
 
     private float left;
     private bool running;
-    private GameObject icon;
+    // One row per thing ordered. Row zero IS the authored anchor and label --
+    // the ones sized and placed on the prefab -- and the rest are copies of
+    // them. Building all of them from scratch would mean the card's own layout
+    // lived in code, and then the prefab would be a lie
+    private readonly List<Transform> rowAnchors = new List<Transform>();
+    private readonly List<TextMeshPro> rowCounts = new List<TextMeshPro>();
+    private readonly List<GameObject> rowIcons = new List<GameObject>();
+    private readonly List<GameObject> rowTicks = new List<GameObject>();
+
+    // Reading materials instantiates them. Doing that on every serve would
+    // leave a copy behind per item handed over, so the darkening happens once
+    // per row and this is what remembers that it has
+    private readonly List<bool> rowDarkened = new List<bool>();
+
+    // Where row zero sits when nothing has been moved. Captured once, because
+    // every rebuild offsets from it and offsetting from an offset walks the
+    // card off the side after three customers
+    private Vector3 anchorHome;
+    private Vector3 anchorHomeScale = Vector3.one;
+    private Vector3 countHome;
+    private Vector3 countHomeScale = Vector3.one;
+    private bool homesCaptured;
+
+    // The count rides on the picture rather than standing next to it. Scaled
+    // with the row AND cut down again on top of that: at full size the number
+    // competes with the food for the same glance, and the food is the thing
+    // being read -- the number only qualifies it
+    [Tooltip("Adet yazisinin boyu, satirin boyuna gore. 0 = varsayilan 0.65")]
+    [SerializeField] private float countScale = .65f;
+
+    // How far the number sits from the food it belongs to, as a fraction of
+    // where the prefab put it. Below one pulls it in against the picture, which
+    // is what makes it read as that food's number rather than as a number
+    [Tooltip("Sayinin yemege yakinligi. 1 = prefabtaki yer, kucuk = daha yapisik. " +
+             "0 = varsayilan 0.62")]
+    [SerializeField] private float countHug = .62f;
+
+    private float CountScale => countScale > .01f ? countScale : .65f;
+    private float CountHug => countHug > .01f ? countHug : .62f;
 
     private bool celebrating;
     private float celebrationAge;
@@ -210,6 +282,20 @@ public class CustomerOrder : MonoBehaviour
     private Vector3 pinPosition;
     private Vector3 sunburstBaseScale = Vector3.one;
     private Vector3 homePosition;
+
+    // How much higher this card floats than the one in front of it.
+    //
+    // Two customers standing apart on the floor are not two cards apart on the
+    // SCREEN: the camera is isometric, so the card belonging to the row behind
+    // projects straight onto the card in front of it however far back it stands.
+    // Lifting each row clears them past each other in the one dimension the
+    // camera does not flatten
+    private float lift;
+
+    public void SetLift(float amount)
+    {
+        lift = amount;
+    }
 
     // Negative means "not running". A separate bool for each would be two
     // things to keep in step, and the age is what the animation reads anyway
@@ -322,7 +408,7 @@ public class CustomerOrder : MonoBehaviour
             bubbleRoot.SetActive(false);
     }
 
-    public void Show(SpawnableFood wanted, int count)
+    public void Show(OrderLine[] order)
     {
         if (bubbleRoot == null)
             return;
@@ -339,9 +425,13 @@ public class CustomerOrder : MonoBehaviour
         running = true;
         hasSettled = false;
 
-        SetCount(count);
-        BuildIcon(wanted);
+        BuildRows(order);
         Apply();
+
+        // Before Pin, which nails the card to wherever it is standing. Set from
+        // home rather than added to the current position, so a pooled bubble
+        // does not climb one lift higher every time it is reused
+        bubbleRoot.transform.localPosition = homePosition + Vector3.up * lift;
 
         Pin();
 
@@ -452,8 +542,7 @@ public class CustomerOrder : MonoBehaviour
         moneySent = false;
 
         Switch(card, true);
-        Switch(iconAnchor, true);
-        Switch(countText, true);
+        SwitchRows(true);
         Switch(countdownText, true);
         Switch(countdownDisc, true);
 
@@ -487,11 +576,408 @@ public class CustomerOrder : MonoBehaviour
 
     // Always shown, including x1. Hiding it for a single item meant the number
     // appeared and disappeared depending on the order, so its absence had to be
-    // read as "one" -- which is a thing you can only know by having been told
-    public void SetCount(int count)
+    // read as "one" -- which is a thing you can only know by having been told.
+    //
+    // A filled row keeps its picture and gets a tick over it.
+    //
+    // It used to disappear. That left a card showing only what was still owed,
+    // which is correct and reads as the order having changed -- the player
+    // hands over a burger and the burger is simply gone from the card. Ticking
+    // it says the same thing about what is left while also saying that the
+    // thing they just did was the right one
+    public void SetCounts(int[] left)
     {
+        for (int i = 0; i < rowAnchors.Count; i++)
+        {
+            int value = left != null && i < left.Length ? left[i] : 0;
+            bool owing = value > 0;
+
+            if (i < rowCounts.Count && rowCounts[i] != null)
+            {
+                // The number goes; a count of nothing is not a count.
+                //
+                // A row that never had a number keeps not having one: BuildRows
+                // switched it off because the row names no food, and turning it
+                // back on here would put a count beside the question mark the
+                // moment anything else on the card changed
+                bool numbered = rowCounts[i].gameObject.activeSelf || owing;
+
+                rowCounts[i].gameObject.SetActive(owing && numbered);
+
+                if (owing && numbered)
+                    rowCounts[i].text = value + "x";
+            }
+
+            if (i < rowTicks.Count && rowTicks[i] != null)
+                rowTicks[i].SetActive(!owing);
+
+            // Once, on the frame the row is finished. The colour is absolute so
+            // doing it twice would look the same -- it is the material copies
+            // that would pile up
+            if (!owing && i < rowDarkened.Count && !rowDarkened[i])
+            {
+                rowDarkened[i] = true;
+
+                Darken(i < rowIcons.Count ? rowIcons[i] : null,
+                    i < rowTicks.Count ? rowTicks[i] : null);
+            }
+
+            if (rowAnchors[i] != null)
+                rowAnchors[i].gameObject.SetActive(true);
+        }
+    }
+
+    // Sprites carry their colour on the renderer, models on their materials,
+    // and this bubble draws food both ways. The material path is the same one
+    // burning uses: an instanced copy, and whichever colour property the shader
+    // actually declares -- writing one the shader does not have is a silent
+    // no-op, which is how a tint goes missing without an error
+    // The tick is handed in so it can be stepped over.
+    //
+    // Today it cannot be reached from here anyway: BuildRows makes the tick a
+    // SIBLING of the picture, both parented to the row's anchor, and the walks
+    // below only ever go downwards from the icon. So this is a guard against a
+    // change nobody has made yet -- and it is worth the four lines, because the
+    // failure it prevents is silent and specific. Parent the tick under the
+    // picture for any reason at all and it starts being greyed out along with
+    // the dinner, which is exactly backwards: grey is the thing the tick exists
+    // to contradict. Its edge is a child of the tick, so it is covered too
+    private void Darken(GameObject icon, GameObject tick)
+    {
+        if (icon == null)
+            return;
+
+        foreach (SpriteRenderer flat in icon.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            if (BelongsToTick(flat.transform, tick))
+                continue;
+
+            Color faded = servedTint;
+
+            // Multiplied into whatever the sprite already had rather than
+            // replacing it. A picture drawn at half alpha does not become more
+            // solid by being marked done
+            faded.a = flat.color.a * servedTint.a;
+            flat.color = faded;
+        }
+
+        foreach (Renderer solid in icon.GetComponentsInChildren<Renderer>(true))
+        {
+            if (solid is SpriteRenderer || solid is ParticleSystemRenderer)
+                continue;
+
+            if (BelongsToTick(solid.transform, tick))
+                continue;
+
+            Material[] materials = solid.materials;
+
+            for (int i = 0; i < materials.Length; i++)
+            {
+                Material material = materials[i];
+
+                if (material == null)
+                    continue;
+
+                if (material.HasProperty(baseColourId))
+                    material.SetColor(baseColourId, servedTint);
+
+                if (material.HasProperty(colourId))
+                    material.SetColor(colourId, servedTint);
+
+                if (material.HasProperty(tintId))
+                    material.SetColor(tintId, servedTint);
+            }
+
+            solid.materials = materials;
+        }
+    }
+
+    // IsChildOf counts the transform itself as one of its own children, so this
+    // catches the tick as well as its edge
+    private static bool BelongsToTick(Transform what, GameObject tick)
+    {
+        return tick != null && what != null && what.IsChildOf(tick.transform);
+    }
+
+    private static readonly int baseColourId = Shader.PropertyToID("_BaseColor");
+    private static readonly int colourId = Shader.PropertyToID("_Color");
+    private static readonly int tintId = Shader.PropertyToID("_Tint");
+
+    // Lays the order out across the card and puts a picture in each row.
+    //
+    // Two rows are drawn smaller and pushed apart from the middle, so a pair
+    // sits where a single one did rather than growing out past the card
+    private void BuildRows(OrderLine[] order)
+    {
+        CaptureHomes();
+        ClearRows();
+
+        int rows = order == null ? 0 : order.Length;
+
+        if (rows <= 0)
+            return;
+
+        // Two is still full size.
+        //
+        // A pair used to be dropped to three quarters and it did not need to
+        // be. The card is 1.75 wide, an icon is .595, and two of them a step
+        // apart span about 1.4 of it -- so the shrink was buying margin that
+        // was already sitting there, and paying for it in the one thing the
+        // picture is for. A customer's order has to be readable in the half
+        // second they are glanced at, and a food shrunk to three quarters and
+        // then seen from across an isometric kitchen is a coloured blob.
+        //
+        // Three rows genuinely do overflow, so three is where shrinking starts
+        float shrink = rows <= 2 ? 1f : .62f;
+
+        // Centre to centre. A third of an icon is left between the two, which
+        // is a gap at this size -- 1.5 was set when the pictures were small
+        // enough not to care, and at full size it pushed the pair out to the
+        // card's edges
+        float step = anchorHomeScale.x * shrink * 1.35f;
+
+        // Every anchor cloned BEFORE any picture goes into one.
+        //
+        // Building row by row cloned row two off an anchor that row one had
+        // already put its food into, so row two arrived wearing row one's
+        // dinner with its own laid over the top. The template has to still be
+        // empty when it is copied, and the only way to be sure of that is to do
+        // all the copying first
+        // Refused as a whole rather than row by row. Skipping a row midway
+        // would leave rowAnchors shorter than the order, and every list after
+        // it addressed by the same index -- which is the wrong picture on the
+        // wrong row, the exact thing this method is being fixed for
+        if (iconAnchor == null)
+            return;
+
+        for (int i = 0; i < rows; i++)
+        {
+            Transform anchor = i == 0 ? iconAnchor : CopyOf(iconAnchor);
+            TextMeshPro label = i == 0 ? countText : CopyOf(countText);
+
+            // Centred on the card: two rows straddle the middle, three put one
+            // in it. The same arithmetic for any number of them
+            float offset = (i - (rows - 1) * .5f) * step;
+
+            anchor.localPosition = anchorHome + Vector3.right * offset;
+            anchor.localScale = anchorHomeScale * shrink;
+            anchor.gameObject.SetActive(true);
+
+            if (label != null)
+            {
+                // Measured from the anchor, not from the card. The prefab puts
+                // the number down and to the right of the food; keeping that
+                // relationship means scaling the GAP with the row, and the gap
+                // was the one thing left at full size -- which is why the
+                // number ended up floating away from the picture it counts
+                Vector3 gap = (countHome - anchorHome) * (shrink * CountHug);
+
+                label.transform.localPosition = anchorHome + Vector3.right * offset + gap;
+                label.transform.localScale = countHomeScale * (shrink * CountScale);
+                label.text = Mathf.Max(1, order[i].count) + "x";
+
+                // No number on a row that names no food. "1x" beside a question
+                // mark is a quantity of nothing in particular, and the whole
+                // point of that row is that the quantity is not the question
+                label.gameObject.SetActive(order[i].food != null);
+            }
+
+            rowAnchors.Add(anchor);
+            rowCounts.Add(label);
+            rowDarkened.Add(false);
+        }
+
+        // Second pass. Nothing above this line adds a child to an anchor, so
+        // every clone above was taken from an empty one
+        for (int i = 0; i < rowAnchors.Count; i++)
+        {
+            rowIcons.Add(BuildIcon(order[i].food, rowAnchors[i]));
+            rowTicks.Add(BuildTick(rowAnchors[i]));
+        }
+    }
+
+    // The bubble's stack, from the front: countdown 130, disc 125, emoji 120,
+    // ring 119, earnings 118, TICK 117, its white edge 116, count 115, food
+    // 110, sunburst 105, card 90.
+    //
+    // The tick moved up a step so its own edge had somewhere to go that was not
+    // on top of the count. Both stay under the earnings, which has to stay
+    // legible over everything else on the card
+    private const int tickOrder = 117;
+    private const int tickBorderOrder = 116;
+
+    // Built with the row and switched off, not made at the moment it is needed.
+    // The moment it is needed is the frame a plate changes hands, and building
+    // a sprite in that frame is a hitch exactly where the game is asking to
+    // feel responsive
+    private GameObject BuildTick(Transform anchor)
+    {
+        if (readyIcon == null || anchor == null)
+            return null;
+
+        GameObject tick = new GameObject("Tick");
+
+        tick.transform.SetParent(anchor, false);
+
+        // Well clear of the food, not a hair in front of it.
+        //
+        // "Between two transparent renderers the order decides, not the
+        // distance" was true and was only half the picture. Half the foods in
+        // this game are drawn as sprites, and for those the sorting order below
+        // settles everything. The other half are MODELS -- opaque geometry,
+        // with real depth to them. Sorting order does not arbitrate between an
+        // opaque mesh and a sprite at all: the mesh draws first and writes the
+        // depth buffer, and a sprite sitting behind that plane fails the test
+        // however high its order is. At -.06 the tick was inside the dinner.
+        //
+        // FitIcon sizes every food to at most one anchor unit across, so half
+        // of one is the furthest forward any of them can reach, and .6 clears
+        // that with room to spare. It costs nothing on screen either: the
+        // kitchen camera is orthographic, so travelling along its axis changes
+        // depth without changing position or size
+        tick.transform.localPosition = new Vector3(0f, 0f, -.6f);
+        tick.transform.localRotation = Quaternion.identity;
+
+        SpriteRenderer mark = tick.AddComponent<SpriteRenderer>();
+
+        mark.sprite = readyIcon;
+        mark.color = readyTint;
+        mark.sortingOrder = tickOrder;
+
+        float own = mark.bounds.size.y;
+
+        if (own > .0001f)
+            tick.transform.localScale = Vector3.one * (anchor.lossyScale.y * .85f / own);
+
+        // The white edge, built after the scale so it inherits it.
+        //
+        // White is written here rather than exposed as a field on purpose. A
+        // Color added to a component that is already saved inside a prefab
+        // deserialises to (0,0,0,0) -- transparent black -- so every customer
+        // that already exists would come back with an invisible border, and the
+        // bug would look exactly like the feature having never worked
+        SpriteOutline.Build(tick, readyIcon, tickBorderOrder);
+
+        tick.SetActive(false);
+
+        return tick;
+    }
+
+    private void CaptureHomes()
+    {
+        if (homesCaptured)
+            return;
+
+        homesCaptured = true;
+
+        if (iconAnchor != null)
+        {
+            anchorHome = iconAnchor.localPosition;
+            anchorHomeScale = iconAnchor.localScale;
+        }
+
         if (countText != null)
-            countText.text = Mathf.Max(1, count) + "x";
+        {
+            countHome = countText.transform.localPosition;
+            countHomeScale = countText.transform.localScale;
+        }
+    }
+
+    // Row zero is kept and put back where it started. Only the copies are
+    // destroyed -- taking the authored one out would empty the prefab
+    private void ClearRows()
+    {
+        // Unparented BEFORE being destroyed, and that is the whole bug.
+        //
+        // Destroy is deferred to the end of the frame, so a marked object is
+        // still a child right now -- and the very next thing this does is clone
+        // the anchor for row two. The clone came with a copy of the icon that
+        // was on its way out, so the second row wore the last customer's food
+        // and its own on top of it. Unparenting takes effect immediately
+        for (int i = 0; i < rowIcons.Count; i++)
+        {
+            if (rowIcons[i] == null)
+                continue;
+
+            rowIcons[i].transform.SetParent(null, false);
+            Destroy(rowIcons[i]);
+        }
+
+        for (int i = 1; i < rowAnchors.Count; i++)
+        {
+            if (rowAnchors[i] != null)
+                Destroy(rowAnchors[i].gameObject);
+        }
+
+        for (int i = 1; i < rowCounts.Count; i++)
+        {
+            if (rowCounts[i] != null)
+                Destroy(rowCounts[i].gameObject);
+        }
+
+        // Ticks go with their icons: both are children of the anchor, and row
+        // zero's anchor survives, so its children have to be cleared by hand
+        // Same treatment, same reason: a tick still parented to the anchor gets
+        // cloned along with it
+        for (int i = 0; i < rowTicks.Count; i++)
+        {
+            if (rowTicks[i] == null)
+                continue;
+
+            rowTicks[i].transform.SetParent(null, false);
+            Destroy(rowTicks[i]);
+        }
+
+        rowIcons.Clear();
+        rowAnchors.Clear();
+        rowCounts.Clear();
+        rowTicks.Clear();
+        rowDarkened.Clear();
+
+        if (iconAnchor != null)
+        {
+            // Anything still under row zero that this did not put there. A
+            // build cut short leaves children nobody is tracking, and from then
+            // on every clone carries them into every row
+            for (int i = iconAnchor.childCount - 1; i >= 0; i--)
+            {
+                Transform stray = iconAnchor.GetChild(i);
+
+                stray.SetParent(null, false);
+                Destroy(stray.gameObject);
+            }
+
+            iconAnchor.localPosition = anchorHome;
+            iconAnchor.localScale = anchorHomeScale;
+        }
+
+        if (countText != null)
+        {
+            countText.transform.localPosition = countHome;
+            countText.transform.localScale = countHomeScale;
+        }
+    }
+
+    private T CopyOf<T>(T source) where T : Component
+    {
+        return source == null ? null : Instantiate(source, source.transform.parent);
+    }
+
+    // Every row at once. The celebration hides the order and the reset brings
+    // it back, and both used to know about exactly one anchor and one label
+    private void SwitchRows(bool on)
+    {
+        for (int i = 0; i < rowAnchors.Count; i++)
+        {
+            if (rowAnchors[i] != null)
+                rowAnchors[i].gameObject.SetActive(on);
+        }
+
+        for (int i = 0; i < rowCounts.Count; i++)
+        {
+            if (rowCounts[i] != null)
+                rowCounts[i].gameObject.SetActive(on);
+        }
     }
 
     // Stops the clock where it is and remembers the mood. Called on the last
@@ -535,8 +1021,7 @@ public class CustomerOrder : MonoBehaviour
         moneySent = false;
 
         Switch(card, false);
-        Switch(iconAnchor, false);
-        Switch(countText, false);
+        SwitchRows(false);
         Switch(countdownText, false);
         Switch(countdownDisc, false);
 
@@ -955,54 +1440,41 @@ public class CustomerOrder : MonoBehaviour
     // The food's own model, shrunk. There are no 2D icons for these foods and
     // drawing some would be a second thing to keep in step with the prefabs --
     // this way a new food shows up in the bubble the day it is made
-    private void BuildIcon(SpawnableFood wanted)
+    // Takes the anchor it is building into rather than reading the field: with
+    // two rows there are two anchors, and only one of them is the field
+    private GameObject BuildIcon(SpawnableFood wanted, Transform iconAnchor)
     {
-        if (icon != null)
-        {
-            Destroy(icon);
-            icon = null;
-        }
+        GameObject icon;
+
+        if (iconAnchor == null)
+            return null;
 
         if (wanted == null)
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // The bubble opens either way, so a missing order shows as a card
-            // with a count and a hole where the food goes -- which reads as a
-            // broken bubble rather than as an unwired counter
-            Debug.LogWarning(name + ": siparis yok, balonda yemek gorunmez.\n" +
-                             "  FoodServingCustomerManager > Possible Orders bos, " +
-                             "ya da OrderCounter onu doldurmuyor.", this);
-#endif
-            return;
-        }
+            // Not a fault any more. A row with no food named is somebody who
+            // walked in without deciding, and the mark is what that looks like
+            if (undecidedIcon != null)
+                return Flat(undecidedIcon, undecidedTint, iconAnchor);
 
-        if (iconAnchor == null)
-            return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Only once there is nothing at all to draw. The bubble opens
+            // either way, so this shows as a card with a count and a hole where
+            // the food goes -- which reads as a broken bubble rather than as an
+            // unwired counter
+            Debug.LogWarning(name + ": siparis yok ve isaretsiz balon.\n" +
+                             "  Customer Order > Undecided Icon bos, ve\n" +
+                             "  FoodServingCustomerManager > Possible Orders da bos olabilir.\n" +
+                             "  Cooked Fast > Musteri > Siparis Balonunu Kur", this);
+#endif
+            return null;
+        }
 
         // A flat picture when the food has one, its own model when it does not.
         // The sprite is the better of the two on a card that always faces the
         // camera -- a model has to be lit, and lit by whatever happens to be
         // shining on the queue
         if (wanted.Icon != null)
-        {
-            icon = new GameObject("Icon");
-
-            icon.transform.SetParent(iconAnchor, false);
-            icon.transform.localPosition = Vector3.zero;
-            icon.transform.localRotation = Quaternion.identity;
-
-            SpriteRenderer flat = icon.AddComponent<SpriteRenderer>();
-
-            flat.sprite = wanted.Icon;
-            flat.sortingOrder = 110;
-
-            float own = flat.bounds.size.y;
-
-            if (own > .0001f)
-                icon.transform.localScale = Vector3.one * (iconAnchor.lossyScale.y / own);
-
-            return;
-        }
+            return Flat(wanted.Icon, Color.white, iconAnchor);
 
         icon = Instantiate(wanted.gameObject, iconAnchor);
 
@@ -1020,12 +1492,45 @@ public class CustomerOrder : MonoBehaviour
         foreach (Rigidbody body in icon.GetComponentsInChildren<Rigidbody>(true))
             Destroy(body);
 
-        FitIcon();
+        FitIcon(icon, iconAnchor);
+
+        return icon;
+    }
+
+    // A drawn picture in the row, whatever it is a picture of. The food's own
+    // icon and the undecided mark are the same job -- one sprite, fitted to the
+    // anchor -- and having written it twice is how they drifted apart
+    private GameObject Flat(Sprite picture, Color tint, Transform iconAnchor)
+    {
+        GameObject icon = new GameObject("Icon");
+
+        icon.transform.SetParent(iconAnchor, false);
+        icon.transform.localPosition = Vector3.zero;
+        icon.transform.localRotation = Quaternion.identity;
+
+        SpriteRenderer flat = icon.AddComponent<SpriteRenderer>();
+
+        flat.sprite = picture;
+        flat.color = tint;
+        flat.sortingOrder = 110;
+
+        // The WIDER of the two, not the height.
+        //
+        // Scaling a wide picture by its height leaves it wide: a fries box
+        // fitted to the anchor's height came out half again as broad as the
+        // anchor, and with two rows on the card that is a picture reaching into
+        // its neighbour. The drink was not inside the burger, it was behind it
+        float own = Mathf.Max(flat.bounds.size.x, flat.bounds.size.y);
+
+        if (own > .0001f)
+            icon.transform.localScale = Vector3.one * (iconAnchor.lossyScale.y / own);
+
+        return icon;
     }
 
     // Scaled to the anchor's own size, so how big the picture is stays a thing
     // decided by dragging the anchor rather than by a number in here
-    private void FitIcon()
+    private void FitIcon(GameObject icon, Transform iconAnchor)
     {
         Bounds bounds = default;
 

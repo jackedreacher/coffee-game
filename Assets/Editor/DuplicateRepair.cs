@@ -18,7 +18,7 @@ using UnityEditor.SceneManagement;
 // Nothing logs. The station is wired, just to the wrong station
 public static class DuplicateRepair
 {
-    [MenuItem("Cooked Fast/Etkilesim: Kopyalanan Zone'lari Onar", priority = 210)]
+    [MenuItem("Cooked Fast/Etkilesim/Kopyalanan Zone'lari Onar", priority = 210)]
     public static void Repair()
     {
         List<Transform> roots = StationRoots();
@@ -63,7 +63,7 @@ public static class DuplicateRepair
     // carry a HoldingShelf of its own, and that shelf is wired to the FIRST
     // zone's plate. Both plates then serve the first zone, correctly, from the
     // only station the ray ever found
-    [MenuItem("Cooked Fast/Etkilesim: Tabaklara Tiklama Alani Ekle", priority = 211)]
+    [MenuItem("Cooked Fast/Etkilesim/Tabaklara Tiklama Alani Ekle", priority = 211)]
     public static void PlateColliders()
     {
         List<Transform> roots = StationRoots();
@@ -141,7 +141,7 @@ public static class DuplicateRepair
     // every field that wants one accepts either, and picking the wrong one is
     // not an error -- the food is stacked, counted and served exactly as it
     // should be, on a plate nobody can see
-    [MenuItem("Cooked Fast/Etkilesim: Yemekler Gorsel Tabaga Otursun", priority = 212)]
+    [MenuItem("Cooked Fast/Etkilesim/Yemekler Gorsel Tabaga Otursun", priority = 212)]
     public static void VisiblePlates()
     {
         List<Transform> roots = StationRoots();

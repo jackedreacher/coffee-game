@@ -150,8 +150,9 @@ public class OrderCounter : MonoBehaviour
 
         // Refuse silently when it is not what they ordered, so a mistap does
         // not quietly burn the item the player is carrying
-        if (customer.RequestedFood != null &&
-            heldFood.GetType() != customer.RequestedFood.GetType())
+        // An order can name two things now, so this asks whether the held food
+        // is wanted rather than whether it matches the one requested food
+        if (customer.RequestedFood != null && !customer.Wants(heldFood))
             return false;
 
         SpawnableFood foodToServe = holdFoodAbility.PopFood();
@@ -212,6 +213,11 @@ public class OrderCounter : MonoBehaviour
     private void SendCustomerHome(Customer customer)
     {
         customerManager.Dequeue(customer);
-        customer.GoToThen(customerExitPoint.position, () => Destroy(customer.gameObject));
+
+        // Gone either way. They are already out of the queue by this line, so
+        // nothing will ever ask them to move again -- a walk that fails to
+        // start leaves them standing in the shop for the rest of the game
+        if (!customer.GoToThen(customerExitPoint.position, () => Destroy(customer.gameObject)))
+            Destroy(customer.gameObject);
     }
 }

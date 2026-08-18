@@ -17,7 +17,7 @@ public static class FoodZoneSetup
     private const string plateauPrefabPath = "Assets/Tiny Coffee Shop/Prefabs/GamePlay/Plateau.prefab";
     private const string workerPointName = "Worker Target Point";
 
-    [MenuItem("Cooked Fast/Meat: 1 - Istasyonu Kur (yemek dahil)", priority = 120)]
+    [MenuItem("Cooked Fast/Istasyon/Meat: 1 - Istasyonu Kur (yemek dahil)", priority = 120)]
     public static void SetupMeat()
     {
         Setup<Meat>("meat", "meat-zone");
@@ -27,7 +27,7 @@ public static class FoodZoneSetup
     // standing on a counter, which is nothing like the size it needs on a tray.
     // Eyeballing that against a plate the food is bigger than is slow, and the
     // answer is already in the project: match the one that fits
-    [MenuItem("Cooked Fast/Yemek: Boyutu Salataya Esitle", priority = 130)]
+    [MenuItem("Cooked Fast/Istasyon/Yemek: Boyutu Salataya Esitle", priority = 130)]
     public static void MatchSize()
     {
         StringBuilder report = new StringBuilder();

@@ -20,7 +20,7 @@ public static class GameScreensSetup
     private static readonly Color cream = new Color(.99f, .96f, .90f);
     private static readonly Color gold = new Color(.85f, .55f, .11f);
 
-    [MenuItem("Cooked Fast/Ekran: Basla ve Oldun Ekranlarini Kur", priority = 232)]
+    [MenuItem("Cooked Fast/Oyun/Ekran: Basla ve Oldun Ekranlarini Kur", priority = 232)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)
@@ -39,6 +39,17 @@ public static class GameScreensSetup
         GameObject start = StartPanel(root);
         GameObject round = RoundPanel(root);
         GameObject over = OverPanel(root);
+
+        // Switched off as they are built, all three of them.
+        //
+        // Which one is up is decided in Awake, and Awake does not run while the
+        // scene is only being edited -- so a command that left them on left
+        // three full screen panels stacked over the Game view, and the kitchen
+        // could not be seen at all. Awake turns the start screen back on the
+        // moment play begins
+        start.SetActive(false);
+        round.SetActive(false);
+        over.SetActive(false);
 
         Wire(root, start, round, over, ref report);
 
@@ -106,7 +117,7 @@ public static class GameScreensSetup
         Label(panel, "Hint", "Musteriye tikla, siparisini ver", 46f, cream,
             new Vector2(0f, 280f), 900f);
 
-        Button(panel, "Play", "OYNA", new Vector2(0f, -60f));
+        MakeButton(panel, "Play", "OYNA", new Vector2(0f, -60f));
 
         return panel;
     }
@@ -132,7 +143,7 @@ public static class GameScreensSetup
         Label(panel, "Title", "OLDUN", 150f, cream, new Vector2(0f, 380f), 900f);
         Label(panel, "Detail", "Canlarin bitti", 52f, cream, new Vector2(0f, 200f), 900f);
 
-        Button(panel, "Restart", "TEKRAR DENE", new Vector2(0f, -60f));
+        MakeButton(panel, "Restart", "TEKRAR DENE", new Vector2(0f, -60f));
 
         return panel;
     }
@@ -204,7 +215,11 @@ public static class GameScreensSetup
         return label;
     }
 
-    private static Button Button(GameObject parent, string name, string text, Vector2 position)
+    // Not called Button. A method sharing its name with the type it returns
+    // shadows that type everywhere inside this class -- AddComponent<Button>
+    // and Find<Button> both stop compiling, and one error here keeps every new
+    // menu item in the project from ever registering
+    private static Button MakeButton(GameObject parent, string name, string text, Vector2 position)
     {
         GameObject host = new GameObject(name, typeof(RectTransform));
         host.transform.SetParent(parent.transform, false);
@@ -270,7 +285,12 @@ public static class GameScreensSetup
                       "  Cooked Fast > Can: Slotlari Kur\n";
 
         report += "\nOyun artik OYNA'ya basilana kadar duruyor: raundlar bekliyor,\n" +
-                  "zaman durmus halde basliyor.";
+                  "zaman durmus halde basliyor.\n\n" +
+                  "Uc panel de KAPALI kuruldu. Edit modunda hangisinin acik olacagina\n" +
+                  "kimse karar vermiyor, o yuzden acik birakilirlarsa ucu birden\n" +
+                  "Game view'i kaplar. Play'e basinca Awake dogru olani aciyor.\n\n" +
+                  "Elle bakmak istersen Hierarchy'den ac, kapatmayi unutsan da\n" +
+                  "Play sirasinda kendini duzeltir.";
     }
 
     private static T Find<T>(GameObject root, string name) where T : Component

@@ -30,7 +30,7 @@ public static class FoodIconBaker
     // project runs out of quietly
     private static readonly Vector3 stage = new Vector3(9000f, 9000f, 9000f);
 
-    [MenuItem("Cooked Fast/Musteri: Yemek Ikonlarini Uret", priority = 601)]
+    [MenuItem("Cooked Fast/Musteri/Yemek Ikonlarini Uret", priority = 601)]
     public static void Bake()
     {
         List<GameObject> foods = FindFoodPrefabs();
@@ -293,7 +293,7 @@ public static class FoodIconBaker
         { "Cup", "coffee" },
     };
 
-    [MenuItem("Cooked Fast/Musteri: Cizilmis Ikonlari Bagla", priority = 602)]
+    [MenuItem("Cooked Fast/Musteri/Cizilmis Ikonlari Bagla", priority = 602)]
     public static void BindDrawn()
     {
         if (!AssetDatabase.IsValidFolder(drawnFolder))

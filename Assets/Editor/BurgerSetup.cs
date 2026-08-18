@@ -28,7 +28,7 @@ public static class BurgerSetup
     // bread layer would claim it too and a lone bun would come with a lid
     private static readonly string[] lidKeywords = { "top" };
 
-    [MenuItem("Cooked Fast/Burger: 1 - Tarifi Kur (elde birlesir)", priority = 150)]
+    [MenuItem("Cooked Fast/Istasyon/Burger: 1 - Tarifi Kur (elde birlesir)", priority = 150)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)

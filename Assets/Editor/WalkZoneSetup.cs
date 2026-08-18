@@ -43,7 +43,7 @@ public static class WalkZoneSetup
     private const float tapScreenRadius = 130f;   // was 90
     private const float tapRadius = 2.2f;         // was 1.5
 
-    [MenuItem("Cooked Fast/Etkilesim: Tezgah Arkasini Kapat", priority = 213)]
+    [MenuItem("Cooked Fast/Etkilesim/Tezgah Arkasini Kapat", priority = 213)]
     public static void Setup()
     {
         if (!Ready(out FoodServingCustomerManager[] counters, out string report))
@@ -70,7 +70,7 @@ public static class WalkZoneSetup
     // Separate and opt-in. Carving cuts navmesh out from under the floor, and a
     // carve over the wrong floor is a player who cannot path anywhere at all --
     // a worse failure than the one it is fixing, and one that survives a restart
-    [MenuItem("Cooked Fast/Etkilesim: Tezgah Arkasi NavMesh Oy", priority = 215)]
+    [MenuItem("Cooked Fast/Etkilesim/Tezgah Arkasi NavMesh Oy", priority = 215)]
     public static void Carve()
     {
         if (!Ready(out FoodServingCustomerManager[] counters, out string report))

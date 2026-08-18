@@ -13,7 +13,7 @@ using UnityEditor.SceneManagement;
 // gets blamed for all three. This asks each link in turn
 public static class OrderDiagnostics
 {
-    [MenuItem("Cooked Fast/Musteri: Siparis Durumunu Soyle", priority = 603)]
+    [MenuItem("Cooked Fast/Musteri/Siparis Durumunu Soyle", priority = 603)]
     public static void Tell()
     {
         StringBuilder report = new StringBuilder();
@@ -40,7 +40,7 @@ public static class OrderDiagnostics
     // ever filled Possible Orders -- so it was empty everywhere and every
     // customer walked in wanting nothing. Filled here instead, from what the
     // kitchen can actually produce
-    [MenuItem("Cooked Fast/Musteri: Siparisleri Doldur", priority = 604)]
+    [MenuItem("Cooked Fast/Musteri/Siparisleri Doldur", priority = 604)]
     public static void Fill()
     {
         StringBuilder report = new StringBuilder();

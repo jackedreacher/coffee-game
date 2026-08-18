@@ -24,7 +24,7 @@ public static class WalkAnimation
         { "WalkWithPlateau", "Run_Holding" },
     };
 
-    [MenuItem("Cooked Fast/Animasyon: 1 - Yurumeyi Kosmaya Cevir", priority = 400)]
+    [MenuItem("Cooked Fast/Animasyon/1 - Yurumeyi Kosmaya Cevir", priority = 400)]
     public static void SwapWalk()
     {
         AnimatorController controller = FindPlayerController(out string problem);
@@ -114,7 +114,7 @@ public static class WalkAnimation
         "Pan_Start", "Pan_Loop", "Pan_End",
     };
 
-    [MenuItem("Cooked Fast/Animasyon: 4 - Is Animasyonlarini Ekle", priority = 403)]
+    [MenuItem("Cooked Fast/Animasyon/4 - Is Animasyonlarini Ekle", priority = 403)]
     public static void AddActionStates()
     {
         AnimatorController controller = FindPlayerController(out string problem);
@@ -249,7 +249,7 @@ public static class WalkAnimation
     // two drift apart silently, which is what skating across the kitchen is.
     // PlayerAnimator already writes the parameter every frame; nothing was
     // reading it
-    [MenuItem("Cooked Fast/Animasyon: 3 - Bacak Temposunu Hiza Bagla", priority = 402)]
+    [MenuItem("Cooked Fast/Animasyon/3 - Bacak Temposunu Hiza Bagla", priority = 402)]
     public static void BindSpeedParameter()
     {
         AnimatorController controller = FindPlayerController(out string problem);
@@ -334,7 +334,7 @@ public static class WalkAnimation
     // Everything the game will actually use, read off the scene rather than
     // assumed -- including the full clip list of whatever character is in there,
     // because what the project owns turned out to be the thing nobody knew
-    [MenuItem("Cooked Fast/Animasyon: 2 - Durumu Soyle", priority = 401)]
+    [MenuItem("Cooked Fast/Animasyon/2 - Durumu Soyle", priority = 401)]
     public static void Explain()
     {
         StringBuilder report = new StringBuilder();

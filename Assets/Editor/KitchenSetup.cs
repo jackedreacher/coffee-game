@@ -17,7 +17,7 @@ public static class KitchenSetup
     private const int spawnerCapacity = 3;
 
 #if COOKED_FAST_SETUP
-    [MenuItem("Cooked Fast/Setup Kitchen Scene")]
+    [MenuItem("Cooked Fast/Arac/Setup Kitchen Scene")]
 #endif
     public static void SetupKitchenScene()
     {
@@ -43,7 +43,7 @@ public static class KitchenSetup
     // Tapping a customer can only walk the player over if something drives
     // movement by destination. The joystick controller cannot, so this swaps
     // the player onto the NavMeshAgent based controller
-    [MenuItem("Cooked Fast/Switch Player To Click To Move")]
+    [MenuItem("Cooked Fast/Arac/Switch Player To Click To Move")]
     public static void SwitchPlayerToClickToMove()
     {
         PlayerController[] controllers = FindAll<PlayerController>();
@@ -142,7 +142,7 @@ public static class KitchenSetup
 
     // Swapping the player model can destroy the tray, and a replacement one
     // does not reconnect itself: three separate scripts hold a reference to it
-    [MenuItem("Cooked Fast/Repair Player Plateau Links")]
+    [MenuItem("Cooked Fast/Arac/Repair Player Plateau Links")]
     public static void RepairPlayerPlateauLinks()
     {
         PlayerController[] controllers = FindAll<PlayerController>();
@@ -200,7 +200,7 @@ public static class KitchenSetup
 
     // Puts the joystick back. Tapping a customer still works, the player just
     // has to walk over there themselves
-    [MenuItem("Cooked Fast/Switch Player To Joystick")]
+    [MenuItem("Cooked Fast/Arac/Switch Player To Joystick")]
     public static void SwitchPlayerToJoystick()
     {
         PlayerController[] controllers = FindAll<PlayerController>();
@@ -255,7 +255,7 @@ public static class KitchenSetup
 
     // Unity 6 moved baking out of the Navigation window and onto the
     // NavMeshSurface component, which is easy to miss
-    [MenuItem("Cooked Fast/Bake NavMesh")]
+    [MenuItem("Cooked Fast/Arac/Bake NavMesh")]
     public static void BakeNavMeshMenu()
     {
         string report = BakeNavMesh();

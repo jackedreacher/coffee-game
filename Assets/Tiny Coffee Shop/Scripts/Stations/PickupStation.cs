@@ -22,6 +22,10 @@ public class PickupStation : FoodServingStation
 
     private void HandleCustomerServed(Customer customer)
     {
-        customer.GoToThen(customerExitPoint.position, () => Destroy(customer.gameObject));
+        // Gone either way. They are out of the queue by this line, so nothing
+        // will ever ask them to move again -- a walk that fails to start leaves
+        // them standing in the shop for the rest of the game
+        if (!customer.GoToThen(customerExitPoint.position, () => Destroy(customer.gameObject)))
+            Destroy(customer.gameObject);
     }
 }

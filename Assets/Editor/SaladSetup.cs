@@ -15,7 +15,7 @@ public static class SaladSetup
 
     private const string workerPointName = "Worker Target Point";
 
-    [MenuItem("Cooked Fast/Setup Salad Zone")]
+    [MenuItem("Cooked Fast/Arac/Setup Salad Zone")]
     public static void Setup()
     {
         // Everything below adds components and children to a scene object, and
@@ -68,7 +68,7 @@ public static class SaladSetup
     // first build copied the pizza's model transform wholesale -- and the pizza
     // carries a 6.32 stretch on Y alone, authored for its own flat mesh. Applied
     // to anything else that is not a size, it is a distortion
-    [MenuItem("Cooked Fast/Rebuild Salad From Selection")]
+    [MenuItem("Cooked Fast/Arac/Rebuild Salad From Selection")]
     public static void RebuildFromSelection()
     {
         if (EditorApplication.isPlaying)

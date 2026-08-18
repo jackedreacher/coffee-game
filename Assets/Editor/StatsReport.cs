@@ -8,7 +8,7 @@ using UnityEditor;
 // handful of causes and all of them are visible here
 public static class StatsReport
 {
-    [MenuItem("Cooked Fast/Report Player Stats")]
+    [MenuItem("Cooked Fast/Arac/Report Player Stats")]
     public static void Report()
     {
         StringBuilder text = new StringBuilder();
@@ -150,7 +150,7 @@ public static class StatsReport
     // Walks every link between standing on a station and holding its food. A
     // station that hands out nothing has broken exactly one of these and they
     // all look fine in the Inspector
-    [MenuItem("Cooked Fast/Report Food Stations")]
+    [MenuItem("Cooked Fast/Arac/Report Food Stations")]
     public static void ReportStations()
     {
         StringBuilder text = new StringBuilder();

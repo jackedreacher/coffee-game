@@ -13,7 +13,7 @@ using UnityEngine.AI;
 // symptom is a tap that does nothing
 public static class TappableReport
 {
-    [MenuItem("Cooked Fast/Etkilesim: Neye Tiklanabilir", priority = 216)]
+    [MenuItem("Cooked Fast/Etkilesim/Neye Tiklanabilir", priority = 216)]
     public static void Report()
     {
         Interactable[] all = Object.FindObjectsByType<Interactable>(

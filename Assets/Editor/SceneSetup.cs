@@ -12,7 +12,7 @@ using TMPro;
 
 public class SceneSetup
 {
-    [MenuItem("Cooked Fast/Setup Lesson 6 (Customer Manager + Spawn Point)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 6 (Customer Manager + Spawn Point)")]
     public static void SetupLesson6()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -77,7 +77,7 @@ public class SceneSetup
         EditorUtility.DisplayDialog("Done!", "Customer Manager and Spawn Point created.\n\nSpawn Point position: (-6, 0, -2) - adjust if needed.", "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 13 (Table Set + Table Manager)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 13 (Table Set + Table Manager)")]
     public static void SetupLesson13()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -208,7 +208,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 34 (Duplicate Tables + GUIDs)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 34 (Duplicate Tables + GUIDs)")]
     public static void SetupLesson34()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -281,7 +281,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 35 (Cash File on Cashier Station)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 35 (Cash File on Cashier Station)")]
     public static void SetupLesson35()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -374,7 +374,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 36 (Arc Animator Singleton)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 36 (Arc Animator Singleton)")]
     public static void SetupLesson36()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -416,7 +416,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 37 (Sijil Save System)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 37 (Sijil Save System)")]
     public static void SetupLesson37()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -458,7 +458,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 38 (Locked Element UI Prefab)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 38 (Locked Element UI Prefab)")]
     public static void SetupLesson38()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -612,7 +612,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 39 (LockedElement + PayAbility)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 39 (LockedElement + PayAbility)")]
     public static void SetupLesson39()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -709,7 +709,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 42 (Progression Manager)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 42 (Progression Manager)")]
     public static void SetupLesson42()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -799,7 +799,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 47 (HR Canvas)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 47 (HR Canvas)")]
     public static void SetupLesson47()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -987,7 +987,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 54 (Worker Stat Values)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 54 (Worker Stat Values)")]
     public static void SetupLesson54()
     {
         // The blob math assumes the three maxes are equal, so each worker
@@ -1036,7 +1036,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 53 (Worker Stats + Upgrade Blobs)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 53 (Worker Stats + Upgrade Blobs)")]
     public static void SetupLesson53()
     {
         // 1. Put UIUpgradeBlob on the blob prefab and wire its Image
@@ -1136,7 +1136,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 51 (Worker Spawn Point)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 51 (Worker Spawn Point)")]
     public static void SetupLesson51()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -1192,7 +1192,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 50 (Wire UI Worker Container)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 50 (Wire UI Worker Container)")]
     public static void SetupLesson50()
     {
         string prefabPath = "Assets/Tiny Coffee Shop/Prefabs/UI/UI Worker Container.prefab";
@@ -1273,7 +1273,7 @@ public class SceneSetup
         return null;
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 49 (Worker Data + Containers)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 49 (Worker Data + Containers)")]
     public static void SetupLesson49()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -1393,7 +1393,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 48 (HR Manager + Desk Station)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 48 (HR Manager + Desk Station)")]
     public static void SetupLesson48()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -1484,7 +1484,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 46 (Office Zone Progression Steps)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 46 (Office Zone Progression Steps)")]
     public static void SetupLesson46()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -1556,7 +1556,7 @@ public class SceneSetup
         }
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 45 (Office Zone Structure)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 45 (Office Zone Structure)")]
     public static void SetupLesson45()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -1644,7 +1644,7 @@ public class SceneSetup
             "OK");
     }
 
-    [MenuItem("Cooked Fast/Setup Lesson 44 (Progression Canvas)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 44 (Progression Canvas)")]
     public static void SetupLesson44()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -1762,7 +1762,7 @@ public class SceneSetup
     // =====================
     // LESSON 56 - Worker base stats
     // =====================
-    [MenuItem("Cooked Fast/Setup Lesson 56 (Worker Base Stats)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 56 (Worker Base Stats)")]
     public static void SetupLesson56()
     {
         // 1. Create the base stats asset
@@ -1827,7 +1827,7 @@ public class SceneSetup
     // =====================
     // FoodServingStation now refuses to serve anything without a CharacterStats
     // component, so the player needs one too or they can no longer serve
-    [MenuItem("Cooked Fast/Setup Lesson 57 (Player Base Stats)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 57 (Player Base Stats)")]
     public static void SetupLesson57()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -1891,7 +1891,7 @@ public class SceneSetup
     // =====================
     // LESSON 59 - Player Upgrades Canvas (UI only, no logic yet)
     // =====================
-    [MenuItem("Cooked Fast/Setup Lesson 59 (Player Upgrades Canvas)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 59 (Player Upgrades Canvas)")]
     public static void SetupLesson59()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -2076,7 +2076,7 @@ public class SceneSetup
     // =====================
     // LESSON 60 - Upgrade Desk Station + container spawning
     // =====================
-    [MenuItem("Cooked Fast/Setup Lesson 60 (Upgrade Desk Station)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 60 (Upgrade Desk Station)")]
     public static void SetupLesson60()
     {
         var scene = EditorSceneManager.GetActiveScene();
@@ -2219,7 +2219,7 @@ public class SceneSetup
     // =====================
     // LESSON 61 - Wire the player upgrade card visuals
     // =====================
-    [MenuItem("Cooked Fast/Setup Lesson 61 (Player Upgrade Card Visuals)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 61 (Player Upgrade Card Visuals)")]
     public static void SetupLesson61()
     {
         // 1. The blob prefab needs the script the container drives
@@ -2332,7 +2332,7 @@ public class SceneSetup
     // =====================
     // LESSON 62 - Player stats handler + upgrade wiring
     // =====================
-    [MenuItem("Cooked Fast/Setup Lesson 62 (Player Stats Handler)")]
+    [MenuItem("Cooked Fast/Arsiv/Ders 62 (Player Stats Handler)")]
     public static void SetupLesson62()
     {
         var scene = EditorSceneManager.GetActiveScene();

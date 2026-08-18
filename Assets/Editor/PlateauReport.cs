@@ -6,7 +6,7 @@ using UnityEditor;
 // plateau can be read off one console line instead of guessed at
 public static class PlateauReport
 {
-    [MenuItem("Cooked Fast/Report Plateau State")]
+    [MenuItem("Cooked Fast/Arac/Report Plateau State")]
     public static void Report()
     {
         StringBuilder text = new StringBuilder();
@@ -88,7 +88,7 @@ public static class PlateauReport
 
     // Customers only ever exist as prefabs until the game spawns them, so the
     // only way to check them is to open each one
-    [MenuItem("Cooked Fast/Report Customer Plateaus")]
+    [MenuItem("Cooked Fast/Arac/Report Customer Plateaus")]
     public static void ReportCustomers()
     {
         StringBuilder text = new StringBuilder();

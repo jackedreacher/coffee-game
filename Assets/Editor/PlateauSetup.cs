@@ -10,13 +10,13 @@ public static class PlateauSetup
     private const string plateModelPath = "Assets/Tiny Coffee Shop/FBX/Environment_Plate.fbx";
     private const string originalModelPath = "Assets/Tiny Coffee Shop/Models/Props/Plateau.fbx";
 
-    [MenuItem("Cooked Fast/Use Plate As Plateau")]
+    [MenuItem("Cooked Fast/Arac/Use Plate As Plateau")]
     public static void UsePlate()
     {
         Swap(plateModelPath);
     }
 
-    [MenuItem("Cooked Fast/Restore Original Plateau Model")]
+    [MenuItem("Cooked Fast/Arac/Restore Original Plateau Model")]
     public static void RestoreOriginal()
     {
         Swap(originalModelPath);

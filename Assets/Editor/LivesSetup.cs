@@ -39,7 +39,7 @@ public static class LivesSetup
     // The number to raise if a phone with a punch-hole camera clips the hearts
     private const float topMargin = 62f;
 
-    [MenuItem("Cooked Fast/Can: Slotlari Kur", priority = 220)]
+    [MenuItem("Cooked Fast/Oyun/Can: Slotlari Kur", priority = 220)]
     public static void Setup()
     {
         // Scene edits made while the game is running are thrown away the moment
@@ -101,6 +101,15 @@ public static class LivesSetup
 
         report.AppendLine();
 
+        // Where the last card was left standing, if anybody moved it.
+        //
+        // Re-running this used to put the row back at the number written in this
+        // file, so a card nudged down by hand in the Hierarchy jumped back the
+        // next time the HUD was rebuilt for some entirely unrelated reason. How
+        // high the hearts sit is a thing decided by looking at the screen, and
+        // the Inspector is where that gets decided -- this keeps the decision
+        float placed = float.NaN;
+
         // Rebuilt rather than added to, so running this twice does not leave two
         // rows of hearts stacked on each other.
         //
@@ -110,6 +119,15 @@ public static class LivesSetup
         foreach (LivesHud old in Object.FindObjectsByType<LivesHud>(
                      FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
+            // Only when it was hung off the top edge, which is what the new one
+            // will be. Against any other anchor the same number means a distance
+            // from somewhere else, and copying it across would move the card to
+            // a place nobody chose
+            if (old.transform is RectTransform oldRect &&
+                Mathf.Approximately(oldRect.anchorMin.y, 1f) &&
+                Mathf.Approximately(oldRect.anchorMax.y, 1f))
+                placed = oldRect.anchoredPosition.y;
+
             // The money was moved INTO the old card. Destroying the card with it
             // still inside destroys the money counter -- permanently, in a saved
             // scene, for the crime of running a setup command twice
@@ -157,8 +175,16 @@ public static class LivesSetup
 
         float span = slots * heartSize + (slots - 1) * heartGap;
 
-        rect.anchoredPosition = new Vector2(0f, -topMargin);
+        float top = float.IsNaN(placed) ? -topMargin : placed;
+
+        rect.anchoredPosition = new Vector2(0f, top);
         rect.sizeDelta = new Vector2(Mathf.Max(span, cardWidth) + cardPadding * 2f, cardHeight);
+
+        report.AppendLine(Mathf.Abs(top + topMargin) < .5f
+            ? "Yukseklik: Y = " + top.ToString("0") + " (varsayilan)"
+            : "Yukseklik: Y = " + top.ToString("0") + " -- elle tasinmis, korundu.\n" +
+              "  Varsayilana donmek icin " + (-topMargin).ToString("0") + " yaz.");
+        report.AppendLine();
 
         Card(root);
 
@@ -232,6 +258,11 @@ public static class LivesSetup
         report.AppendLine("Musteri sabri bitince kaciyor ve bir can gidiyor.");
         report.AppendLine("Can sayisi: Lives > Max Lives");
         report.AppendLine("Sabir suresi: musteri prefabi > Customer Order > Patience");
+        report.AppendLine();
+        report.AppendLine("Kartin yuksekligi: Hierarchy > " + rootName + " >");
+        report.AppendLine("  Rect Transform > Pos Y. Kucultmek asagi indirir,");
+        report.AppendLine("  cunku kart ekranin ust kenarina asili. Elle yazdigin");
+        report.AppendLine("  deger bu komut tekrar calisinca korunur.");
         report.AppendLine();
         report.AppendLine("Sahneyi kaydet: Ctrl+S");
 

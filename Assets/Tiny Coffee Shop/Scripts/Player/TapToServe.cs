@@ -606,7 +606,10 @@ public class TapToServe : MonoBehaviour
             return;
         }
 
-        Vector3 serve = counter.ServePosition;
+        // The same spot the walk was aimed at, not the counter's generic one --
+        // a distance measured against somewhere the player was never sent is a
+        // number that explains nothing
+        Vector3 serve = counter.ServePositionFor(pendingCustomer);
         float away = Vector3.Distance(transform.position.With(y: 0), serve.With(y: 0));
 
         string reason;
@@ -731,12 +734,17 @@ public class TapToServe : MonoBehaviour
 
         if (customer == null)
         {
-            // Nothing was aimed at. Whether that means "walk there" or "you
-            // tapped nothing" is the one setting on this component that changes
-            // how the game is played
-            if (!walkOnGroundTap)
+            // Nothing was aimed at, so this is either a move order or a tap on
+            // nothing. Marked floor decides which.
+            //
+            // The name is in the message because the name is the fix: that is
+            // the object to put a WalkableFloor on, and there is no other way
+            // to know which of the twenty meshes under the finger it was
+            if (!walkOnGroundTap && !WalkableFloor.Covers(hit.collider))
             {
-                Log("bos zemin: " + hit.collider.name + " -- tiklanabilir degil, durdu");
+                Log("bos zemin: " + hit.collider.name + " -- yurunebilir degil, durdu.\n" +
+                    "  Buraya gidilebilsin istiyorsan o objeyi sec ve:\n" +
+                    "  Cooked Fast > Etkilesim: Yurunebilir Zemin Yap");
                 return;
             }
 
@@ -802,8 +810,11 @@ public class TapToServe : MonoBehaviour
         if (counter.TryGetComponent(out Interactable counterPoint))
             counterPoint.Pop();
 
+        // The spot nearest THIS customer, not the counter's one stand point.
+        // Walking to the middle of a wide counter to serve somebody at its end
+        // means walking away from them first
         Log("  " + counter.name + " tezgahina yuruyor, varinca servis eder");
-        WalkToPoint(counter.ServePosition);
+        WalkToPoint(counter.ServePositionFor(customer));
     }
 
     // Asked by the counters themselves at startup. One that nobody answers yes
@@ -1204,8 +1215,10 @@ public class TapToServe : MonoBehaviour
         // Refuse silently when it is not what they ordered, so a mistap does
         // not quietly burn the item the player is carrying. A customer with no
         // requested food takes anything, which is how the old stations work
-        if (customer.RequestedFood != null &&
-            heldFood.GetType() != customer.RequestedFood.GetType())
+        // Asked as a question rather than compared against one field. An order
+        // can name two things now, and "is it the requested food" has no answer
+        // when there are two of them
+        if (customer.RequestedFood != null && !customer.Wants(heldFood))
         {
             Log("istedigi " + customer.RequestedFood.GetType().Name + ", elde " + heldFood.GetType().Name);
             return false;

@@ -154,7 +154,7 @@ public class RoundManager : MonoBehaviour
             if (extra > 0)
                 extra--;
 
-            counters[i].BeginRound(mine, data.SpawnInterval);
+            counters[i].BeginRound(mine, data.SpawnInterval, data.MaxOrderTypes);
         }
     }
 

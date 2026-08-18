@@ -39,7 +39,7 @@ public static class PrepTimeSetup
 
     private const float fallback = 9f;
 
-    [MenuItem("Cooked Fast/Musteri: Yemek Sureleri", priority = 231)]
+    [MenuItem("Cooked Fast/Musteri/Yemek Sureleri", priority = 231)]
     public static void Setup()
     {
         string[] guids = AssetDatabase.FindAssets("t:Prefab");

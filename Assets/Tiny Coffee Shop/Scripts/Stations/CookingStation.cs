@@ -62,6 +62,9 @@ public class CookingStation : MonoBehaviour
     [Tooltip("Yanmak uzereyken yanip sonecek unlem isareti")]
     [SerializeField] private GameObject warningRoot;
 
+    [Tooltip("Pisen urun hazir oldugunda cikacak yesil tik")]
+    [SerializeField] private GameObject readyRoot;
+
     [Tooltip("Yanan etin uzerinde cikacak ates. Et alininca yok olur")]
     [SerializeField] private GameObject burnEffect;
 
@@ -165,6 +168,7 @@ public class CookingStation : MonoBehaviour
         Cook();
         ShowTimer();
         ShowWarning();
+        ShowReady();
     }
 
     private void Cook()
@@ -196,6 +200,24 @@ public class CookingStation : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     private bool loggedWarning;
 #endif
+
+    // Cooked, and still worth taking.
+    //
+    // HasCooked is not this and must not be made into this. That one decides
+    // whether the player is allowed to reach into the pan, and they have to be
+    // allowed to reach into a pan full of cinders -- taking the burnt piece out
+    // is the only way to get the oven back. What the tick promises is narrower:
+    // that there is something in here worth walking over for
+    private bool AnyGood()
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (slots[i].cooked && !slots[i].burnt)
+                return true;
+        }
+
+        return false;
+    }
 
     // Past the grace period and not yet on fire. The window the exclamation mark
     // is asking the player to beat
@@ -276,6 +298,34 @@ public class CookingStation : MonoBehaviour
         float rate = Mathf.Max(.1f, warningBlinksPerSecond);
 
         warningRoot.SetActive(Mathf.Repeat(Time.time * rate, 1f) < .5f);
+    }
+
+    // Cooked and waiting to be taken.
+    //
+    // Hidden while the burn warning is up, because the two say opposite things
+    // about the same pan and the one that matters is the one with a deadline.
+    // The tick means "come and get it"; the exclamation means "come and get it
+    // NOW", and showing both makes the second one look optional
+    private void ShowReady()
+    {
+        if (readyRoot == null)
+            return;
+
+        // AnyGood rather than HasCooked, and that one word was the whole bug.
+        //
+        // AnyAboutToBurn asks for a slot that is cooked, NOT YET BURNT, and out
+        // of grace -- so the instant the meat actually catches, it stops
+        // answering yes. HasCooked carries on answering yes, because a burnt
+        // piece is still a cooked one. Put together, "cooked and not warning"
+        // went true again the moment the warning stopped being true, and the
+        // green tick came back up over a pan of cinders.
+        //
+        // It never looked like a tick that failed to go away. It looked like a
+        // tick that went away and then changed its mind
+        bool ready = AnyGood() && !AnyAboutToBurn();
+
+        if (readyRoot.activeSelf != ready)
+            readyRoot.SetActive(ready);
     }
 
     // The raw instance is replaced rather than relabelled: the two are different

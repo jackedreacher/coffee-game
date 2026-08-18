@@ -28,6 +28,17 @@ public static class RoundSetup
         (40, 3.1f), (42, 3.0f), (45, 2.9f), (48, 2.8f), (50, 2.5f)
     };
 
+    // How many DIFFERENT things one customer may ask for.
+    //
+    // Straight out of the design document: the early rounds teach the basic
+    // moves, and round 11 opens "malzemelerin cesitlendigi asama". Before that
+    // an order is one thing however many of it, which is the shape the player
+    // learns on
+    private static int Types(int round)
+    {
+        return round <= 10 ? 1 : 2;
+    }
+
     // The four bands the table was written in. Kept so a round asset says what
     // it is for when somebody opens it on its own
     private static string Band(int round)
@@ -38,7 +49,7 @@ public static class RoundSetup
         return "Usta: saniyeler kritik";
     }
 
-    [MenuItem("Cooked Fast/Raund: 50 Raundu Uret", priority = 230)]
+    [MenuItem("Cooked Fast/Oyun/Raund: 50 Raundu Uret", priority = 230)]
     public static void Generate()
     {
         if (EditorApplication.isPlaying)
@@ -80,6 +91,7 @@ public static class RoundSetup
 
             so.FindProperty("totalCustomers").intValue = table[i].customers;
             so.FindProperty("spawnInterval").floatValue = table[i].interval;
+            so.FindProperty("maxOrderTypes").intValue = Types(round);
             so.FindProperty("note").stringValue = "Raund " + round + " -- " + Band(round);
 
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -90,11 +102,64 @@ public static class RoundSetup
         AssetDatabase.SaveAssets();
 
         string report = "- " + made + " raund olusturuldu, " + updated + " raund guncellendi\n" +
-                        "- " + folder + "\n";
+                        "- " + folder + "\n" +
+                        "- Raund 1-10: tek cesit siparis.  Raund 11-50: iki cesit\n";
 
         Wire(rounds, ref report);
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+
+        Debug.Log("Raundlar\n" + report);
+        EditorUtility.DisplayDialog("Raundlar", report, "Tamam");
+    }
+
+    // Every round set to two kinds, for looking at the thing rather than
+    // playing eleven rounds to reach it.
+    //
+    // A command rather than an edit to the table above, because the way back
+    // has to be something that already exists: re-running the generator writes
+    // the real curve over this, and nobody has to remember what was changed
+    [MenuItem("Cooked Fast/Oyun/Raund: TEST - Hepsi 2 Cesit", priority = 233)]
+    public static void TestTwoTypes()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            EditorUtility.DisplayDialog("Raundlar",
+                "Play modundayken calismaz. Once durdur.", "Tamam");
+            return;
+        }
+
+        string[] guids = AssetDatabase.FindAssets("t:RoundData", new[] { folder });
+
+        if (guids.Length <= 0)
+        {
+            EditorUtility.DisplayDialog("Raundlar",
+                "Once raundlari uret:\nCooked Fast > Oyun > Raund: 50 Raundu Uret", "Tamam");
+            return;
+        }
+
+        foreach (string guid in guids)
+        {
+            RoundData data = AssetDatabase.LoadAssetAtPath<RoundData>(
+                AssetDatabase.GUIDToAssetPath(guid));
+
+            if (data == null)
+                continue;
+
+            SerializedObject so = new SerializedObject(data);
+            so.FindProperty("maxOrderTypes").intValue = 2;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        AssetDatabase.SaveAssets();
+
+        string report = guids.Length + " raund 2 cesite ayarlandi.\n" +
+                        "Raund 1'den itibaren musteriler iki farkli urun isteyecek.\n\n" +
+                        "Musteri basina adet degismedi: 3'luk bir siparis 2 + 1 olur.\n" +
+                        "Tek urun gormek icin bir tezgahta tek yemek olmasi yeterli --\n" +
+                        "menude tek cesit varsa satir da tek olur.\n\n" +
+                        "GERI ALMAK ICIN: Cooked Fast > Oyun > Raund: 50 Raundu Uret\n" +
+                        "Gercek egriyi (1-10 tek, 11-50 cift) uzerine yazar.";
 
         Debug.Log("Raundlar\n" + report);
         EditorUtility.DisplayDialog("Raundlar", report, "Tamam");

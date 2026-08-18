@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -29,7 +30,27 @@ public class FoodServingCustomerManager : MonoBehaviour
     // Offset between two neighbours inside the same row
     [SerializeField] private Vector3 sideSpacing = new Vector3(0f, 0f, 1f);
 
+    [Tooltip("Arkadaki siranin siparis balonu ne kadar yukarida dursun. " +
+             "0 = varsayilan 1.1. Balonlar ust uste biniyorsa buyut")]
+    [SerializeField] private float bubbleRowLift = 1.1f;
+
+    private float BubbleRowLift => bubbleRowLift > .01f ? bubbleRowLift : 1.1f;
+
     [SerializeField] private Vector2Int minMaxCustomerFoodCount;
+
+    [Tooltip("Ne istedigini bilmeyen musteri yuzdesi -- ne verirsen alir. " +
+             "0 = varsayilan 12, eksi bir sayi = hic gelmesin")]
+    [SerializeField] private float undecidedChance;
+
+    // Zero has to mean the default here, not "never".
+    //
+    // The field is new on counters already saved in the scene, and a field the
+    // scene file does not carry comes back zero -- so reading zero as "off"
+    // would ship the whole thing switched off and say nothing about it. Below
+    // zero is how it actually gets turned off, which is a thing somebody has to
+    // type on purpose
+    private float UndecidedChance =>
+        undecidedChance < -.01f ? 0f : undecidedChance > .01f ? undecidedChance : 12f;
 
     // Was one second, hard coded, for both. Three slots filled in three seconds
     // and a freed one refilled before the player had turned around -- the queue
@@ -101,9 +122,18 @@ public class FoodServingCustomerManager : MonoBehaviour
     // second one was impossible through no fault of the player -- they were
     // being timed on work that had not started yet. Counting what is owed to
     // the people in front turns that into seven seconds and fourteen
-    private float PatienceFor(SpawnableFood order, int count, float ahead)
+    private float PatienceFor(OrderLine[] order, float ahead)
     {
-        float work = WorkFor(order, count);
+        // Summed across the rows. A burger and a fries is the burger work plus
+        // the fries work -- pricing it off one of the two would make every
+        // mixed order short by whichever half was ignored
+        float work = 0f;
+
+        if (order != null)
+        {
+            for (int i = 0; i < order.Length; i++)
+                work += WorkFor(order[i].food, order[i].count);
+        }
 
         float raw = (PatienceBase + work + ahead) * RoundPressure();
 
@@ -165,12 +195,28 @@ public class FoodServingCustomerManager : MonoBehaviour
             if (customer == null)
                 continue;
 
+            // Row by row, because a mixed order is not "so many of one thing".
+            // Charging the whole remainder at the first row's rate is wrong in
+            // both directions depending on which row happens to be first
             int left = customer.FoodNeededCount - customer.FoodTakenCount;
 
             if (left <= 0)
                 continue;
 
-            total += WorkFor(customer.RequestedFood, left);
+            OrderLine[] lines = customer.Lines;
+
+            if (lines == null || lines.Length <= 0)
+            {
+                total += WorkFor(null, left);
+                continue;
+            }
+
+            // Spread over the rows in proportion, since which rows are still
+            // owed is the customer's own business and not worth exposing
+            float share = left / (float)Mathf.Max(1, customer.FoodNeededCount);
+
+            for (int row = 0; row < lines.Length; row++)
+                total += WorkFor(lines[row].food, lines[row].count) * share;
         }
 
         return total;
@@ -238,6 +284,71 @@ public class FoodServingCustomerManager : MonoBehaviour
     public Vector3 ServePosition =>
         standPoint != null ? standPoint.StandPosition : transform.position;
 
+    [Tooltip("Servis noktasi trigger kenarindan kac birim iceri cekilsin. " +
+             "Buyutmek oyuncuyu musteriden uzaklastirir. 0 = varsayilan 0.9")]
+    [SerializeField] private float serveInset = .9f;
+
+    private float ServeInset => serveInset > .01f ? serveInset : .9f;
+
+    // Where to stand to hand THIS customer their food.
+    //
+    // One fixed spot per counter meant walking away from somebody in order to
+    // serve them: the customer at the far end of a wide counter was served from
+    // a point behind the middle of it, and on the way there the player put more
+    // distance between themselves and the person they were walking to.
+    //
+    // The trigger already decides whether serving is allowed. So it decides
+    // where to stand too -- the nearest point inside it. No second piece of
+    // geometry to author, and nowhere it can send the player that the serving
+    // rule would then refuse
+    public Vector3 ServePositionFor(Customer customer)
+    {
+        if (customer == null)
+            return ServePosition;
+
+        Collider[] zones = GetComponents<Collider>();
+
+        if (zones.Length <= 0)
+            return ServePosition;
+
+        Vector3 wanted = customer.transform.position;
+
+        Vector3 nearest = Vector3.zero;
+        float nearestDistance = float.MaxValue;
+
+        foreach (Collider zone in zones)
+        {
+            if (zone == null || !zone.enabled)
+                continue;
+
+            Vector3 point = zone.ClosestPoint(wanted);
+            float distance = Vector3.SqrMagnitude(point.With(y: 0) - wanted.With(y: 0));
+
+            if (distance >= nearestDistance)
+                continue;
+
+            nearest = point;
+            nearestDistance = distance;
+        }
+
+        if (nearestDistance >= float.MaxValue)
+            return ServePosition;
+
+        // Pushed off the surface, straight back from the customer. Standing
+        // exactly on the skin of a trigger is standing on the line where enter
+        // and exit disagree, and the serve waits forever on a frame that says
+        // outside
+        Vector3 back = nearest.With(y: 0) - wanted.With(y: 0);
+
+        // Already inside it somehow -- no direction to push, and no reason to
+        if (back.sqrMagnitude < .0001f)
+            return ServePosition;
+
+        Vector3 stand = nearest + back.normalized * ServeInset;
+
+        return stand.With(y: ServePosition.y);
+    }
+
     private void Awake()
     {
         slots = new Customer[Mathf.Max(1, maxCustomers)];
@@ -293,14 +404,20 @@ public class FoodServingCustomerManager : MonoBehaviour
     private int roundTotal;
     private int roundSpawned;
 
+    // Handed down by the round. One until a round says otherwise, so a scene
+    // with no RoundManager behaves exactly as it did before orders could name
+    // two things
+    private int maxOrderTypes = 1;
+
     // Restarts the spawning loop on this round's numbers. Stopping the old one
     // first matters: two loops running is a wave arriving at twice the pace it
     // was designed for, and the round's own count would be spent in half the time
-    public void BeginRound(int total, float interval)
+    public void BeginRound(int total, float interval, int orderTypes)
     {
         roundDriven = true;
         roundTotal = closed ? 0 : Mathf.Max(0, total);
         roundSpawned = 0;
+        maxOrderTypes = Mathf.Max(1, orderTypes);
 
         if (roundTotal <= 0)
         {
@@ -465,21 +582,76 @@ public class FoodServingCustomerManager : MonoBehaviour
         int foodCount = Random.Range(minMaxCustomerFoodCount.x, minMaxCustomerFoodCount.y + 1);
         Vector3 targetPosition = GetTargetCustomerPosition(slot);
 
-        SpawnableFood order = PickOrder();
+        // Every so often, somebody who has not decided.
+        //
+        // Their row names no food, which every serving path already reads as
+        // "anything will do" -- so the player hands over whatever is nearest
+        // and they go. It is a breather in the middle of a round, and a use for
+        // the thing that came off the grill while the order it was for expired
+        OrderLine[] order = Random.value * 100f < UndecidedChance
+            ? new[] { new OrderLine(null, 1) }
+            : PickOrder(foodCount);
 
         // After the order is known, because the order is what decides it, and
         // before Initialize, which eventually opens the bubble -- the bubble is
         // what starts the clock, and a clock cannot be given its length after
         // it has started running
-        newCustomer.SetPatience(PatienceFor(order, foodCount, ahead));
+        newCustomer.SetPatience(PatienceFor(order, ahead));
 
-        if (order == null)
+        // The row decides how high the card floats. Standing further back does
+        // not separate two cards on an isometric screen -- it puts the far one
+        // directly behind the near one
+        newCustomer.SetBubbleLift(slot / Mathf.Max(1, customersPerRow) * BubbleRowLift);
+
+        newCustomer.Initialize(order, targetPosition, -QueueOffset.normalized);
+    }
+
+    // Builds the whole order: which foods, and how many of each.
+    //
+    // Two things is not two orders. The item count is shared out between them
+    // rather than doubled, so "the round where orders get mixed" is a round
+    // where the same amount of food arrives in a more awkward shape -- which is
+    // the difficulty being asked for. Doubling it would be a different game
+    private OrderLine[] PickOrder(int items)
+    {
+        items = Mathf.Max(1, items);
+
+        int types = Mathf.Clamp(maxOrderTypes, 1, items);
+
+        // Never more kinds than there are things on the menu, and never the
+        // same thing twice: two rows of burger is one row of two burgers drawn
+        // badly
+        List<SpawnableFood> chosen = new List<SpawnableFood>();
+
+        for (int i = 0; i < types; i++)
         {
-            newCustomer.Initialize(foodCount, targetPosition, -QueueOffset.normalized);
-            return;
+            SpawnableFood pick = PickFood(chosen);
+
+            if (pick == null)
+                break;
+
+            chosen.Add(pick);
         }
 
-        newCustomer.Initialize(foodCount, targetPosition, -QueueOffset.normalized, order);
+        if (chosen.Count <= 0)
+            return new[] { new OrderLine(null, items) };
+
+        OrderLine[] order = new OrderLine[chosen.Count];
+
+        int share = items / chosen.Count;
+        int extra = items - share * chosen.Count;
+
+        for (int i = 0; i < chosen.Count; i++)
+        {
+            int mine = share + (extra > 0 ? 1 : 0);
+
+            if (extra > 0)
+                extra--;
+
+            order[i] = new OrderLine(chosen[i], Mathf.Max(1, mine));
+        }
+
+        return order;
     }
 
     // Empty rows skipped rather than handed out.
@@ -489,7 +661,10 @@ public class FoodServingCustomerManager : MonoBehaviour
     // customer whose order is nothing, which on screen is an empty bubble --
     // indistinguishable from the bubble being broken, and that is exactly how
     // it was read
-    private SpawnableFood PickOrder()
+    // Takes what is already spoken for, so a two row order names two different
+    // things. Comparing by type rather than by instance: the menu may hold two
+    // burger prefabs, and asking for both is asking for burgers twice
+    private SpawnableFood PickFood(List<SpawnableFood> taken)
     {
         if (possibleOrders == null)
             return null;
@@ -498,7 +673,7 @@ public class FoodServingCustomerManager : MonoBehaviour
 
         for (int i = 0; i < possibleOrders.Length; i++)
         {
-            if (possibleOrders[i] != null)
+            if (Available(possibleOrders[i], taken))
                 filled++;
         }
 
@@ -509,7 +684,7 @@ public class FoodServingCustomerManager : MonoBehaviour
 
         for (int i = 0; i < possibleOrders.Length; i++)
         {
-            if (possibleOrders[i] == null)
+            if (!Available(possibleOrders[i], taken))
                 continue;
 
             if (wanted-- <= 0)
@@ -517,6 +692,38 @@ public class FoodServingCustomerManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    // Two rows have to look different, which is a stronger test than being
+    // different.
+    //
+    // Type was the first rule and it is not enough: the menu holds "burger" and
+    // "burger 1" as separate prefabs, and the icon baker gives both of them the
+    // same hamburger picture. Two rows of the same picture is one order drawn
+    // twice however different the classes behind them are, and the player is
+    // reading the picture
+    private static bool Available(SpawnableFood food, List<SpawnableFood> taken)
+    {
+        if (food == null)
+            return false;
+
+        for (int i = 0; i < taken.Count; i++)
+        {
+            SpawnableFood other = taken[i];
+
+            if (other == null)
+                continue;
+
+            if (other.GetType() == food.GetType())
+                return false;
+
+            // Only when both actually have one. Two foods falling back to their
+            // own models are told apart by the models
+            if (other.Icon != null && other.Icon == food.Icon)
+                return false;
+        }
+
+        return true;
     }
 
     // Called by OrderCounter before the first spawn tick fires
@@ -580,6 +787,17 @@ public class FoodServingCustomerManager : MonoBehaviour
     // counter and every row after it is one of these further out
     public Vector3 QueueDirection =>
         queueStartPoint == null ? Vector3.forward : QueueOffset.normalized;
+
+    // Where the standing spots are, so they can be checked from outside.
+    //
+    // These are worked out from a start point and two offsets and never asked
+    // about afterwards -- nothing verifies that the floor they land on is floor
+    // anybody can walk on. A slot off the navigation mesh, or too close to its
+    // edge to stand in, is a customer that never quite arrives, and the way that
+    // looks from the outside is a customer weaving on the way there
+    public int Slots => Mathf.Max(1, maxCustomers);
+
+    public Vector3 SlotPosition(int index) => GetTargetCustomerPosition(index);
 
     public Transform SpawnPoint => spawnPoint;
     public Transform ExitPoint => exitPoint;

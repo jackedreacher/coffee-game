@@ -53,7 +53,7 @@ public static class OrderBubbleSetup
     // What actually has to clear the neighbours
     public const float CardWidth = bubbleSize * bubbleAspect;
 
-    [MenuItem("Cooked Fast/Musteri: Siparis Balonunu Kur", priority = 600)]
+    [MenuItem("Cooked Fast/Musteri/Siparis Balonunu Kur", priority = 600)]
     public static void Setup()
     {
         string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { customersFolder });
@@ -68,7 +68,14 @@ public static class OrderBubbleSetup
         // Dropped into the project as a plain texture, which loads as a Sprite
         // exactly never. Settled here rather than asked for, because a null
         // sprite shows up as a bubble with no burst and no reason given
-        bool reimported = FoodIconBaker.MakeSprite(sunburstPath);
+        // Imported as a Sprite before it is loaded as one. A PNG left at the
+        // default texture type answers null to LoadAssetAtPath<Sprite> and says
+        // nothing about why
+        bool reimported = FoodIconBaker.MakeSprite(tickPath);
+
+        reimported |= FoodIconBaker.MakeSprite(undecidedPath);
+
+        reimported |= FoodIconBaker.MakeSprite(sunburstPath);
 
         reimported |= FoodIconBaker.MakeSprite(cardPath);
 
@@ -81,6 +88,11 @@ public static class OrderBubbleSetup
 
         StringBuilder report = new StringBuilder();
 
+        report.AppendLine("Kararsiz isareti: " +
+            (AssetDatabase.LoadAssetAtPath<Sprite>(undecidedPath) == null
+                ? "BULUNAMADI " + undecidedPath
+                : "Mark_Question-1"));
+
         report.AppendLine("Isin: " +
             (AssetDatabase.LoadAssetAtPath<Sprite>(sunburstPath) == null
                 ? "BULUNAMADI " + sunburstPath
@@ -91,6 +103,22 @@ public static class OrderBubbleSetup
         report.AppendLine("  mutlu : " + (happy == null ? "BULUNAMADI " + happyEmoji : happy.name));
         report.AppendLine("  idare : " + (neutral == null ? "BULUNAMADI " + neutralEmoji : neutral.name));
         report.AppendLine("  kizgin: " + (angry == null ? "BULUNAMADI " + angryEmoji : angry.name));
+
+        // How much of the file is actually face. The emoji is fitted by THIS and
+        // not by the picture it came in, so a hundred here means the trim did
+        // not happen -- and a gap between the yellow and the green collar is
+        // exactly what that looks like on the card
+        float drawnFace = FaceSize(happy, neutral, angry);
+        float wholeFile = happy != null ? happy.bounds.size.y : 0f;
+
+        if (drawnFace > .0001f && wholeFile > .0001f)
+        {
+            report.AppendLine("  cizili alan: dosyanin %" +
+                              Mathf.RoundToInt(drawnFace / wholeFile * 100f) + "'i");
+            report.AppendLine("  yuz bu olcuye gore delige oturuyor, %100 cikarsa");
+            report.AppendLine("  kirpma olmamis demektir ve bosluk kalir");
+        }
+
         report.AppendLine();
 
         int built = 0;
@@ -113,6 +141,9 @@ public static class OrderBubbleSetup
         report.AppendLine("                     ve adedi gorunur, sayac 5'te");
         report.AppendLine("  bekledikce      -> sayac geri sayar, yesil-sari-kirmizi");
         report.AppendLine("  sayac 0 olunca  -> musteri kacar, bir can gider");
+        report.AppendLine("  bazen           -> ne istedigini bilmeyen musteri gelir:");
+        report.AppendLine("                     balonda soru isareti, adet yazmaz,");
+        report.AppendLine("                     ne verirsen alir ve gider");
         report.AppendLine("  siparis biter   -> kart kapanir, o andaki emoji buyur,");
         report.AppendLine("                     arkasinda isin doner, alt tarafta kazanc");
         report.AppendLine("                     yazar. Musteri o yuzle cikar gider");
@@ -130,6 +161,12 @@ public static class OrderBubbleSetup
         report.AppendLine("  Appear Time        balonun acilis pop suresi (0.25)");
         report.AppendLine("  Pop Delay          emoji ve isin kac sn sonra patlar (0.12)");
         report.AppendLine("  Fade Time          kaybolurken sonme suresi (0.3)");
+        report.AppendLine("  Undecided Icon     kararsiz musterinin isareti");
+        report.AppendLine("  Undecided Tint     o isaretin rengi");
+        report.AppendLine();
+        report.AppendLine("Kararsiz musteri sikligi: tezgahin kendisinde --");
+        report.AppendLine("  Food Serving Customer Manager > Undecided Chance");
+        report.AppendLine("  yuzde olarak. 0 = varsayilan 12, eksi bir sayi = hic.");
         report.AppendLine();
         // Both figures, because they are different questions. The file is what
         // the neighbours have to clear; the panel is what the player reads
@@ -137,6 +174,14 @@ public static class OrderBubbleSetup
                           bubbleSize.ToString("0.00") + " boy (kuyruk dahil).");
         report.AppendLine("  Okunan kutu: " + (CardWidth * .94f).ToString("0.00") + " x " +
                           (bubbleSize * .69f).ToString("0.00"));
+        report.AppendLine("  Yemek balonun tam ortasinda. Rozet ona gore yer");
+        report.AppendLine("  buluyor: yemege degmeyecek kadar iniyor, daha");
+        report.AppendLine("  fazla degil. Rozeti kucultursen kendi kendine");
+        report.AppendLine("  daha asagi oturur.");
+        report.AppendLine("  Halka artik emojinin ic tarafindan basliyor --");
+        report.AppendLine("  ic kismi yuzun arkasinda kaliyor, disarida sadece");
+        report.AppendLine("  cepecevre bir serit gorunuyor.");
+        report.AppendLine();
         report.AppendLine("  Elle degistirmek icin prefabi ac, " + bubbleName + "'in");
         report.AppendLine("  Scale'ini buyut -- ic olculer kendiliginden uyar.");
         report.AppendLine("  Kalici olsun istersen OrderBubbleSetup > bubbleSize.");
@@ -207,7 +252,47 @@ public static class OrderBubbleSetup
             // spike, so every offset below is taken from the box instead
             const float boxTop = size * .46f;
             const float boxBottom = -size * .23f;
+
+            // Dead centre of the drawn box, and the food gets it.
+            //
+            // It was being centred in whatever the badge left over instead,
+            // which parked the picture along the bottom edge with a band of
+            // empty card above it. The panel was drawn for the food to sit in
+            // the middle of it, so that is where the food sits and everything
+            // else works around that
             const float boxMiddle = (boxTop + boxBottom) * .5f;
+
+            // The anchor's scale IS the icon size. CustomerOrder fits the food
+            // model into it, so resizing the picture is dragging one number
+            const float iconSize = size * .34f;
+
+            // The drawn face, and the number the badge is measured from -- the
+            // face rather than the ring, because the face is the thing being
+            // read and the ring is trim around it
+            const float face = size * .40f;
+
+            // A rim around the face, not a hoop with the face sitting inside it.
+            //
+            // The inner edge is well within the face and hidden behind it, so
+            // what shows is a band around the outside. That also keeps the arc
+            // readable as it drains: a thin ring left in the open reads as a
+            // broken circle at low fill, a rim behind a face reads as a rim
+            // Only the part past the face's own edge at .5 is ever seen, so the
+            // outer radius is the whole of how big the clock looks -- and the
+            // step from .56 to .62 is not a tenth bigger, it is twice the band
+            const float ringInner = face * .40f;
+            const float ringOuter = face * .72f;
+
+            // Hung over the top edge of the panel, as low as the food allows.
+            //
+            // Two things want the same strip of card. The food is what the
+            // bubble is for, so the badge is the one that gives way: it drops
+            // until it is just clear of the picture and no further. Written as
+            // arithmetic rather than as a number, so shrinking the badge lets it
+            // settle deeper on its own instead of leaving a gap nobody notices
+            float badgeY = boxMiddle + iconSize * .5f + ringOuter + size * .02f;
+
+            Vector3 badge = new Vector3(0f, badgeY, -.03f);
 
             Sprite cardSprite = AssetDatabase.LoadAssetAtPath<Sprite>(cardPath);
 
@@ -220,12 +305,7 @@ public static class OrderBubbleSetup
 
             anchor.transform.SetParent(bubble.transform, false);
 
-            // Dead centre of the drawn box. The food is what the bubble is for
             anchor.transform.localPosition = new Vector3(0f, boxMiddle, -size * .3f);
-
-            // The anchor's scale IS the icon size. CustomerOrder fits the food
-            // model into it, so resizing the picture is dragging one number
-            const float iconSize = size * .34f;
 
             anchor.transform.localScale = Vector3.one * iconSize;
 
@@ -249,19 +329,8 @@ public static class OrderBubbleSetup
             // chosen against a cream card and would sit on this one as a smudge
             quantity.color = Color.white;
 
-            // Clear of the box rather than half over it. The badge is nearly as
-            // tall as the food is now, so overlapping the top edge would put the
-            // emoji on the pizza
-            Vector3 badge = new Vector3(0f, boxTop + size * .30f, -.03f);
-
-            // The hole in the middle of the ring, and the ONE number everything
-            // that sits in it is measured from. The face, the disc and the
-            // digits all fill it exactly, so nothing can end up rattling around
-            // inside the collar or spilling out past it
-            const float hole = size * .40f;
-
             GameObject timer = Radial(bubble, badge + new Vector3(0f, 0f, .012f),
-                hole * .5f, hole * .66f);
+                ringInner, ringOuter);
 
             // In the emoji's place, not above it. For the last few seconds the
             // number IS the face -- it takes the spot the eye is already on
@@ -269,30 +338,44 @@ public static class OrderBubbleSetup
             // there is no time to
             Vector3 clock = badge + new Vector3(0f, 0f, -.01f);
 
-            // A hair over the hole. The drawn circle stops two pixels short of
-            // its own texture edge for the anti-aliasing, and at this size that
-            // reads as a gap between the disc and the collar
-            GameObject disc = Disc(bubble, clock, hole * 1.05f);
+            // A hair bigger than the face it replaces, so it covers the emoji
+            // completely and still leaves the same rim of ring showing round it.
+            // The badge should not change size when the last seconds arrive --
+            // it changes what it says, which is a different thing
+            GameObject disc = Disc(bubble, clock, face * 1.04f);
 
             GameObject number = Text(bubble, "Countdown",
                 clock + new Vector3(0f, 0f, -.01f), size, 130);
 
             TextMeshPro digits = number.GetComponent<TextMeshPro>();
 
-            digits.fontSize = size * 4.2f;
+            // Measured off the face, not off the card. The number stands in for
+            // the emoji, so it should be the size the emoji is -- tied to the
+            // card instead, resizing the badge leaves the digits rattling
+            // around inside it
+            digits.fontSize = face * 10.5f;
             digits.color = Color.white;
 
             RectTransform digitRect = number.GetComponent<RectTransform>();
 
             if (digitRect != null)
-                digitRect.sizeDelta = new Vector2(hole, hole);
+                digitRect.sizeDelta = new Vector2(face, face);
 
             // Behind the emoji as well, and that is settled by SORTING ORDER,
             // not by where these sit in the hierarchy. Sprites are sorted by
-            // their order first and their place in the list never comes into it
-            GameObject burst = Sunburst(bubble, badge + new Vector3(0f, 0f, .005f), hole * 2.4f);
+            // their order first and their place in the list never comes into it.
+            //
+            // Kept at about the width of the card whatever the face does. A
+            // burst wider than the card is a burst reaching into the customer
+            // standing beside this one
+            GameObject burst = Sunburst(bubble, badge + new Vector3(0f, 0f, .005f), face * 2.4f);
 
-            GameObject face = Emoji(bubble, happy, badge, hole);
+            // Fitted to the DRAWN face, not to the file it arrived in -- the
+            // file is a square with transparent margins, and fitting that is
+            // what used to leave a gap between the emoji and the ring
+            float drawn = FaceSize(happy, neutral, angry);
+
+            GameObject mood = Emoji(bubble, happy, badge, face, drawn);
 
             // Under the emoji, where the box used to be -- by the time this is
             // on screen the card is gone and the space is free
@@ -318,9 +401,21 @@ public static class OrderBubbleSetup
             so.FindProperty("countdownText").objectReferenceValue = digits;
             so.FindProperty("countdownDisc").objectReferenceValue =
                 disc.GetComponent<SpriteRenderer>();
-            so.FindProperty("emoji").objectReferenceValue = face.GetComponent<SpriteRenderer>();
+            so.FindProperty("emoji").objectReferenceValue = mood.GetComponent<SpriteRenderer>();
             so.FindProperty("sunburst").objectReferenceValue = burst.transform;
             so.FindProperty("earningsText").objectReferenceValue = money;
+
+            // The bubble makes one of these per row at runtime, so all it needs
+            // is the picture. Left null it simply does not tick, which is the
+            // old behaviour rather than a hole in the card
+            so.FindProperty("readyIcon").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Sprite>(tickPath);
+
+            // Left null it simply never appears, and the undecided customer
+            // shows an empty bubble instead -- which is the one failure this
+            // whole feature could be mistaken for
+            so.FindProperty("undecidedIcon").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Sprite>(undecidedPath);
 
             // Written rather than left alone, because the field's MEANING
             // changed: it used to read zero as "use 40", and now zero is a still
@@ -418,6 +513,19 @@ public static class OrderBubbleSetup
 
     private const string sunburstPath = "Assets/food-icons/Sunburst.png";
 
+    // Tinted green in code rather than tinted here: the pack's mark is white,
+    // and a white source can be any colour later without a second file
+    private const string tickPath =
+        "Assets/Layer Lab/2D Icons-PictoIconPack01/Icons/PictoIcon_256/Icon_PictoIcon_Check.Png";
+
+    // The customer who has not decided. From the same pack as the tick on
+    // purpose: they are both marks rather than pictures of things, and a
+    // question mark drawn in one language beside food drawn in another reads as
+    // two cards stuck together
+    private const string undecidedPath =
+        "Assets/Layer Lab/2D Icons-PictoIconPack01/Icons/PictoIcon_256/" +
+        "Icon_PictoIcon_Mark_Question-1.Png";
+
     // The rays behind the emoji at the end. Built switched off -- it belongs to
     // the last two seconds of a customer's visit and nothing else
     private static GameObject Sunburst(GameObject parent, Vector3 offset, float height)
@@ -508,10 +616,21 @@ public static class OrderBubbleSetup
         piece.transform.localPosition = offset;
         piece.transform.localRotation = Quaternion.identity;
 
+        MeshRenderer ring = piece.GetComponent<MeshRenderer>();
+
         // White on the asset, tinted per customer at runtime off an instanced
         // copy -- so one customer running out of time does not turn every other
         // ring in the queue red
-        piece.GetComponent<MeshRenderer>().sharedMaterial = UnlitMaterial("Timer", Color.white);
+        ring.sharedMaterial = UnlitMaterial("Timer", Color.white);
+
+        // Said out loud now that the collar sits half over the card.
+        //
+        // It never crossed anything before, so its order stayed at the default
+        // zero -- and zero is behind the card's 90. Depth alone would probably
+        // have carried it, the ring being nearer the camera and drawn opaque,
+        // but "probably" is decided by a material setting in another file.
+        // Between the card and the emoji, which is where a collar belongs
+        ring.sortingOrder = 119;
 
         SerializedObject so = new SerializedObject(piece.GetComponent<RadialTimer>());
 
@@ -609,7 +728,8 @@ public static class OrderBubbleSetup
         return piece;
     }
 
-    private static GameObject Emoji(GameObject parent, Sprite sprite, Vector3 offset, float height)
+    private static GameObject Emoji(GameObject parent, Sprite sprite, Vector3 offset, float height,
+        float drawn)
     {
         GameObject piece = new GameObject("Emoji");
 
@@ -623,12 +743,73 @@ public static class OrderBubbleSetup
         renderer.sortingOrder = 120;
 
         // Pixel art at a hundred pixels per unit comes out over a unit across,
-        // which is bigger than the whole bubble
-        float own = renderer.bounds.size.y;
+        // which is bigger than the whole bubble.
+        //
+        // Scaled by the drawn face where it could be measured, by the file
+        // where it could not. The file is a square with a circle in it and
+        // transparent margins all round -- fitting THAT to the hole is what
+        // left a ring of empty card between the face and the collar
+        float own = drawn > .0001f ? drawn : renderer.bounds.size.y;
 
         piece.transform.localScale = own > .0001f ? Vector3.one * (height / own) : Vector3.one;
 
         return piece;
+    }
+
+    // How big the face actually is inside its file, in the sprite's own units.
+    //
+    // The tight sprite mesh is Unity's own outline of the opaque pixels, so this
+    // is the drawn circle rather than the picture it was saved in -- and it
+    // costs nothing, unlike reading the texture, which needs the file marked
+    // readable and re-imported first.
+    //
+    // The BIGGEST of the three moods, because the sprite is swapped at runtime
+    // and the transform is not. Fitting to the smile would let a wider angry
+    // face grow out past the collar the moment the customer's patience turned
+    private static float FaceSize(params Sprite[] moods)
+    {
+        float biggest = 0f;
+
+        foreach (Sprite mood in moods)
+        {
+            if (mood == null)
+                continue;
+
+            float drawn = DrawnSize(mood);
+
+            if (drawn > biggest)
+                biggest = drawn;
+        }
+
+        return biggest;
+    }
+
+    private static float DrawnSize(Sprite sprite)
+    {
+        Vector2[] corners = sprite.vertices;
+
+        // FullRect sprites -- and anything under 32 pixels, which Unity refuses
+        // to trim -- hand back the four corners of the file. Then this is the
+        // file's own size, which is the old behaviour rather than a wrong number
+        if (corners == null || corners.Length <= 0)
+            return sprite.bounds.size.y;
+
+        Vector2 low = corners[0];
+        Vector2 high = corners[0];
+
+        foreach (Vector2 corner in corners)
+        {
+            low = Vector2.Min(low, corner);
+            high = Vector2.Max(high, corner);
+        }
+
+        // The WIDER of the two. The hole is a circle, so what has to fit in it
+        // is the face's longest side -- a mood drawn with a tear off to one side
+        // is wider than it is tall, and fitting it by height puts the tear in
+        // the collar
+        float size = Mathf.Max(high.x - low.x, high.y - low.y);
+
+        return size > .0001f ? size : sprite.bounds.size.y;
     }
 
     private static Material UnlitMaterial(string name, Color colour)
@@ -666,6 +847,44 @@ public static class OrderBubbleSetup
 
     private static Sprite LoadEmoji(string name)
     {
-        return AssetDatabase.LoadAssetAtPath<Sprite>(emojiFolder + "/" + name + ".png");
+        string path = emojiFolder + "/" + name + ".png";
+
+        // Imported TIGHT, not merely as a sprite.
+        //
+        // The face is fitted to the outline of its opaque pixels, and that
+        // outline only exists if Unity was asked to trim one. Left at Full Rect
+        // the mesh is the four corners of the file, the measurement comes back
+        // as the whole square, and the face sits in the middle of the collar
+        // with a ring of empty card around it -- which is the gap all of this
+        // is for. The setting ships with the pack, so it is not ours to assume
+        Tighten(path);
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    private static void Tighten(string path)
+    {
+        if (!(AssetImporter.GetAtPath(path) is TextureImporter importer))
+            return;
+
+        TextureImporterSettings settings = new TextureImporterSettings();
+
+        importer.ReadTextureSettings(settings);
+
+        // Re-importing what is already right is slow for nothing, and this runs
+        // three times per command
+        if (importer.textureType == TextureImporterType.Sprite &&
+            importer.spriteImportMode == SpriteImportMode.Single &&
+            settings.spriteMeshType == SpriteMeshType.Tight &&
+            importer.alphaIsTransparency)
+            return;
+
+        settings.textureType = TextureImporterType.Sprite;
+        settings.spriteMode = (int)SpriteImportMode.Single;
+        settings.spriteMeshType = SpriteMeshType.Tight;
+        settings.alphaIsTransparency = true;
+
+        importer.SetTextureSettings(settings);
+        importer.SaveAndReimport();
     }
 }

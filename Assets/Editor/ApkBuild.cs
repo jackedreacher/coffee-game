@@ -17,7 +17,7 @@ public static class ApkBuild
     private const string scenePath = "Assets/Tiny Coffee Shop/Game Scenes/Kitchen.unity";
     private const string outputFolder = "Builds";
 
-    [MenuItem("Cooked Fast/APK: 1 - Ayarlari Kontrol Et", priority = 300)]
+    [MenuItem("Cooked Fast/APK/1 - Ayarlari Kontrol Et", priority = 300)]
     public static void Check()
     {
         StringBuilder report = new StringBuilder();
@@ -45,7 +45,7 @@ public static class ApkBuild
         EditorUtility.DisplayDialog("APK Kontrol", report.ToString(), "Tamam");
     }
 
-    [MenuItem("Cooked Fast/APK: 2 - Derle", priority = 301)]
+    [MenuItem("Cooked Fast/APK/2 - Derle", priority = 301)]
     public static void Build()
     {
         string problems = Inspect(out bool canBuild);

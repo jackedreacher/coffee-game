@@ -100,7 +100,7 @@ public class Worker : MonoBehaviour
         }
 
         if (navigationAbility.IsMoving)
-            animator.ManageAnimations(navigationAbility.Velocity);
+            animator.ManageAnimations(navigationAbility.Velocity, navigationAbility.Heading);
         else
             StartIdleState();
     }

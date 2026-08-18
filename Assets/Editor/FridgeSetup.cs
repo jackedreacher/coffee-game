@@ -24,7 +24,7 @@ public static class FridgeSetup
     // decision that has already been looked at on screen
     private const string sizeReferencePath = "Assets/Tiny Coffee Shop/Prefabs/GamePlay/fries.prefab";
 
-    [MenuItem("Cooked Fast/Buzdolabi: 1 - Kapiyi Kur", priority = 180)]
+    [MenuItem("Cooked Fast/Istasyon/Buzdolabi: 1 - Kapiyi Kur", priority = 180)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)
@@ -165,7 +165,7 @@ public static class FridgeSetup
     // Every FridgeDoor in the scene is listed by name whether it needed changing
     // or not, which is also how a second FridgeDoor hiding on another object
     // would show itself
-    [MenuItem("Cooked Fast/Buzdolabi: 4 - Icecegi Bagla", priority = 183)]
+    [MenuItem("Cooked Fast/Istasyon/Buzdolabi: 4 - Icecegi Bagla", priority = 183)]
     public static void LinkDrink()
     {
         if (EditorApplication.isPlaying)
@@ -405,13 +405,13 @@ public static class FridgeSetup
 
     // ---- preview -----------------------------------------------------------
 
-    [MenuItem("Cooked Fast/Buzdolabi: 2 - Kapiyi Ac (onizleme)", priority = 181)]
+    [MenuItem("Cooked Fast/Istasyon/Buzdolabi: 2 - Kapiyi Ac (onizleme)", priority = 181)]
     public static void PreviewOpen()
     {
         Preview(true);
     }
 
-    [MenuItem("Cooked Fast/Buzdolabi: 3 - Kapiyi Kapat", priority = 182)]
+    [MenuItem("Cooked Fast/Istasyon/Buzdolabi: 3 - Kapiyi Kapat", priority = 182)]
     public static void PreviewClose()
     {
         Preview(false);

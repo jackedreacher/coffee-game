@@ -12,7 +12,7 @@ using UnityEngine;
 // goes. From the player's seat, hearts disappear on their own
 public static class CounterAudit
 {
-    [MenuItem("Cooked Fast/Musteri: Tezgahlari Denetle", priority = 217)]
+    [MenuItem("Cooked Fast/Musteri/Tezgahlari Denetle", priority = 217)]
     public static void Audit()
     {
         if (EditorApplication.isPlaying)
@@ -101,8 +101,9 @@ public static class CounterAudit
     private const float minimumPatience = 20f;
     private const int keepBusy = 1;
     private const float refillDelay = 1.5f;
+    private const float serveInset = .9f;
 
-    [MenuItem("Cooked Fast/Musteri: Sabir ve Tempo Ayarlari", priority = 218)]
+    [MenuItem("Cooked Fast/Musteri/Sabir ve Tempo Ayarlari", priority = 218)]
     public static void Settings()
     {
         if (EditorApplication.isPlaying)
@@ -134,6 +135,7 @@ public static class CounterAudit
             so.FindProperty("minimumPatience").floatValue = minimumPatience;
             so.FindProperty("keepBusy").intValue = keepBusy;
             so.FindProperty("refillDelay").floatValue = refillDelay;
+            so.FindProperty("serveInset").floatValue = serveInset;
 
             so.ApplyModifiedProperties();
 
@@ -142,7 +144,8 @@ public static class CounterAudit
 
         report += "\nEn az sabir: " + minimumPatience + " sn\n" +
                   "Kuyrukta tutulmaya calisilan: " + keepBusy + " musteri\n" +
-                  "Kuyruk incelince yeni musteri: " + refillDelay + " sn icinde";
+                  "Kuyruk incelince yeni musteri: " + refillDelay + " sn icinde\n" +
+                  "Servis mesafesi: kenardan " + serveInset + " birim iceri";
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 

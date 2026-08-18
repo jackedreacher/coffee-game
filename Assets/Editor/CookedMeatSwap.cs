@@ -22,7 +22,7 @@ public static class CookedMeatSwap
     private const string foodFolder = "Assets/Tiny Coffee Shop/Prefabs/GamePlay";
     private const string visualName = "Renderer";
 
-    [MenuItem("Cooked Fast/Oven: 4 - Pismis Et Prefabini Degistir", priority = 143)]
+    [MenuItem("Cooked Fast/Istasyon/Oven: 4 - Pismis Et Prefabini Degistir", priority = 143)]
     public static void Swap()
     {
         if (EditorApplication.isPlaying)
@@ -89,7 +89,7 @@ public static class CookedMeatSwap
     //
     // Kept as its own command rather than bolted onto the oven one: swapping the
     // burger's model is a look decision, not part of wiring the station up
-    [MenuItem("Cooked Fast/Burger: Et Katmanini Pismis Et Modeline Cevir", priority = 144)]
+    [MenuItem("Cooked Fast/Istasyon/Burger: Et Katmanini Pismis Et Modeline Cevir", priority = 144)]
     public static void SwapBurgerPatty()
     {
         if (EditorApplication.isPlaying)

@@ -27,7 +27,7 @@ public static class OvenSetup
     // Diameter in world units. Matches CookingStation's own default
     private const float defaultTimerSize = .35f;
 
-    [MenuItem("Cooked Fast/Oven: 1 - Istasyonu Kur (pismis et dahil)", priority = 140)]
+    [MenuItem("Cooked Fast/Istasyon/Oven: 1 - Istasyonu Kur (pismis et dahil)", priority = 140)]
     public static void Setup()
     {
         if (EditorApplication.isPlaying)
@@ -375,7 +375,7 @@ public static class OvenSetup
     // trigger the player cannot stand inside, and a FoodSpawnerStation left on
     // the same object -- PlayerDetector checks for that one first, so it wins
     // and the oven is never even asked
-    [MenuItem("Cooked Fast/Oven: 2 - Neden Et Girmiyor (kontrol + duzelt)", priority = 141)]
+    [MenuItem("Cooked Fast/Istasyon/Oven: 2 - Neden Et Girmiyor (kontrol + duzelt)", priority = 141)]
     public static void Diagnose()
     {
         GameObject zone = ResolveZone(out _);
@@ -438,7 +438,7 @@ public static class OvenSetup
     // Setup looks for a pan by name and settles for the middle of the oven when
     // it cannot find one. Guessing harder is the wrong answer -- pointing at the
     // pan takes one click and is right every time
-    [MenuItem("Cooked Fast/Oven: 3 - Cook Point'i Secili Tavaya Tasi", priority = 142)]
+    [MenuItem("Cooked Fast/Istasyon/Oven: 3 - Cook Point'i Secili Tavaya Tasi", priority = 142)]
     public static void SnapCookPoint()
     {
         if (EditorApplication.isPlaying)
