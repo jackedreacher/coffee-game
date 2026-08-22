@@ -16,6 +16,8 @@ using UnityEngine;
 // nearly out of patience, is a question worth asking the player
 public class CustomerOrder : MonoBehaviour
 {
+    private const float celebrationSunburstBoost = 1.55f;
+    private const float celebrationMoneyBoost = 1.5f;
     public enum Mood
     {
         Mutlu,
@@ -51,7 +53,19 @@ public class CustomerOrder : MonoBehaviour
     [Tooltip("Rakamin arkasindaki daire. Rengi yesilden kirmiziya doner")]
     [SerializeField] private SpriteRenderer countdownDisc;
 
+    [Tooltip("Her yeni geri sayim rakaminin pop suresi")]
+    [SerializeField] private float countdownPopTime = .22f;
+
+    [Tooltip("Geri sayim rakaminin pop sirasinda ulasacagi boyut")]
+    [SerializeField] private float countdownPopScale = 1.5f;
+
     [SerializeField] private SpriteRenderer emoji;
+
+    [Tooltip("Emojis 45 paketinin ortak hareket yuvasi. Varsa eski SpriteRenderer yerine kullanilir")]
+    [SerializeField] private Transform animatedEmojiRoot;
+    [SerializeField] private GameObject animatedHappyEmoji;
+    [SerializeField] private GameObject animatedNeutralEmoji;
+    [SerializeField] private GameObject animatedAngryEmoji;
 
     [Header(" Emojiler ")]
     [SerializeField] private Sprite happySprite;
@@ -151,7 +165,7 @@ public class CustomerOrder : MonoBehaviour
     [Tooltip("Buyume ve kucultme suresi, saniye. 0 = varsayilan 0.25")]
     [SerializeField] private float celebrationTime = .25f;
 
-    [Tooltip("Kutlama bastan sona kac saniye durur. 0 = varsayilan 2")]
+    [Tooltip("Kutlama ve sunburst bastan sona kac saniye durur. 0 = varsayilan 2")]
     [SerializeField] private float celebrationHold = 2f;
 
     [Tooltip("Isinin saniyedeki donusu, derece. 0 = donmez, sadece pop yapar")]
@@ -225,6 +239,9 @@ public class CustomerOrder : MonoBehaviour
 
     private float left;
     private bool running;
+    private bool countdownSoundActive;
+    private int lastCountdownDigit = int.MinValue;
+    private float countdownPopAge = -1f;
     // One row per thing ordered. Row zero IS the authored anchor and label --
     // the ones sized and placed on the prefab -- and the rest are copies of
     // them. Building all of them from scratch would mean the card's own layout
@@ -281,6 +298,7 @@ public class CustomerOrder : MonoBehaviour
     private bool detached;
     private Vector3 pinPosition;
     private Vector3 sunburstBaseScale = Vector3.one;
+    private Vector3 earningsBaseScale = Vector3.one;
     private Vector3 homePosition;
 
     // How much higher this card floats than the one in front of it.
@@ -291,10 +309,16 @@ public class CustomerOrder : MonoBehaviour
     // Lifting each row clears them past each other in the one dimension the
     // camera does not flatten
     private float lift;
+    private float displayScale = 1f;
 
     public void SetLift(float amount)
     {
         lift = amount;
+    }
+
+    public void SetDisplayScale(float amount)
+    {
+        displayScale = Mathf.Clamp(amount, .5f, 1f);
     }
 
     // Negative means "not running". A separate bool for each would be two
@@ -320,6 +344,11 @@ public class CustomerOrder : MonoBehaviour
     // Read off the prefab rather than assumed to be one. The emoji is scaled at
     // build time to fit the card, so growing it means growing THAT
     private Vector3 emojiBaseScale = Vector3.one;
+    private Vector3 countdownBaseScale = Vector3.one;
+
+    private Transform EmojiTransform => animatedEmojiRoot != null
+        ? animatedEmojiRoot
+        : emoji != null ? emoji.transform : null;
 
     // Frozen at the moment of the last handover. Reading the live clock when the
     // score is worked out would give whatever it had drained to by the time the
@@ -330,6 +359,8 @@ public class CustomerOrder : MonoBehaviour
 
     private float CountdownSeconds => countdownSeconds > .01f ? countdownSeconds : 5f;
     private float ZeroHold => zeroHold > .001f ? zeroHold : .5f;
+    private float CountdownPopTime => countdownPopTime > .01f ? countdownPopTime : .22f;
+    private float CountdownPopScale => countdownPopScale > 1.001f ? countdownPopScale : 1.5f;
 
     public float Remaining01 => Patience <= 0f ? 0f : Mathf.Clamp01(left / Patience);
 
@@ -392,11 +423,19 @@ public class CustomerOrder : MonoBehaviour
 
     private void Awake()
     {
-        if (emoji != null)
-            emojiBaseScale = emoji.transform.localScale;
+        Transform emojiTransform = EmojiTransform;
+
+        if (emojiTransform != null)
+            emojiBaseScale = emojiTransform.localScale;
 
         if (sunburst != null)
             sunburstBaseScale = sunburst.localScale;
+
+        if (earningsText != null)
+            earningsBaseScale = earningsText.transform.localScale;
+
+        if (countdownText != null)
+            countdownBaseScale = countdownText.transform.localScale;
 
         // Where the bubble sits over this customer's head, read while it is
         // still a child. Once detached its local position is a world position,
@@ -422,6 +461,7 @@ public class CustomerOrder : MonoBehaviour
         ResetBubble();
 
         left = Patience;
+        StopCountdownSound();
         running = true;
         hasSettled = false;
 
@@ -444,10 +484,17 @@ public class CustomerOrder : MonoBehaviour
         appearAge = 0f;
         fadeAge = -1f;
 
+        // This is the exact beginning of the order bubble's entrance, not the
+        // earlier frame where the customer prefab was spawned. The sound and
+        // the visible pop therefore land together once per order.
+        SoundManager.Play(SoundManager.Sound.OrderBubbleOpened);
+
         bubbleRoot.transform.localScale = Vector3.zero;
 
-        if (emoji != null)
-            emoji.transform.localScale = Vector3.zero;
+        Transform emojiTransform = EmojiTransform;
+
+        if (emojiTransform != null)
+            emojiTransform.localScale = Vector3.zero;
 
         SetAlpha(1f);
     }
@@ -490,12 +537,14 @@ public class CustomerOrder : MonoBehaviour
 
         // Whatever the parent's scale was is now baked into this. Cleared, so
         // every customer's bubble is the one size it was authored at
-        bubbleRoot.transform.localScale = Vector3.one;
+        bubbleRoot.transform.localScale = Vector3.one * displayScale;
     }
 
     // It is nobody's child now, so nothing else will clean it up
     private void OnDestroy()
     {
+        StopCountdownSound();
+
         if (detached && bubbleRoot != null)
             Destroy(bubbleRoot);
 
@@ -516,6 +565,8 @@ public class CustomerOrder : MonoBehaviour
     // over an empty spot
     private void OnDisable()
     {
+        StopCountdownSound();
+
         if (bubbleRoot != null)
             bubbleRoot.SetActive(false);
     }
@@ -543,6 +594,7 @@ public class CustomerOrder : MonoBehaviour
 
         Switch(card, true);
         SwitchRows(true);
+        Switch(timerRing, true);
         Switch(countdownText, true);
         Switch(countdownDisc, true);
 
@@ -551,15 +603,27 @@ public class CustomerOrder : MonoBehaviour
 
         shown = null;
         shakeAge = -1f;
+        lastCountdownDigit = int.MinValue;
+        countdownPopAge = -1f;
 
-        if (emoji != null)
+        if (countdownText != null)
+            countdownText.transform.localScale = countdownBaseScale;
+
+        Transform emojiTransform = EmojiTransform;
+
+        ResetAnimatedMood();
+
+        if (emojiTransform != null)
         {
-            emoji.transform.localScale = emojiBaseScale;
-            emoji.transform.localRotation = Quaternion.identity;
+            emojiTransform.localScale = emojiBaseScale;
+            emojiTransform.localRotation = Quaternion.identity;
         }
 
         if (sunburst != null)
             sunburst.localScale = sunburstBaseScale;
+
+        if (earningsText != null)
+            earningsText.transform.localScale = earningsBaseScale;
     }
 
     private static void Switch(Component target, bool on)
@@ -620,6 +684,13 @@ public class CustomerOrder : MonoBehaviour
 
                 Darken(i < rowIcons.Count ? rowIcons[i] : null,
                     i < rowTicks.Count ? rowTicks[i] : null);
+
+                // The food pops on the same frame the tick lands on it. The
+                // tick animates itself, because it is switched on and PopIn
+                // hangs off that -- the picture underneath is never switched,
+                // it is greyed out where it stands, so it has to be asked
+                if (i < rowIcons.Count && rowIcons[i] != null)
+                    PopIn.Play(rowIcons[i]);
             }
 
             if (rowAnchors[i] != null)
@@ -858,6 +929,14 @@ public class CustomerOrder : MonoBehaviour
         // bug would look exactly like the feature having never worked
         SpriteOutline.Build(tick, readyIcon, tickBorderOrder);
 
+        // After the scale and the edge, and before the first SetActive(false).
+        //
+        // Order matters twice over: PopIn learns its home scale on its first
+        // enable, so it has to be added once the tick is the size it will stay,
+        // and the edge has to exist first or it would be built at whatever
+        // fraction of the scale the animation happened to be showing
+        PopIn.Ensure(tick);
+
         tick.SetActive(false);
 
         return tick;
@@ -988,6 +1067,7 @@ public class CustomerOrder : MonoBehaviour
         settled = CurrentMood;
         hasSettled = true;
         running = false;
+        StopCountdownSound();
     }
 
     // The order is finished and paid for. Everything the card was asking has
@@ -1022,6 +1102,12 @@ public class CustomerOrder : MonoBehaviour
 
         Switch(card, false);
         SwitchRows(false);
+        // The ring is not a child of the card on every customer prefab. Turning
+        // the card off therefore left the actual RadialTimer alive behind the
+        // celebration face; as the emoji shrank, the old patience bar was
+        // revealed. Disable the component's whole GameObject explicitly and
+        // only restore it when ResetBubble opens a new order.
+        Switch(timerRing, false);
         Switch(countdownText, false);
         Switch(countdownDisc, false);
 
@@ -1037,7 +1123,16 @@ public class CustomerOrder : MonoBehaviour
         {
             earningsText.gameObject.SetActive(true);
             earningsText.text = "$" + earnings;
+            earningsText.transform.localScale =
+                earningsBaseScale * celebrationMoneyBoost;
         }
+
+        // The face already reacted once while the customer was waiting. The
+        // completed order is a new event, so give the currently visible emoji
+        // exactly one fresh cycle as the sunburst opens behind it.
+        ReplayAnimatedEmoji(animatedEmojiRoot != null
+            ? animatedEmojiRoot.gameObject
+            : null);
 
         return true;
     }
@@ -1050,6 +1145,7 @@ public class CustomerOrder : MonoBehaviour
     {
         running = false;
         celebrating = false;
+        StopCountdownSound();
 
         // Whatever brought the bubble down early -- a customer sent home, a
         // scene torn out from under it -- the sale still happened. Paid without
@@ -1096,13 +1192,84 @@ public class CustomerOrder : MonoBehaviour
         // zero: the value it would have printed never existed for a whole frame
         left = Mathf.Max(-ZeroHold, left - Time.deltaTime);
 
+        UpdateCountdownSound();
         Apply();
+        AnimateCountdownPop();
+        StopAnimatedEmojiAfterOnePlay();
 
         // After Apply, which is what notices the change and starts it. Skipped
         // while the bubble is still opening -- two things driving one scale in
         // the same frame is a fight, and the arrival should win it
         if (shakeAge >= 0f && appearAge < 0f)
             Shake();
+    }
+
+    private void UpdateCountdownSound()
+    {
+        bool wanted = left > 0f && left <= CountdownSeconds;
+
+        if (wanted == countdownSoundActive)
+            return;
+
+        countdownSoundActive = wanted;
+        SoundManager.SetPatienceCountdown(this, wanted);
+    }
+
+    private void StopCountdownSound()
+    {
+        if (!countdownSoundActive)
+            return;
+
+        countdownSoundActive = false;
+        SoundManager.SetPatienceCountdown(this, false);
+    }
+
+    private void AnimateCountdownPop()
+    {
+        if (countdownText == null || countdownPopAge < 0f)
+            return;
+
+        countdownPopAge += Time.deltaTime;
+
+        float t = Mathf.Clamp01(countdownPopAge / CountdownPopTime);
+        float pulse = Mathf.Sin(t * Mathf.PI);
+
+        countdownText.transform.localScale = countdownBaseScale *
+            (1f + (CountdownPopScale - 1f) * pulse);
+
+        if (t < 1f)
+            return;
+
+        countdownPopAge = -1f;
+        countdownText.transform.localScale = countdownBaseScale;
+    }
+
+    // The purchased emoji clips are authored as loops. A mood is a reaction,
+    // not a permanent fidget: play its first cycle, hold its final pose and
+    // only restart when the mood genuinely changes.
+    private void StopAnimatedEmojiAfterOnePlay()
+    {
+        if (animatedEmojiRoot == null)
+            return;
+
+        Animator[] animators = animatedEmojiRoot.GetComponentsInChildren<Animator>(false);
+
+        for (int i = 0; i < animators.Length; i++)
+        {
+            Animator face = animators[i];
+
+            if (face == null || face.speed <= 0f || face.layerCount <= 0)
+                continue;
+
+            AnimatorStateInfo state = face.GetCurrentAnimatorStateInfo(0);
+
+            if (state.normalizedTime < .985f)
+                continue;
+
+            face.Play(state.fullPathHash, 0, .999f);
+            face.Update(0f);
+            face.speed = 0f;
+        }
     }
 
     // The card lands, then the face. Two things popping on the same frame read
@@ -1113,13 +1280,16 @@ public class CustomerOrder : MonoBehaviour
 
         float span = AppearTime;
 
-        bubbleRoot.transform.localScale = Vector3.one * Overshoot(Mathf.Clamp01(appearAge / span));
+        bubbleRoot.transform.localScale = Vector3.one * displayScale *
+            Overshoot(Mathf.Clamp01(appearAge / span));
 
-        if (emoji != null)
+        Transform emojiTransform = EmojiTransform;
+
+        if (emojiTransform != null)
         {
             float face = Mathf.Clamp01((appearAge - PopDelay) / span);
 
-            emoji.transform.localScale = emojiBaseScale * Overshoot(face);
+            emojiTransform.localScale = emojiBaseScale * Overshoot(face);
         }
 
         if (appearAge < span + PopDelay)
@@ -1127,10 +1297,10 @@ public class CustomerOrder : MonoBehaviour
 
         appearAge = -1f;
 
-        bubbleRoot.transform.localScale = Vector3.one;
+        bubbleRoot.transform.localScale = Vector3.one * displayScale;
 
-        if (emoji != null)
-            emoji.transform.localScale = emojiBaseScale;
+        if (emojiTransform != null)
+            emojiTransform.localScale = emojiBaseScale;
     }
 
     private void Fading()
@@ -1142,7 +1312,7 @@ public class CustomerOrder : MonoBehaviour
         // Shrinking as well as fading, because the ring is built from opaque
         // quads and there is no alpha on them to turn down. Scale is the one
         // handle every kind of renderer answers to
-        bubbleRoot.transform.localScale = Vector3.one * (1f - t);
+        bubbleRoot.transform.localScale = Vector3.one * displayScale * (1f - t);
 
         SetAlpha(1f - t);
 
@@ -1240,6 +1410,7 @@ public class CustomerOrder : MonoBehaviour
     private void Celebration()
     {
         celebrationAge += Time.deltaTime;
+        StopAnimatedEmojiAfterOnePlay();
 
         float hold = CelebrationHold;
 
@@ -1267,8 +1438,10 @@ public class CustomerOrder : MonoBehaviour
             return;
         }
 
-        if (emoji != null)
-            emoji.transform.localScale = emojiBaseScale * (1f + (CelebrationScale - 1f) * t);
+        Transform emojiTransform = EmojiTransform;
+
+        if (emojiTransform != null)
+            emojiTransform.localScale = emojiBaseScale * (1f + (CelebrationScale - 1f) * t);
 
         // Long enough after the pop to have been read, early enough that the
         // burst is still up behind it. The number has to be seen leaving --
@@ -1281,7 +1454,9 @@ public class CustomerOrder : MonoBehaviour
 
         // A beat behind the face, same as the card and the face on the way in.
         // Held at nothing until the emoji has started, then on the same curve
-        sunburst.localScale = celebrationAge < PopDelay ? Vector3.zero : sunburstBaseScale * t;
+        sunburst.localScale = celebrationAge < PopDelay
+            ? Vector3.zero
+            : sunburstBaseScale * (celebrationSunburstBoost * t);
 
         if (Mathf.Abs(sunburstSpin) > .001f)
             sunburst.Rotate(0f, 0f, sunburstSpin * Time.deltaTime, Space.Self);
@@ -1307,6 +1482,11 @@ public class CustomerOrder : MonoBehaviour
         if (amount <= 0)
             return;
 
+        // No sound here either. This is the number LAUNCHING; the money is not
+        // in hand until it lands, a second later, and a till noise at take-off
+        // announces a payment that has not happened yet. MoneyCounter.Deposit
+        // is where the money actually arrives, and that is where it sounds
+        //
         // Deposits on its own if the copy could not be made, so a sale is never
         // lost to a missing label
         MoneyCounter.Instance.FlyText(earningsText, amount, MoneyFlightTime, .06f);
@@ -1322,7 +1502,9 @@ public class CustomerOrder : MonoBehaviour
     // never corrects itself -- it only accumulates on the next change
     private void Shake()
     {
-        if (emoji == null)
+        Transform emojiTransform = EmojiTransform;
+
+        if (emojiTransform == null)
         {
             shakeAge = -1f;
             return;
@@ -1336,8 +1518,8 @@ public class CustomerOrder : MonoBehaviour
         {
             shakeAge = -1f;
 
-            emoji.transform.localRotation = Quaternion.identity;
-            emoji.transform.localScale = emojiBaseScale;
+            emojiTransform.localRotation = Quaternion.identity;
+            emojiTransform.localScale = emojiBaseScale;
 
             return;
         }
@@ -1347,11 +1529,11 @@ public class CustomerOrder : MonoBehaviour
         float wobble = Mathf.Sin(shakeAge * MoodShakeSpeed * Mathf.PI * 2f) *
                        MoodShakeAngle * dying;
 
-        emoji.transform.localRotation = Quaternion.Euler(0f, 0f, wobble);
+        emojiTransform.localRotation = Quaternion.Euler(0f, 0f, wobble);
 
         // Up and back down on one hump, so there is no seam where a two stage
         // tween would hand over
-        emoji.transform.localScale =
+        emojiTransform.localScale =
             emojiBaseScale * (1f + (MoodPopScale - 1f) * Mathf.Sin(t * Mathf.PI));
     }
 
@@ -1399,7 +1581,24 @@ public class CustomerOrder : MonoBehaviour
             // hold below zero is for. Clamped at the bottom so the badge never
             // shows a negative
             if (closing)
-                countdownText.text = Mathf.Max(0, Mathf.CeilToInt(left)).ToString();
+            {
+                int digit = Mathf.Max(0, Mathf.CeilToInt(left));
+
+                if (digit != lastCountdownDigit)
+                {
+                    lastCountdownDigit = digit;
+                    countdownPopAge = 0f;
+                    countdownText.transform.localScale = countdownBaseScale;
+                }
+
+                countdownText.text = digit.ToString();
+            }
+            else
+            {
+                lastCountdownDigit = int.MinValue;
+                countdownPopAge = -1f;
+                countdownText.transform.localScale = countdownBaseScale;
+            }
         }
 
         if (countdownDisc != null)
@@ -1408,24 +1607,31 @@ public class CustomerOrder : MonoBehaviour
             countdownDisc.color = mood;
         }
 
-        if (emoji == null)
+        if (animatedEmojiRoot == null && emoji == null)
             return;
 
         Mood now = CurrentMood;
 
-        switch (now)
+        if (animatedEmojiRoot != null)
         {
-            case Mood.Mutlu:
-                if (happySprite != null) emoji.sprite = happySprite;
-                break;
+            SetAnimatedMood(now);
+        }
+        else
+        {
+            switch (now)
+            {
+                case Mood.Mutlu:
+                    if (happySprite != null) emoji.sprite = happySprite;
+                    break;
 
-            case Mood.Kizgin:
-                if (angrySprite != null) emoji.sprite = angrySprite;
-                break;
+                case Mood.Kizgin:
+                    if (angrySprite != null) emoji.sprite = angrySprite;
+                    break;
 
-            default:
-                if (neutralSprite != null) emoji.sprite = neutralSprite;
-                break;
+                default:
+                    if (neutralSprite != null) emoji.sprite = neutralSprite;
+                    break;
+            }
         }
 
         // Only a real change starts it, and only after the first one has been
@@ -1435,6 +1641,58 @@ public class CustomerOrder : MonoBehaviour
             shakeAge = 0f;
 
         shown = now;
+    }
+
+    private void SetAnimatedMood(Mood mood)
+    {
+        GameObject selected;
+
+        switch (mood)
+        {
+            case Mood.Mutlu: selected = animatedHappyEmoji; break;
+            case Mood.Kizgin: selected = animatedAngryEmoji; break;
+            default: selected = animatedNeutralEmoji; break;
+        }
+
+        bool changed = !shown.HasValue || shown.Value != mood ||
+                       selected == null || !selected.activeSelf;
+
+        Switch(animatedHappyEmoji, selected == animatedHappyEmoji);
+        Switch(animatedNeutralEmoji, selected == animatedNeutralEmoji);
+        Switch(animatedAngryEmoji, selected == animatedAngryEmoji);
+
+        if (!changed || selected == null)
+            return;
+
+        ReplayAnimatedEmoji(selected);
+    }
+
+    private static void ReplayAnimatedEmoji(GameObject root)
+    {
+        if (root == null)
+            return;
+
+        Animator[] animators = root.GetComponentsInChildren<Animator>(false);
+
+        for (int i = 0; i < animators.Length; i++)
+        {
+            Animator face = animators[i];
+
+            if (face == null || face.runtimeAnimatorController == null)
+                continue;
+
+            face.Rebind();
+            face.speed = 1f;
+            face.Play(0, 0, 0f);
+            face.Update(0f);
+        }
+    }
+
+    private void ResetAnimatedMood()
+    {
+        Switch(animatedHappyEmoji, false);
+        Switch(animatedNeutralEmoji, false);
+        Switch(animatedAngryEmoji, false);
     }
 
     // The food's own model, shrunk. There are no 2D icons for these foods and

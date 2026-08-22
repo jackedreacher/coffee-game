@@ -28,6 +28,36 @@ public static class SpriteOutline
         Build(host, icon, order, thickness);
     }
 
+    // Built only if it is not there already, from whatever sprite the mark is
+    // actually showing.
+    //
+    // The station ticks are made by an editor command, so a tick sitting in a
+    // scene saved before that command grew an outline simply does not have one
+    // -- and asking somebody to re-run a setup tool to get a border is asking
+    // them to remember. This is the same edge, added at runtime, and it costs
+    // nothing on a tick that already has one
+    public static void Ensure(GameObject host)
+    {
+        if (host == null)
+            return;
+
+        SpriteRenderer mark = host.GetComponent<SpriteRenderer>();
+
+        if (mark == null)
+            mark = host.GetComponentInChildren<SpriteRenderer>(true);
+
+        if (mark == null || mark.sprite == null)
+            return;
+
+        // Onto the RENDERER's own object, not the root it was asked about. The
+        // offsets below are in that transform's units, so a border parented a
+        // level up would be scaled by whatever sits in between
+        if (mark.transform.Find("Border") != null)
+            return;
+
+        Build(mark.gameObject, mark.sprite, mark.sortingOrder - 1);
+    }
+
     public static void Build(GameObject host, Sprite icon, int order, float fraction)
     {
         if (host == null || icon == null)

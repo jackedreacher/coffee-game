@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67cab3140e47564dbe88acbc7602ba7, type: 3}
   m_Name: Round 09
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
-  totalCustomers: 7
-  spawnInterval: 10
-  maxOrderTypes: 2
+  totalCustomers: 8
+  spawnInterval: 8.8
+  maxOrderTypes: 1
   note: 'Raund 9 -- Erken: temel mekanikleri ogrenme'

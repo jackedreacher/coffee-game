@@ -1,7 +1,8 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
-public class Customer : MonoBehaviour
+public class Customer : MonoBehaviour, IShootable
 {
     private enum State
     {
@@ -34,6 +35,11 @@ public class Customer : MonoBehaviour
     // and is left pointing along whatever its last step happened to be
     private bool wantsQueueFacing;
     private bool orderShown;
+    private bool arrivalTurnRequested;
+
+    // Close enough that the authored pivot reads as the final step, but not a
+    // whole stride: the old 1.5-metre hand-off produced the visible drift.
+    private const float arrivalTurnWithin = .3f;
 
     // The order, as rows. One row is the old single-food order exactly; two is
     // "a burger and a fries", which was unsayable while an order was one food
@@ -48,11 +54,34 @@ public class Customer : MonoBehaviour
     [Header(" Actions ")]
     private Action reachedDestinationCallback;
 
+    // A completed order can be handed over by TapToServe, OrderCounter or one
+    // of the automatic FoodServingStations. Waiting in only one of those callers
+    // lets the other two start navigation while Chef's Kiss is still playing.
+    // The customer owns the final gate instead: no requested walk can begin
+    // until its reaction has genuinely released the animator.
+    private Coroutine walkAfterReactionRoutine;
+    private Vector3 walkAfterReactionTarget;
+    private Action walkAfterReactionCallback;
+
+    // Leaving is not an ordinary GoTo: the body has to finish its reaction and
+    // authored 180 turn before navigation is allowed to own it.
+    private Coroutine leaveRoutine;
+    private Vector3 leaveTarget;
+    private Action leaveCallback;
+    private bool leaveDisappointed;
+    private bool leaving;
+
     [Header(" Order ")]
     [Tooltip("Kafasinin ustundeki siparis balonu. Bos birakilabilir")]
     [SerializeField] private CustomerOrder order;
 
     public OrderLine[] Lines => lines;
+
+    // Read through the serialized reference that actually drives this
+    // customer. GetComponent<CustomerAnimator>() from outside assumes both
+    // scripts live on the same GameObject, which is not a contract the prefab
+    // hierarchy makes.
+    public bool IsReacting => animator != null && animator.IsReacting;
 
     public int FoodNeededCount
     {
@@ -165,11 +194,28 @@ public class Customer : MonoBehaviour
         if (!carriesEmptyPlateau)
             return;
 
+        // Departure is always empty-handed. A loaded plateau used to win this
+        // condition and reappear as soon as StartWalkingState ran, even though
+        // the turn animation had just hidden it.
+        if (leaving)
+        {
+            plateau.gameObject.SetActive(false);
+            return;
+        }
+
         plateau.gameObject.SetActive(!plateau.IsEmpty || state == State.Idle);
     }
 
     private void Update()
     {
+        // Shot customers have no business left. The walking state asks the
+        // NavMeshAgent how far it has to go, and the agent was switched off the
+        // moment the bullet landed -- so a customer shot on the way IN spent
+        // the rest of their two seconds filling the console with the same
+        // complaint, once a frame.
+        if (shot)
+            return;
+
         switch (state)
         {
             case State.Idle:
@@ -242,6 +288,118 @@ public class Customer : MonoBehaviour
     // up the queue and is not for one being sent out of the door
     public bool GoToThen(Vector3 targetPosition, Action callback)
     {
+        if (IsReacting)
+        {
+            // Only one destination may be armed. If a manager updates the exit
+            // while the gesture is playing, the latest request is the honest
+            // destination and two coroutines must not start two walks.
+            walkAfterReactionTarget = targetPosition;
+            walkAfterReactionCallback = callback;
+
+            if (walkAfterReactionRoutine == null)
+                walkAfterReactionRoutine = StartCoroutine(WalkAfterReaction());
+
+            // The request was accepted and deliberately postponed. Callers use
+            // false as "path failed, destroy/fallback now", which is not true.
+            return true;
+        }
+
+        return TryStartWalk(targetPosition, callback);
+    }
+
+    // One exit door for every serving path. Updating the armed target is safe:
+    // managers can discover the same departure on adjacent frames, but only
+    // one gesture and one walk may ever start.
+    public bool Leave(Vector3 targetPosition, Action callback, bool disappointed = false)
+    {
+        // A completed order can be observed by the player-serving path and an
+        // automatic station on neighbouring frames. Once the first departure
+        // owns this customer, a second request must not start another emote or
+        // 180 turn while they are already walking out.
+        if (leaving)
+            return true;
+
+        leaving = true;
+        wantsQueueFacing = false;
+        leaveTarget = targetPosition;
+        leaveCallback = callback;
+        leaveDisappointed |= disappointed;
+
+        // Hide from the instant departure is requested, including while a
+        // final Chef's Kiss is finishing. CustomerAnimator remembers the old
+        // active state only for safe prefab/pool reuse; it will not restore the
+        // plateau during the turn or exit walk.
+        animator?.HidePlateauForDeparture();
+        if (plateau != null)
+            plateau.gameObject.SetActive(false);
+
+        EnableNavigation();
+
+        if (leaveRoutine == null)
+            leaveRoutine = StartCoroutine(LeaveAfterPerformance());
+
+        return true;
+    }
+
+    private IEnumerator LeaveAfterPerformance()
+    {
+        // Chef's Kiss is also a one-shot owned by CustomerAnimator. Let it
+        // finish before starting the timeout emote/about-face sequence.
+        while (IsReacting)
+            yield return null;
+
+        Vector3 target = leaveTarget;
+        Action callback = leaveCallback;
+        bool disappointed = leaveDisappointed;
+
+        // Face the first LEGAL path leg. A direct line to the Exit Point can
+        // pass through the counter; NavMesh then immediately asks for a
+        // different direction and appears to pull the face back towards the
+        // camera after the authored turn.
+        Vector3 facing = navigationAbility.FirstHeadingTo(target);
+
+        if (animator != null && animator.BeginDeparture(facing, disappointed))
+        {
+            // Wait through the emote and the authored part of Turn180. The
+            // animator then exposes the turn->walk blend so NavMesh can start
+            // during it; waiting until IsReacting became false created a tiny
+            // in-place walk before the first ground movement.
+            while (IsReacting && !animator.DepartureCanMove)
+                yield return null;
+        }
+
+        leaveRoutine = null;
+        leaveCallback = null;
+        leaveDisappointed = false;
+
+        // Navigation begins during the visual turn->walk compensation blend.
+        // A failed path still invokes the exit callback so a dead customer
+        // cannot remain in the shop forever.
+        if (!TryStartWalk(target, callback))
+            callback?.Invoke();
+    }
+
+    private IEnumerator WalkAfterReaction()
+    {
+        while (IsReacting)
+            yield return null;
+
+        Vector3 target = walkAfterReactionTarget;
+        Action callback = walkAfterReactionCallback;
+
+        walkAfterReactionRoutine = null;
+        walkAfterReactionCallback = null;
+
+        // The original caller already received "accepted", so it cannot run
+        // its immediate fallback if pathfinding now fails. Invoking the arrival
+        // callback is the equivalent delayed fallback: exits destroy cleanly,
+        // and table customers still release/occupy their reserved chair.
+        if (!TryStartWalk(target, callback))
+            callback?.Invoke();
+    }
+
+    private bool TryStartWalk(Vector3 targetPosition, Action callback)
+    {
         reachedDestinationCallback = callback;
 
         if (!navigationAbility.TryGoTo(targetPosition))
@@ -255,6 +413,9 @@ public class Customer : MonoBehaviour
             return false;
         }
 
+        if (wantsQueueFacing)
+            arrivalTurnRequested = false;
+
         StartWalkingState();
 
         return true;
@@ -262,7 +423,16 @@ public class Customer : MonoBehaviour
 
     public void CollectFood(SpawnableFood food)
     {
-        plateau.gameObject.SetActive(true);
+        // A second item may be handed over before the first Chef's Kiss has
+        // finished. Re-enabling the plateau here used to put it straight back
+        // into the customer's hands midway through that empty-handed gesture.
+        // Plateau.Push works while its GameObject is inactive, so add the food
+        // invisibly and let CustomerAnimator restore the loaded tray afterwards.
+        bool reactionAlreadyPlaying = animator != null && animator.IsReacting;
+
+        if (!reactionAlreadyPlaying)
+            plateau.gameObject.SetActive(true);
+
         plateau.Push(food);
 
         // Which row this filled. Falls back to the first one still owing, for
@@ -275,6 +445,10 @@ public class Customer : MonoBehaviour
 
         if (row >= 0)
             taken[row]++;
+
+        // The item is already on the customer's plateau, so this cannot fire
+        // for a refused or mistapped delivery.
+        animator?.ReactToFood();
 
         if (order == null)
             return;
@@ -321,6 +495,13 @@ public class Customer : MonoBehaviour
 
         int total = earnings;
         earnings = 0;
+
+        // This line is reached only for the final requested item: earlier
+        // items returned above while NeedsMoreFood was true. The customer is
+        // sent home immediately after RingUp returns, so the cash sound lands
+        // on the exact frame they begin to leave, not on the delayed money
+        // number flight and not once per order tick.
+        SoundManager.Play(SoundManager.Sound.Money);
 
         // The one measurement worth having, printed on every completed sale.
         //
@@ -373,6 +554,181 @@ public class Customer : MonoBehaviour
     public float PatienceGiven => order == null ? 0f : order.PatienceGiven;
     public float Waited => order == null ? 0f : order.Waited;
 
+    // ---- being shot --------------------------------------------------------
+
+    // Roughly chest high on a customer standing at the counter. Not measured
+    // off a renderer: a bounding box is measured in world axes, so a body that
+    // leans or turns reports a different chest every frame, and the aim point
+    // is wanted at a place on the CUSTOMER rather than a place in the room.
+    private const float chestHeight = 1.2f;
+
+    // How much faster the survivors move than they arrived. The clip is a run,
+    // and a run animation played at a walking pace is a moonwalk.
+    private const float fleeSpeed = 2.1f;
+
+    private bool shot;
+
+    public bool CanTakeShot => !shot && !leaving;
+    public Vector3 ShotAimPoint => transform.position + Vector3.up * chestHeight;
+
+    // Shot. Which is a fine, a body, and a room full of people who saw it.
+    public string TakeShot()
+    {
+        if (!CanTakeShot)
+            return null;
+
+        shot = true;
+
+        if (order != null)
+            order.Hide();
+
+        wantsQueueFacing = false;
+
+        // Stopped rather than sent somewhere. The agent is what would otherwise
+        // keep sliding the body along its last path while it lies on the floor.
+        if (navigationAbility != null)
+            navigationAbility.Disable();
+
+        if (plateau != null)
+            plateau.gameObject.SetActive(false);
+
+        if (animator != null)
+            animator.PlayDeath();
+
+        HatPowerCatalogue book = HatPowerCatalogue.Get();
+
+        int fine = book == null ? 25 : book.CustomerFine;
+        float lie = book == null ? 2f : book.BodySeconds;
+
+        // The money comes out when the number lands in the counter, not
+        // here -- the same way a sale pays when its number lands. FineText
+        // charges it immediately only if there is no counter to fly to.
+        FineText.Show(transform.position + Vector3.up * (chestHeight + .7f),
+                      fine, book == null ? null : book.fineFont);
+
+        Mark(book);
+
+        // Removed by the body itself rather than by whoever fired: this object
+        // has to go whether or not the shooter is still around to see it.
+        PopAway.After(gameObject, lie);
+
+        Scatter();
+
+        return "musteri vuruldu -- " + fine + " para gitti";
+    }
+
+    // How big the mark is and how far clear of the body it sits, in world
+    // units. The body is lying down by the time this is seen, so it is clearing
+    // a corpse rather than a head.
+    private const float markSize = .85f;
+    private const float markHeight = 1.9f;
+
+    // The emoji over the body.
+    //
+    // Parented to the customer rather than left in the world, so it goes when
+    // they go -- the pop takes it along without anything having to remember it
+    // exists. Parented to the ROOT, not to the animated body: the body is
+    // scaled to whatever animal this customer is, and an emoji sized by the
+    // rabbit it happens to be sitting on is a different size on every corpse.
+    private void Mark(HatPowerCatalogue book)
+    {
+        if (book == null || book.deadEmoji == null)
+            return;
+
+        GameObject mark = Instantiate(book.deadEmoji, transform);
+
+        mark.name = "SHOT";
+
+        Camera eye = Camera.main;
+
+        // These are world space canvases authored 512 units across, and 512
+        // units is most of the kitchen -- dropped in as they come they are not
+        // an emoji, they are a wall.
+        //
+        // The authored size is measured rather than assumed, because it is a
+        // property of whichever prefab somebody put in the catalogue. Same sum
+        // the order bubble does for the mood faces out of the same pack.
+        RectTransform rect = mark.transform as RectTransform;
+
+        float authored = rect != null
+            ? Mathf.Max(rect.rect.width, rect.rect.height)
+            : 512f;
+
+        mark.transform.localScale = Vector3.one * (markSize / Mathf.Max(1f, authored));
+
+        // Lifted along the CAMERA's up, not the world's.
+        //
+        // Straight up put it in the middle of the body, and from this angle it
+        // always would: the camera looks down steeply, so a metre of world
+        // height is only a few pixels of screen height. The camera's own up
+        // axis is the direction that means "higher on screen", which is the
+        // direction the word above actually refers to.
+        Vector3 clear = eye != null ? eye.transform.up : Vector3.up;
+
+        mark.transform.position = transform.position + clear * markHeight;
+
+        // Turned to the camera once rather than every frame. This camera never
+        // rotates, and the thing it is pinned to has stopped moving for good.
+        if (eye != null)
+            mark.transform.rotation = eye.transform.rotation;
+        else
+            mark.transform.localRotation = Quaternion.identity;
+
+        // Drawn over the room instead of being sorted into it by distance. A
+        // flat card standing in a kitchen loses to the first counter it happens
+        // to be behind, and the whole point of it is being seen.
+        Canvas[] layers = mark.GetComponentsInChildren<Canvas>(true);
+
+        for (int i = 0; i < layers.Length; i++)
+        {
+            layers[i].overrideSorting = true;
+            layers[i].sortingOrder = 120;
+        }
+    }
+
+    // Everyone else leaves, at speed.
+    //
+    // Asked of the counters rather than of every Customer in the scene, because
+    // a counter also has to forget the ones it loses -- a customer torn out of
+    // a queue without the queue being told leaves a slot nobody can stand in.
+    private void Scatter()
+    {
+        FoodServingCustomerManager[] counters =
+            FindObjectsByType<FoodServingCustomerManager>(FindObjectsSortMode.None);
+
+        int ran = 0;
+
+        for (int i = 0; i < counters.Length; i++)
+            ran += counters[i].Scatter(this);
+
+        Debug.Log(name + " vuruldu -- " + ran + " musteri kacti", this);
+    }
+
+    // Out of the door, running, and not a sale.
+    //
+    // Separate from GiveUp because that one costs a life: the customers who run
+    // from a gunshot were not failed, they were frightened, and the price for
+    // that was already taken out of the till.
+    public void Flee(Vector3 exitPosition)
+    {
+        if (shot || leaving)
+            return;
+
+        if (order != null)
+            order.Hide();
+
+        wantsQueueFacing = false;
+
+        if (animator != null)
+            animator.Run(true);
+
+        if (navigationAbility != null)
+            navigationAbility.SetSpeed(navigationAbility.Speed * fleeSpeed);
+
+        if (!Leave(exitPosition, () => Destroy(gameObject)))
+            Destroy(gameObject);
+    }
+
     // Off without their food, and it costs a life. No callback and no reward:
     // this is the one exit that is not a sale
     public void GiveUp(Vector3 exitPosition)
@@ -382,8 +738,6 @@ public class Customer : MonoBehaviour
 
         wantsQueueFacing = false;
 
-        EnableNavigation();
-
         // Off the floor one way or the other.
         //
         // A customer whose exit cannot be pathed to used to stay exactly where
@@ -391,7 +745,7 @@ public class Customer : MonoBehaviour
         // the life and dropped them from its list, so nothing was left that
         // would ever ask them to move again. Walking out is the nice version of
         // leaving; this is the other one
-        if (!GoToThen(exitPosition, () => Destroy(gameObject)))
+        if (!Leave(exitPosition, () => Destroy(gameObject), true))
             Destroy(gameObject);
     }
 
@@ -410,6 +764,12 @@ public class Customer : MonoBehaviour
     {
         if (order != null)
             order.SetLift(amount);
+    }
+
+    public void SetBubbleScale(float amount)
+    {
+        if (order != null)
+            order.SetDisplayScale(amount);
     }
 
     public bool NeedsMoreFood()
@@ -462,13 +822,11 @@ public class Customer : MonoBehaviour
         // would be the queue facing applied to someone no longer in the queue
         wantsQueueFacing = false;
 
-        EnableNavigation();
-
         // The caller is waiting on that callback to free the seat they were
         // sitting in. A walk that never starts never reaches its destination,
         // so it never calls back, and the seat stays taken by somebody who is
         // no longer using it
-        if (!GoToThen(targetPosition, callback))
+        if (!Leave(targetPosition, callback))
             callback?.Invoke();
     }
 
@@ -515,7 +873,8 @@ public class Customer : MonoBehaviour
         // StartIdleState, so would never open their bubble at all -- and the
         // failure would look like the bubble being broken rather than the
         // navigation. Standing still is having arrived, as far as an order goes
-        if (wantsQueueFacing && !orderShown)
+        if (wantsQueueFacing && !orderShown &&
+            (animator == null || !animator.IsArrivalTurning))
             ShowOrder();
     }
 
@@ -527,20 +886,26 @@ public class Customer : MonoBehaviour
             return;
         }
 
+        // Begin the compact pivot just before the feet settle. Navigation
+        // keeps covering the final few centimetres at its turn-slowed speed;
+        // this avoids both the old long sideways drift and a turn that starts
+        // only after the character has visibly stopped.
+        if (wantsQueueFacing && !arrivalTurnRequested &&
+            navigationAbility.IsWithinDestination(arrivalTurnWithin))
+        {
+            arrivalTurnRequested = true;
+            FaceFinalFacing();
+        }
+
         if (navigationAbility.IsMoving)
         {
-            // The path steers the body for the whole walk except the last
-            // stride, where it stops being worth listening to -- and where the
-            // customer already knows which way they mean to end up standing.
-            //
-            // Handing the final facing over early is what turns two separate
-            // events, arriving and then squaring up, into one movement
-            bool squaringUp = wantsQueueFacing &&
-                              finalFacing.sqrMagnitude > .0001f &&
-                              navigationAbility.Arriving;
-
-            animator.ManageAnimations(navigationAbility.Velocity,
-                squaringUp ? finalFacing : navigationAbility.Heading);
+            // Once the arrival pivot owns the body, do not feed the path
+            // heading back into it. That would cancel the turn visually on
+            // alternating frames. The agent still slows against the body's
+            // actual forward and reaches the same destination.
+            if (!animator.IsArrivalTurning)
+                animator.ManageAnimations(navigationAbility.Velocity,
+                    navigationAbility.Heading);
 
             // After the facing is handed over, so the slow-down answers to the
             // turn that was just asked for rather than to the last one
@@ -580,7 +945,12 @@ public class Customer : MonoBehaviour
         navigationAbility.Standing(true);
 
         animator.Stop();
-        UpdatePlateauVisibility();
+
+        // An early UpdatePlateauVisibility here would reveal the tray on the
+        // first stopped frame, ahead of the still-running turn. ArrivalTurn
+        // reveals it deliberately near the end of its own timeline.
+        if (!animator.IsArrivalTurning)
+            UpdatePlateauVisibility();
 
         // The brakes going on. Everyone who arrives gets it, including the ones
         // walking out -- stopping is stopping, and the door is as good a place
@@ -594,7 +964,12 @@ public class Customer : MonoBehaviour
             return;
 
         FaceFinalFacing();
-        ShowOrder();
+
+        // The order appears only after the empty-handed pivot has genuinely
+        // finished and the waiting tray is back. Opening it here made the
+        // customer serviceable while the turn clip was still running.
+        if (animator == null || !animator.IsArrivalTurning)
+            ShowOrder();
     }
 
     // Opened once, re-pinned every time after.

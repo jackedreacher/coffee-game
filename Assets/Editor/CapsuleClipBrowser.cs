@@ -167,6 +167,12 @@ public class CapsuleClipBrowser : EditorWindow
         }
     }
 
+    // FBXs and loose .anim files alike.
+    //
+    // It was FBX only, which was true of every library here until a weapon pack
+    // turned up whose clips are authored as .anim assets sitting next to a
+    // controller. A shelf that silently comes back empty because of the
+    // extension it was written for is worse than no shelf.
     private static IEnumerable<string> Files(string path)
     {
         if (File.Exists(path))
@@ -175,7 +181,13 @@ public class CapsuleClipBrowser : EditorWindow
         if (!Directory.Exists(path))
             return new string[0];
 
-        return Directory.GetFiles(path, "*.fbx", SearchOption.AllDirectories);
+        List<string> found = new List<string>(
+            Directory.GetFiles(path, "*.fbx", SearchOption.AllDirectories));
+
+        found.AddRange(
+            Directory.GetFiles(path, "*.anim", SearchOption.AllDirectories));
+
+        return found;
     }
 
     private void OnGUI()

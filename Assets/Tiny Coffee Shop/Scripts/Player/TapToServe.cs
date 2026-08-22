@@ -82,11 +82,18 @@ public class TapToServe : MonoBehaviour
     private JoystickPlayerController joystickController;
 
     private Customer pendingCustomer;
+    private bool customerDropStarted;
 
     // Serving spots the player is currently standing in. A customer can only
     // be handed food from behind their own counter
     private readonly HashSet<FoodServingCustomerManager> zonesInside =
         new HashSet<FoodServingCustomerManager>();
+
+    // Final delivery waits for the customer's one-shot reaction before the
+    // queue advances. Also prevents another tap during that short wait from
+    // scheduling the same customer to leave twice.
+    private readonly HashSet<Customer> leavingAfterReaction =
+        new HashSet<Customer>();
 
     private void OnTriggerEnter(Collider other)
     {
@@ -136,7 +143,11 @@ public class TapToServe : MonoBehaviour
 
     [Header(" Bakis ")]
     [Tooltip("Hedefe donme hizi. Buyut = daha keskin doner")]
-    [SerializeField] private float turnSpeed = 10f;
+    [SerializeField] private float turnSpeed = 16f;
+
+    // Existing scene data carries 10. Keep the faster target-facing response
+    // without requiring the Player or scene to be rebuilt.
+    private float TargetTurnSpeed => Mathf.Max(16f, turnSpeed);
 
     [Tooltip("Hedefe bu kadar kala donmeye baslar. 0 = ancak durunca doner")]
     [SerializeField] private float turnStartsWithin = 2f;
@@ -157,13 +168,23 @@ public class TapToServe : MonoBehaviour
         if (!hasFacing || playerAnimator == null)
             return;
 
+        // Hands off while the revolver is out.
+        //
+        // This runs every frame and standing still counts as arriving, so it
+        // was re-asserting the last place the player was sent to -- once per
+        // frame, on top of the direction the gun had just asked for. The shot
+        // went off out of the character's back because they never actually
+        // turned: the aim was overwritten the frame after it was set.
+        if (Revolver.Busy)
+            return;
+
         if (!Arriving())
         {
             playerAnimator.ClearFaceOverride();
             return;
         }
 
-        playerAnimator.FaceOverride(facingPoint - transform.position, turnSpeed);
+        playerAnimator.FaceOverride(facingPoint - transform.position, TargetTurnSpeed);
     }
 
     private bool Arriving()
@@ -188,6 +209,67 @@ public class TapToServe : MonoBehaviour
         facingPoint = point;
     }
 
+    // An empty-hand tap on a customer is a greeting, not a serving trip.
+    // Do this before a customer/counter destination is installed: cancelling
+    // only the pending interaction would leave the NavMeshAgent walking its old
+    // path while the bow plays, which looks like the player bows on arrival.
+    // How close two taps on the same customer have to be to mean a shot.
+    // Long enough to be comfortable on a phone, short enough that serving one
+    // customer and then changing your mind about them is not a killing.
+    private const float doubleTap = .4f;
+
+    private Customer lastTapped;
+    private float lastTappedAt;
+
+    // Everything the first of the two taps set going -- and nothing else.
+    //
+    // Deliberately NOT DropPendingAction, which is the same clearing plus
+    // CancelAction. The shot has already started its clip by the time this
+    // runs, and cancelling the action would take that clip straight back off
+    // again: the gun went off, the money moved, and the character just stood
+    // there. The two flags below are what DropPendingAction clears besides the
+    // animation, and those are still wanted.
+    private void StopEverything()
+    {
+        actionStarted = false;
+        customerDropStarted = false;
+
+        pendingInteractable = null;
+        pendingCustomer = null;
+        walking = false;
+
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            agent.isStopped = true;
+        }
+    }
+
+    private void GreetInPlace(Customer customer)
+    {
+        DropPendingAction();
+
+        pendingInteractable = null;
+        pendingCustomer = null;
+        walking = false;
+
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            agent.isStopped = true;
+        }
+
+        FaceOnArrival(customer.transform.position);
+
+        if (playerAnimator != null)
+        {
+            playerAnimator.FaceOverride(customer.transform.position - transform.position, TargetTurnSpeed);
+            playerAnimator.PlayAction(PlayerAnimator.Action.Greet);
+        }
+
+        Log("is animasyonu: Greet  <- eli bos, bulundugu yerde musteri selami");
+    }
+
     // ---- walking up to something and using it -------------------------------
 
     // One path for every station now. Each of them used to have its own pending
@@ -207,22 +289,22 @@ public class TapToServe : MonoBehaviour
 
     private bool actionStarted;
 
-    // Waiting for the hand to close looks better and plays slower, and one of
-    // those wins. The reach is around a third of a second, which is nothing to
-    // watch once and a lot to sit through on every single pickup -- so the food
-    // lands as the arm starts moving and the animation carries on around it.
-    //
-    // Kept as a field rather than deleted, because the slow version is the one
-    // that reads correctly and is worth having back for a trailer
-    [Tooltip("Isaretliyse yemek animasyon BITINCE ele gelir. Kapali = hemen gelir")]
+    // PickUp and PickUpCooked do not play a hand animation now. The plateau and
+    // its food pop into the hand together at the real interaction moment. This
+    // optional switch is only for the remaining station actions.
+    [Tooltip("PickUp haricindeki istasyon islemleri de animasyon bitisini beklesin")]
     [SerializeField] private bool waitForActionToFinish;
+
+    private bool WaitForCurrentAction => waitForActionToFinish && !CurrentActionTakesFood;
+
+    private bool CurrentActionTakesFood =>
+        actionPlayed == PlayerAnimator.Action.PickUp ||
+        actionPlayed == PlayerAnimator.Action.PickUpCooked;
 
     // Three moments, deliberately separated.
     //
-    // The reach BEGINS on approach, so the character is already going for the
-    // plate as the last stride lands instead of arriving, stopping, and only
-    // then noticing the counter. The work HAPPENS as soon as they have stopped,
-    // which is the rule that kept the hand from filling on the way past
+    // Non-pickup work may begin on approach. A pickup has no hand animation:
+    // its plateau pop happens below, only after the player has stopped.
     private void HandlePendingInteractable()
     {
         if (pendingInteractable == null)
@@ -241,8 +323,20 @@ public class TapToServe : MonoBehaviour
         {
             actionStarted = true;
 
-            if (playerAnimator != null)
-                playerAnimator.PlayAction(PlayerAnimator.Action.Pan, true);
+            // Decided here so pickup can deliberately skip the hand animation,
+            // while drop/work actions can still begin on approach.
+            actionPlayed = ActionFor(pendingInteractable);
+
+            // Which reach fired, and at what. "The wrong animation played" and
+            // "no animation played" look identical from the other side of the
+            // screen, and so do "the right one played on the wrong thing" and
+            // "the wrong one played on the right thing"
+            Log("is animasyonu: " + actionPlayed + "  <- " + pendingInteractable.Label +
+                (holdFoodAbility == null ? "" :
+                    "  (el " + (holdFoodAbility.IsPlateauEmpty ? "bos" : "dolu") + ")"));
+
+            if (playerAnimator != null && !CurrentActionTakesFood)
+                playerAnimator.PlayAction(actionPlayed, true);
         }
 
         if (distance > pendingInteractable.Reach)
@@ -254,7 +348,17 @@ public class TapToServe : MonoBehaviour
         if (!HasStopped())
             return;
 
-        if (waitForActionToFinish && playerAnimator != null && playerAnimator.ActionPlaying)
+        // A side approach stops the agent before the visible squirrel has
+        // finished turning. Fryer Start applies its pop lean along the body's
+        // own forward, so wait the few turn frames instead of leaning sideways.
+        // FaceTarget below keeps rotating while this interaction remains armed.
+        if (pendingInteractable.TryGetComponent(out FryerStation _) &&
+            playerAnimator != null &&
+            !playerAnimator.IsFacing(
+                pendingInteractable.transform.position - transform.position, 12f))
+            return;
+
+        if (WaitForCurrentAction && playerAnimator != null && playerAnimator.ActionPlaying)
             return;
 
         Interactable target = pendingInteractable;
@@ -263,15 +367,10 @@ public class TapToServe : MonoBehaviour
 
         Interact(target);
 
-        // Only when the reach was waited out. Holding the pose cuts the running
-        // animation into its loop, which in the fast version means snapping the
-        // arm mid-reach and then standing there for a second -- two costs, and
-        // the second one is the slowness this was meant to remove.
-        //
-        // Left to itself the reach plays out on its own, with the food already
-        // in hand, which is the same picture arrived at sooner
-        if (waitForActionToFinish && playerAnimator != null)
-            playerAnimator.HoldActionPose(PlayerAnimator.Action.Pan, FoodShowTime);
+        // Pickups never reach this hold: their only visual is the plateau pop.
+        // Optional non-pickup work may still hold its authored pose.
+        if (waitForActionToFinish && !CurrentActionTakesFood && playerAnimator != null)
+            playerAnimator.HoldActionPose(actionPlayed, FoodShowTime);
     }
 
     [Tooltip("Yemek ele geldikten sonra kac saniye elde gosterilsin. " +
@@ -290,6 +389,7 @@ public class TapToServe : MonoBehaviour
     private void DropPendingAction()
     {
         actionStarted = false;
+        customerDropStarted = false;
 
         if (playerAnimator != null)
             playerAnimator.CancelAction();
@@ -317,6 +417,91 @@ public class TapToServe : MonoBehaviour
     // the order PlayerDetector used, with the tap-only ones in front: an object
     // carrying two of these is a wiring mistake, and answering consistently
     // makes it a findable one
+    // What this tap will actually DO. This must follow the same precedence as
+    // Interact below. A FoodDropZone is not always a drop: with food waiting it
+    // is a pickup or a swap. Calling it Drop unconditionally was the route by
+    // which an "el alma animasyonu" escaped the pickup-animation ban.
+    private PlayerAnimator.Action ActionFor(Interactable target)
+    {
+        if (target == null)
+            return PlayerAnimator.Action.PickUp;
+
+        bool handFull = holdFoodAbility != null && !holdFoodAbility.IsPlateauEmpty;
+
+        if (target.TryGetComponent(out Trash _))
+            return PlayerAnimator.Action.Drop;
+
+        if (target.TryGetComponent(out CookingStation cooker))
+        {
+            if (cooker.HasCooked)
+                return cooker.HasGoodCooked
+                    ? PlayerAnimator.Action.PickUpCooked
+                    : PlayerAnimator.Action.PickUp;
+
+            return handFull ? PlayerAnimator.Action.Drop : PlayerAnimator.Action.PickUp;
+        }
+
+        if (target.TryGetComponent(out FryerStation fryer))
+        {
+            if (fryer.IsReady)
+                return PlayerAnimator.Action.PickUpCooked;
+
+            if (fryer.IsBurnt)
+                return PlayerAnimator.Action.PickUp;
+
+            // Starting a batch gets Drop at the exact Started frame inside
+            // Interact. Beginning it here, on approach, let the forward-leaning
+            // half finish before the player actually reached the fryer.
+            return PlayerAnimator.Action.PickUp;
+        }
+
+        if (target.TryGetComponent(out FoodDropZone zone))
+            return zone.Peek() != null
+                ? PlayerAnimator.Action.PickUp
+                : PlayerAnimator.Action.Drop;
+
+        if (target.TryGetComponent(out HoldingShelf shelf))
+            return shelf.Peek() != null
+                ? PlayerAnimator.Action.PickUp
+                : PlayerAnimator.Action.Drop;
+
+        if (target.TryGetComponent(out FoodSpawnerStation _))
+        {
+            // This object always OFFERS food; a full/incompatible hand merely
+            // means the attempt will be refused. CanTake used to turn that
+            // refusal into Drop, which escaped the pickup-animation ban and
+            // made the arm move whenever a player already carrying food tapped
+            // another ingredient. A failed pickup is still a pickup attempt.
+            return PlayerAnimator.Action.PickUp;
+        }
+
+        // Opening the fridge supplies an item or only opens the door. Neither
+        // case should move the character's hand through the tray.
+        if (target.TryGetComponent(out FridgeDoor _))
+            return PlayerAnimator.Action.PickUp;
+
+        if (handFull)
+            return PlayerAnimator.Action.Drop;
+
+        // The kiss, only over something that was cooked.
+        //
+        // Meat comes off the hob and fries out of the fryer, and those are the
+        // only two places in the kitchen where the player made something rather
+        // than fetched it. Salad, cola, bread, cheese -- every ingredient is
+        // picked up off a counter, and a chef kissing his fingers over a bottle
+        // of cola is the gesture used until it means nothing
+        // ...and only over something that came out RIGHT. A chef kissing his
+        // fingers over a cinder is the joke the game is not making. Burnt still
+        // gets picked up -- it has to be, the pan is blocked until it is -- it
+        // just gets picked up like any other object
+        return PlayerAnimator.Action.PickUp;
+    }
+
+    // Remembered, so the pose held after the reach is the pose that was played.
+    // Reading the hands a second time would ask after the food has already
+    // changed sides, and answer about the wrong half of the motion
+    private PlayerAnimator.Action actionPlayed = PlayerAnimator.Action.PickUp;
+
     private void Interact(Interactable target)
     {
         GameObject go = target.gameObject;
@@ -332,7 +517,12 @@ public class TapToServe : MonoBehaviour
 
         if (go.TryGetComponent(out HoldingShelf shelf))
         {
-            Log(target.Label + ": " + (shelf.Swap(holdFoodAbility)
+            SpawnableFood before = holdFoodAbility.PeekFood();
+            bool changed = shelf.Swap(holdFoodAbility);
+
+            PopIfGiven(before, target);
+
+            Log(target.Label + ": " + (changed
                 ? "yemek el degistirdi"
                 : "yer yok ya da tip uymuyor"));
             return;
@@ -346,13 +536,32 @@ public class TapToServe : MonoBehaviour
 
         if (go.TryGetComponent(out FryerStation fryer))
         {
-            Log(target.Label + ": " + Describe(fryer.Tap(holdFoodAbility)));
+            FryerStation.Result result = fryer.Tap(holdFoodAbility);
+
+            // Unlike a normal drop zone the fryer creates its own batch, so no
+            // held object changes hands and PopIfGiven cannot announce it. Fire
+            // the complete visual bundle explicitly when Begin really succeeds:
+            // short DropOff lean plus the same small transfer pop.
+            if (result == FryerStation.Result.Started && playerAnimator != null)
+            {
+                Log("is animasyonu: Drop  <- patates kizartma basladi");
+                playerAnimator.PlayAction(PlayerAnimator.Action.Drop);
+                playerAnimator.PlayTransferPop();
+            }
+
+            Log(target.Label + ": " + Describe(result));
             return;
         }
 
         if (go.TryGetComponent(out Trash trash))
         {
-            Log(target.Label + ": " + (trash.Dump(holdFoodAbility, GetComponent<HoldDishAbility>())
+            SpawnableFood before = holdFoodAbility.PeekFood();
+            bool dumped = trash.Dump(holdFoodAbility, GetComponent<HoldDishAbility>());
+
+            if (dumped)
+                PopIfGiven(before, target);
+
+            Log(target.Label + ": " + (dumped
                 ? "el bosaltildi"
                 : "elde bir sey yok"));
             return;
@@ -362,7 +571,11 @@ public class TapToServe : MonoBehaviour
         // real bug once, and asking about the oven first makes it harmless
         if (go.TryGetComponent(out CookingStation cooker))
         {
+            SpawnableFood before = holdFoodAbility.PeekFood();
+
             holdFoodAbility.HandleCookingStation(cooker);
+            PopIfGiven(before, target);
+
             Log(target.Label + ": ocak" + Holding());
             return;
         }
@@ -376,9 +589,13 @@ public class TapToServe : MonoBehaviour
 
         if (go.TryGetComponent(out FoodDropZone dropZone))
         {
+            SpawnableFood before = holdFoodAbility.PeekFood();
+
             // byTap, so this one may take and swap. The trigger version that
             // fires every frame may only put down
             holdFoodAbility.HandleFoodDropZone(dropZone, true);
+            PopIfGiven(before, target);
+
             Log(target.Label + ": teslim" + Holding());
             return;
         }
@@ -390,6 +607,21 @@ public class TapToServe : MonoBehaviour
         }
 
         Log(target.Label + ": uzerinde bilinen bir istasyon yok");
+    }
+
+    // A transfer happened only when the exact object that was on top of the
+    // hand before the interaction is no longer there afterwards. Empty-hand
+    // pickups and refused/full-target taps therefore cannot trigger this pop;
+    // swaps can, because one item really was given while another came back.
+    private void PopIfGiven(SpawnableFood before, Interactable target)
+    {
+        if (before == null || target == null || playerAnimator == null)
+            return;
+
+        if (holdFoodAbility.PeekFood() == before)
+            return;
+
+        playerAnimator.PlayTransferPop();
     }
 
     // Same three checks PlayerDetector made, kept together so the reason a
@@ -441,6 +673,18 @@ public class TapToServe : MonoBehaviour
             if (candidate == null)
                 continue;
 
+            // Customer counters are destinations, not products or work
+            // stations. The player serves them by tapping the CUSTOMER, which
+            // also chooses the correct person when several are side by side.
+            // Letting the cashier machine win here swallowed that customer tap
+            // first, popped the machine and walked to its generic stand point.
+            //
+            // Skip the whole hierarchy, including a Drop Zone child. Its
+            // trigger/colliders remain enabled for queue and serving logic; it
+            // is only removed from the tap candidate list.
+            if (BelongsToCustomerCounter(candidate))
+                continue;
+
             // Behind a wall. The ray does not stop at one -- a wall is not an
             // Interactable, so it never appeared in this list at all and never
             // blocked anything. Tapping the back wall picked the station in the
@@ -482,6 +726,15 @@ public class TapToServe : MonoBehaviour
                 " birimde). Yanlissa: Player > Tap To Serve > Reach Through");
 
         return solid != null ? solid : trigger;
+    }
+
+    private static bool BelongsToCustomerCounter(Interactable candidate)
+    {
+        if (candidate == null)
+            return false;
+
+        return candidate.GetComponentInParent<FoodServingCustomerManager>() != null ||
+               candidate.GetComponentInChildren<FoodServingCustomerManager>(true) != null;
     }
 
     // How far the first solid thing that is NOT a station is.
@@ -581,10 +834,47 @@ public class TapToServe : MonoBehaviour
 
         serveWait = 0f;
 
+        // Match an ordinary station Drop exactly: begin the reach while the
+        // food is still in the hand and preserve it through the final stride.
+        // The previous customer path removed the food first, started Drop while
+        // the agent was still moving, then ManageAnimations cancelled it on the
+        // next frame. That is why the same clip never felt like the same action.
+        if (!customerDropStarted && CanServeNow(pendingCustomer))
+        {
+            customerDropStarted = true;
+
+            if (playerAnimator != null)
+            {
+                Log("is animasyonu: Drop  <- musteriye yaklasirken");
+                playerAnimator.PlayAction(PlayerAnimator.Action.Drop, true);
+            }
+        }
+
+        // Entering the serving trigger is not arrival. Keep the food in hand
+        // until the feet have stopped, just like HandlePendingInteractable.
+        if (!HasStopped())
+            return;
+
         Customer customer = pendingCustomer;
         pendingCustomer = null;
 
-        TryServe(customer);
+        bool dropWasStarted = customerDropStarted;
+        customerDropStarted = false;
+
+        TryServe(customer, dropWasStarted);
+    }
+
+    private bool CanServeNow(Customer customer)
+    {
+        if (customer == null || !customer.NeedsMoreFood() || holdFoodAbility == null)
+            return false;
+
+        SpawnableFood held = holdFoodAbility.PeekFood();
+
+        if (held == null || !held.CanBeServed)
+            return false;
+
+        return customer.RequestedFood == null || customer.Wants(held);
     }
 
     private float serveWait;
@@ -642,6 +932,30 @@ public class TapToServe : MonoBehaviour
             "\n  girilen alan sayisi: " + zonesInside.Count);
     }
 
+    // Self-attached, because there is no field for it.
+    //
+    // The player is a prefab already saved in the scene; giving it a serialized
+    // slot for a power would mean editing that scene, and a component asked for
+    // once per tap costs nothing to make on the spot. Same arrangement
+    // PlayerHatRuntimeFollower already uses to keep the hat on.
+    private RevolverPower revolver;
+
+    private RevolverPower Revolver
+    {
+        get
+        {
+            // No ?? here: a destroyed UnityEngine.Object is not null to the
+            // null-coalescing operator, only to ==.
+            if (revolver == null)
+                revolver = GetComponent<RevolverPower>();
+
+            if (revolver == null)
+                revolver = gameObject.AddComponent<RevolverPower>();
+
+            return revolver;
+        }
+    }
+
     private void HandleTap()
     {
         if (Pointer.current == null || !Pointer.current.press.wasPressedThisFrame)
@@ -653,6 +967,19 @@ public class TapToServe : MonoBehaviour
             Log("tap UI uzerinde: " + blocker);
             return;
         }
+
+        // NO SOUND HERE, and the reasoning that put one here was wrong.
+        //
+        // It was "a tap that hits nothing is still a tap the player made". True,
+        // and beside the point: a tap in this game does not DO anything by
+        // itself. It picks a place to walk to, and what happens on arrival --
+        // taking, putting down, serving -- already has its own sound. A noise on
+        // the tap itself fires on the floor, on a customer and on an item
+        // identically, so it tells the player nothing about what they hit, and
+        // it arrives a second before the action it seems to be announcing.
+        //
+        // The tap clip is still wired to Sound.Click and still plays if anything
+        // asks for it. Nothing does. A UI button is where it belongs
 
         if (gameCamera == null)
         {
@@ -708,6 +1035,35 @@ public class TapToServe : MonoBehaviour
 
         Interactable target = PickInteractable(hits);
 
+        // Cowboy hat: a station gets a bullet instead of a walk.
+        //
+        // Asked BEFORE the walk is committed, and it still falls through when
+        // the gun has nothing to offer -- wrong hat, or nothing up there a shot
+        // could do.
+        //
+        // There is no range, but there is a floor. Standing IN the station is
+        // the one case where shooting it is worse than using it: the hand is
+        // already there, and a character who draws on the fryer he is leaning
+        // against reads as broken rather than as fast. Far away is still the
+        // reason to shoot -- it is only arm's length that is not.
+        bool touching = target != null && target.Contains(transform.position);
+
+        if (touching && Revolver.Armed)
+            Log("kovboy: " + target.Label + " dibinde, elle kullaniliyor");
+
+        if (target != null && !touching && Revolver.TryShoot(target))
+        {
+            // Where the player is left looking once the gun lets go of the
+            // facing. Without this the next frame turns them back towards
+            // whatever they were last sent to, and they finish the shot facing
+            // away from the thing they just shot.
+            FaceOnArrival(target.transform.position);
+
+            Log("kovboy: " + target.Label + " vuruldu");
+
+            return;
+        }
+
         if (target != null)
         {
             DropPendingAction();
@@ -731,6 +1087,40 @@ public class TapToServe : MonoBehaviour
 
         Vector2 screenPoint = Pointer.current.position.ReadValue();
         Customer customer = FindCustomerFrom(hit, screenPoint);
+
+        // Cowboy hat: customers are shootable, but only on a DOUBLE tap.
+        //
+        // One tap has to keep meaning "serve this person", because that is the
+        // game. A hat that turned every tap into a gunshot did not add an
+        // ability, it took feeding people away -- and it took it away silently,
+        // on the tap that used to work.
+        //
+        // So the second tap on the same customer, quickly, is the shot. The
+        // first one has already started the walk over by the time it lands,
+        // which is cancelled below rather than left running.
+        if (customer != null)
+        {
+            bool again = customer == lastTapped &&
+                         Time.time - lastTappedAt <= doubleTap;
+
+            lastTapped = customer;
+            lastTappedAt = Time.time;
+
+            if (again && Revolver.TryShoot(customer))
+            {
+                StopEverything();
+
+                FaceOnArrival(customer.transform.position);
+
+                // Cleared, so a third tap is a fresh first one. Without this a
+                // rattle of taps on one customer would be shot after shot.
+                lastTapped = null;
+
+                Log("kovboy: " + customer.name + " vuruldu (cift dokunus)");
+
+                return;
+            }
+        }
 
         if (customer == null)
         {
@@ -784,6 +1174,16 @@ public class TapToServe : MonoBehaviour
         Log("musteri: " + customer.name +
             " | elde: " + (holdFoodAbility.PeekFood() == null ? "yok" : holdFoodAbility.PeekFood().GetType().Name) +
             " | servis alaninda: " + IsInsideZoneOf(customer));
+
+        // Empty hand means the user is greeting this customer. Handle it here,
+        // before pendingCustomer and a counter destination can make the player
+        // walk across the room first. Completed customers retain their existing
+        // send-home behaviour below.
+        if (holdFoodAbility.PeekFood() == null && customer.NeedsMoreFood())
+        {
+            GreetInPlace(customer);
+            return;
+        }
 
         DropPendingAction();
 
@@ -1189,7 +1589,7 @@ public class TapToServe : MonoBehaviour
         return nearest;
     }
 
-    private bool TryServe(Customer customer)
+    private bool TryServe(Customer customer, bool dropWasStarted)
     {
         if (!customer.NeedsMoreFood())
         {
@@ -1201,7 +1601,10 @@ public class TapToServe : MonoBehaviour
 
         if (heldFood == null)
         {
-            Log("el bos, verilecek bir sey yok");
+            // Intentional empty-hand taps are intercepted in HandleTap before a
+            // walk starts. Reaching this branch means food disappeared during
+            // an already queued serving trip; do not play a late greeting here.
+            Log("servis iptal: ele alinmis yemek artik yok");
             return false;
         }
 
@@ -1229,10 +1632,24 @@ public class TapToServe : MonoBehaviour
         if (foodToServe == null)
             return false;
 
-        // Handing a plate over is the same motion as putting one down, and this
-        // is the one place a customer is actually served rather than refused
+        // The Drop normally began on approach, while this food was still held.
+        // Keep a fallback for a direct/edge-case serve that entered this method
+        // without passing through the approach phase.
         if (playerAnimator != null)
-            playerAnimator.PlayAction(PlayerAnimator.Action.Pan);
+        {
+            if (!dropWasStarted)
+            {
+                Log("is animasyonu: Drop  <- musteri servisi (varista basladi)");
+                playerAnimator.PlayAction(PlayerAnimator.Action.Drop);
+            }
+
+            playerAnimator.PlayTransferPop();
+        }
+
+        // No sound here. This method runs once for EVERY item handed to the
+        // customer, so a till-like delivery clip here sounds once per tick.
+        // The sale has one payment moment: Customer.RingUp, after the whole
+        // order is complete and just before the customer begins to leave.
 
         // Collect first, pay second. CollectFood is what stops the patience
         // clock, and the multiplier has to be read after it has stopped or the
@@ -1273,6 +1690,35 @@ public class TapToServe : MonoBehaviour
 
     private void SendCustomerHome(Customer customer)
     {
+        if (customer == null || leavingAfterReaction.Contains(customer))
+            return;
+
+        if (customer.IsReacting)
+        {
+            leavingAfterReaction.Add(customer);
+            StartCoroutine(LeaveAfterReaction(customer));
+            return;
+        }
+
+        SendCustomerHomeNow(customer);
+    }
+
+    private System.Collections.IEnumerator LeaveAfterReaction(Customer customer)
+    {
+        // Navigation is not started until this becomes false. Therefore the
+        // reaction can never continue on a moving customer; the following
+        // frame CustomerAnimator switches cleanly to its walking state.
+        while (customer != null && customer.IsReacting)
+            yield return null;
+
+        leavingAfterReaction.Remove(customer);
+
+        if (customer != null)
+            SendCustomerHomeNow(customer);
+    }
+
+    private void SendCustomerHomeNow(Customer customer)
+    {
         // Cheaper than tracking which counter owns them: Dequeue is a no-op
         // for a manager that never had this customer
         for (int i = 0; i < customerManagers.Length; i++)
@@ -1284,6 +1730,7 @@ public class TapToServe : MonoBehaviour
             return;
         }
 
-        customer.GoToThen(customerExitPoint.position, () => Destroy(customer.gameObject));
+        if (!customer.Leave(customerExitPoint.position, () => Destroy(customer.gameObject)))
+            Destroy(customer.gameObject);
     }
 }

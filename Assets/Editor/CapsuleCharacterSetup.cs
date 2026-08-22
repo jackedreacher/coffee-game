@@ -56,7 +56,21 @@ public static class CapsuleCharacterSetup
     // looks like.
     //
     // These two were animated on THIS skeleton. Nothing is being converted, so
-    // there is nothing to come out wrong
+    // there is nothing to come out wrong.
+    //
+    // Except that it does, and this is the sentence that cost the most time in
+    // the whole exercise. Tried side by side in the clip browser, the pack's
+    // own Test_Walking comes out BROKEN on its own animals and the retargeted
+    // waiter and Hypercasual clips come out clean -- the exact opposite of what
+    // the paragraph above predicts. The reasoning is sound and the premise is
+    // false: these FBXs are imported animationType 3, so they are not playing
+    // on their own skeleton at all. They are being pushed through muscle space
+    // like everything else, from a rig that was never configured for it.
+    //
+    // So the controllers use the Hypercasual clips, which are the game's own
+    // four and demonstrably survive the trip. These two are left here for the
+    // browser and for 1b, because seeing the bad one next to the good one is
+    // how this was found and is how it would be found again
     private const string ownWalk =
         "Assets/DGN_15_CapsuleAnimals/Animations/Character@Test_Walking.fbx";
 
@@ -67,13 +81,83 @@ public static class CapsuleCharacterSetup
 
     private const string customerController = outputFolder + "/Capsule Customer.controller";
     private const string workerController = outputFolder + "/Capsule Worker.controller";
+    // Read by HatPowerSetup, which needs to know which clip the Idle state
+    // is carrying before it can arrange for a hat to replace it.
+    internal const string PlayerControllerPath =
+        outputFolder + "/Capsule Player.controller";
 
-    // The five names CustomerAnimator plays by string. They are not a
+    private const string playerController = PlayerControllerPath;
+
+    // Off, because the pack has it off.
+    //
+    // I turned this ON as "the answer to feet that come out crooked", with a
+    // tidy story attached: retargeting matches muscle ANGLES rather than
+    // positions, so on legs a third the length the foot lands somewhere the
+    // human's never went, and foot IK solves it back onto the ground.
+    //
+    // The story is true about retargeting and wrong about the remedy. Foot IK
+    // does not nudge a foot onto the floor, it re-solves the whole leg chain to
+    // reach a goal -- and on a body whose legs are a stub either side of a
+    // sphere, that solver has almost no room to work in and folds the legs to
+    // get there. CharacterTest_AnimatorController, the pack's own, shipped and
+    // working on these exact bodies, has m_IKOnFeet: 0 on both its states. It
+    // was the ONLY setting that differed from mine.
+    //
+    // Kept as a named constant rather than deleted, because it is the first
+    // thing to try again if the legs are ever wrong in a way that IK could
+    // actually fix -- on a character with legs long enough to solve
+    private const bool footIK = false;
+
+    // Every state name PlayerAnimator can ask for, read off PlayerAnimator
+    // rather than off the controller it happens to have -- the code is what
+    // decides, and a state the code never plays is dead weight either way
+    private static readonly string[] playerStates =
+    {
+        "Walk", "Idle", "WalkWithPlateau", "IdleWithPlateau", "Sit",
+        "TurnLeft", "TurnRight",
+        "Assembly_Start", "Assembly_Loop", "Assembly_End",
+        "Pan_Start", "Pan_Loop", "Pan_End",
+
+        // One clip each, so only a _Start. ActionRoutine's PlayOnce skips a
+        // state the controller does not have, so these play their one motion
+        // and blend straight back to the walk
+        "Serve_Start", "PickUp_Start", "PickUpCooked_Start", "Drop_Start",
+        "Greet_Start",
+
+        // Only ever filled if a clip for it turns up. See GunslingerClip.
+        "Shoot_Start",
+    };
+
+    // The state names CustomerAnimator plays by string. They are not a
     // convention, they are an interface -- animator.Play("Walk") fails silently
     // against a state called anything else, and a customer that stands still
     // while gliding across the floor is what that failure looks like
     private static readonly string[] states =
-        { "Walk", "Idle", "WalkWithPlateau", "IdleWithPlateau", "Sit" };
+    {
+        "Walk", "Idle", "WalkWithPlateau", "IdleWithPlateau", "Sit",
+        "TurnLeft", "TurnRight",
+        "React_ChefsKiss",
+        "React_NoGesture",
+        "Leave_Turn180",
+    };
+
+    // Customers can also be shot, so they can also die and run.
+    //
+    // Their own list rather than three more entries on the shared one: a worker
+    // has no reason to own a death pose, and a state with no clip in it is a
+    // thing that looks broken to whoever opens the controller next.
+    private static readonly string[] customerStates = Grow(states,
+        "Death", "Death_Idle", "Run");
+
+    private static string[] Grow(string[] head, params string[] tail)
+    {
+        string[] all = new string[head.Length + tail.Length];
+
+        head.CopyTo(all, 0);
+        tail.CopyTo(all, head.Length);
+
+        return all;
+    }
 
     // Everywhere a clip might be worth trying, named once so the browser window
     // and the controller builder are looking at the same shelf. A folder or a
@@ -85,6 +169,25 @@ public static class CapsuleCharacterSetup
         new[] { "Waiter", waiterFolder },
         new[] { "Hypercasual (eski karakter)", humanClips },
         new[] { "Oturma", sitClip },
+
+        // Only here once command 6 has made it. Files() returns nothing for a
+        // path that does not exist, so an un-run command costs an empty shelf
+        // rather than an error
+        new[] { "Panda (humanoid)", pandaHuman },
+
+        // The cowboy hat's pack. One shelf rather than the fourteen folders it
+        // ships as -- Files() walks subdirectories, and Crouch/, Cover/ and the
+        // rest are worth seeing next to each other when the question is which
+        // clip to hang a power off. All humanoid, so they retarget onto the
+        // capsule animals like everything else here.
+        new[] { "Wild West (silah)", westFolder },
+
+        // The weapon models' OWN clips -- the hammer and cylinder moving, not a
+        // character. Generic, so they will not retarget onto an animal and are
+        // here to be looked at rather than used: this is the shelf that answers
+        // "what does Revovler_Shooting actually animate".
+        new[] { "Dead West (silahin kendisi)",
+            "Assets/Dead West - Animated Western Weapons/Animations" },
     };
 
     // ---- 1: look at it before believing it ----------------------------------
@@ -118,6 +221,21 @@ public static class CapsuleCharacterSetup
         "Bear", "Beaver", "Bull", "Cat", "Cow", "Deer", "Dog", "Fox",
         "Koala", "Mouse", "Panda", "Pig", "Rabbit", "Ram", "Squirrel",
     };
+
+    // Squirrel is the chef/player. Keeping this list explicit makes it
+    // impossible for a future "pick from Animals" edit to quietly put a
+    // second squirrel in the customer queue.
+    private static readonly string[] customerAnimals =
+    {
+        "Bear", "Beaver", "Bull", "Cat", "Cow", "Deer", "Dog", "Fox",
+        "Koala", "Mouse", "Panda", "Pig", "Rabbit", "Ram",
+    };
+
+    private const string customerSource =
+        "Assets/Tiny Coffee Shop/Prefabs/Characters/Customers/Customer_Rabbit_Bald.prefab";
+
+    private const string randomCustomerFolder =
+        "Assets/Tiny Coffee Shop/Prefabs/Characters/Customers/Capsule Random";
 
     private static void Sample(string animal, string clipPath, string label, bool tray = false)
     {
@@ -279,7 +397,7 @@ public static class CapsuleCharacterSetup
 
         // Same as the real controllers, or the test would be showing something
         // the game will never look like
-        test.iKOnFeet = true;
+        test.iKOnFeet = footIK;
 
         Animator animator = copy.GetComponent<Animator>();
 
@@ -336,7 +454,9 @@ public static class CapsuleCharacterSetup
     [MenuItem("Cooked Fast/Karakter/1d - Avatar Eslemesini Denetle", priority = 703)]
     public static void Audit()
     {
-        Avatar avatar = LoadAvatar();
+        // The bear on purpose: this command is about the one file the other
+        // fourteen copy their mapping from, so it asks that file directly
+        Avatar avatar = AvatarIn(avatarSource);
 
         if (avatar == null)
         {
@@ -481,18 +601,32 @@ public static class CapsuleCharacterSetup
         Directory.CreateDirectory(outputFolder);
         AssetDatabase.Refresh();
 
-        // The customer. Empty handed walking and standing come from the pack's
-        // own clips -- those are the two states a customer spends nearly all
-        // its life in, and they are the two the capsule animals were actually
-        // animated for. The carrying pair still has to be retargeted, because
-        // nobody has ever animated one of these holding a tray
-        report.Append(Controller(customerController, "MUSTERI", new Dictionary<string, string[]>
+        // Customers use the same four Hypercasual motions the old rabbits used:
+        // empty walk/idle and tray walk/idle all come from one FBX. Mixing the
+        // waiter carry pose into this controller made the customer's grip and
+        // waiting silhouette change when its plateau appeared.
+        report.Append(Controller(customerController, "MUSTERI", customerStates, false,
+            new Dictionary<string, string[]>
         {
-            { "Walk", new[] { ownWalk, null } },
-            { "Idle", new[] { ownIdle, null } },
+            { "Walk", new[] { humanClips, "Walk" } },
+            { "Idle", new[] { humanClips, "Idle" } },
             { "WalkWithPlateau", new[] { humanClips, "WalkWithPlateau" } },
             { "IdleWithPlateau", new[] { humanClips, "IdleWithPlateau" } },
+            // Same empty-prop turn family as Leave_Turn180. The tray variants
+            // lock both hands around an object while customers arrive with the
+            // plateau deliberately hidden.
+            { "TurnLeft", new[] { waiterFolder + "Waiter_Pitcher_Turn_Left90.fbx", null } },
+            { "TurnRight", new[] { waiterFolder + "Waiter_Pitcher_Turn_Right90.fbx", null } },
+            { "React_ChefsKiss", new[] { waiterFolder + "Waiter_Idle_ChefsKiss.fbx", null } },
+            { "React_NoGesture", new[] { waiterFolder + "Waiter_Idle_TakeOrder_NoGesture.fbx", null } },
+            { "Leave_Turn180", new[] { waiterFolder + "Waiter_Pitcher_Turn_180.fbx", null } },
             { "Sit", new[] { sitClip, null } },
+
+            // Shot by the cowboy hat. Death drops them, Death_Idle keeps them
+            // down, and Run is what everybody else does about it.
+            { "Death", new[] { westFolder + "Death/Death.fbx", null } },
+            { "Death_Idle", new[] { westFolder + "Death/Death_Idle.fbx", null } },
+            { "Run", new[] { westFolder + "Run/Run.fbx", null } },
         }));
 
         report.AppendLine();
@@ -501,63 +635,203 @@ public static class CapsuleCharacterSetup
         // is exactly what a plateau is, and Tray_Walk_Forward is a person
         // carrying one rather than a person walking with their arms held out.
         // The two empty handed states stay on the old clips for the reason above
-        report.Append(Controller(workerController, "CALISAN", new Dictionary<string, string[]>
+        report.Append(Controller(workerController, "CALISAN", states, false,
+            new Dictionary<string, string[]>
         {
-            { "Walk", new[] { ownWalk, null } },
-            { "Idle", new[] { ownIdle, null } },
-            // Carrying uses the pack's own clips too, and the tray is left to
-            // the plateau object rather than to the animation.
+            // Empty hands get the game's own clips, hands get the waiter's.
             //
-            // Waiter_Tray_Walk_Forward is a person holding a tray out in front
-            // of their chest, and it retargets onto these bodies with the hands
-            // INSIDE the torso. That is not a rigging fault and no avatar work
-            // fixes it: the arm on a capsule animal is shorter than the radius
-            // of its own body, so an angle that puts a human's hand in front of
-            // their chest cannot put this one anywhere but inside it.
-            //
-            // The plateau is a separate object parented into a hand bone, so it
-            // arrives in the hand whatever the arms are doing. A character
-            // walking correctly with a tray held at hand height reads as
-            // carrying; a character whose arms are buried in its own stomach
-            // reads as broken. Between an animation that is right and a pose
-            // that is right, the pose wins -- it is the thing being looked at.
-            //
-            // To go back: swap these two lines for
-            //   waiterFolder + "Waiter_Tray_Walk_Forward.fbx"
-            //   waiterFolder + "Waiter_Tray_Idle.fbx"
-            { "WalkWithPlateau", new[] { ownWalk, null } },
-            { "IdleWithPlateau", new[] { ownIdle, null } },
+            // The waiter pack has no empty handed walk or stand -- every one of
+            // its 65 clips is holding a tray or a pitcher. Putting Tray_Idle on
+            // a character with nothing in its hands is a character miming a
+            // tray that is not there, arms up around an empty space
+            { "Walk", new[] { humanClips, "Walk" } },
+            { "Idle", new[] { waiterFolder + "Waiter_Pitcher_Idle.fbx", null } },
+            { "WalkWithPlateau", new[] { waiterFolder + "Waiter_Tray_Walk_Forward.fbx", null } },
+            { "IdleWithPlateau", new[] { waiterFolder + "Waiter_Tray_Idle.fbx", null } },
+            { "TurnLeft", new[] { waiterFolder + "Waiter_Tray_Turn_Left90.fbx", null } },
+            { "TurnRight", new[] { waiterFolder + "Waiter_Tray_Turn_Right90.fbx", null } },
             { "Sit", new[] { sitClip, null } },
+        }));
+
+        report.AppendLine();
+
+        // The player, which is a bigger job than either of the other two.
+        //
+        // PlayerAnimator does not just walk and stand: it plays Assembly_* and
+        // Pan_* by name for the work at the counter and the hob, and it checks
+        // HasState before each one -- so a missing state is not an error, it is
+        // an animation that never happens and never says why.
+        //
+        // Those six cannot be borrowed from where the player has them now.
+        // Panda.fbx is GENERIC, and a generic clip has no muscle space to
+        // retarget through; it can only ever drive the skeleton it was authored
+        // on. So the work states come from the waiter pack, which is humanoid,
+        // and the mapping below is a first guess by someone who has not seen it
+        // move. Audition replacements in the clip browser and say which
+        report.Append(Controller(playerController, "PLAYER", playerStates, true,
+            new Dictionary<string, string[]>
+        {
+            // Empty hands get the game's own clips, hands get the waiter's.
+            //
+            // The waiter pack has no empty handed walk or stand -- every one of
+            // its 65 clips is holding a tray or a pitcher. Putting Tray_Idle on
+            // a character with nothing in its hands is a character miming a
+            // tray that is not there, arms up around an empty space
+            { "Walk", new[] { humanClips, "Walk" } },
+            { "Idle", new[] { waiterFolder + "Waiter_Pitcher_Idle.fbx", null } },
+            { "WalkWithPlateau", new[] { waiterFolder + "Waiter_Tray_Walk_Forward.fbx", null } },
+            { "IdleWithPlateau", new[] { waiterFolder + "Waiter_Tray_Idle.fbx", null } },
+            { "TurnLeft", new[] { waiterFolder + "Waiter_Tray_Turn_Left90.fbx", null } },
+            { "TurnRight", new[] { waiterFolder + "Waiter_Tray_Turn_Right90.fbx", null } },
+            { "Sit", new[] { sitClip, null } },
+
+            // Assembly is plating up: reach to the counter, work, withdraw
+            { "Assembly_Start", new[] { waiterFolder + "Waiter_Tray_BarTop_Plate_PickUp.fbx", null } },
+            { "Assembly_Loop", new[] { waiterFolder + "Waiter_Idle_TakeOrder_WriteDown.fbx", null } },
+            { "Assembly_End", new[] { waiterFolder + "Waiter_Tray_BarTop_Plate_DropOff.fbx", null } },
+
+            // Pan_Loop wants a shaking cycle rather than a reach, and the
+            // pepper grinder is the only thing in the pack that shakes
+            { "Pan_Start", new[] { waiterFolder + "Waiter_Idle_WipeTable_Start.fbx", null } },
+            { "Pan_Loop", new[] { waiterFolder + "Waiter_Idle_PepperGrinder.fbx", null } },
+            { "Pan_End", new[] { waiterFolder + "Waiter_Idle_WipeTable_End.fbx", null } },
+
+            // Handing a plate over and putting one down are the same motion,
+            // so they are the same clip -- the difference is who is standing
+            // in front of the character, and that is not the animation's job
+            { "Serve_Start", new[] { waiterFolder + "Waiter_Tray_BarTop_DropOff.fbx", null } },
+            { "Drop_Start", new[] { waiterFolder + "Waiter_Tray_BarTop_DropOff.fbx", null } },
+            // Two kinds of fetching. Lifting a plate off a counter is the
+            // ordinary one; the kiss is what you do over something you cooked,
+            // so it belongs to the hob and the fryer and nowhere else. Played
+            // on every pickup it stops meaning anything
+            { "PickUp_Start", new[] { waiterFolder + "Waiter_Tray_BarTop_PickUp.fbx", null } },
+            { "PickUpCooked_Start", new[] { waiterFolder + "Waiter_Idle_ChefsKiss.fbx", null } },
+            { "Greet_Start", new[] { waiterFolder + "Waiter_Idle_Greeting_Bow.fbx", null } },
+
+            // Whatever this project has that looks most like an arm coming up.
+            { "Shoot_Start", new[] { GunslingerClip(), null } },
         }));
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
         report.AppendLine();
-        report.AppendLine("Ikisinde de moveSpeed float parametresi var ve");
+        report.AppendLine("Hepsinde moveSpeed float parametresi var ve");
         report.AppendLine("Apply Root Motion kapali olmali -- konumu NavMeshAgent");
         report.AppendLine("suruyor, klip de surerse ikisi kavga eder.");
         report.AppendLine();
-        report.AppendLine("Sonraki: Cooked Fast > Karakter > 3");
+        report.AppendLine("Shoot_Start: kovboy sapkasinin atisi. Yukarida hangi");
+        report.AppendLine("klibin dustugu yaziyor -- gunslinger paketi kurulursa");
+        report.AppendLine("bu komutu tekrar calistir, kendi bulur. Klip yoksa");
+        report.AppendLine("atis yine calisir, karakter sadece kolunu kaldirmaz.");
+        report.AppendLine();
+        report.AppendLine("Controllerlar YERINDE guncellendi.");
+        report.AppendLine("Sahnedeki sincabin govdesine ve plateau ayarina dokunulmadi.");
+        report.AppendLine("4 veya 5 komutunu tekrar calistirma -- gerek yok.");
 
         Show(report.ToString());
     }
 
-    private static string Controller(string path, string label, Dictionary<string, string[]> map)
+    // One signature, and the state list comes in as an argument.
+    //
+    // The player needs eleven states where a customer needs five, and the
+    // difference is not decoration -- PlayerAnimator asks for Assembly_Start,
+    // Pan_Loop and the rest by name, and a state that is not there is an
+    // animation that silently does not play
+    private static string Controller(string path, string label, string[] order,
+                                     bool actionSpeed, Dictionary<string, string[]> map)
     {
         StringBuilder report = new StringBuilder();
 
         report.AppendLine(label + "  ->  " + Path.GetFileName(path));
 
-        // Rebuilt rather than patched. A controller half wired to old clips and
-        // half to new ones is a shape nobody authored and nobody can read
-        AssetDatabase.DeleteAsset(path);
+        // Preserve the asset itself -- especially its GUID. Deleting and
+        // recreating this file made every Animator that referenced it lose the
+        // link, which then forced command 5 to rebuild the scene squirrel and
+        // destroyed the hand-tuned tray placement as collateral damage.
+        //
+        // The controller is tool-owned, so its contents are refreshed below,
+        // but the asset identity never changes.
+        AnimatorController controller =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(path);
 
-        AnimatorController controller = AnimatorController.CreateAnimatorControllerAtPath(path);
+        if (controller == null)
+            controller = AnimatorController.CreateAnimatorControllerAtPath(path);
+
+        // Parameters are cheap and owned by this generator. Resetting them in
+        // place avoids duplicates while keeping the controller asset alive.
+        for (int i = controller.parameters.Length - 1; i >= 0; i--)
+            controller.RemoveParameter(i);
 
         controller.AddParameter("moveSpeed", AnimatorControllerParameterType.Float);
 
-        AnimatorStateMachine machine = controller.layers[0].stateMachine;
+        // PlayerAnimator checks for this one before setting it, because
+        // SetFloat on a parameter a controller does not have logs a warning on
+        // every tap. Present here means the speed slider in the inspector does
+        // something; absent means it is quietly ignored
+        if (actionSpeed)
+            controller.AddParameter("actionSpeed", AnimatorControllerParameterType.Float);
+
+        AnimatorControllerLayer[] layers = controller.layers;
+
+        if (layers.Length <= 0 || layers[0].stateMachine == null)
+        {
+            AnimatorStateMachine created = new AnimatorStateMachine
+            {
+                name = "Base Layer",
+            };
+
+            AssetDatabase.AddObjectToAsset(created, controller);
+
+            layers = new[]
+            {
+                new AnimatorControllerLayer
+                {
+                    name = "Base Layer",
+                    defaultWeight = 1f,
+                    stateMachine = created,
+                },
+            };
+        }
+        else if (layers.Length > 1)
+        {
+            // This generator has one layer. Drop only the references to stale
+            // generated layers; the controller asset and its GUID stay put.
+            layers = new[] { layers[0] };
+        }
+
+        controller.layers = layers;
+
+        AnimatorStateMachine machine = layers[0].stateMachine;
+
+        foreach (AnimatorStateTransition transition in machine.anyStateTransitions)
+            machine.RemoveAnyStateTransition(transition);
+
+        foreach (AnimatorTransition transition in machine.entryTransitions)
+            machine.RemoveEntryTransition(transition);
+
+        foreach (ChildAnimatorStateMachine child in machine.stateMachines)
+            machine.RemoveStateMachine(child.stateMachine);
+
+        HashSet<string> wantedStates = new HashSet<string>(order);
+        Dictionary<string, AnimatorState> existingStates =
+            new Dictionary<string, AnimatorState>();
+
+        foreach (ChildAnimatorState child in machine.states)
+        {
+            if (!wantedStates.Contains(child.state.name) ||
+                existingStates.ContainsKey(child.state.name))
+            {
+                machine.RemoveState(child.state);
+                continue;
+            }
+
+            existingStates.Add(child.state.name, child.state);
+
+            foreach (AnimatorStateTransition transition in child.state.transitions)
+                child.state.RemoveTransition(transition);
+        }
 
         // No transitions between them on purpose.
         //
@@ -565,14 +839,16 @@ public static class CapsuleCharacterSetup
         // every frame, which cuts straight to the state. Wiring conditions here
         // as well would mean two things steering one machine, and the one that
         // loses is whichever the reader was not thinking about
-        foreach (string state in states)
+        foreach (string state in order)
         {
             if (!map.TryGetValue(state, out string[] source))
                 continue;
 
             AnimationClip clip = FirstClip(source[0], source[1]);
 
-            AnimatorState added = machine.AddState(state);
+            AnimatorState added = existingStates.TryGetValue(state, out AnimatorState found)
+                ? found
+                : machine.AddState(state);
 
             if (clip == null)
             {
@@ -583,18 +859,7 @@ public static class CapsuleCharacterSetup
 
             added.motion = clip;
 
-            // Foot IK, on every state.
-            //
-            // This is the answer to feet that come out crooked. Retargeting
-            // matches MUSCLE ANGLES, not positions -- it takes the angle the
-            // human's ankle was at and puts the animal's ankle at the same
-            // angle. On a body with legs a third the length that lands the foot
-            // somewhere the human's never went, tilted and off the floor.
-            //
-            // Foot IK runs afterwards and solves the feet back onto the ground
-            // plane, which is the correction the retarget cannot make for
-            // itself because it never knew where the ground was
-            added.iKOnFeet = true;
+            added.iKOnFeet = footIK;
 
             report.AppendLine("  " + state.PadRight(16) + clip.name);
         }
@@ -683,6 +948,171 @@ public static class CapsuleCharacterSetup
         report.AppendLine("sahnedeki ve koddaki referanslar kirilmasin diye.");
 
         Show(report.ToString());
+    }
+
+    // Builds a separate customer prefab for every capsule species except the
+    // squirrel, then fills the CustomerManager array in the OPEN scene. The
+    // seven hand-authored rabbit prefabs are used only as a template and are
+    // never edited, so this cannot repeat the old two-bodies regression on the
+    // user's originals.
+    [MenuItem("Cooked Fast/Karakter/3d - Rastgele Hayvan Musterileri Hazirla", priority = 709)]
+    public static void BuildRandomAnimalCustomers()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            Show("Play modundayken calismaz. Once durdur.");
+            return;
+        }
+
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(customerSource) == null)
+        {
+            Show("Kaynak musteri prefabi yok:\n" + customerSource);
+            return;
+        }
+
+        AnimatorController controller =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(customerController);
+
+        if (controller == null)
+        {
+            Show("Once 2 - Animator Controllerlarini Uret komutunu calistir.");
+            return;
+        }
+
+        CustomerManager manager = Object.FindFirstObjectByType<CustomerManager>(
+            FindObjectsInactive.Include);
+
+        if (manager == null)
+        {
+            Show("Acik sahnede CustomerManager yok. Kitchen sahnesini acip tekrar calistir.");
+            return;
+        }
+
+        if (!EditorUtility.DisplayDialog("Rastgele Hayvan Musteriler",
+                "14 farkli musteri prefabi URETILECEK:\n\n" +
+                "  Bear, Beaver, Bull, Cat, Cow, Deer, Dog, Fox,\n" +
+                "  Koala, Mouse, Panda, Pig, Rabbit, Ram\n\n" +
+                "SQUIRREL listeye konmayacak; o sef olarak kalacak.\n" +
+                "Eski 7 tavsan prefabi degistirilmeyecek. Acik sahnedeki\n" +
+                "CustomerManager bu 14 yeni prefaba baglanacak.\n\n" +
+                "Devam edilsin mi?",
+                "Hazirla", "Vazgec"))
+            return;
+
+        EnsureAssetFolder(randomCustomerFolder);
+
+        Avatar avatar = LoadAvatar();
+        PlateauAttach.Placement placement = PlateauAttach.KnownGoodCustomer;
+        List<Customer> made = new List<Customer>();
+        StringBuilder report = new StringBuilder();
+
+        report.AppendLine("RASTGELE MUSTERILER (Squirrel HARIC)");
+        report.AppendLine();
+
+        foreach (string animal in customerAnimals)
+        {
+            string path = randomCustomerFolder + "/Customer_" + animal + ".prefab";
+
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null &&
+                !AssetDatabase.CopyAsset(customerSource, path))
+            {
+                report.AppendLine("- " + animal + ": prefab kopyalanamadi");
+                continue;
+            }
+
+            GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(Model(animal));
+
+            if (model == null)
+            {
+                report.AppendLine("- " + animal + ": model yok");
+                continue;
+            }
+
+            GameObject root = PrefabUtility.LoadPrefabContents(path);
+
+            try
+            {
+                Fit(root, model, avatar, controller, animal, customerController, false);
+
+                Plateau plateau = root.GetComponentInChildren<Plateau>(true);
+                Transform visual = PlateauAttach.FindVisual(root.transform);
+
+                // Fit normally preserves the body it replaces. That is right
+                // when changing one humanoid for another and wrong here: the
+                // old rabbit visual was authored at 0.5 while DGN animals use
+                // one. Copying 0.5 made both the customer and everything hanging
+                // from its hand half size. The small customer-only reduction is
+                // deliberate and shared with CustomerSetup so regenerating the
+                // random animals cannot silently make them large again.
+                visual.localScale = Vector3.one * CustomerSetup.CapsuleVisualScale;
+
+                Transform bone = plateau == null
+                    ? null
+                    : PlateauAttach.ResolveBone(visual, placement.bonePath);
+
+                if (plateau != null && bone != null)
+                    PlateauAttach.ApplyPlacement(plateau, bone, placement);
+
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+
+                if (plateau == null)
+                    report.AppendLine("- " + animal + ": olustu, UYARI plateau yok");
+                else if (bone == null)
+                    report.AppendLine("- " + animal + ": olustu, UYARI el kemigi yok");
+                else
+                    report.AppendLine("- " + animal + ": olustu, plateau " + bone.name);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+
+            GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            Customer customer = asset == null ? null : asset.GetComponent<Customer>();
+
+            if (customer != null)
+                made.Add(customer);
+        }
+
+        SerializedObject managerSo = new SerializedObject(manager);
+        SerializedProperty choices = managerSo.FindProperty("customerPrefabs");
+        SerializedProperty fallback = managerSo.FindProperty("customerPrefab");
+
+        choices.arraySize = made.Count;
+
+        for (int i = 0; i < made.Count; i++)
+            choices.GetArrayElementAtIndex(i).objectReferenceValue = made[i];
+
+        if (made.Count > 0 && fallback.objectReferenceValue == null)
+            fallback.objectReferenceValue = made[0];
+
+        managerSo.ApplyModifiedProperties();
+        EditorUtility.SetDirty(manager);
+        EditorSceneManager.MarkSceneDirty(manager.gameObject.scene);
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        report.AppendLine();
+        report.AppendLine("CustomerManager'a " + made.Count + " prefab baglandi.");
+        report.AppendLine("Squirrel: LISTE DISI (sef/player).");
+        report.AppendLine("Sahne KAYDEDILMEDI. Kontrol et, sonra Ctrl+S.");
+
+        Show(report.ToString());
+    }
+
+    private static void EnsureAssetFolder(string path)
+    {
+        if (AssetDatabase.IsValidFolder(path))
+            return;
+
+        string parent = Path.GetDirectoryName(path)?.Replace('\\', '/');
+        string name = Path.GetFileName(path);
+
+        if (!string.IsNullOrEmpty(parent))
+            EnsureAssetFolder(parent);
+
+        AssetDatabase.CreateFolder(parent, name);
     }
 
     // One prefab: new mesh, same everything else.
@@ -936,6 +1366,815 @@ public static class CapsuleCharacterSetup
     }
 
     private const string capsuleSuffix = " (KAPSUL - kapali)";
+
+    private const string playerAnimal = "Squirrel";
+    private const string playerPrefab = "Assets/Tiny Coffee Shop/Prefabs/Characters/Player.prefab";
+
+    // The player alone, on its own animal, with its own controller.
+    //
+    // Kept apart from command 3 because it can be run again and again without
+    // stacking bodies up, which 3 cannot -- 3 assumes it is meeting a prefab
+    // for the first time. This one meets whatever is there and ends in the
+    // same place regardless
+    [MenuItem("Cooked Fast/Karakter/4 - Player'a Sincap Koy", priority = 710)]
+    public static void PlayerToAnimal()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            Show("Play modundayken calismaz. Once durdur.");
+            return;
+        }
+
+        if (AssetDatabase.LoadAssetAtPath<AnimatorController>(playerController) == null)
+        {
+            Show("Once 2. komutu calistir -- " + Path.GetFileName(playerController) + " yok.\n\n" +
+                 "Player'in 11 state'i var, eski 5'lik controller yetmez.");
+            return;
+        }
+
+        if (!EditorUtility.DisplayDialog("Player'a " + playerAnimal,
+                "Player'in govdesi " + playerAnimal + " olacak.\n\n" +
+                "  eski govde  -> kapatilir, adina (ESKI) yazilir\n" +
+                "  sapka       -> yeni kafa kemigine tasinir\n" +
+                "  controller  -> " + Path.GetFileName(playerController) + "\n\n" +
+                "Onceki kapsul govde varsa SILINIR -- onu bu komut\n" +
+                "yapmisti ve tek tusla yeniden yapilir. Elle konmus\n" +
+                "govdelere dokunulmuyor.\n\n" +
+                "Devam edilsin mi?",
+                "Koy", "Vazgec"))
+            return;
+
+        string report = PutAnimal(playerPrefab, playerAnimal, playerController);
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Show("PLAYER -> " + playerAnimal + "\n\n" + report + "\n" +
+             "Play'e bas. Yurume ve durma calisir; tezgah ve ocak\n" +
+             "animasyonlari waiter paketinden tahminle secildi --\n" +
+             "0 - Klip Tarayici'da baskasini dene, hangisi olsun soyle.");
+    }
+
+    // Indented, so the shape reads as well as the names -- which limb a bone
+    // belongs to is a fact about where it sits, not about what it is called
+    private static void Skeleton(Transform bone, int depth, StringBuilder into)
+    {
+        if (bone == null || depth > 8)
+            return;
+
+        into.AppendLine(new string(' ', depth * 2) + bone.name);
+
+        foreach (Transform child in bone)
+            Skeleton(child, depth + 1, into);
+    }
+
+    private const string pandaSource = "Assets/Tiny Coffee Shop/FBX-2/Panda.fbx";
+    internal const string pandaHuman = outputFolder + "/Panda_Humanoid.fbx";
+
+    // A humanoid COPY of Panda.fbx, so its clips can drive a capsule animal.
+    //
+    // Panda.fbx is imported Generic, and a generic clip has no muscle space to
+    // travel through -- it can only ever play on the skeleton it was authored
+    // on. That is why none of the panda's animations could come along, and it
+    // is a real loss: that file has Run, Idle, Idle_Holding, Chop, Jump, Duck
+    // and the rest, which is the set somebody actually made for THIS game.
+    //
+    // A copy rather than a re-import of the original, because the original is
+    // still doing a job. Panda.controller points at it, the retired panda body
+    // in Player.prefab points at that, and 3c's way back depends on both. Turn
+    // the original humanoid and all three break at once; copy it and nothing
+    // that works today stops working.
+    //
+    // ANSWER: it cannot be done, and the reason is the rig, not the names.
+    //
+    // Run once, the skeleton came back like this:
+    //
+    //   Torso -> Shoulder.L -> UpperArm.L          (and there it stops)
+    //   Hips  -> UpperLeg.L -> LowerLeg.L -> _end
+    //   Root  -> Foot.L                            (a SIBLING of the leg)
+    //   Root  -> PoleTarget.L
+    //
+    // Two things kill it. There is no lower arm and no hand at all -- the arm
+    // is two bones -- and Unity's humanoid requires UpperArm, LowerArm and Hand
+    // on both sides as mandatory bones. And the feet are not in the leg chain:
+    // Foot.L hangs off Root beside a PoleTarget, which is how an IK rig is
+    // built, while humanoid needs Hips -> UpperLeg -> LowerLeg -> Foot as one
+    // unbroken descent.
+    //
+    // Neither is fixable by mapping. A HumanDescription can rename what exists;
+    // it cannot invent a hand or reparent a foot. isValid: True with isHuman:
+    // False says exactly that -- the avatar built fine as a GENERIC one.
+    //
+    // Kept, with the finding written down, because "why not just make the panda
+    // humanoid" is the obvious question and this is the answer to it. Getting
+    // those clips onto a capsule animal needs the panda re-rigged in Blender,
+    // which is not an import setting
+    [MenuItem("Cooked Fast/Karakter/6 - Panda Kliplerini Humanoid Yap", priority = 713)]
+    public static void HumanisePanda()
+    {
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(pandaSource) == null)
+        {
+            Show("Kaynak yok: " + pandaSource);
+            return;
+        }
+
+        Directory.CreateDirectory(outputFolder);
+
+        AssetDatabase.DeleteAsset(pandaHuman);
+
+        if (!AssetDatabase.CopyAsset(pandaSource, pandaHuman))
+        {
+            Show("Kopyalanamadi:\n" + pandaSource + "\n  ->  " + pandaHuman);
+            return;
+        }
+
+        AssetDatabase.ImportAsset(pandaHuman, ImportAssetOptions.ForceUpdate);
+
+        ModelImporter importer = AssetImporter.GetAtPath(pandaHuman) as ModelImporter;
+
+        if (importer == null)
+        {
+            Show("Importer okunamadi: " + pandaHuman);
+            return;
+        }
+
+        importer.animationType = ModelImporterAnimationType.Human;
+        importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+
+        importer.SaveAndReimport();
+
+        StringBuilder report = new StringBuilder();
+
+        report.AppendLine("PANDA -> HUMANOID");
+        report.AppendLine();
+        report.AppendLine(pandaHuman);
+        report.AppendLine();
+
+        Avatar made = AvatarIn(pandaHuman);
+
+        if (made == null || !made.isValid || !made.isHuman)
+        {
+            report.AppendLine("ESLESMEDI.");
+
+            if (made != null)
+            {
+                report.AppendLine("  isValid: " + made.isValid +
+                                  "   isHuman: " + made.isHuman);
+            }
+
+            report.AppendLine();
+
+            // The names, because the names are the whole problem.
+            //
+            // Unity's auto-mapper reads bone names and gives up silently on
+            // anything it does not recognise -- "Required human bone 'LeftFoot'
+            // not found" means it never saw a name it could take for a foot,
+            // not that the rig has no foot. Writing an explicit mapping needs
+            // the real names, they are not in the .meta (skeleton: []) and the
+            // fbx is binary, so the only place to get them is from Unity. This
+            // is that: the command that failed prints what it was looking at
+            report.AppendLine("ISKELET:");
+            report.AppendLine();
+
+            GameObject copied = AssetDatabase.LoadAssetAtPath<GameObject>(pandaHuman);
+
+            if (copied == null)
+                report.AppendLine("  (model yuklenemedi)");
+            else
+                Skeleton(copied.transform, 0, report);
+
+            // Taken away again. A humanoid copy that is not humanoid is an
+            // asset whose only job is to mislead the next person who finds it
+            AssetDatabase.DeleteAsset(pandaHuman);
+
+            report.AppendLine();
+            report.AppendLine("Kopya silindi -- ise yaramiyor.");
+
+            Show(report.ToString());
+            return;
+        }
+
+        report.AppendLine("avatar   : " + made.name);
+        report.AppendLine("isValid  : " + made.isValid);
+        report.AppendLine("isHuman  : " + made.isHuman);
+        report.AppendLine();
+
+        int count = 0;
+
+        foreach (Object asset in AssetDatabase.LoadAllAssetsAtPath(pandaHuman))
+        {
+            if (asset is not AnimationClip clip || clip.name.StartsWith("__preview__"))
+                continue;
+
+            count++;
+        }
+
+        report.AppendLine(count + " klip humanoid oldu.");
+        report.AppendLine();
+        report.AppendLine("0 - Klip Tarayici'yi ac, Yenile'ye bas.");
+        report.AppendLine("\"Panda (humanoid)\" rafinda cikacaklar.");
+        report.AppendLine("Run ve Idle'i sincapta dene, hangisi olsun soyle.");
+
+        Show(report.ToString());
+    }
+
+    // The one in the scene, which is a different object from the one in the
+    // prefab and always was.
+    //
+    // Kitchen.unity is saved in BINARY, so none of this could be worked out by
+    // reading the file -- every grep came back empty and read as "there is no
+    // player in the scene", which was the wrong conclusion drawn confidently.
+    // The hierarchy showed a Player carrying a Panda Visual and no Body, and
+    // that settles it: the scene's player is hand built, not an instance, so
+    // four commands' worth of edits to Player.prefab never reached it
+    [MenuItem("Cooked Fast/Karakter/5 - Sahnedeki Player'a Sincap Koy", priority = 711)]
+    public static void ScenePlayerToAnimal()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            Show("Play modundayken calismaz -- degisiklik Play bitince kaybolur.");
+            return;
+        }
+
+        AnimatorController controller =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(playerController);
+
+        if (controller == null)
+        {
+            Show("Once 2. komutu calistir -- " + Path.GetFileName(playerController) + " yok.");
+            return;
+        }
+
+        GameObject root = ScenePlayer();
+
+        if (root == null)
+        {
+            Show("Sahnede PlayerAnimator tasiyan bir obje bulunamadi.\n\n" +
+                 "Kitchen sahnesi acik mi?");
+            return;
+        }
+
+        Transform currentVisual = PlateauAttach.FindVisual(root.transform);
+
+        // Command 2 used to break the controller reference, which made this
+        // command look necessary after every animation change. If the squirrel
+        // is already here, rebuilding it is precisely the wrong operation: Fit
+        // rescues the tray from the old hand before replacing the body. Repair
+        // the two references in place and preserve every hand-tuned transform.
+        if (IsModel(currentVisual, Model(playerAnimal)))
+        {
+            Undo.RegisterFullObjectHierarchyUndo(root, "Sincabi yerinde onar");
+
+            Animator currentAnimator = currentVisual.GetComponent<Animator>();
+
+            if (currentAnimator == null)
+                currentAnimator = currentVisual.gameObject.AddComponent<Animator>();
+
+            currentAnimator.avatar = LoadAvatar();
+            currentAnimator.runtimeAnimatorController = controller;
+            currentAnimator.applyRootMotion = false;
+
+            string plateauReport = RepairPlayerPlateau(root, currentVisual);
+
+            EditorSceneManager.MarkSceneDirty(root.scene);
+            Selection.activeGameObject = root;
+
+            Show("SAHNEDEKI SQUIRREL YERINDE ONARILDI\n\n" +
+                 "Body SILINMEDI / yeniden uretilmedi.\n" +
+                 "Controller baglandi.\n" + plateauReport + "\n\n" +
+                 "Kontrol et; iyi ise Ctrl+S.");
+            return;
+        }
+
+        GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(Model(playerAnimal));
+
+        if (model == null)
+        {
+            Show("Model yok: " + Model(playerAnimal));
+            return;
+        }
+
+        if (!EditorUtility.DisplayDialog("Sahnedeki Player'a " + playerAnimal,
+                "Sahnedeki \"" + root.name + "\" objesinin govdesi " + playerAnimal + " olacak.\n\n" +
+                "Panda Visual KAPATILIR, silinmez -- adina (ESKI) yazilir.\n" +
+                "Geri almak icin Ctrl+Z yeter, kaydetmeden once.\n\n" +
+                "Devam edilsin mi?",
+                "Koy", "Vazgec"))
+            return;
+
+        // The whole hierarchy, in one undo step. Anything less and Ctrl+Z
+        // leaves the character half swapped, which is worse than either end
+        Undo.RegisterFullObjectHierarchyUndo(root, "Player'a " + playerAnimal);
+
+        string said = Fit(root, model, LoadAvatar(), controller,
+            playerAnimal, playerController, true);
+
+        string plateauReportAfterFit = RepairPlayerPlateau(
+            root, PlateauAttach.FindVisual(root.transform));
+
+        Selection.activeGameObject = root;
+
+        EditorSceneManager.MarkSceneDirty(root.scene);
+
+        Show("SAHNEDEKI PLAYER -> " + playerAnimal + "\n\n" +
+             "obje: " + root.name + "\n" + said + "\n" +
+             plateauReportAfterFit + "\n" +
+             "Sahne KAYDEDILMEDI. Bak, begenirsen Ctrl+S.\n" +
+             "Begenmezsen Ctrl+Z.");
+    }
+
+    private static bool IsModel(Transform visual, string modelPath)
+    {
+        if (visual == null)
+            return false;
+
+        string instancePath =
+            PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(visual.gameObject);
+
+        if (instancePath == modelPath)
+            return true;
+
+        // GetPrefabAssetPath can be empty for a nested model whose outer prefab
+        // owns the nearest root. The rendered mesh still belongs to the FBX and
+        // gives an unambiguous answer without relying on the object's name.
+        foreach (SkinnedMeshRenderer skin in
+                 visual.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            if (skin.sharedMesh != null && AssetDatabase.GetAssetPath(skin.sharedMesh) == modelPath)
+                return true;
+        }
+
+        return false;
+    }
+
+    // Only repairs a tray that command 5 stranded outside the live body. A tray
+    // already under the squirrel rig is hand-tuned and is deliberately left
+    // byte-for-byte alone.
+    private static string RepairPlayerPlateau(GameObject root, Transform visual)
+    {
+        Plateau plateau = root.GetComponentInChildren<Plateau>(true);
+
+        if (plateau == null)
+            return "Plateau yok; dokunulmadi.";
+
+        if (visual == null)
+            return "Canli Body bulunamadi; plateau dokunulmadi.";
+
+        if (plateau.transform.IsChildOf(visual))
+            return "Plateau zaten " + plateau.transform.parent.name +
+                   " altinda; ELLE AYARI KORUNDU.";
+
+        PlateauAttach.Placement placement = PlateauAttach.KnownGoodCustomer;
+        Transform bone = PlateauAttach.ResolveBone(visual, placement.bonePath);
+
+        if (bone == null)
+            return "Plateau kokte kaldi: kayitli el kemigi bulunamadi.";
+
+        PlateauAttach.ApplyPlacement(plateau, bone, placement);
+
+        return "Plateau " + bone.name + " altina geri baglandi (kayitli ayar).";
+    }
+
+    // Recovery command with deliberately narrow authority: it cannot create,
+    // replace, disable or delete a body. It only reconnects the controller and
+    // a tray that was stranded at the Player root by the old command 5.
+    [MenuItem("Cooked Fast/Karakter/5c - Sincabi Yerinde Onar", priority = 712)]
+    public static void RepairSceneSquirrelInPlace()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            Show("Play modundayken calismaz. Once durdur.");
+            return;
+        }
+
+        GameObject root = ScenePlayer();
+        AnimatorController controller =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(playerController);
+
+        if (root == null || controller == null)
+        {
+            Show(root == null
+                ? "Sahnede PlayerAnimator tasiyan obje yok."
+                : "Capsule Player.controller yok; once 2 komutunu calistir.");
+            return;
+        }
+
+        Transform visual = PlateauAttach.FindVisual(root.transform);
+
+        if (!IsModel(visual, Model(playerAnimal)))
+        {
+            Show("Canli govde Squirrel degil. HICBIR SEY DEGISTIRILMEDI.");
+            return;
+        }
+
+        Undo.RegisterFullObjectHierarchyUndo(root, "Sincabi yerinde onar");
+
+        Animator animator = visual.GetComponent<Animator>();
+
+        if (animator == null)
+            animator = visual.gameObject.AddComponent<Animator>();
+
+        animator.avatar = LoadAvatar();
+        animator.runtimeAnimatorController = controller;
+        animator.applyRootMotion = false;
+
+        string plateauReport = RepairPlayerPlateau(root, visual);
+
+        EditorSceneManager.MarkSceneDirty(root.scene);
+        Selection.activeGameObject = root;
+
+        Show("SINCABIN GOVDESINE DOKUNULMADI\n\n" +
+             "Controller baglandi.\n" + plateauReport + "\n\n" +
+             "Kontrol et; iyi ise Ctrl+S.");
+    }
+
+    // The hat off, in both places it exists.
+    //
+    // Carrying it across was the wrong call. A chef's hat was modelled for a
+    // human head and sized against one, and no amount of arithmetic makes it
+    // belong on a squirrel -- the proportional resize made it a black disc
+    // wider than the character instead of a white one, which is a different
+    // wrong answer to a question that should not have been asked.
+    //
+    // Deleted rather than disabled because that is what was asked for. It
+    // costs nothing to undo: in the scene Ctrl+Z brings it back before the
+    // save, and Chef_Hat.fbx itself is untouched either way
+    [MenuItem("Cooked Fast/Karakter/5b - Kafa Takisini Sil", priority = 712)]
+    public static void DropHeadgear()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            Show("Play modundayken calismaz. Once durdur.");
+            return;
+        }
+
+        StringBuilder report = new StringBuilder();
+
+        report.AppendLine("KAFA TAKISI");
+        report.AppendLine();
+
+        GameObject scene = ScenePlayer();
+
+        if (scene == null)
+        {
+            report.AppendLine("- sahne: PlayerAnimator'lu obje yok");
+        }
+        else
+        {
+            Undo.RegisterFullObjectHierarchyUndo(scene, "Kafa takisini sil");
+
+            string said = Strip(scene, true);
+
+            report.AppendLine("- sahne (" + scene.name + "):" +
+                              (said.Length <= 0 ? " taki yok" : said));
+
+            EditorSceneManager.MarkSceneDirty(scene.scene);
+        }
+
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(playerPrefab) == null)
+        {
+            report.AppendLine("- prefab: YOK");
+        }
+        else
+        {
+            GameObject root = PrefabUtility.LoadPrefabContents(playerPrefab);
+
+            try
+            {
+                string said = Strip(root, false);
+
+                if (said.Length > 0)
+                    PrefabUtility.SaveAsPrefabAsset(root, playerPrefab);
+
+                report.AppendLine("- Player.prefab:" +
+                                  (said.Length <= 0 ? " taki yok" : said));
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        report.AppendLine();
+        report.AppendLine("Sahne kaydedilmedi. Ctrl+S ya da Ctrl+Z.");
+
+        Show(report.ToString());
+    }
+
+    // Anything that is its own prefab instance hanging off the head bone --
+    // which is exactly the set of things Hook put there, and nothing that
+    // belongs to the animal's own model
+    private static string Strip(GameObject root, bool inScene)
+    {
+        StringBuilder said = new StringBuilder();
+
+        foreach (Animator animator in root.GetComponentsInChildren<Animator>(true))
+        {
+            if (animator == null || !animator.isHuman)
+                continue;
+
+            Transform head = animator.GetBoneTransform(HumanBodyBones.Head);
+
+            if (head == null)
+                continue;
+
+            List<GameObject> doomed = new List<GameObject>();
+
+            foreach (Transform child in head)
+            {
+                if (child != null && PrefabUtility.IsAnyPrefabInstanceRoot(child.gameObject))
+                    doomed.Add(child.gameObject);
+            }
+
+            // Collected first, deleted after -- removing while walking the
+            // children skips every other one
+            foreach (GameObject what in doomed)
+            {
+                said.Append("\n    silindi: " + what.name);
+
+                if (inScene)
+                    Undo.DestroyObjectImmediate(what);
+                else
+                    Object.DestroyImmediate(what);
+            }
+        }
+
+        return said.ToString();
+    }
+
+    // Found by the component rather than by the name, because "Player" is a
+    // name anything can have and PlayerAnimator is the thing that actually
+    // drives this character
+    private static GameObject ScenePlayer()
+    {
+        foreach (MonoBehaviour script in Object.FindObjectsByType<MonoBehaviour>(
+                     FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (script != null && script.GetType().Name == "PlayerAnimator")
+                return script.gameObject;
+        }
+
+        return null;
+    }
+
+    // Idempotent by construction: it reads the state it finds, throws away only
+    // what it made itself, and writes the same answer whether it is the first
+    // run or the fifth
+    private static string PutAnimal(string prefabPath, string animal, string controllerPath)
+    {
+        string name = Path.GetFileNameWithoutExtension(prefabPath);
+
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) == null)
+            return "- " + name + ": PREFAB YOK\n";
+
+        GameObject model = AssetDatabase.LoadAssetAtPath<GameObject>(Model(animal));
+
+        if (model == null)
+            return "- " + name + ": " + animal + " modeli yok\n";
+
+        Avatar avatar = LoadAvatar();
+
+        AnimatorController controller =
+            AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
+
+        GameObject root = PrefabUtility.LoadPrefabContents(prefabPath);
+
+        try
+        {
+            string said = Fit(root, model, avatar, controller, animal, controllerPath, false);
+
+            PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+
+            return said;
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
+    // The same operation on a prefab and on a scene object.
+    //
+    // Split out because the scene's Player is NOT an instance of Player.prefab
+    // -- it is its own hand built object, so every edit to the prefab sailed
+    // past it and the panda stayed exactly where it was. Two commands, one
+    // piece of code, because "put this animal on this character" does not
+    // become a different job depending on where the character is kept.
+    //
+    // The only thing that differs is who is allowed to destroy: in a prefab
+    // being written to disk a DestroyImmediate is final, and in a scene it has
+    // to go through Undo or the person who tries Ctrl+Z gets nothing back
+    private static string Fit(GameObject root, GameObject model, Avatar avatar,
+                              AnimatorController controller, string animal,
+                              string controllerPath, bool inScene)
+    {
+        {
+            StringBuilder said = new StringBuilder();
+
+            GameObject live = null;
+            GameObject stale = null;
+
+            foreach (GameObject body in Bodies(root, null))
+            {
+                if (body.name == "Body" || body.name.EndsWith(capsuleSuffix))
+                {
+                    stale = body;
+                    continue;
+                }
+
+                if (live == null && body.activeSelf)
+                    live = body;
+            }
+
+            // Where the new body goes is copied off whatever is standing there
+            // now, rather than assumed to be the origin. A character that was
+            // offset or scaled in its prefab stays offset and scaled
+            GameObject reference = live != null ? live : stale;
+
+            Transform host = root.transform;
+            Vector3 place = Vector3.zero;
+            Quaternion turn = Quaternion.identity;
+            Vector3 size = Vector3.one;
+
+            if (reference != null)
+            {
+                host = reference.transform.parent == null
+                    ? root.transform
+                    : reference.transform.parent;
+
+                place = reference.transform.localPosition;
+                turn = reference.transform.localRotation;
+                size = reference.transform.localScale;
+            }
+
+            said.Append(Rescue(root));
+
+            // Taken off every body BEFORE anything is destroyed.
+            //
+            // On the second run the hat is hanging off the head bone of the
+            // capsule body from the first run -- which is the object about to
+            // be deleted. Collecting afterwards would collect nothing, and the
+            // hat would go in the bin with the animal wearing it. It has to
+            // come off first, and off ALL the bodies, not just the live one
+            List<float> shares = new List<float>();
+            List<GameObject> loose = Unhook(root, shares);
+
+            // The one thing here that gets destroyed, and only because this
+            // tool is the only thing that has ever touched it: a disabled
+            // capsule body from a previous run. Keeping them would mean a
+            // prefab that grows a new dead animal every time somebody changes
+            // their mind about which one
+            if (stale != null)
+            {
+                said.AppendLine("    onceki kapsul govde silindi: " + stale.name);
+
+                if (inScene)
+                    Undo.DestroyObjectImmediate(stale);
+                else
+                    Object.DestroyImmediate(stale);
+            }
+
+            GameObject body2 = (GameObject)PrefabUtility.InstantiatePrefab(model, host);
+
+            if (inScene)
+                Undo.RegisterCreatedObjectUndo(body2, "Kapsul govde");
+
+            body2.name = "Body";
+            body2.transform.localPosition = place;
+            body2.transform.localRotation = turn;
+            body2.transform.localScale = size;
+
+            Animator fresh = body2.GetComponent<Animator>();
+
+            if (fresh == null)
+                fresh = body2.AddComponent<Animator>();
+
+            fresh.avatar = avatar;
+            fresh.runtimeAnimatorController = controller;
+            fresh.applyRootMotion = false;
+
+            said.AppendLine("    govde: " + animal + ", controller: " +
+                            Path.GetFileName(controllerPath));
+
+            said.Append(Hook(fresh, body2, loose, shares));
+            said.Append(Retire(root, body2));
+
+            Animator was = live == null ? null : live.GetComponent<Animator>();
+
+            string wired = Rewire(root, fresh, was);
+
+            if (wired.Length > 0)
+                said.AppendLine("   " + wired.Substring(2));
+
+            return said.ToString();
+        }
+    }
+
+    // Hats and caps, off whatever body they are hanging on, parked on the root.
+    //
+    // Chef_Hat is parented to a BONE of a body that is about to be switched off
+    // or deleted, so it goes with it -- the player comes out bare headed and
+    // nothing says why. Anything that is its own prefab instance sitting inside
+    // a body is an attachment rather than part of that body, which is what
+    // tells a hat apart from a shoulder.
+    //
+    // What gets remembered is not the hat's size but its SHARE of the body it
+    // was on. An absolute size means nothing across this move: a chef's hat at
+    // local scale 1.97 was 1.97 of a human head bone, and the same number on a
+    // squirrel's head bone is the white blob that swallows the character. A
+    // fraction of the body's width survives the change, because that is what
+    // "a hat this big" actually means
+    private static List<GameObject> Unhook(GameObject root, List<float> shares)
+    {
+        List<GameObject> loose = new List<GameObject>();
+
+        foreach (GameObject body in Bodies(root, null))
+        {
+            float was = Width(body);
+
+            foreach (Transform child in body.GetComponentsInChildren<Transform>(true))
+            {
+                if (child == null || child.gameObject == body)
+                    continue;
+
+                if (!PrefabUtility.IsAnyPrefabInstanceRoot(child.gameObject))
+                    continue;
+
+                loose.Add(child.gameObject);
+                shares.Add(was > .0001f ? Width(child.gameObject) / was : 0f);
+            }
+        }
+
+        // Collected first, moved after. Reparenting inside the walk would leave
+        // the rest of the list pointing at objects that have since moved house
+        foreach (GameObject what in loose)
+            what.transform.SetParent(root.transform, true);
+
+        return loose;
+    }
+
+    // And back on, at the head of the body that is actually there now
+    private static string Hook(Animator fresh, GameObject body,
+                               List<GameObject> loose, List<float> shares)
+    {
+        if (loose.Count <= 0)
+            return "";
+
+        Transform head = fresh.GetBoneTransform(HumanBodyBones.Head);
+
+        if (head == null)
+            return "    (yeni govdede kafa kemigi yok, taki KOKTE birakildi)\n";
+
+        float now = Width(body);
+
+        StringBuilder said = new StringBuilder();
+
+        for (int i = 0; i < loose.Count; i++)
+        {
+            GameObject what = loose[i];
+
+            // At the bone's origin, same bargain as the plateau: the offset
+            // that was dialled in was dialled in against a different bone at a
+            // different scale, so carrying the numbers across carries nothing
+            what.transform.SetParent(head, false);
+            what.transform.localPosition = Vector3.zero;
+            what.transform.localRotation = Quaternion.identity;
+
+            float wanted = i < shares.Count ? shares[i] * now : 0f;
+            float drawn = Width(what);
+
+            if (wanted <= .0001f || drawn <= .0001f)
+            {
+                said.AppendLine("    " + what.name + " -> " + head.name +
+                                "  (olcu okunamadi, ELLE bak)");
+                continue;
+            }
+
+            float factor = wanted / drawn;
+            Vector3 had = what.transform.localScale;
+
+            what.transform.localScale = new Vector3(
+                had.x * factor, had.y * factor, had.z * factor);
+
+            // Carried across but switched OFF.
+            //
+            // Twice now the honest answer to "how big should this hat be on
+            // this head" has been a thing that swallowed the character, and the
+            // reason is not the arithmetic: a chef's hat was modelled for a
+            // human skull and a capsule animal does not have one. Off by
+            // default means nothing is lost and nothing is imposed -- the
+            // checkbox turns it back on, 5b removes it for good
+            what.SetActive(false);
+
+            said.AppendLine("    " + what.name + " -> " + head.name +
+                            "  KAPALI (genislik " + wanted.ToString("0.000") + ")");
+        }
+
+        return said.ToString();
+    }
 
     // Back to the bodies the prefabs came with.
     //
@@ -1552,9 +2791,26 @@ public static class CapsuleCharacterSetup
         return animalFolder + "DGN_" + animal + "_Outline.fbx";
     }
 
+    // The bear's avatar, on all fifteen -- which is what the PACK does.
+    //
+    // I argued myself out of this once, on the theory that an Avatar carries a
+    // skeleton as well as a mapping and that a squirrel is not a small bear. It
+    // reads well and it was wrong: DGN_Squirrel_Outline Variant.prefab, shipped
+    // and working, has m_Avatar pointing at DGN_Bear_Outline. All fifteen are
+    // the same DGN_Armature with the same proportions and only the mesh
+    // differs, so one avatar genuinely serves them all.
+    //
+    // Written down because the wrong version is the more persuasive one, and
+    // the next person to look at this -- me included -- will reason their way
+    // back to it unless the evidence is sitting here
     private static Avatar LoadAvatar()
     {
-        foreach (Object asset in AssetDatabase.LoadAllAssetsAtPath(avatarSource))
+        return AvatarIn(avatarSource);
+    }
+
+    private static Avatar AvatarIn(string path)
+    {
+        foreach (Object asset in AssetDatabase.LoadAllAssetsAtPath(path))
         {
             if (asset is Avatar avatar)
                 return avatar;
@@ -1568,6 +2824,107 @@ public static class CapsuleCharacterSetup
     // whole Mixamo path ("Armature.001|Armature|mixamo.com|Walk"), the waiter
     // ones carry something else again. So: match on the last segment when a
     // name is asked for, and take the only clip in the file when it is not
+    private const string westFolder =
+        "Assets/YashMakesGames/Wild West Animation Pack/";
+
+    // Standing, and firing. In order of preference.
+    //
+    // Named outright rather than searched for, because the search got it wrong
+    // in the way searches do: "CrouchAimWRevolver" contains both "revolver" and
+    // "aim", matches every rule a name filter can express, and is a man
+    // squatting on the floor. The pack is on disk and its files have names --
+    // there is nothing left to infer.
+    //
+    // Quickdraw first because it is the whole shot in one motion: hand to hip,
+    // gun up, fire. The others are fallbacks in case a future version of the
+    // pack drops it.
+    private static readonly string[] shootClips =
+    {
+        westFolder + "Idle/Quickdraw.fbx",
+        westFolder + "Idle/Idle_Fulldraw_Revolver.fbx",
+        westFolder + "Idle/Fanning.fbx",
+        westFolder + "Idle/Idle_w_Revolver.fbx",
+    };
+
+    // Anything that is not a character standing on both feet. A shot fired from
+    // one of these poses is not the shot this game is asking for, however well
+    // its name scores.
+    private static readonly string[] notStanding =
+    {
+        "crouch", "cover", "vault", "dodge", "death", "prone", "slide",
+        "sit", "walk", "run", "holster", "reload",
+    };
+
+    // The best available firing clip: the named ones first, then a search for
+    // anything that turns up if the pack is ever moved or renamed, then a
+    // stand-in so the state is never left empty.
+    private static string GunslingerClip()
+    {
+        for (int i = 0; i < shootClips.Length; i++)
+            if (Humanoid(shootClips[i]))
+                return shootClips[i];
+
+        string[] guids = AssetDatabase.FindAssets("t:Model", new[] { "Assets" });
+
+        for (int i = 0; i < guids.Length; i++)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+
+            // Its Revovler_Shooting is a GENERIC clip that animates the gun's
+            // own hammer and cylinder. Retargeting it onto an animal would be
+            // driving a rabbit with a revolver's skeleton.
+            if (path.Contains("Dead West"))
+                continue;
+
+            string file = Path.GetFileNameWithoutExtension(path).ToLowerInvariant();
+
+            if (Any(file, notStanding))
+                continue;
+
+            bool western = file.Contains("gunslinger") || file.Contains("revolver") ||
+                           file.Contains("pistol") || file.Contains("cowboy") ||
+                           file.Contains("quickdraw");
+
+            if (!western)
+                continue;
+
+            if (!file.Contains("shoot") && !file.Contains("fire") &&
+                !file.Contains("aim") && !file.Contains("draw"))
+                continue;
+
+            if (!Humanoid(path))
+                continue;
+
+            return path;
+        }
+
+        // Not a draw, but the one clip in this project that holds an arm out in
+        // front gripping something, which is most of what a shot looks like
+        // from this camera.
+        return waiterFolder + "Waiter_Pitcher_TableTop_Pour.fbx";
+    }
+
+    private static bool Any(string name, string[] words)
+    {
+        for (int i = 0; i < words.Length; i++)
+            if (name.Contains(words[i]))
+                return true;
+
+        return false;
+    }
+
+    private static bool Humanoid(string path)
+    {
+        // Doubles as the existence check: GetAtPath answers null for a file
+        // that is not there, which is the same "cannot use this" as a clip that
+        // was imported Generic. A generic clip in a humanoid controller plays
+        // nothing and says nothing about why.
+        ModelImporter importer = AssetImporter.GetAtPath(path) as ModelImporter;
+
+        return importer != null &&
+               importer.animationType == ModelImporterAnimationType.Human;
+    }
+
     private static AnimationClip FirstClip(string path, string wanted)
     {
         AnimationClip fallback = null;

@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 // Builds the start screen, the round banner and the game over screen.
@@ -68,7 +69,13 @@ public static class GameScreensSetup
         Undo.RegisterCreatedObjectUndo(events, "Create EventSystem");
 
         events.AddComponent<EventSystem>();
-        events.AddComponent<StandaloneInputModule>();
+
+        // The Input System module. The old StandaloneInputModule reads
+        // UnityEngine.Input, and this project is set to the new package only --
+        // it throws every frame from inside EventSystem.Update. Never seen
+        // before because the kitchen already had an EventSystem, so this branch
+        // only ever ran in a scene nobody had built yet
+        events.AddComponent<InputSystemUIInputModule>();
 
         report += "- EventSystem yoktu, kuruldu (yoksa tuslar calismaz)\n";
     }
@@ -263,6 +270,8 @@ public static class GameScreensSetup
         so.FindProperty("startPanel").objectReferenceValue = start;
         so.FindProperty("roundPanel").objectReferenceValue = round;
         so.FindProperty("overPanel").objectReferenceValue = over;
+        so.FindProperty("roundCard").objectReferenceValue =
+            round.transform.Find("Bar") as RectTransform;
 
         so.FindProperty("readyLabel").objectReferenceValue = Find<TextMeshProUGUI>(round, "Ready");
         so.FindProperty("roundLabel").objectReferenceValue = Find<TextMeshProUGUI>(round, "Round");

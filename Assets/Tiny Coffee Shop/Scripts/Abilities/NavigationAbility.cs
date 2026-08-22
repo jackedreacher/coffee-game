@@ -7,7 +7,7 @@ public class NavigationAbility : MonoBehaviour
     [Header(" Components ")]
     private NavMeshAgent agent;
 
-    public Vector3 Velocity => agent.velocity;
+    public Vector3 Velocity => Ready ? agent.velocity : Vector3.zero;
 
     // Which way the PATH goes, as opposed to which way the agent is being
     // shoved.
@@ -65,7 +65,8 @@ public class NavigationAbility : MonoBehaviour
     // millimetres short of arriving
     private const float arriveWithin = .1f;
 
-    private bool Crawling => agent.velocity.sqrMagnitude <= stillSpeed * stillSpeed;
+    private bool Crawling =>
+        !Ready || agent.velocity.sqrMagnitude <= stillSpeed * stillSpeed;
 
     private float StopWithin => Mathf.Max(agent.stoppingDistance, arriveWithin);
 
@@ -96,10 +97,20 @@ public class NavigationAbility : MonoBehaviour
         }
     }
 
+    // Safe to ask anything of. Every NavMeshAgent property below throws the
+    // same "must be on a NavMesh" complaint otherwise, and it throws it once
+    // per frame for as long as whoever is asking keeps asking.
+    public bool Ready => agent != null && agent.enabled && agent.isOnNavMesh;
+
     public bool IsMoving
     {
         get
         {
+            // Same reason as HasReachedDestination: an agent that is switched
+            // off is not moving, and saying so is cheaper than throwing.
+            if (!Ready)
+                return false;
+
             if (agent.pathPending)
                 return true;
 
@@ -114,6 +125,13 @@ public class NavigationAbility : MonoBehaviour
     {
         get
         {
+            // A disabled or off-mesh agent answers every one of the questions
+            // below with an error rather than a value. "Nowhere left to walk"
+            // is the honest answer for an agent that cannot walk at all, and it
+            // is the one that stops the caller asking again.
+            if (!Ready)
+                return true;
+
             if (agent.pathPending)
                 return false;
 
@@ -125,6 +143,18 @@ public class NavigationAbility : MonoBehaviour
 
             return true;
         }
+    }
+
+    // The arrival performance starts in the last hand-width of the path, not
+    // after the agent has already become completely still. Kept as a query on
+    // NavigationAbility so Customer never reaches into NavMeshAgent internals.
+    public bool IsWithinDestination(float distance)
+    {
+        if (agent == null || !agent.isActiveAndEnabled || agent.pathPending ||
+            !agent.hasPath)
+            return false;
+
+        return agent.remainingDistance <= Mathf.Max(StopWithin, distance);
     }
 
     // Every agent gets its own place in the pecking order.
@@ -194,6 +224,10 @@ public class NavigationAbility : MonoBehaviour
     // What the agent runs at when it is pointing where it is going. Held apart
     // from agent.speed, because that one is overwritten every frame now
     private float fullSpeed;
+
+    // What it is set to now, so a caller can scale it instead of having to
+    // know the number somebody typed into the prefab.
+    public float Speed => fullSpeed;
 
     public void SetSpeed(float speed)
     {
@@ -286,6 +320,47 @@ public class NavigationAbility : MonoBehaviour
                              " birim icinde yurunebilir yer yok)"), this);
 
         return false;
+    }
+
+    // The direction of the FIRST walkable leg, not the straight line to the
+    // destination. Around a counter those are often different: the door may be
+    // behind the customer while the legal path begins sideways around a wall.
+    // Turning to the straight line and then feeding Animator the NavMesh line
+    // made the body visibly look back immediately after its 180 turn.
+    public Vector3 FirstHeadingTo(Vector3 targetPosition)
+    {
+        targetPosition.y = 0f;
+
+        Vector3 direct = targetPosition - transform.position;
+        direct.y = 0f;
+
+        if (agent == null || !agent.isActiveAndEnabled)
+            return direct;
+
+        NavMeshPath path = new NavMeshPath();
+        bool found = agent.CalculatePath(targetPosition, path);
+
+        if (!found && NavMesh.SamplePosition(targetPosition, out NavMeshHit near,
+                retryRadius, NavMesh.AllAreas))
+        {
+            found = agent.CalculatePath(near.position, path);
+        }
+
+        if (!found || path.corners == null)
+            return direct;
+
+        for (int i = 0; i < path.corners.Length; i++)
+        {
+            Vector3 step = path.corners[i] - transform.position;
+            step.y = 0f;
+
+            // corner[0] is normally the agent's own position. Skip it and any
+            // numerical duplicate until the first real leg appears.
+            if (step.sqrMagnitude > .01f)
+                return step;
+        }
+
+        return direct;
     }
 
     // How far to look for standable floor around a destination that missed.

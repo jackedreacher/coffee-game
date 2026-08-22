@@ -30,11 +30,20 @@ public class FoodServingCustomerManager : MonoBehaviour
     // Offset between two neighbours inside the same row
     [SerializeField] private Vector3 sideSpacing = new Vector3(0f, 0f, 1f);
 
+    [Tooltip("Butun yan yana sirayi Side Spacing ekseninde kaydirir. " +
+             "Sol dis hedef NavMesh disina cikiyorsa negatif yap")]
+    [SerializeField] private float sideCentreOffset;
+
+    [Tooltip("4 kisi yan yanayken siparis balonu boyutu. 0 = varsayilan 0.68")]
+    [SerializeField] private float fourWideBubbleScale = .68f;
+
     [Tooltip("Arkadaki siranin siparis balonu ne kadar yukarida dursun. " +
              "0 = varsayilan 1.1. Balonlar ust uste biniyorsa buyut")]
     [SerializeField] private float bubbleRowLift = 1.1f;
 
     private float BubbleRowLift => bubbleRowLift > .01f ? bubbleRowLift : 1.1f;
+    private float FourWideBubbleScale =>
+        fourWideBubbleScale > .01f ? Mathf.Clamp(fourWideBubbleScale, .5f, 1f) : .68f;
 
     [SerializeField] private Vector2Int minMaxCustomerFoodCount;
 
@@ -78,8 +87,20 @@ public class FoodServingCustomerManager : MonoBehaviour
     [Tooltip("Kuyruk bosaldiginda yeni musteri kac saniyede gelir. 0 = varsayilan 1.5")]
     [SerializeField] private float refillDelay = 1.5f;
 
+    [Tooltip("Dolu kuyrukta bir yer acildiktan sonra yeni musteri gelmeden " +
+             "onceki nefes payi. Kiss ve cikis yuruyusunun ustune eklenir. " +
+             "0 = varsayilan 1")]
+    [SerializeField] private float slotReuseDelay = 1f;
+
+    [Tooltip("Giden musteri servis yerinden bu kadar uzaklasmadan yeri bos " +
+             "sayilmaz. 0 = varsayilan 1.1")]
+    [SerializeField] private float departureClearance = 1.1f;
+
     private int KeepBusy => keepBusy > 0 ? keepBusy : 1;
     private float RefillDelay => refillDelay > .01f ? refillDelay : 1.5f;
+    private float SlotReuseDelay => slotReuseDelay > .01f ? slotReuseDelay : 1f;
+    private float DepartureClearance =>
+        departureClearance > .01f ? departureClearance : 1.1f;
 
     private float FirstCustomerDelay => firstCustomerDelay > .01f ? firstCustomerDelay : 2f;
     private float CustomerInterval => customerInterval > .01f ? customerInterval : 4f;
@@ -261,6 +282,13 @@ public class FoodServingCustomerManager : MonoBehaviour
     // for as long as they are here, so nobody shuffles sideways when someone
     // else is served — only the column that opened up moves forward
     private Customer[] slots;
+
+    // A customer who has finished ordering is still occupying physical space.
+    // Keep the slot reserved through Chef's Kiss and the first part of the exit
+    // walk, or the next customer is sent into exactly the same place while the
+    // old one is still standing there. It also lets every serving path -- hand,
+    // OrderCounter, worker and give-up -- obey the same rule.
+    private readonly HashSet<Customer> departing = new HashSet<Customer>();
 
     // Handed over by OrderCounter in Awake, so the orders a customer can ask
     // for are always exactly what the counter is able to serve. Left null by
@@ -464,12 +492,47 @@ public class FoodServingCustomerManager : MonoBehaviour
         {
             Customer customer = slots[i];
 
-            if (customer == null || !customer.PatienceRanOut)
+            if (customer == null || departing.Contains(customer) || !customer.PatienceRanOut)
                 continue;
 
             GiveUp(customer);
             return;
         }
+    }
+
+    // Clears the queue because somebody was shot in front of it.
+    //
+    // Dequeued before being told to run, in that order: a customer still listed
+    // in a slot is a customer this counter will keep steering, and it would
+    // steer them straight back into the line they are trying to leave.
+    public int Scatter(Customer except)
+    {
+        int ran = 0;
+
+        // A counter that has not been set up yet has no queue to clear.
+        if (slots == null)
+            return 0;
+
+        // The body is dropped from the queue too, though it is not going
+        // anywhere. A customer still listed in a slot is one this counter will
+        // keep arranging -- and re-seating a corpse turns off the very thing
+        // that was stopping it sliding across the floor.
+        Dequeue(except);
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            Customer customer = slots[i];
+
+            if (customer == null || customer == except ||
+                departing.Contains(customer))
+                continue;
+
+            Dequeue(customer);
+            customer.Flee(ExitPosition);
+            ran++;
+        }
+
+        return ran;
     }
 
     private void GiveUp(Customer customer)
@@ -483,8 +546,17 @@ public class FoodServingCustomerManager : MonoBehaviour
                   customer.PatienceGiven.ToString("0.0") + " sn,  bekledigi " +
                   customer.Waited.ToString("0.0") + " sn", customer);
 
+        // This method is reached only when the order clock genuinely expires.
+        // Put the sound beside the life loss rather than in Customer.Leave:
+        // successful customers use the same exit machinery and must not play
+        // the failure cue.
+        // The final miss has its own disappointed-crowd game-over cue. Do not
+        // pile this short miss sound underneath it on the same frame.
+        if (Lives.Instance == null || Lives.Instance.Left > 1)
+            SoundManager.Play(SoundManager.Sound.OrderFailed);
+
         if (Lives.Instance != null)
-            Lives.Instance.Lose();
+            Lives.Instance.Lose(customer.transform.position + Vector3.up * 1.7f);
         else
             Debug.LogWarning(name + ": musteri kacti ama sahnede Lives yok -- " +
                              "can eksilmedi.\n  Cooked Fast > Can: Slotlari Kur", this);
@@ -530,8 +602,30 @@ public class FoodServingCustomerManager : MonoBehaviour
             // clock worth running while that is true
             if (GetFirstEmptySlot() < 0)
             {
-                yield return null;
-                continue;
+                // The interval has usually elapsed long before a full queue
+                // opens. Spawning on the very first free frame made the new
+                // customer step into the departing customer's body. Wait until
+                // a slot genuinely opens, then start a NEW short breath clock.
+                while ((!roundDriven || roundSpawned < roundTotal) &&
+                       GetFirstEmptySlot() < 0)
+                    yield return null;
+
+                if (roundDriven && roundSpawned >= roundTotal)
+                    break;
+
+                float openingAge = 0f;
+
+                while (openingAge < SlotReuseDelay && GetFirstEmptySlot() >= 0)
+                {
+                    openingAge += Time.deltaTime;
+                    yield return null;
+                }
+
+                // Another column may have advanced into the opening while we
+                // were breathing. If so, go back to waiting instead of spawning
+                // through a now-full queue.
+                if (GetFirstEmptySlot() < 0)
+                    continue;
             }
 
             SpawnNewCustomer();
@@ -602,8 +696,18 @@ public class FoodServingCustomerManager : MonoBehaviour
         // not separate two cards on an isometric screen -- it puts the far one
         // directly behind the near one
         newCustomer.SetBubbleLift(slot / Mathf.Max(1, customersPerRow) * BubbleRowLift);
+        newCustomer.SetBubbleScale(customersPerRow >= 4 ? FourWideBubbleScale : 1f);
 
-        newCustomer.Initialize(order, targetPosition, -QueueOffset.normalized);
+        // All slots face perpendicular to the counter, not towards one shared
+        // point on it. Aiming every customer at Cashier_Machine made the side
+        // slots turn diagonally inward. Using the queue axis keeps every body
+        // parallel and looking straight across the counter.
+        Vector3 counterFacing = queueStartPoint != null &&
+                                QueueOffset.sqrMagnitude > .0001f
+            ? -QueueOffset.normalized
+            : -transform.forward;
+
+        newCustomer.Initialize(order, targetPosition, counterFacing);
     }
 
     // Builds the whole order: which foods, and how many of each.
@@ -743,6 +847,9 @@ public class FoodServingCustomerManager : MonoBehaviour
     // rotated station lines its customers up into a wall and pathing fails
     private Vector3 QueueOffset => queueStartPoint.rotation * queueSpacing;
     private Vector3 SideOffset => queueStartPoint.rotation * sideSpacing;
+    private Vector3 SideDirection => SideOffset.sqrMagnitude > .0001f
+        ? SideOffset.normalized
+        : Vector3.zero;
 
     private Vector3 GetTargetCustomerPosition(int index)
     {
@@ -754,7 +861,8 @@ public class FoodServingCustomerManager : MonoBehaviour
         // customersPerRow = 1 this term is zero and nothing moves
         float centredColumn = column - (customersPerRow - 1) * .5f;
 
-        return queueStartPoint.position + QueueOffset * row + SideOffset * centredColumn;
+        return queueStartPoint.position + QueueOffset * row +
+               SideOffset * centredColumn + SideDirection * sideCentreOffset;
     }
 
     // The block of floor the customers stand on, every row of it.
@@ -817,13 +925,33 @@ public class FoodServingCustomerManager : MonoBehaviour
 
     private int GetFirstEmptySlot()
     {
+        int best = -1;
+        float farthest = -1f;
+
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i] == null)
+            if (slots[i] != null)
+                continue;
+
+            if (spawnPoint == null)
                 return i;
+
+            // Fill the hardest-to-reach outside places first. Four customers
+            // leave one spawn point almost together in the test wave; filling
+            // the middle first parks bodies directly across the outer paths,
+            // so the last customer spends forever negotiating around them.
+            // Outside-first lets the paths fan apart before anyone stops.
+            float distance = (GetTargetCustomerPosition(i) -
+                              spawnPoint.position).sqrMagnitude;
+
+            if (distance <= farthest)
+                continue;
+
+            farthest = distance;
+            best = i;
         }
 
-        return -1;
+        return best;
     }
 
     // Only the front row can be reached across the counter
@@ -838,7 +966,7 @@ public class FoodServingCustomerManager : MonoBehaviour
 
         Customer customer = slots[slot];
 
-        if (customer == null)
+        if (customer == null || departing.Contains(customer))
             return null;
 
         float distance = Vector3.Distance(
@@ -859,7 +987,7 @@ public class FoodServingCustomerManager : MonoBehaviour
         {
             Customer customer = slots[i];
 
-            if (customer == null)
+            if (customer == null || departing.Contains(customer))
                 continue;
 
             float distance = Vector3.Distance(
@@ -894,7 +1022,7 @@ public class FoodServingCustomerManager : MonoBehaviour
         {
             Customer customer = slots[i];
 
-            if (customer == null)
+            if (customer == null || departing.Contains(customer))
                 continue;
 
             // Aimed at the body rather than the feet: a tap lands on the middle
@@ -957,15 +1085,63 @@ public class FoodServingCustomerManager : MonoBehaviour
     // counter serves whoever it happens to have food for, not who arrived first
     public void Dequeue(Customer customer)
     {
+        if (customer == null || departing.Contains(customer))
+            return;
+
         for (int i = 0; i < slots.Length; i++)
         {
             if (slots[i] != customer)
                 continue;
 
-            slots[i] = null;
-            AdvanceColumn(i);
+            departing.Add(customer);
+            StartCoroutine(ReleaseSlotWhenClear(customer, i));
             return;
         }
+    }
+
+    private IEnumerator ReleaseSlotWhenClear(Customer customer, int slot)
+    {
+        Vector3 occupied = GetTargetCustomerPosition(slot).With(y: 0);
+        float age = 0f;
+
+        // IsReacting is the newly added time the old spawn mechanism did not
+        // know about. Distance is equally important: ending the Kiss and
+        // freeing the slot on that exact frame still starts the replacement
+        // while the old customer is standing on the mark.
+        while (customer != null)
+        {
+            float distance = Vector3.Distance(
+                customer.transform.position.With(y: 0), occupied);
+
+            if (!customer.IsReacting && distance >= DepartureClearance)
+                break;
+
+            age += Time.deltaTime;
+
+            // A broken NavMesh path must not deadlock the entire round. Normal
+            // exits clear this in well under two seconds after the reaction;
+            // eight seconds means something external failed, so release with a
+            // diagnostic instead of leaving the queue full forever.
+            if (age >= 8f && !customer.IsReacting)
+            {
+                Debug.LogWarning(name + ": " + customer.name +
+                                 " cikis yerinden uzaklasamadi; slot 8 sn sonra serbest birakildi.",
+                                 customer);
+                break;
+            }
+
+            yield return null;
+        }
+
+        departing.Remove(customer);
+
+        // The slot may have been repaired or cleared by an Editor/runtime tool
+        // while this coroutine waited. Only release the reservation we own.
+        if (slot < 0 || slot >= slots.Length || slots[slot] != customer)
+            yield break;
+
+        slots[slot] = null;
+        AdvanceColumn(slot);
     }
 
     // Only the freed column steps forward one row. Every other customer keeps

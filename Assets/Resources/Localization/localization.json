@@ -1,0 +1,172 @@
+{
+  "languages": [
+    { "code": "en", "name": "English" },
+    { "code": "tr", "name": "Türkçe" },
+    { "code": "zh-Hans", "name": "中文" },
+    { "code": "hi", "name": "हिन्दी" },
+    { "code": "es", "name": "Español" },
+    { "code": "fr", "name": "Français" },
+    { "code": "ar", "name": "العربية" },
+    { "code": "bn", "name": "বাংলা" },
+    { "code": "pt", "name": "Português" },
+    { "code": "ru", "name": "Русский" },
+    { "code": "ur", "name": "اردو" }
+  ],
+  "entries": [
+    {
+      "key": "settings", "source": "SETTINGS",
+      "values": ["SETTINGS", "AYARLAR", "设置", "सेटिंग्स", "AJUSTES", "PARAMÈTRES", "الإعدادات", "সেটিংস", "CONFIGURAÇÕES", "НАСТРОЙКИ", "ترتیبات"]
+    },
+    {
+      "key": "sfx", "source": "SFX",
+      "values": ["SFX", "EFEKTLER", "音效", "ध्वनि प्रभाव", "EFECTOS", "EFFETS", "المؤثرات", "সাউন্ড ইফেক্ট", "EFEITOS", "ЭФФЕКТЫ", "صوتی اثرات"]
+    },
+    {
+      "key": "music", "source": "MUSIC",
+      "values": ["MUSIC", "MÜZİK", "音乐", "संगीत", "MÚSICA", "MUSIQUE", "الموسيقى", "সঙ্গীত", "MÚSICA", "МУЗЫКА", "موسیقی"]
+    },
+    {
+      "key": "graphics", "source": "GRAPHICS",
+      "values": ["GRAPHICS", "GRAFİK", "画质", "ग्राफ़िक्स", "GRÁFICOS", "GRAPHISMES", "الرسومات", "গ্রাফিক্স", "GRÁFICOS", "ГРАФИКА", "گرافکس"]
+    },
+    {
+      "key": "language", "source": "LANGUAGE",
+      "values": ["LANGUAGE", "DİL", "语言", "भाषा", "IDIOMA", "LANGUE", "اللغة", "ভাষা", "IDIOMA", "ЯЗЫК", "زبان"]
+    },
+    {
+      "key": "ok", "source": "OK",
+      "values": ["OK", "TAMAM", "确定", "ठीक है", "ACEPTAR", "OK", "موافق", "ঠিক আছে", "OK", "ОК", "ٹھیک ہے"]
+    },
+    {
+      "key": "quit", "source": "QUIT",
+      "values": ["QUIT", "ÇIKIŞ", "退出", "बाहर निकलें", "SALIR", "QUITTER", "خروج", "প্রস্থান", "SAIR", "ВЫХОД", "باہر نکلیں"]
+    },
+    {
+      "key": "play", "source": "PLAY",
+      "values": ["PLAY", "OYNA", "开始", "खेलें", "JUGAR", "JOUER", "العب", "খেলুন", "JOGAR", "ИГРАТЬ", "کھیلیں"]
+    },
+    {
+      "key": "shop", "source": "SHOP",
+      "values": ["SHOP", "MAĞAZA", "商店", "दुकान", "TIENDA", "BOUTIQUE", "المتجر", "দোকান", "LOJA", "МАГАЗИН", "دکان"]
+    },
+    {
+      "key": "pause", "source": "PAUSE",
+      "values": ["PAUSE", "DURAKLAT", "暂停", "रोकें", "PAUSA", "PAUSE", "إيقاف", "বিরতি", "PAUSA", "ПАУЗА", "توقف"]
+    },
+    {
+      "key": "resume", "source": "RESUME",
+      "values": ["RESUME", "DEVAM", "继续", "जारी रखें", "CONTINUAR", "REPRENDRE", "متابعة", "চালিয়ে যান", "CONTINUAR", "ПРОДОЛЖИТЬ", "جاری رکھیں"]
+    },
+    {
+      "key": "retry", "source": "RETRY",
+      "values": ["RETRY", "TEKRAR DENE", "重试", "फिर से", "REINTENTAR", "RÉESSAYER", "إعادة", "আবার চেষ্টা", "TENTAR NOVAMENTE", "ЕЩЁ РАЗ", "دوبارہ"]
+    },
+    {
+      "key": "home", "source": "HOME",
+      "values": ["HOME", "ANA MENÜ", "主页", "मुख्य मेनू", "INICIO", "ACCUEIL", "الرئيسية", "হোম", "INÍCIO", "ГЛАВНАЯ", "مرکزی صفحہ"]
+    },
+    {
+      "key": "back", "source": "BACK",
+      "values": ["BACK", "GERİ", "返回", "वापस", "ATRÁS", "RETOUR", "رجوع", "ফিরুন", "VOLTAR", "НАЗАД", "واپس"]
+    },
+    {
+      "key": "yes", "source": "YES",
+      "values": ["YES", "EVET", "是", "हाँ", "SÍ", "OUI", "نعم", "হ্যাঁ", "SIM", "ДА", "ہاں"]
+    },
+    {
+      "key": "cancel", "source": "CANCEL",
+      "values": ["CANCEL", "VAZGEÇ", "取消", "रद्द करें", "CANCELAR", "ANNULER", "إلغاء", "বাতিল", "CANCELAR", "ОТМЕНА", "منسوخ"]
+    },
+    {
+      "key": "fast_service", "source": "HIZLI SERVIS",
+      "values": ["FAST SERVICE", "HIZLI SERVİS", "快速服务", "तेज़ सेवा", "SERVICIO RÁPIDO", "SERVICE RAPIDE", "خدمة سريعة", "দ্রুত পরিষেবা", "SERVIÇO RÁPIDO", "БЫСТРЫЙ СЕРВИС", "تیز سروس"]
+    },
+    {
+      "key": "tagline", "source": "HIZLI MUTFAK  •  MUTLU MUSTERI",
+      "values": ["FAST KITCHEN  •  HAPPY CUSTOMERS", "HIZLI MUTFAK  •  MUTLU MÜŞTERİ", "快速厨房  •  快乐顾客", "तेज़ रसोई  •  खुश ग्राहक", "COCINA RÁPIDA  •  CLIENTES FELICES", "CUISINE RAPIDE  •  CLIENTS HEUREUX", "مطبخ سريع  •  زبائن سعداء", "দ্রুত রান্নাঘর  •  খুশি ক্রেতা", "COZINHA RÁPIDA  •  CLIENTES FELIZES", "БЫСТРАЯ КУХНЯ  •  ДОВОЛЬНЫЕ ГОСТИ", "تیز کچن  •  خوش گاہک"]
+    },
+    {
+      "key": "mode_detail", "source": "Siparisleri tamamla, mutfagini buyut!",
+      "values": ["Complete orders and grow your kitchen!", "Siparişleri tamamla, mutfağını büyüt!", "完成订单，扩建厨房！", "ऑर्डर पूरे करें और रसोई बढ़ाएँ!", "¡Completa pedidos y amplía tu cocina!", "Termine les commandes et agrandis ta cuisine !", "أكمل الطلبات ووسّع مطبخك!", "অর্ডার শেষ করুন, রান্নাঘর বড় করুন!", "Complete pedidos e amplie sua cozinha!", "Выполняй заказы и расширяй кухню!", "آرڈرز مکمل کریں اور کچن بڑھائیں!"]
+    },
+    {
+      "key": "get_ready", "source": "HAZIRLAN",
+      "values": ["GET READY", "HAZIRLAN", "准备", "तैयार हो जाएँ", "PREPÁRATE", "PRÉPARE-TOI", "استعد", "প্রস্তুত হন", "PREPARE-SE", "ПРИГОТОВЬСЯ", "تیار ہو جائیں"]
+    },
+    {
+      "key": "round", "source": "ROUND {0}",
+      "values": ["ROUND {0}", "RAUND {0}", "第 {0} 轮", "राउंड {0}", "RONDA {0}", "MANCHE {0}", "الجولة {0}", "রাউন্ড {0}", "RODADA {0}", "РАУНД {0}", "راؤنڈ {0}"]
+    },
+    {
+      "key": "game_over", "source": "OLDUN",
+      "values": ["GAME OVER", "OYUN BİTTİ", "游戏结束", "खेल समाप्त", "FIN DEL JUEGO", "PARTIE TERMINÉE", "انتهت اللعبة", "খেলা শেষ", "FIM DE JOGO", "ИГРА ОКОНЧЕНА", "کھیل ختم"]
+    },
+    {
+      "key": "out_of_lives", "source": "Canlarin bitti",
+      "values": ["You ran out of lives", "Canların bitti", "生命用完了", "आपकी जानें खत्म हो गईं", "Te quedaste sin vidas", "Tu n’as plus de vies", "نفدت محاولاتك", "আপনার জীবন শেষ", "Suas vidas acabaram", "Жизни закончились", "آپ کی جانیں ختم ہوگئیں"]
+    },
+    {
+      "key": "finished", "source": "BITTI",
+      "values": ["COMPLETE", "TAMAMLANDI", "完成", "पूरा हुआ", "COMPLETADO", "TERMINÉ", "اكتمل", "সম্পন্ন", "CONCLUÍDO", "ГОТОВО", "مکمل"]
+    },
+    {
+      "key": "all_rounds", "source": "Butun raundlari gectin",
+      "values": ["You completed every round", "Bütün raundları geçtin", "你完成了所有轮次", "आपने सभी राउंड पूरे किए", "Completaste todas las rondas", "Tu as terminé toutes les manches", "أكملت جميع الجولات", "আপনি সব রাউন্ড শেষ করেছেন", "Você concluiu todas as rodadas", "Ты прошёл все раунды", "آپ نے تمام راؤنڈ مکمل کیے"]
+    },
+    {
+      "key": "earnings", "source": "Earnings: {0}",
+      "values": ["Earnings: {0}", "Kazanç: {0}", "收入：{0}", "कमाई: {0}", "Ganancias: {0}", "Gains : {0}", "الأرباح: {0}", "আয়: {0}", "Ganhos: {0}", "Заработок: {0}", "کمائی: {0}"]
+    },
+    {
+      "key": "speed", "source": "Speed",
+      "values": ["Speed", "Hız", "速度", "गति", "Velocidad", "Vitesse", "السرعة", "গতি", "Velocidade", "Скорость", "رفتار"]
+    },
+    {
+      "key": "capacity", "source": "Capacity",
+      "values": ["Capacity", "Kapasite", "容量", "क्षमता", "Capacidad", "Capacité", "السعة", "ধারণক্ষমতা", "Capacidade", "Вместимость", "گنجائش"]
+    },
+    {
+      "key": "revenue", "source": "Revenue",
+      "values": ["Revenue", "Gelir", "收益", "आय", "Ingresos", "Revenus", "الإيراد", "আয়", "Receita", "Доход", "آمدنی"]
+    },
+    {
+      "key": "max", "source": "max",
+      "values": ["MAX", "MAKS", "最高", "अधिकतम", "MÁX", "MAX", "الأقصى", "সর্বোচ্চ", "MÁX", "МАКС", "زیادہ سے زیادہ"]
+    },
+    {
+      "key": "free", "source": "FREE",
+      "values": ["FREE", "ÜCRETSİZ", "免费", "मुफ़्त", "GRATIS", "GRATUIT", "مجاني", "বিনামূল্যে", "GRÁTIS", "БЕСПЛАТНО", "مفت"]
+    },
+    {
+      "key": "skin", "source": "SKIN",
+      "values": ["SKIN", "KARAKTER", "角色", "पात्र", "PERSONAJE", "PERSONNAGE", "الشخصية", "চরিত্র", "PERSONAGEM", "ПЕРСОНАЖ", "کردار"]
+    },
+    {
+      "key": "hats", "source": "HATS",
+      "values": ["HATS", "ŞAPKALAR", "帽子", "टोपियाँ", "SOMBREROS", "CHAPEAUX", "القبعات", "টুপি", "CHAPÉUS", "ШЛЯПЫ", "ٹوپیاں"]
+    },
+    {
+      "key": "hat.none", "source": "NO HAT",
+      "values": ["NO HAT", "ŞAPKASIZ", "无帽子", "बिना टोपी", "SIN SOMBRERO", "SANS CHAPEAU", "بدون قبعة", "টুপি ছাড়া", "SEM CHAPÉU", "БЕЗ ШЛЯПЫ", "بغیر ٹوپی"]
+    },
+    {
+      "key": "equip", "source": "EQUIP",
+      "values": ["EQUIP", "KUŞAN", "装备", "पहनें", "EQUIPAR", "ÉQUIPER", "تجهيز", "পরুন", "EQUIPAR", "НАДЕТЬ", "پہنیں"]
+    },
+    { "key": "animal.squirrel", "source": "SQUIRREL", "values": ["SQUIRREL", "SİNCAP", "松鼠", "गिलहरी", "ARDILLA", "ÉCUREUIL", "سنجاب", "কাঠবিড়ালি", "ESQUILO", "БЕЛКА", "گلہری"] },
+    { "key": "animal.bear", "source": "BEAR", "values": ["BEAR", "AYI", "熊", "भालू", "OSO", "OURS", "دب", "ভালুক", "URSO", "МЕДВЕДЬ", "ریچھ"] },
+    { "key": "animal.beaver", "source": "BEAVER", "values": ["BEAVER", "KUNDUZ", "河狸", "ऊदबिलाव", "CASTOR", "CASTOR", "قندس", "বিভার", "CASTOR", "БОБР", "اود بلاؤ"] },
+    { "key": "animal.bull", "source": "BULL", "values": ["BULL", "BOĞA", "公牛", "सांड", "TORO", "TAUREAU", "ثور", "ষাঁড়", "TOURO", "БЫК", "سانڈ"] },
+    { "key": "animal.cat", "source": "CAT", "values": ["CAT", "KEDİ", "猫", "बिल्ली", "GATO", "CHAT", "قط", "বিড়াল", "GATO", "КОТ", "بلی"] },
+    { "key": "animal.cow", "source": "COW", "values": ["COW", "İNEK", "奶牛", "गाय", "VACA", "VACHE", "بقرة", "গরু", "VACA", "КОРОВА", "گائے"] },
+    { "key": "animal.deer", "source": "DEER", "values": ["DEER", "GEYİK", "鹿", "हिरन", "CIERVO", "CERF", "غزال", "হরিণ", "CERVO", "ОЛЕНЬ", "ہرن"] },
+    { "key": "animal.dog", "source": "DOG", "values": ["DOG", "KÖPEK", "狗", "कुत्ता", "PERRO", "CHIEN", "كلب", "কুকুর", "CÃO", "СОБАКА", "کتا"] },
+    { "key": "animal.fox", "source": "FOX", "values": ["FOX", "TİLKİ", "狐狸", "लोमड़ी", "ZORRO", "RENARD", "ثعلب", "শিয়াল", "RAPOSA", "ЛИСА", "لومڑی"] },
+    { "key": "animal.koala", "source": "KOALA", "values": ["KOALA", "KOALA", "考拉", "कोआला", "KOALA", "KOALA", "كوالا", "কোয়ালা", "COALA", "КОАЛА", "کوالا"] },
+    { "key": "animal.mouse", "source": "MOUSE", "values": ["MOUSE", "FARE", "老鼠", "चूहा", "RATÓN", "SOURIS", "فأر", "ইঁদুর", "RATO", "МЫШЬ", "چوہا"] },
+    { "key": "animal.panda", "source": "PANDA", "values": ["PANDA", "PANDA", "熊猫", "पांडा", "PANDA", "PANDA", "باندا", "পান্ডা", "PANDA", "ПАНДА", "پانڈا"] },
+    { "key": "animal.pig", "source": "PIG", "values": ["PIG", "DOMUZ", "猪", "सूअर", "CERDO", "COCHON", "خنزير", "শূকর", "PORCO", "СВИНЬЯ", "سور"] },
+    { "key": "animal.rabbit", "source": "RABBIT", "values": ["RABBIT", "TAVŞAN", "兔子", "खरगोश", "CONEJO", "LAPIN", "أرنب", "খরগোশ", "COELHO", "КРОЛИК", "خرگوش"] },
+    { "key": "animal.ram", "source": "RAM", "values": ["RAM", "KOÇ", "公羊", "मेढ़ा", "CARNERO", "BÉLIER", "كبش", "ভেড়া", "CARNEIRO", "БАРАН", "مینڈھا"] }
+  ]
+}

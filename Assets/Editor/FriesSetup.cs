@@ -299,10 +299,154 @@ public static class FriesSetup
         so.ApplyModifiedProperties();
 
         report += EnsureClickBox(zone);
+        report += AlignIndicatorsFor(station);
 
         EditorSceneManager.MarkSceneDirty(zone.scene);
 
         return report;
+    }
+
+    // A station-local offset is only correct for the orientation it was tuned
+    // on. The fryers were moved from the right wall to the left and rotated,
+    // so that local offset faithfully rotated the timer and tick behind the
+    // machine. Their correct place is a world-space fact: above the visible
+    // fryer, slightly toward the camera so opaque geometry cannot hide them.
+    [MenuItem("Cooked Fast/Istasyon/Patates: 2 - Tik ve Sayaci Hizala", priority = 151)]
+    public static void AlignIndicators()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            EditorUtility.DisplayDialog("Play Mode",
+                "Play Mode'da calistirilamaz. Once durdur.", "Tamam");
+            return;
+        }
+
+        FryerStation[] fryers = UnityEngine.Object.FindObjectsByType<FryerStation>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        StringBuilder report = new StringBuilder();
+
+        foreach (FryerStation fryer in fryers)
+            report.Append(AlignIndicatorsFor(fryer));
+
+        if (fryers.Length > 0)
+            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+
+        report.AppendLine();
+        report.AppendLine(fryers.Length + " fritoz tarandi.");
+        report.AppendLine("Sahne KAYDEDILMEDI. Kontrol et, sonra Ctrl+S.");
+
+        Debug.Log("[Patates Gostergeleri]\n" + report);
+        EditorUtility.DisplayDialog("Patates Gostergeleri", report.ToString(), "Tamam");
+    }
+
+    // Public so ReadyTickSetup can finish a newly rebuilt fryer tick with the
+    // same orientation-independent placement instead of putting the old local
+    // coordinates straight back.
+    public static string AlignIndicatorsFor(FryerStation station)
+    {
+        if (station == null)
+            return "";
+
+        SerializedObject so = new SerializedObject(station);
+        GameObject timer = so.FindProperty("timerRoot").objectReferenceValue as GameObject;
+        GameObject ready = so.FindProperty("readyRoot").objectReferenceValue as GameObject;
+        GameObject warning = so.FindProperty("warningRoot").objectReferenceValue as GameObject;
+
+        if (!TryFryerBounds(station.gameObject, timer, ready, warning, out Bounds bounds))
+            return "  gostergeler: gorunur fritoz bounds bulunamadi, dokunulmadi\n";
+
+        float footprint = Mathf.Max(bounds.size.x, bounds.size.z);
+        // The ring is billboarded toward an isometric camera. At .35 world
+        // units its lower half projected back into the fryer even though its
+        // pivot was technically above the bounds. Give the whole disc clear
+        // air above the tub rather than merely putting its centre over the rim.
+        float lift = Mathf.Clamp(bounds.size.y * .65f, .60f, .80f);
+
+        Vector3 anchor = new Vector3(
+            bounds.center.x,
+            bounds.max.y + lift,
+            bounds.center.z);
+
+        Camera camera = Camera.main;
+
+        if (camera != null)
+        {
+            Vector3 towardCamera = camera.transform.position - anchor;
+            towardCamera.y = 0f;
+
+            if (towardCamera.sqrMagnitude > .0001f)
+                anchor += towardCamera.normalized * Mathf.Max(.08f, footprint * .12f);
+        }
+
+        int moved = 0;
+
+        moved += PlaceIndicator(timer, anchor, camera);
+        moved += PlaceIndicator(ready, anchor, camera);
+        moved += PlaceIndicator(warning, anchor, camera);
+
+        if (moved > 0)
+            EditorSceneManager.MarkSceneDirty(station.gameObject.scene);
+
+        return "  gostergeler: " + moved + " obje, modelin ustune hizalandi" +
+               " (rotasyon " + station.transform.eulerAngles.ToString("0") + ")\n";
+    }
+
+    private static int PlaceIndicator(GameObject indicator, Vector3 worldPosition, Camera camera)
+    {
+        if (indicator == null)
+            return 0;
+
+        Undo.RecordObject(indicator.transform, "Fritoz gostergesini hizala");
+
+        indicator.transform.position = worldPosition;
+
+        // FaceCamera owns this rotation in play. Writing the same answer now
+        // makes the marker readable in Scene view as well.
+        if (camera != null)
+            indicator.transform.rotation = camera.transform.rotation;
+
+        return 1;
+    }
+
+    private static bool TryFryerBounds(GameObject station, GameObject timer,
+        GameObject ready, GameObject warning, out Bounds bounds)
+    {
+        bounds = default;
+        bool any = false;
+
+        // Prefer the actual prop. Falling back to the station still works for a
+        // renamed model, but explicitly excludes generated UI/sprites so a tick
+        // that is already far away cannot enlarge the bounds and chase itself.
+        Transform visual = FindContaining(station, "deepfryer");
+        GameObject target = visual == null ? station : visual.gameObject;
+
+        foreach (Renderer renderer in target.GetComponentsInChildren<Renderer>(true))
+        {
+            if (renderer is ParticleSystemRenderer ||
+                IsInside(renderer.transform, timer) ||
+                IsInside(renderer.transform, ready) ||
+                IsInside(renderer.transform, warning))
+                continue;
+
+            if (!any)
+            {
+                bounds = renderer.bounds;
+                any = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        return any;
+    }
+
+    private static bool IsInside(Transform candidate, GameObject root)
+    {
+        return root != null &&
+               (candidate == root.transform || candidate.IsChildOf(root.transform));
     }
 
     private static Transform FindInside(GameObject zone, string name)

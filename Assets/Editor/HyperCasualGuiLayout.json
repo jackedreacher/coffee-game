@@ -1,0 +1,3154 @@
+{
+    "nodes": [
+        {
+            "path": "Main Menu",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": false
+        },
+        {
+            "path": "Main Menu/Cooked Fast Background",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Logo",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 609.0
+            },
+            "sizeDelta": {
+                "x": 900.0,
+                "y": 260.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Tagline",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 605.0
+            },
+            "sizeDelta": {
+                "x": 850.0,
+                "y": 70.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Live 3D Skin",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 2.0,
+                "y": -62.0
+            },
+            "sizeDelta": {
+                "x": 600.0,
+                "y": 720.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 3,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Previous Skin",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -304.0,
+                "y": -20.00000762939453
+            },
+            "sizeDelta": {
+                "x": 120.0,
+                "y": 120.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 4,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Previous Skin/Arrow",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 2.0
+            },
+            "sizeDelta": {
+                "x": 130.0,
+                "y": 34.75935745239258
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Next Skin",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 316.0,
+                "y": -20.0
+            },
+            "sizeDelta": {
+                "x": 120.0,
+                "y": 120.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 5,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Next Skin/Arrow",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 2.0
+            },
+            "sizeDelta": {
+                "x": 130.0,
+                "y": 34.75935745239258
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Skin Name",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -10.0,
+                "y": 209.0
+            },
+            "sizeDelta": {
+                "x": 520.0,
+                "y": 75.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 6,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Settings",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 269.0,
+                "y": 412.0
+            },
+            "sizeDelta": {
+                "x": 300.0,
+                "y": 115.38461303710938
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 7,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Settings/Icon",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -96.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 48.0,
+                "y": 48.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Settings/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 18.899999618530275,
+                "y": 1.0
+            },
+            "sizeDelta": {
+                "x": 222.0,
+                "y": 91.46341705322266
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Shop",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -270.0,
+                "y": 407.0
+            },
+            "sizeDelta": {
+                "x": 300.0,
+                "y": 115.38461303710938
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 8,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Shop/Icon",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -96.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 48.0,
+                "y": 48.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Shop/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 18.899999618530275,
+                "y": 1.0
+            },
+            "sizeDelta": {
+                "x": 222.0,
+                "y": 115.38461303710938
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Quit",
+            "anchorMin": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": -28.0,
+                "y": -120.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 47.97979736328125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 9,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Quit/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 47.97979736328125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Fast Service Card",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -518.0
+            },
+            "sizeDelta": {
+                "x": 940.0,
+                "y": 350.5351257324219
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 10,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Fast Service Card/Mode Title",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 73.0
+            },
+            "sizeDelta": {
+                "x": 800.0,
+                "y": 100.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Fast Service Card/Mode Detail",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 15.0
+            },
+            "sizeDelta": {
+                "x": 800.0,
+                "y": 70.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Fast Service Card/Play",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -79.0
+            },
+            "sizeDelta": {
+                "x": 390.0,
+                "y": 150.0
+            },
+            "localScale": {
+                "x": 0.7599999904632568,
+                "y": 0.7599999904632568,
+                "z": 0.7599999904632568
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Main Menu/Fast Service Card/Play/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "sizeDelta": {
+                "x": 366.0,
+                "y": 150.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Pause",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": false
+        },
+        {
+            "path": "Pause/Dim Behind",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Pause/Hyper Casual Pause",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 900.0,
+                "y": 962.5560302734375
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Pause/Hyper Casual Pause/Retry",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 110.75434875488281
+            },
+            "sizeDelta": {
+                "x": 373.3183898925781,
+                "y": 140.9600830078125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Pause/Hyper Casual Pause/Resume",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -32.21944808959961
+            },
+            "sizeDelta": {
+                "x": 373.3183898925781,
+                "y": 140.9600830078125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Pause/Hyper Casual Pause/Setting",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -175.19325256347657
+            },
+            "sizeDelta": {
+                "x": 373.3183898925781,
+                "y": 140.9600830078125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Pause/Hyper Casual Pause/Home",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -318.16705322265627
+            },
+            "sizeDelta": {
+                "x": 373.3183898925781,
+                "y": 140.9600830078125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 3,
+            "active": true
+        },
+        {
+            "path": "Pause/Quit",
+            "anchorMin": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": -28.0,
+                "y": -120.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 47.97979736328125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Pause/Quit/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 47.97979736328125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": false
+        },
+        {
+            "path": "Settings/Opaque Background",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Sound Toggle",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -151.9747314453125,
+                "y": 340.0
+            },
+            "sizeDelta": {
+                "x": 123.22274780273438,
+                "y": 41.89573287963867
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Music Toggle",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -151.9747314453125,
+                "y": 100.0
+            },
+            "sizeDelta": {
+                "x": 123.22274780273438,
+                "y": 41.89573287963867
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/OK",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -800.0
+            },
+            "sizeDelta": {
+                "x": 254.66033935546876,
+                "y": 96.93522644042969
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/OK/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 254.66033935546876,
+                "y": 96.93522644042969
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Settings Gear",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -353.2385559082031,
+                "y": 720.0
+            },
+            "sizeDelta": {
+                "x": 73.93364715576172,
+                "y": 73.93364715576172
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 3,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Settings Title",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 720.0
+            },
+            "sizeDelta": {
+                "x": 533.9652099609375,
+                "y": 90.36334991455078
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 4,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/SFX Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -320.379150390625,
+                "y": 340.0
+            },
+            "sizeDelta": {
+                "x": 213.58609008789063,
+                "y": 67.36177062988281
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 5,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/SFX Volume",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 147.86729431152345,
+                "y": 340.0
+            },
+            "sizeDelta": {
+                "x": 410.74249267578127,
+                "y": 62.432857513427737
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 6,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/SFX Volume/Fill Area",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": -28.0,
+                "y": -24.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/SFX Volume/Fill Area/Fill",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/SFX Volume/Handle Slide Area",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": -32.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/SFX Volume/Handle Slide Area/Handle",
+            "anchorMin": {
+                "x": 1.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 34.0,
+                "y": 54.432857513427737
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Music Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -320.379150390625,
+                "y": 100.0
+            },
+            "sizeDelta": {
+                "x": 213.58609008789063,
+                "y": 67.36177062988281
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 7,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Music Volume",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 147.86729431152345,
+                "y": 100.0
+            },
+            "sizeDelta": {
+                "x": 410.74249267578127,
+                "y": 62.432857513427737
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 8,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Music Volume/Fill Area",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": -28.0,
+                "y": -24.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Music Volume/Fill Area/Fill",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Music Volume/Handle Slide Area",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": -32.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Music Volume/Handle Slide Area/Handle",
+            "anchorMin": {
+                "x": 1.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 34.0,
+                "y": 54.432857513427737
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Quality Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -299.8420104980469,
+                "y": -210.0
+            },
+            "sizeDelta": {
+                "x": 246.44549560546876,
+                "y": 67.36177062988281
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 9,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 143.75987243652345,
+                "y": -210.0
+            },
+            "sizeDelta": {
+                "x": 468.2464294433594,
+                "y": 85.43444061279297
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 10,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -22.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 378.2464294433594,
+                "y": 85.43444061279297
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Arrow",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 194.1232147216797,
+                "y": 1.0
+            },
+            "sizeDelta": {
+                "x": 60.0,
+                "y": 85.43444061279297
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Template",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -42.717220306396487
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 300.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": false
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Template/Viewport",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Template/Viewport/Content",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Template/Viewport/Content/Item",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 58.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Template/Viewport/Content/Item/Item Background",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Template/Viewport/Content/Item/Item Checkmark",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.0,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 24.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 18.0,
+                "y": 18.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Graphic Quality/Template/Viewport/Content/Item/Item Label",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 18.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": -56.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -299.8420104980469,
+                "y": -510.0
+            },
+            "sizeDelta": {
+                "x": 246.44549560546876,
+                "y": 67.36177062988281
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 11,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 143.75987243652345,
+                "y": -510.0
+            },
+            "sizeDelta": {
+                "x": 468.2464294433594,
+                "y": 85.43444061279297
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 12,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -22.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 378.2464294433594,
+                "y": 85.43444061279297
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Arrow",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 194.1232147216797,
+                "y": 1.0
+            },
+            "sizeDelta": {
+                "x": 60.0,
+                "y": 85.43444061279297
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Template",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": -42.717220306396487
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 300.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": false
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Template/Viewport",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Template/Viewport/Content",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Template/Viewport/Content/Item",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 58.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Template/Viewport/Content/Item/Item Background",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Template/Viewport/Content/Item/Item Checkmark",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.0,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 24.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 18.0,
+                "y": 18.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Settings/Hyper Casual Settings/Language/Template/Viewport/Content/Item/Item Label",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 18.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": -56.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Character Shop",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 3,
+            "active": false
+        },
+        {
+            "path": "Character Shop/Opaque Background",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Character Shop/Hyper Casual Shop",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 1020.0,
+                "y": 981.45751953125
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Character Shop/Hyper Casual Shop/Character",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -313.15789794921877,
+                "y": 72.2672119140625
+            },
+            "sizeDelta": {
+                "x": 92.0,
+                "y": 81.9375
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Character Shop/Hyper Casual Shop/Buy Squirrel Chef",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.6882590651512146,
+                "y": -307.6518249511719
+            },
+            "sizeDelta": {
+                "x": 323.4817810058594,
+                "y": 126.63967895507813
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Character Shop/Back",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "anchorMax": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": 28.0,
+                "y": -120.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 73.07691955566406
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 2,
+            "active": true
+        },
+        {
+            "path": "Exit Game",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 4,
+            "active": false
+        },
+        {
+            "path": "Exit Game/Hyper Casual Exit",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 1000.0,
+                "y": 372.9096984863281
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Exit Game/Hyper Casual Exit/Yes",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": -128.76254272460938,
+                "y": -96.15385437011719
+            },
+            "sizeDelta": {
+                "x": 242.47491455078126,
+                "y": 95.3177261352539
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Exit Game/Hyper Casual Exit/Cancel",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 130.43478393554688,
+                "y": -96.15385437011719
+            },
+            "sizeDelta": {
+                "x": 242.47491455078126,
+                "y": 95.3177261352539
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Game Buttons",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 5,
+            "active": false
+        },
+        {
+            "path": "Game Buttons/Pause",
+            "anchorMin": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "anchorMax": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 0.0,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": 28.0,
+                "y": -120.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 73.07691955566406
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Game Buttons/Pause/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 73.07691955566406
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        },
+        {
+            "path": "Game Buttons/Quit",
+            "anchorMin": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "anchorMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "pivot": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "anchoredPosition": {
+                "x": -28.0,
+                "y": -120.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 73.07691955566406
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 1,
+            "active": true
+        },
+        {
+            "path": "Game Buttons/Quit/Label",
+            "anchorMin": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchorMax": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "anchoredPosition": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "sizeDelta": {
+                "x": 190.0,
+                "y": 73.07691955566406
+            },
+            "localScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "localEulerAngles": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "siblingIndex": 0,
+            "active": true
+        }
+    ]
+}

@@ -18,6 +18,8 @@ public static class LivesSetup
 
     private const string fullPath = iconFolder + "/Icon_PictoIcon_Heart.Png";
     private const string emptyPath = iconFolder + "/Icon_PictoIcon_Heart_Empty.Png";
+    private const string brokenPath = "Assets/Tiny Coffee Shop/Sprites/UI/BrokenHeart.png";
+    private const string sunburstPath = "Assets/food-icons/Sunburst.png";
 
     private const string rootName = "Lives HUD";
 
@@ -26,6 +28,7 @@ public static class LivesSetup
     // The pack's heart is white artwork, so red is a tint, not a second file
     private static readonly Color heartColour = new Color(.91f, .26f, .30f);
     private static readonly Color lostColour = new Color(.32f, .27f, .29f, .5f);
+    private static readonly Color brokenColour = new Color(.38f, .38f, .42f, 1f);
 
     // Screen pixels. The canvas is scaled by the reference resolution below, so
     // these hold their proportions on any phone
@@ -56,15 +59,21 @@ public static class LivesSetup
 
         FoodIconBaker.MakeSprite(fullPath);
         FoodIconBaker.MakeSprite(emptyPath);
+        FoodIconBaker.MakeSprite(brokenPath);
+        FoodIconBaker.MakeSprite(sunburstPath);
 
         AssetDatabase.Refresh();
 
         Sprite full = AssetDatabase.LoadAssetAtPath<Sprite>(fullPath);
         Sprite empty = AssetDatabase.LoadAssetAtPath<Sprite>(emptyPath);
+        Sprite broken = AssetDatabase.LoadAssetAtPath<Sprite>(brokenPath);
+        Sprite sunburst = AssetDatabase.LoadAssetAtPath<Sprite>(sunburstPath);
 
         report.AppendLine("Ikonlar");
         report.AppendLine("  dolu: " + (full == null ? "BULUNAMADI " + fullPath : full.name));
         report.AppendLine("  bos : " + (empty == null ? "BULUNAMADI " + emptyPath : empty.name));
+        report.AppendLine("  kirik: " + (broken == null ? "BULUNAMADI " + brokenPath : broken.name));
+        report.AppendLine("  patlama: " + (sunburst == null ? "BULUNAMADI " + sunburstPath : sunburst.name));
         report.AppendLine();
 
         if (full == null)
@@ -237,6 +246,8 @@ public static class LivesSetup
 
         so.FindProperty("fullHeart").objectReferenceValue = full;
         so.FindProperty("emptyHeart").objectReferenceValue = empty == null ? full : empty;
+        so.FindProperty("brokenHeart").objectReferenceValue = broken;
+        so.FindProperty("sunburst").objectReferenceValue = sunburst;
 
         // Written rather than left to the field initialisers, for the reason
         // every serialised default in this project is written: the component
@@ -244,6 +255,8 @@ public static class LivesSetup
         // to one of those does not reliably come back carrying its initialiser
         so.FindProperty("fullColour").colorValue = heartColour;
         so.FindProperty("emptyColour").colorValue = lostColour;
+        so.FindProperty("brokenColour").colorValue = brokenColour;
+        so.FindProperty("brokenScale").floatValue = .78f;
 
         so.ApplyModifiedProperties();
 
@@ -268,6 +281,56 @@ public static class LivesSetup
 
         Debug.Log("[Can]\n" + report);
         EditorUtility.DisplayDialog("Can Slotlari", report.ToString(), "Tamam");
+    }
+
+    // Wires only the new artwork. It deliberately does not rebuild, move or
+    // destroy the existing HUD, so hand-positioned UI survives this upgrade.
+    [MenuItem("Cooked Fast/Oyun/Can: Kayip Efektini Bagla", priority = 221)]
+    public static void WireLossEffect()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            EditorUtility.DisplayDialog("Can Kaybi Efekti",
+                "Play'den cik ve tekrar dene. Sahne degisiklikleri oyun kapaninca kaybolur.",
+                "Tamam");
+            return;
+        }
+
+        FoodIconBaker.MakeSprite(brokenPath);
+        FoodIconBaker.MakeSprite(sunburstPath);
+        AssetDatabase.Refresh();
+
+        Sprite broken = AssetDatabase.LoadAssetAtPath<Sprite>(brokenPath);
+        Sprite burst = AssetDatabase.LoadAssetAtPath<Sprite>(sunburstPath);
+        LivesHud hud = Object.FindFirstObjectByType<LivesHud>(FindObjectsInactive.Include);
+
+        if (hud == null || broken == null || burst == null)
+        {
+            EditorUtility.DisplayDialog("Can Kaybi Efekti",
+                (hud == null ? "Sahnede LivesHud bulunamadi.\n" : "") +
+                (broken == null ? "Kirik kalp bulunamadi: " + brokenPath + "\n" : "") +
+                (burst == null ? "Sunburst bulunamadi: " + sunburstPath : ""),
+                "Tamam");
+            return;
+        }
+
+        Undo.RecordObject(hud, "Wire life loss effect");
+
+        SerializedObject so = new SerializedObject(hud);
+        so.FindProperty("brokenHeart").objectReferenceValue = broken;
+        so.FindProperty("sunburst").objectReferenceValue = burst;
+        so.FindProperty("brokenColour").colorValue = brokenColour;
+        so.FindProperty("brokenScale").floatValue = .78f;
+        so.ApplyModifiedProperties();
+
+        EditorUtility.SetDirty(hud);
+        EditorSceneManager.MarkSceneDirty(hud.gameObject.scene);
+        Selection.activeGameObject = hud.gameObject;
+
+        Debug.Log("[Can] Kayip efekti baglandi. HUD yeniden kurulmadi; konumu korundu. Ctrl+S.", hud);
+        EditorUtility.DisplayDialog("Can Kaybi Efekti",
+            "Kirik kalp ve sunburst baglandi.\nHUD konumu degistirilmedi.\n\nCtrl+S ile kaydet.",
+            "Tamam");
     }
 
     // Which money counter is the one on screen.

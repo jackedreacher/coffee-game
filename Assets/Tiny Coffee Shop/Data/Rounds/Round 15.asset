@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67cab3140e47564dbe88acbc7602ba7, type: 3}
   m_Name: Round 15
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
-  totalCustomers: 10
-  spawnInterval: 8.2
+  totalCustomers: 11
+  spawnInterval: 7.4
   maxOrderTypes: 2
   note: 'Raund 15 -- Orta: tempo artiyor'

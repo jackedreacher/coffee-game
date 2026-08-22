@@ -167,6 +167,8 @@ public class FridgeDoor : MonoBehaviour
 
         Open();
 
+        SoundManager.Play(SoundManager.Sound.DrinkTaken);
+
         return Result.Taken;
     }
 

@@ -145,6 +145,14 @@ public class UpgradeDeskStation : MonoBehaviour, IWantToBeSaved
 
     public void Save()
     {
+        // Home flushes every saveable in the scene, inactive ones included, and
+        // this desk starts inside a LockedElement. A desk that is still off has
+        // never run Start, so Load has never built the array -- and it has no
+        // levels to write either. Writing zeros here would overwrite the real
+        // saved upgrades with defaults, so the early return is the point.
+        if (statLevels == null)
+            return;
+
         for (int i = 0; i < statLevels.Length; i++)
             Sijil.Save(this, playerStatLevelKey + i, statLevels[i]);
     }

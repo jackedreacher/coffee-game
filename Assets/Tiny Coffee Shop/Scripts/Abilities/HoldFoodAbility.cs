@@ -12,7 +12,23 @@ public class HoldFoodAbility : MonoBehaviour
     public bool IsPlateauActive => plateau.gameObject.activeInHierarchy;
 
     [Header(" Timer ")]
-    private const float canGrabFoodDelay = .1f;
+
+    // How long after reaching a station before the item actually changes hands.
+    //
+    // Was a const at a tenth of a second, which is why the item appeared to pop
+    // into the hand: the pickup animation is a whole reach -- the arm has to
+    // travel out, close and come back -- and a tenth of a second is over while
+    // the hand is still on its way. The item was in the hand before the hand
+    // got there.
+    //
+    // Serialized rather than raised and left, because the right number is the
+    // one that matches whichever clip is on PickUp, and that has changed twice
+    // already. Time the reach in the animation window and put that here
+    [Tooltip("Istasyona varinca esyanin ele gecmesi kac saniye sursun. " +
+             "Alma animasyonundaki elin uzanip yakaladigi ana denk gelmeli. " +
+             "Kucuk = esya elden once belirir, buyuk = el bos donuyormus gibi olur")]
+    [SerializeField] private float canGrabFoodDelay = .35f;
+
     private float grabFoodTimer;
     private float dropFoodTimer;
 
@@ -38,6 +54,31 @@ public class HoldFoodAbility : MonoBehaviour
         dropFoodTimer = canGrabFoodDelay;
     }
 
+    // The first food and the plateau must read as one arrival. Add PopIn while
+    // the plateau is inactive, then enable it and parent the food in the same
+    // frame. OnEnable starts the plateau at zero scale; because the food is its
+    // child before that frame is rendered, both grow together and there is no
+    // hand-bone sweep from the station into the character.
+    private void PopOntoPlateau(SpawnableFood food)
+    {
+        if (food == null)
+            return;
+
+        // Must happen before PopIn learns/zeros the tray scale. Parent repair
+        // is idempotent; placement is deliberately NOT touched here. The Hand
+        // Adjuster placement is the source of truth and must survive every
+        // take/drop cycle unchanged.
+        PlateauLevel.StabiliseFingerMount(plateau.transform);
+
+        bool opening = !plateau.gameObject.activeSelf;
+
+        if (opening)
+            PopIn.Ensure(plateau.gameObject);
+
+        plateau.gameObject.SetActive(true);
+        plateau.Push(food);
+    }
+
     public SpawnableFood PeekFood()
     {
         return plateau.Peek();
@@ -45,14 +86,60 @@ public class HoldFoodAbility : MonoBehaviour
 
     // Hands the top item over and hides the tray once it runs dry, the same
     // bookkeeping HandleFoodDropZone does when dropping onto a counter
-    public SpawnableFood PopFood()
+    // Quiet exists because some callers pop SPECULATIVELY.
+    //
+    // A swap has to empty both hands before it can ask either of them whether
+    // it will accept -- a full container answers no to everything -- so the pop
+    // happens before anyone knows the swap will go through, and it is undone
+    // again if it does not. The item goes back; the sound does not. Sounding
+    // the mechanical pop rather than the finished action is what put two
+    // noises on a tap that did nothing
+    public SpawnableFood PopFood(bool quiet = false)
     {
         SpawnableFood food = plateau.Pop();
 
-        if (food != null && plateau.IsEmpty)
+        if (food == null)
+            return null;
+
+        if (!quiet)
+            Gave();
+
+        if (plateau.IsEmpty)
             plateau.gameObject.SetActive(false);
 
         return food;
+    }
+
+    // The two hand-off noises, in one place each.
+    //
+    // Not left to the stations to remember: there are eleven of them and a new
+    // one added next month would be silent, which is the kind of gap nobody
+    // notices until the build is on a phone. Everything that reaches the hand
+    // goes through a handful of lines and those lines are here.
+    //
+    // The drink exception lives here for the same reason. It is not the drop
+    // zone's business that the fridge has its own sound, and a check spread
+    // over four call sites is four places to get it wrong
+    private static void Took(SpawnableFood food)
+    {
+        if (food is Drink)
+            return;
+
+        SoundManager.Play(SoundManager.Sound.ItemTaken);
+    }
+
+    private static void Gave()
+    {
+        SoundManager.Play(SoundManager.Sound.ItemGiven);
+    }
+
+    // A swap is ONE action, not a give plus a take. Two clips starting on the
+    // same frame read as a double tap rather than as an exchange, so only the
+    // arrival sounds -- what the player looks at afterwards is what is now in
+    // their hand
+    public static void Swapped(SpawnableFood arriving)
+    {
+        Took(arriving);
     }
 
     public void HandleFoodSpawnerStation(FoodSpawnerStation station)
@@ -85,14 +172,15 @@ public class HoldFoodAbility : MonoBehaviour
         if (foodToGrab == null)
             return;
 
+        Took(foodToGrab);
+
         if (forRecipe)
         {
             AbsorbIntoBurger(foodToGrab);
             return;
         }
 
-        plateau.gameObject.SetActive(true);
-        plateau.Push(foodToGrab);
+        PopOntoPlateau(foodToGrab);
     }
 
     // ---- building a burger in the hand -------------------------------------
@@ -161,8 +249,7 @@ public class HoldFoodAbility : MonoBehaviour
         {
             held = Instantiate(recipeResult);
 
-            plateau.gameObject.SetActive(true);
-            plateau.Push(held);
+            PopOntoPlateau(held);
         }
 
         held.Add(part);
@@ -229,14 +316,15 @@ public class HoldFoodAbility : MonoBehaviour
         // Checked once more against what actually came out. The decision above
         // was made a frame earlier and on a different question; this is the last
         // gate before the piece is destroyed inside a burger
+        Took(cooked);
+
         if (forRecipe && !cooked.IsBurnt)
         {
             AbsorbIntoBurger(cooked);
             return true;
         }
 
-        plateau.gameObject.SetActive(true);
-        plateau.Push(cooked);
+        PopOntoPlateau(cooked);
 
         return true;
     }
@@ -313,10 +401,17 @@ public class HoldFoodAbility : MonoBehaviour
         return !plateau.gameObject.activeInHierarchy || plateau.CanAccept(food);
     }
 
-    public bool TryPush(SpawnableFood food)
+    // Quiet exists for ROLL-BACKS. The shelf pops an item out of the hand, finds
+    // the swap refused and pushes the same item straight back -- nothing was
+    // taken, the hand simply never let go, and announcing that as a pickup would
+    // be a sound describing an event that did not happen
+    public bool TryPush(SpawnableFood food, bool quiet = false)
     {
         if (!CanTake(food))
             return false;
+
+        if (!quiet)
+            Took(food);
 
         if (food is Burger incoming && Merges(food))
         {
@@ -332,8 +427,7 @@ public class HoldFoodAbility : MonoBehaviour
             return true;
         }
 
-        plateau.gameObject.SetActive(true);
-        plateau.Push(food);
+        PopOntoPlateau(food);
 
         return true;
     }
@@ -349,6 +443,10 @@ public class HoldFoodAbility : MonoBehaviour
 
         if (dumped.Length <= 0)
             return dumped;
+
+        // Once, not once per item. Emptying a full tray into the bin is one
+        // action and four overlapping copies of the same clip is just louder
+        Gave();
 
         plateau.gameObject.SetActive(false);
 
@@ -411,6 +509,8 @@ public class HoldFoodAbility : MonoBehaviour
         if (food == null)
             return;
 
+        Gave();
+
         dropZone.Push(food);
 
         if (plateau.IsEmpty)
@@ -450,7 +550,7 @@ public class HoldFoodAbility : MonoBehaviour
         if (held.IsBurnt)
             return false;
 
-        SpawnableFood given = PopFood();
+        SpawnableFood given = PopFood(quiet: true);
 
         if (given == null)
             return false;
@@ -459,22 +559,25 @@ public class HoldFoodAbility : MonoBehaviour
 
         if (taken == null)
         {
-            TryPush(given);
+            TryPush(given, quiet: true);
             return false;
         }
 
         if (CanTake(taken) && dropZone.CanAcceptFood(given))
         {
-            TryPush(taken);
+            TryPush(taken, quiet: true);
             dropZone.Push(given);
+
+            Swapped(taken);
 
             return true;
         }
 
         // Refused after all. Both go back exactly where they were -- nothing
-        // here may destroy an item by half completing
+        // here may destroy an item by half completing, and nothing here may
+        // announce an exchange that was undone
         dropZone.Push(taken);
-        TryPush(given);
+        TryPush(given, quiet: true);
 
         return false;
     }

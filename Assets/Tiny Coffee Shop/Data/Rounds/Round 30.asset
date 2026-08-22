@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67cab3140e47564dbe88acbc7602ba7, type: 3}
   m_Name: Round 30
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
-  totalCustomers: 19
-  spawnInterval: 5.5
+  totalCustomers: 18
+  spawnInterval: 5.2
   maxOrderTypes: 2
   note: 'Raund 30 -- Ileri: kaos basliyor'

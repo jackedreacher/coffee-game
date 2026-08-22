@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Round 18
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
   totalCustomers: 12
-  spawnInterval: 7.6
+  spawnInterval: 6.8
   maxOrderTypes: 2
   note: 'Raund 18 -- Orta: tempo artiyor'

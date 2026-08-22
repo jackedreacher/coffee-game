@@ -153,6 +153,12 @@ public static class ReadyTickSetup
             line += "  (makine " + turned.y.ToString("0") + " derece donuk -- " +
                     "tik de onunla donuk)";
 
+        // Fryers may sit on either wall and can be rotated after setup. Their
+        // timer/tick placement is world-bounds based, not the oven's one local
+        // offset, so rebuilding the tick must finish by applying that rule.
+        if (station is FryerStation fryer)
+            line += "\n" + FriesSetup.AlignIndicatorsFor(fryer).TrimEnd();
+
         return line + "\n";
     }
 

@@ -24,7 +24,15 @@ public class CustomerManager : MonoBehaviour
 
     public Customer Pop(Vector3 spawnPosition)
     {
-        return Instantiate(PickPrefab(), spawnPosition, Quaternion.identity, transform);
+        Customer spawned = Instantiate(
+            PickPrefab(), spawnPosition, Quaternion.identity, transform);
+
+        // Exactly the frame the visual exists at Spawn Point. Do not move this
+        // to CustomerOrder.Show: Show runs after the walk, when the customer
+        // reaches the queue and the order bubble opens.
+        SoundManager.Play(SoundManager.Sound.CustomerArrives);
+
+        return spawned;
     }
 
     private Customer PickPrefab()

@@ -75,7 +75,10 @@ public class HoldingShelf : MonoBehaviour
         if (held.IsBurnt)
             return false;
 
-        SpawnableFood given = hand.PopFood();
+        // Quiet, because this pop is speculative -- see PopFood. The trade may
+        // still be refused below and put everything back, and a sound cannot be
+        // put back
+        SpawnableFood given = hand.PopFood(quiet: true);
 
         if (given == null)
             return false;
@@ -84,14 +87,16 @@ public class HoldingShelf : MonoBehaviour
 
         if (taken == null)
         {
-            hand.TryPush(given);
+            hand.TryPush(given, quiet: true);
             return false;
         }
 
         if (hand.CanTake(taken) && plateau.CanAccept(given))
         {
-            hand.TryPush(taken);
+            hand.TryPush(taken, quiet: true);
             plateau.Push(given);
+
+            HoldFoodAbility.Swapped(taken);
 
             return true;
         }
@@ -99,7 +104,7 @@ public class HoldingShelf : MonoBehaviour
         // Refused after all. Both go back exactly where they were -- nothing
         // here may destroy an item by half completing
         plateau.Push(taken);
-        hand.TryPush(given);
+        hand.TryPush(given, quiet: true);
 
         return false;
     }

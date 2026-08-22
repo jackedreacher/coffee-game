@@ -16,7 +16,7 @@ using UnityEngine.UI;
 // Driven by tapping rather than by standing in a trigger, for the same reason
 // the holding shelf is: a trigger would start it, hand the fries over and start
 // it again on the very next frame, forever
-public class FryerStation : MonoBehaviour
+public class FryerStation : MonoBehaviour, IShootable
 {
     [Header(" Elements ")]
     [Tooltip("Ne uretiyor")]
@@ -133,6 +133,34 @@ public class FryerStation : MonoBehaviour
     public bool IsIdle => state == State.Idle;
     public bool IsFrying => state == State.Frying;
     public bool IsReady => state == State.Ready;
+    public bool IsBurnt => state == State.Burnt;
+
+    // ---- shot from across the kitchen (cowboy hat) ----------------------
+    //
+    // Two things a bullet can do here, and neither of them is the one thing
+    // that needs a hand: collecting the portion still means walking over,
+    // because the fries have to end up somewhere and a hand is where.
+    // Switching it on, and nothing else.
+    //
+    // It used to clear a burnt portion too, and that turned the gun into a way
+    // of destroying the player's own food: "burnt" is one second past "ready",
+    // so the same tap that saves a walk can also throw away a finished batch.
+    // Cinders come out by hand now.
+    public bool CanTakeShot => state == State.Idle && foodPrefab != null;
+
+    // The oil, not the machine's origin, which is down at the floor.
+    public Vector3 ShotAimPoint =>
+        oilVolume != null ? oilVolume.position : transform.position + Vector3.up;
+
+    public string TakeShot()
+    {
+        if (state != State.Idle)
+            return null;
+
+        return Begin() == Result.Started
+            ? name + ": fritoz uzaktan calisti"
+            : null;
+    }
 
     private void Awake()
     {
@@ -156,6 +184,12 @@ public class FryerStation : MonoBehaviour
         ApplyTimerLook();
         ApplyOil();
         ShowTimer();
+
+        // Same as the oven's: the tick is switched on by ShowReady and PopIn
+        // hangs off being switched on, so adding it here is the whole wiring
+        SpriteOutline.Ensure(readyRoot);
+
+        PopIn.Ensure(readyRoot);
 
         // Silence here is the one failure that looks like nothing happening at
         // all, so it says so instead
@@ -208,6 +242,8 @@ public class FryerStation : MonoBehaviour
                 state = State.Ready;
                 timer = fryDuration;
                 burnTimer = 0f;
+
+                SoundManager.Play(SoundManager.Sound.FoodReady);
             }
 
             ApplyOil();
@@ -223,6 +259,34 @@ public class FryerStation : MonoBehaviour
         ShowTimer();
         ShowWarning();
         ShowReady();
+        Sizzle();
+    }
+
+    // Same shape as the oven's: reported on the edge rather than counted, so
+    // no combination of switching off, unloading or burning can leave the
+    // frying loop stuck on
+    private bool sizzling;
+
+    private void Sizzle()
+    {
+        bool frying = state == State.Frying;
+
+        if (frying == sizzling)
+            return;
+
+        sizzling = frying;
+
+        SoundManager.Cooking(frying);
+    }
+
+    private void OnDisable()
+    {
+        if (!sizzling)
+            return;
+
+        sizzling = false;
+
+        SoundManager.Cooking(false);
     }
 
     // The tick, and it steps aside for the warning.

@@ -69,6 +69,22 @@ public class MoneyCounter : MonoBehaviour
         Punch();
     }
 
+    // Deposit is not one event, and treating it as one is what put a till noise
+    // on every plate handed over.
+    //
+    // Two completely different things arrive here. A CashFile is spawned per
+    // ITEM served and flies in on its own, so that route fires as many times as
+    // the order has lines. The customer's actual payout is a single sum sent
+    // once, when they are finished and settling up. Only the second is what a
+    // player means by getting paid, so only the second says so
+    private void Paid(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        Deposit(amount);
+    }
+
     // Flies a copy of a world label into the counter and deposits when it lands.
     //
     // The copy is UI, not a world object, and that is the whole trick. A screen
@@ -84,11 +100,14 @@ public class MoneyCounter : MonoBehaviour
     // is, which would leave the label hanging in the air and the sale unpaid
     public void FlyText(TextMeshPro source, int amount, float time, float lift)
     {
+        if (amount <= 0)
+            return;
+
         Camera eye = Camera.main;
 
         if (source == null || eye == null)
         {
-            Deposit(amount);
+            Paid(amount);
             return;
         }
 
@@ -97,14 +116,87 @@ public class MoneyCounter : MonoBehaviour
 
         if (flyer == null)
         {
-            Deposit(amount);
+            Paid(amount);
             return;
         }
 
-        StartCoroutine(Flying(flyer, origin, amount, time, lift));
+        StartCoroutine(Flying(flyer, origin, amount, time, lift, true));
     }
 
-    private IEnumerator Flying(RectTransform flyer, Vector3 origin, int amount, float time, float lift)
+    // The same flight, going the other way in every sense that shows.
+    //
+    // Red, with a minus, and it takes money out at the far end instead of
+    // putting it in. Sent through the earnings machinery on purpose: a penalty
+    // that moved differently from a payment would read as a different KIND of
+    // event, when it is exactly the same event with the sign flipped.
+    public void FlyFine(Vector3 origin, int amount, TMP_FontAsset font)
+    {
+        if (amount <= 0)
+            return;
+
+        Camera eye = Camera.main;
+        RectTransform flyer = eye == null
+            ? null
+            : Label("-" + amount, new Color(1f, .27f, .24f), font, origin, eye);
+
+        // The picture can fail; the penalty cannot.
+        if (flyer == null)
+        {
+            Fined(amount);
+            return;
+        }
+
+        StartCoroutine(Flying(flyer, origin, amount, .75f, .12f, false));
+    }
+
+    private void Fined(int amount)
+    {
+        if (amount <= 0 || CurrencyManager.instance == null)
+            return;
+
+        CurrencyManager.instance.UseCurrency(amount);
+        Punch();
+    }
+
+    // A label built from nothing, for callers with no world text to copy.
+    //
+    // BuildFlyer exists to match a TextMeshPro that is already on screen, and
+    // measures the drawn mesh to do it. There is nothing to match here -- the
+    // number is invented at the moment somebody is shot -- so the size is taken
+    // from the screen instead, which is the thing it actually has to look right
+    // against.
+    private RectTransform Label(string text, Color colour, TMP_FontAsset font,
+        Vector3 origin, Camera eye)
+    {
+        Canvas above = Flights();
+
+        if (above == null)
+            return null;
+
+        GameObject host = new GameObject("Fine");
+        host.transform.SetParent(above.transform, false);
+
+        TextMeshProUGUI label = host.AddComponent<TextMeshProUGUI>();
+
+        label.text = text;
+        label.color = colour;
+        label.alignment = TextAlignmentOptions.Center;
+        label.raycastTarget = false;
+        label.fontSize = Screen.height * .05f;
+
+        if (font != null)
+            label.font = font;
+
+        RectTransform rect = label.rectTransform;
+
+        rect.sizeDelta = new Vector2(Screen.width * .5f, Screen.height * .12f);
+        rect.position = (Vector2)eye.WorldToScreenPoint(origin);
+
+        return rect;
+    }
+
+    private IEnumerator Flying(RectTransform flyer, Vector3 origin, int amount,
+        float time, float lift, bool earning)
     {
         Camera eye = Camera.main;
         Vector3 restScale = flyer.localScale;
@@ -138,7 +230,10 @@ public class MoneyCounter : MonoBehaviour
         if (flyer != null)
             Destroy(flyer.gameObject);
 
-        Deposit(amount);
+        if (earning)
+            Paid(amount);
+        else
+            Fined(amount);
     }
 
     private RectTransform BuildFlyer(TextMeshPro source, Camera eye)

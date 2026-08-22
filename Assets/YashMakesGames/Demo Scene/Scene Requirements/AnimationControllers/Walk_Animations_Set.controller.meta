@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 52df85d5280c61b4990113c58a459568
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 267436
+  packageName: Wild West Revolver Gunslinger Cowboy Animations
+  packageVersion: 1.0
+  assetPath: Assets/YashMakesGames/Demo Scene/Scene Requirements/AnimationControllers/Walk_Animations_Set.controller
+  uploadId: 631440

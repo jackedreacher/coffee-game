@@ -27,6 +27,11 @@ public class Lives : MonoBehaviour
     // subscribe and then ask, rather than needing to be told to start
     public event Action Changed;
 
+    // remaining = which HUD slot was just lost (3 -> 2 means slot 2).
+    // The world point belongs to the customer who caused it, so the HUD can
+    // make the heart come from the event instead of from the money counter.
+    public event Action<int, Vector3> Lost;
+
     // Once, when the last one goes. Nothing listens yet -- the game over screen
     // is a separate decision -- but the moment has to be somewhere findable
     public event Action Emptied;
@@ -50,17 +55,25 @@ public class Lives : MonoBehaviour
 
     public void Lose()
     {
+        Lose(Vector3.zero);
+    }
+
+    public void Lose(Vector3 source)
+    {
         if (Left <= 0)
             return;
 
         left = Left - 1;
 
+        Lost?.Invoke(left, source);
         Changed?.Invoke();
 
         if (left > 0)
             return;
 
         Debug.Log("[Can] son can gitti -- " + Max + " musteri kacti", this);
+
+        SoundManager.Play(SoundManager.Sound.GameOver);
 
         Emptied?.Invoke();
     }

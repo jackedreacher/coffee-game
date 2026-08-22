@@ -25,7 +25,7 @@ public class PickupStation : FoodServingStation
         // Gone either way. They are out of the queue by this line, so nothing
         // will ever ask them to move again -- a walk that fails to start leaves
         // them standing in the shop for the rest of the game
-        if (!customer.GoToThen(customerExitPoint.position, () => Destroy(customer.gameObject)))
+        if (!customer.Leave(customerExitPoint.position, () => Destroy(customer.gameObject)))
             Destroy(customer.gameObject);
     }
 }

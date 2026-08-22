@@ -110,9 +110,22 @@ public class ClickToMovePlayerController : PlayerController
         if (!Mathf.Approximately(agent.speed, moveSpeed))
             ApplySpeed(moveSpeed);
 
-        // Drive the animator from where the agent is actually going, not from
-        // an input vector. A stopped agent has zero velocity, which reads as idle
-        playerAnimator.ManageAnimations(agent.velocity.normalized, agent.velocity.magnitude);
+        // Speed comes from actual velocity, but FACING comes from the next path
+        // corner. agent.velocity includes local-avoidance nudges; beside a wall,
+        // customer or another agent it flickers left/right even though the path
+        // itself has not changed, making the body look unable to choose a side.
+        Vector3 facing = agent.velocity;
+
+        if (agent.hasPath && !agent.pathPending)
+        {
+            Vector3 pathDirection = agent.steeringTarget - transform.position;
+            pathDirection.y = 0f;
+
+            if (pathDirection.sqrMagnitude > .0025f)
+                facing = pathDirection;
+        }
+
+        playerAnimator.ManageAnimations(facing.normalized, agent.velocity.magnitude);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         ReportSpeed();
@@ -145,6 +158,7 @@ public class ClickToMovePlayerController : PlayerController
             // reported for two rounds and speed alone was never the limit
             Debug.Log("[Hiz] agent.speed = " + agent.speed.ToString("0.0") +
                       "   ivme " + agent.acceleration.ToString("0.0") +
+                      "   donus " + agent.angularSpeed.ToString("0") + " derece/sn" +
                       "   (Move Speed alani " + moveSpeed.ToString("0.0") + ")" +
                       "\n  autoBraking      : " + (agent.autoBraking
                           ? "ACIK  <-- kisa mesafede tavana hic cikilamaz"
@@ -234,8 +248,18 @@ public class ClickToMovePlayerController : PlayerController
     {
         agent.speed = speed;
 
-        // Half a second from a standstill to full speed at any setting
-        agent.acceleration = Mathf.Max(8f, speed * 2f);
+        // speed * 2 meant half a second from rest, but a left-to-right reversal
+        // has to shed +speed and build -speed: twice the velocity, therefore a
+        // full second of sideways carry. That is the visible "drift" under rapid
+        // taps. At *10 a complete reversal settles in about .20 seconds while
+        // still retaining a tiny amount of softness instead of teleporting.
+        agent.acceleration = Mathf.Max(40f, speed * 10f);
+
+        // updateRotation is false because PlayerAnimator owns the visual body,
+        // but the navigation solver still uses angularSpeed while steering its
+        // velocity around corners. The default 120 was another slow arc beneath
+        // a fast-looking body turn.
+        agent.angularSpeed = Mathf.Max(agent.angularSpeed, 1440f);
 
         agent.autoBraking = brakeOnArrival;
     }

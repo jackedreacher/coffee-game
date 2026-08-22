@@ -167,7 +167,7 @@ public class PlateauHandWindow : EditorWindow
         {
             EditorGUILayout.HelpBox(
                 "Play Mode. Sahnedeki degisiklikler durdurunca silinir --\n" +
-                "'Tum tavsanlara yaz' ile prefaba gecir.",
+                "'Tum musterilere yaz' ile prefablara gecir.",
                 MessageType.Warning);
         }
 
@@ -410,8 +410,323 @@ public class PlateauHandWindow : EditorWindow
         return false;
     }
 
+    // Which humanoid bone the tray hangs from, chosen rather than searched for.
+    //
+    // PlateauAttach finds a parent by hunting for a transform called something
+    // like "hand", which is what you do when there is no mapping to ask. On the
+    // capsule animals there IS one -- they are humanoid -- and a mapping
+    // answers a better question: not "which of these names looks like a hand"
+    // but "which bone IS the hand", and it can answer for the forearm too.
+    //
+    // A tray on a forearm is not a mistake to be corrected. These arms are
+    // shorter than the body is wide, so a hand-held tray ends up inside the
+    // stomach; carried on the arm it sits where a waiter's actually does
+    private static readonly HumanBodyBones[] mountable =
+    {
+        HumanBodyBones.RightHand,
+        HumanBodyBones.RightLowerArm,
+        HumanBodyBones.RightUpperArm,
+        HumanBodyBones.LeftHand,
+        HumanBodyBones.LeftLowerArm,
+        HumanBodyBones.LeftUpperArm,
+        HumanBodyBones.Chest,
+        HumanBodyBones.Hips,
+    };
+
+    private int mountIndex;
+
+    private void DrawMounting(Plateau plateau)
+    {
+        Transform root = FindRoot();
+
+        if (root == null || plateau == null)
+            return;
+
+        Transform visual = PlateauAttach.FindVisual(root);
+
+        Animator animator = visual == null ? null : visual.GetComponent<Animator>();
+
+        // Silent rather than a warning. Most trays in this project hang off
+        // generic rigs and always will; a humanoid one is the new case, and a
+        // panel section that only applies sometimes should only appear then
+        if (animator == null || !animator.isHuman)
+            return;
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Kemige Monte Et", EditorStyles.boldLabel);
+
+        string[] names = new string[mountable.Length];
+
+        for (int i = 0; i < mountable.Length; i++)
+        {
+            Transform bone = animator.GetBoneTransform(mountable[i]);
+
+            names[i] = mountable[i] + (bone == null ? "  (YOK)" : "  -> " + bone.name);
+        }
+
+        mountIndex = EditorGUILayout.Popup("Kemik", mountIndex, names);
+
+        // Allowed in play mode, with the price named.
+        //
+        // It was blocked, on the grounds that play throws scene changes away.
+        // That is true and it was only half the picture: RestoreSnapshot
+        // re-parents as well as re-positions -- ApplyPlacement calls SetParent
+        // with the saved bonePath -- so a mount made during play DOES come
+        // back, provided it was saved before stopping. Blocking it took away
+        // the one place worth tuning in, where the rig is in a real pose with
+        // real food on the tray
+        if (EditorApplication.isPlaying)
+        {
+            EditorGUILayout.HelpBox(
+                "Play Mode: tasima calisir ama durdurunca gider.\n" +
+                "Kalmasi icin once \"Ayari kaydet\", ve asagidaki\n" +
+                "\"Play bitince kayitli ayari uygula\" isaretli olsun.",
+                MessageType.Info);
+        }
+
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Bu kemige tasi (yerinde kalsin)"))
+                Mount(plateau, animator, true);
+
+            if (GUILayout.Button("Tasi ve sifirla"))
+                Mount(plateau, animator, false);
+        }
+
+        // The one-button answer to "it reaches for the food with the hand the
+        // tray is in".
+        //
+        // Every waiter clip in the pack carries with one hand and works with
+        // the other, so there is a correct side and a wrong one, and the wrong
+        // one is only visible once an action plays. Moving across by hand means
+        // re-dialling a placement that took a while to get right -- so this
+        // mirrors it instead, and the placement lands on the far arm already
+        // correct because these rigs are symmetrical
+        if (GUILayout.Button("Diger kola aynala (tepsi hangi elde ise digerine)"))
+            MirrorArm(plateau, animator);
+
+        EditorGUILayout.LabelField(
+            "Suanki ebeveyn: " + (plateau.transform.parent == null
+                ? "(yok)"
+                : plateau.transform.parent.name),
+            EditorStyles.miniLabel);
+
+        DrawLevelling(plateau);
+    }
+
+    // The wrist, as a checkbox.
+    //
+    // A tray bolted to an arm pitches with the arm, and Hurry is a run: the
+    // body leans, the arm leans, the food rides a slope. Levelling is what a
+    // real waiter's wrist does, and it is also the answer to "these two clips
+    // need different tray values" -- a tray that is level in every pose needs
+    // one placement rather than one per animation
+    private void DrawLevelling(Plateau plateau)
+    {
+        PlateauLevel keeper = plateau.GetComponent<PlateauLevel>();
+
+        bool on = keeper != null;
+        bool wanted = EditorGUILayout.ToggleLeft(
+            "Tepsiyi yatay tut (kol egilse de)", on);
+
+        if (wanted != on)
+        {
+            if (wanted)
+            {
+                Undo.AddComponent<PlateauLevel>(plateau.gameObject);
+                status = "Yatay tutma acildi. Play'de bak; sertligini " +
+                         "PlateauLevel bileseninden ayarla.";
+            }
+            else
+            {
+                Undo.DestroyObjectImmediate(keeper);
+                status = "Yatay tutma kapatildi -- tepsi tamamen kola bagli.";
+            }
+
+            if (!EditorApplication.isPlaying)
+                EditorSceneManager.MarkSceneDirty(plateau.gameObject.scene);
+        }
+
+        if (keeper != null)
+        {
+            EditorGUILayout.LabelField(
+                "  Tepsi ele BAGLI kalir -- duzeltilen sey bilek.",
+                EditorStyles.miniLabel);
+            EditorGUILayout.LabelField(
+                "  PlateauLevel > level: 0 = bilek duzeltmez, 1 = tepsi hep yatay",
+                EditorStyles.miniLabel);
+        }
+    }
+
+    // Two ways to arrive, because there are two things somebody means by this.
+    //
+    // "Keep it where it is" moves the tray to the new bone without it jumping,
+    // which is what you want when the placement is already right and the arm is
+    // simply a better thing to hang it from. "Reset" drops it on the bone's
+    // origin, which is where you start when the placement was never right
+    private void Mount(Plateau plateau, Animator animator, bool keepInPlace)
+    {
+        Transform bone = animator.GetBoneTransform(mountable[mountIndex]);
+
+        if (bone == null)
+        {
+            status = mountable[mountIndex] + " kemigi bu rigde yok.";
+            return;
+        }
+
+        Undo.RegisterFullObjectHierarchyUndo(plateau.gameObject, "Plateau kemige tasi");
+
+        plateau.transform.SetParent(bone, keepInPlace);
+
+        if (!keepInPlace)
+        {
+            plateau.transform.localPosition = Vector3.zero;
+            plateau.transform.localRotation = Quaternion.identity;
+        }
+
+        EditorSceneManager.MarkSceneDirty(plateau.gameObject.scene);
+
+        status = "Tasindi: " + bone.name +
+                 (keepInPlace ? "  (dunya konumu korundu)" : "  (sifirlandi)") +
+                 (EditorApplication.isPlaying
+                     ? "\n\nPLAY MODE. Kalmasi icin \"Ayari kaydet\"e bas."
+                     : "\n\nSAHNE HENUZ KAYDEDILMEDI. Ince ayar sonrasi Ctrl+S.");
+    }
+
+    // Moves the tray to the opposite arm, keeping the placement by reflecting
+    // it rather than carrying it across unchanged.
+    //
+    // Carrying it across unchanged is the obvious thing and it is wrong: a
+    // placement dialled in for the right hand sits out to the right of the
+    // wrist, and the same numbers on the left wrist put the tray inside the
+    // chest. Reflection is exactly right here because the rig is symmetrical --
+    // Shoulder.R and Shoulder.L are mirror images, so a pose mirrored about the
+    // character's centre line lands on the far arm in the same relationship to
+    // it that it had to the near one
+    private void MirrorArm(Plateau plateau, Animator animator)
+    {
+        // What moves is whichever transform is the bone's DIRECT child. The
+        // tray usually hangs straight off the bone, but a socket in between is
+        // a legitimate arrangement and re-parenting the tray out of its own
+        // socket would leave the socket orphaned on the far side
+        Transform moving = plateau.transform;
+        Transform bone = moving.parent;
+
+        HumanBodyBones mounted = HumanBodyBones.LastBone;
+        bool found = false;
+
+        while (bone != null && !found)
+        {
+            for (int i = 0; i < mountable.Length && !found; i++)
+            {
+                if (animator.GetBoneTransform(mountable[i]) != bone)
+                    continue;
+
+                mounted = mountable[i];
+                found = true;
+            }
+
+            if (found)
+                break;
+
+            moving = bone;
+            bone = bone.parent;
+        }
+
+        if (!found)
+        {
+            status = "Tepsi bir kol kemigine bagli degil.\n" +
+                     "Once yukaridaki listeden bir kemige tasi.";
+            return;
+        }
+
+        HumanBodyBones other = Opposite(mounted);
+
+        if (other == mounted)
+        {
+            status = mounted + " bir kol kemigi degil -- aynalanacak karsiligi yok.";
+            return;
+        }
+
+        Transform target = animator.GetBoneTransform(other);
+
+        if (target == null)
+        {
+            status = other + " kemigi bu rigde yok.";
+            return;
+        }
+
+        Undo.RegisterFullObjectHierarchyUndo(moving.gameObject, "Plateau diger kola");
+
+        // Measured against the CHARACTER, not the world. The character can be
+        // stood anywhere facing anywhere; its own centre line is the only
+        // mirror plane that means "the other arm"
+        Transform frame = animator.transform;
+
+        Vector3 place = frame.InverseTransformPoint(moving.position);
+        Quaternion turn = Quaternion.Inverse(frame.rotation) * moving.rotation;
+
+        // Reflected across the character's YZ plane. Negating X alone would
+        // move the tray to the far side still tilted the near side's way, which
+        // reads as a tray about to slide off. A reflected rotation keeps Y and Z
+        // reversed so the tilt crosses over with it
+        place.x = -place.x;
+        turn = new Quaternion(turn.x, -turn.y, -turn.z, turn.w);
+
+        // True, so the world scale survives: the two hand bones are mirror
+        // images but not always at identical scale, and a tray that changes
+        // size on the way across is a second bug to chase
+        moving.SetParent(target, true);
+
+        moving.SetPositionAndRotation(
+            frame.TransformPoint(place), frame.rotation * turn);
+
+        for (int i = 0; i < mountable.Length; i++)
+        {
+            if (mountable[i] == other)
+                mountIndex = i;
+        }
+
+        // The levelling script learned its resting pose from the old arm, and
+        // every number it holds is relative to that. Without this it would spend
+        // the rest of play pulling the tray back towards the right hand
+        PlateauLevel keeper = plateau.GetComponent<PlateauLevel>();
+
+        if (keeper != null && EditorApplication.isPlaying)
+            keeper.Learn();
+
+        EditorSceneManager.MarkSceneDirty(plateau.gameObject.scene);
+
+        status = "Aynalandi: " + bone.name + "  ->  " + target.name +
+                 (EditorApplication.isPlaying
+                     ? "\n\nPLAY MODE. Kalmasi icin \"Ayari kaydet\"e bas."
+                     : "\n\nSAHNE HENUZ KAYDEDILMEDI. Kontrol edip Ctrl+S.");
+    }
+
+    // Only the arm bones have a far side worth talking about. Chest and Hips
+    // are on the centre line, so they answer with themselves and the caller
+    // says so rather than silently doing nothing
+    private static HumanBodyBones Opposite(HumanBodyBones bone)
+    {
+        switch (bone)
+        {
+            case HumanBodyBones.RightHand: return HumanBodyBones.LeftHand;
+            case HumanBodyBones.LeftHand: return HumanBodyBones.RightHand;
+
+            case HumanBodyBones.RightLowerArm: return HumanBodyBones.LeftLowerArm;
+            case HumanBodyBones.LeftLowerArm: return HumanBodyBones.RightLowerArm;
+
+            case HumanBodyBones.RightUpperArm: return HumanBodyBones.LeftUpperArm;
+            case HumanBodyBones.LeftUpperArm: return HumanBodyBones.RightUpperArm;
+        }
+
+        return bone;
+    }
+
     private void DrawSaving(Plateau plateau)
     {
+        DrawMounting(plateau);
+
         bool character = IsCharacterPlateau(plateau);
 
         EditorGUILayout.Space();
@@ -421,7 +736,7 @@ public class PlateauHandWindow : EditorWindow
         {
             EditorGUILayout.HelpBox(
                 "Istasyon tepsisi -- karakter degil.\n" +
-                "Paylasilan prefaba ve tavsanlara yazan butonlar kapatildi.\n" +
+                "Paylasilan prefaba ve musterilere yazan butonlar kapatildi.\n" +
                 "Buradaki sayilar sadece bu sahne objesine ait, Ctrl+S ile kaydedilir.",
                 MessageType.Info);
         }
@@ -490,7 +805,7 @@ public class PlateauHandWindow : EditorWindow
 
             using (new EditorGUI.DisabledScope(!character))
             {
-                if (GUILayout.Button("Tavsanlarda temizle"))
+                if (GUILayout.Button("Musterilerde temizle"))
                 {
                     string report = PlateauAttach.RevertPlateVisualOnCustomers();
 
@@ -504,7 +819,7 @@ public class PlateauHandWindow : EditorWindow
         // ever runs from a rabbit outwards -- and never from a station tray
         using (new EditorGUI.DisabledScope(targetIndex == 0 || !character))
         {
-            if (GUILayout.Button("Tum tavsanlara yaz", GUILayout.Height(26f)))
+            if (GUILayout.Button("Tum musterilere yaz", GUILayout.Height(26f)))
                 WriteToCustomers(plateau);
         }
 
@@ -536,10 +851,10 @@ public class PlateauHandWindow : EditorWindow
         // The way back when a copy went wrong and the trays are somewhere off
         // the character. Independent of the snapshot buttons, which hold
         // whatever was saved last -- this holds a placement known to have worked
-        if (GUILayout.Button("Tavsanlari bilinen iyi ayara dondur"))
+        if (GUILayout.Button("Musterileri bilinen iyi ayara dondur"))
         {
             if (EditorUtility.DisplayDialog("Bilinen Iyi Ayar",
-                    "7 tavsanin tepsi ayari, yemegin ellerinde durdugu son bilinen\n" +
+                    "Musterilerin tepsi ayari, yemegin ellerinde durdugu son bilinen\n" +
                     "degerlere donecek.\n\nSimdiki ayar gider.",
                     "Dondur", "Vazgec"))
             {
@@ -551,7 +866,7 @@ public class PlateauHandWindow : EditorWindow
         }
 
         if (targetIndex == 0)
-            EditorGUILayout.HelpBox("Player panda, musteriler tavsan. Ayarlari ayri.", MessageType.None);
+            EditorGUILayout.HelpBox("Player sincap, musteriler kapsul hayvan. Ayarlari ayri.", MessageType.None);
     }
 
     private void RevertPlateOverride(Plateau plateau)
@@ -1358,16 +1673,50 @@ public class PlateauHandWindow : EditorWindow
     // mode: the station had nowhere of its own to save to, and on stopping, the
     // owner check -- correctly -- refused to paste the rabbit's numbers over it.
     // The refusal was right and the work was lost anyway
+    // Keyed by the CHARACTER, not by where the tray currently hangs.
+    //
+    // It used to be the tray's full hierarchy path, and that was right about
+    // the thing it was fixing -- one slot per tray, so a station tray and a
+    // rabbit could not overwrite each other -- and wrong about re-parenting.
+    // Move the tray from the root to a hand bone and its path changes, so the
+    // setting saved under the new path is invisible from the old one. Which is
+    // exactly what happens across a play session: tune it onto the arm, press
+    // save, stop play, the scene reverts the tray to where it was, and the
+    // restore looks for a key that the tray no longer has.
+    //
+    // The owner is the stable thing. A character has one tray, wherever on
+    // itself it is hanging, so the character's own path is the identity
     private static string SnapshotKeyFor(Plateau plateau)
     {
+        Transform owner = PlateauAttach.RootOf(plateau.transform);
+
+        string where = owner == null
+            ? FullPath(plateau.transform)
+            : FullPath(owner) + "/" + plateau.name;
+
+        return "CookedFast.Plateau.tray." + where.Replace('/', '.');
+    }
+
+    // The key this used to be written under. Read only, and only when the new
+    // one has nothing -- a change of key should not silently throw away the
+    // settings somebody already saved
+    private static string OldSnapshotKeyFor(Plateau plateau)
+    {
         return "CookedFast.Plateau.tray." + FullPath(plateau.transform).Replace('/', '.');
+    }
+
+    private static string ReadableKey(Plateau plateau)
+    {
+        string key = SnapshotKeyFor(plateau);
+
+        return EditorPrefs.HasKey(key) ? key : OldSnapshotKeyFor(plateau);
     }
 
     private bool HasSnapshot()
     {
         Plateau plateau = FindPlateau();
 
-        return plateau != null && EditorPrefs.HasKey(SnapshotKeyFor(plateau));
+        return plateau != null && EditorPrefs.HasKey(ReadableKey(plateau));
     }
 
     private void SaveSnapshot()
@@ -1415,7 +1764,7 @@ public class PlateauHandWindow : EditorWindow
             return;
         }
 
-        string key = SnapshotKeyFor(plateau);
+        string key = ReadableKey(plateau);
 
         // Each tray reads its own slot, so there is nothing left to mismatch:
         // a tray with no saved setting simply has none, rather than being handed

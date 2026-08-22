@@ -48,9 +48,9 @@ public class UIPlayerUpgradeContainer : MonoBehaviour
     {
         switch (statIndex)
         {
-            case 0: return "Speed";
-            case 1: return "Capacity";
-            case 2: return "Revenue";
+            case 0: return GameLocalization.Get("speed", "Speed");
+            case 1: return GameLocalization.Get("capacity", "Capacity");
+            case 2: return GameLocalization.Get("revenue", "Revenue");
             default: return "";
         }
     }
@@ -96,7 +96,9 @@ public class UIPlayerUpgradeContainer : MonoBehaviour
         bool isMaxed = level >= maxLevel;
         int upgradePrice = station.GetUpgradePrice(level);
 
-        upgradePriceText.text = isMaxed ? "max" : "<sprite=0> " + upgradePrice;
+        upgradePriceText.text = isMaxed
+            ? GameLocalization.Get("max", "MAX")
+            : "<sprite=0> " + upgradePrice;
 
         upgradeButton.interactable =
             CurrencyManager.instance.HasEnoughCurrency(upgradePrice) && !isMaxed;

@@ -121,7 +121,9 @@ public class UIWorkerContainer : MonoBehaviour
 
         int upgradePrice = HRManager.GetWorkerUpgradePriceFromLevel(level);
 
-        upgradePriceText.text = isMaxed ? "max" : "<sprite=0> " + upgradePrice;
+        upgradePriceText.text = isMaxed
+            ? GameLocalization.Get("max", "MAX")
+            : "<sprite=0> " + upgradePrice;
         upgradeButton.interactable = CurrencyManager.instance.HasEnoughCurrency(upgradePrice) && !isMaxed;
 
         // Nothing left to watch an ad for once the worker is maxed out
@@ -135,7 +137,7 @@ public class UIWorkerContainer : MonoBehaviour
 
         if (containerIndex <= 0)
         {
-            unlockPriceText.text = "FREE";
+            unlockPriceText.text = GameLocalization.Get("free", "FREE");
             unlockButton.interactable = true;
             return;
         }

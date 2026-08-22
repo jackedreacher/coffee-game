@@ -60,6 +60,12 @@ public class CurrencyManager : MonoBehaviour, IWantToBeSaved
     public void AddCurrency(int amount)
     {
         Currency += amount;
+
+        // No sound here, deliberately. This is the till, and the till is hit by
+        // every part payment a customer makes as their order fills up -- so a
+        // noise here is a noise per item. The sale is one event and it has one
+        // moment: CustomerOrder.SendMoney, where the total appears as a number
+        // and flies to the counter. That is where it sounds
         SaveAndUpdateVisuals();
     }
 

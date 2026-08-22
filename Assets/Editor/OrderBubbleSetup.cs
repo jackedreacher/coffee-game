@@ -53,6 +53,54 @@ public static class OrderBubbleSetup
     // What actually has to clear the neighbours
     public const float CardWidth = bubbleSize * bubbleAspect;
 
+    // The card's proportions, every one a fraction of bubbleSize.
+    //
+    // These used to be locals inside Build, which was fine while nothing
+    // outside needed to know how tall the finished card stands. It does now:
+    // the badge hangs ABOVE the panel, so the panel's own height is not what a
+    // bubble in the row behind has to clear, and CustomerSetup was lifting the
+    // back row by the panel alone.
+    //
+    // Measured off the file: the drawn box runs from 4% to 73% of the image
+    // height and the spike carries on to 95%. Centring content on the IMAGE
+    // would drop the food into the spike, so every offset is taken from the box.
+    private const float boxTopShare = .46f;
+    private const float boxBottomShare = -.23f;
+    private const float boxMiddleShare = (boxTopShare + boxBottomShare) * .5f;
+
+    // The food picture.
+    private const float iconShare = .34f;
+
+    // The drawn face -- the emoji, and the number the whole badge is measured
+    // from. Face rather than ring, because the face is the thing being read and
+    // the ring is trim around it.
+    //
+    // THE knob for "make the timer and the emoji bigger". Everything in the
+    // badge is a fraction of it: the ring, the countdown disc, the digits, the
+    // celebration burst and how high the badge has to sit. Raised from .40
+    // because the bubbles went back to full size and the badge did not keep up
+    // -- at .40 the clock was a detail on a card rather than the thing the
+    // player is supposed to be watching.
+    public const float badgeFaceShare = .52f;
+
+    private const float ringInnerShare = .40f;
+    private const float ringOuterShare = .72f;
+
+    // Where the badge's centre lands, and how far the whole card reaches above
+    // its own origin. The badge deliberately overhangs the panel's top edge, so
+    // CardTopShare is meaningfully more than boxTopShare.
+    private const float badgeYShare = boxMiddleShare + iconShare * .5f
+                                      + badgeFaceShare * ringOuterShare + .02f;
+
+    public const float CardTopShare =
+        badgeYShare + badgeFaceShare * ringOuterShare;
+
+    // Panel plus the badge hanging over it, in world units. What a bubble
+    // standing in the row behind has to be lifted clear of. The tail below the
+    // panel is left out on purpose -- it is a thin spike, and demanding room
+    // for it stacks the rows twice as high as they need to be.
+    public const float CardHeight = bubbleSize * (CardTopShare - boxBottomShare);
+
     [MenuItem("Cooked Fast/Musteri/Siparis Balonunu Kur", priority = 600)]
     public static void Setup()
     {
@@ -185,6 +233,11 @@ public static class OrderBubbleSetup
         report.AppendLine("  Elle degistirmek icin prefabi ac, " + bubbleName + "'in");
         report.AppendLine("  Scale'ini buyut -- ic olculer kendiliginden uyar.");
         report.AppendLine("  Kalici olsun istersen OrderBubbleSetup > bubbleSize.");
+        report.AppendLine("  Sayac + emoji buyuklugu: OrderBubbleSetup > badgeFaceShare");
+        report.AppendLine("    su an " + badgeFaceShare.ToString("0.00") +
+                          " -- halka, disk, rakamlar ve isin hepsi buna bagli.");
+        report.AppendLine("    kartin tepesi " + CardHeight.ToString("0.00") +
+                          " birim (rozet dahil).");
         report.AppendLine("  Yemek modelinin boyu Icon Anchor'un Scale'inden geliyor.");
 
         Debug.Log("[Siparis]\n" + report);
@@ -246,12 +299,10 @@ public static class OrderBubbleSetup
             const float width = CardWidth;
 
             // The art is a panel with a tail hanging under it, and only the
-            // panel can hold anything. Measured off the file: the drawn box runs
-            // from 4% to 73% of the image height and the spike carries on to
-            // 95%. Centring content on the IMAGE would drop the food into the
-            // spike, so every offset below is taken from the box instead
-            const float boxTop = size * .46f;
-            const float boxBottom = -size * .23f;
+            // panel can hold anything -- see the shares at the top of the file
+            // for where these come from.
+            const float boxTop = size * boxTopShare;
+            const float boxBottom = size * boxBottomShare;
 
             // Dead centre of the drawn box, and the food gets it.
             //
@@ -264,12 +315,12 @@ public static class OrderBubbleSetup
 
             // The anchor's scale IS the icon size. CustomerOrder fits the food
             // model into it, so resizing the picture is dragging one number
-            const float iconSize = size * .34f;
+            const float iconSize = size * iconShare;
 
             // The drawn face, and the number the badge is measured from -- the
             // face rather than the ring, because the face is the thing being
             // read and the ring is trim around it
-            const float face = size * .40f;
+            const float face = size * badgeFaceShare;
 
             // A rim around the face, not a hoop with the face sitting inside it.
             //
@@ -280,8 +331,8 @@ public static class OrderBubbleSetup
             // Only the part past the face's own edge at .5 is ever seen, so the
             // outer radius is the whole of how big the clock looks -- and the
             // step from .56 to .62 is not a tenth bigger, it is twice the band
-            const float ringInner = face * .40f;
-            const float ringOuter = face * .72f;
+            const float ringInner = face * ringInnerShare;
+            const float ringOuter = face * ringOuterShare;
 
             // Hung over the top edge of the panel, as low as the food allows.
             //
@@ -290,7 +341,7 @@ public static class OrderBubbleSetup
             // until it is just clear of the picture and no further. Written as
             // arithmetic rather than as a number, so shrinking the badge lets it
             // settle deeper on its own instead of leaving a gap nobody notices
-            float badgeY = boxMiddle + iconSize * .5f + ringOuter + size * .02f;
+            float badgeY = size * badgeYShare;
 
             Vector3 badge = new Vector3(0f, badgeY, -.03f);
 
@@ -428,6 +479,11 @@ public static class OrderBubbleSetup
             so.FindProperty("angrySprite").objectReferenceValue = angry;
 
             so.ApplyModifiedProperties();
+
+            // Rebuilding the bubble must not silently put the retired pixel
+            // faces back. If the purchased pack is present, install the three
+            // animated moods into the same authored badge position.
+            Emoji45Setup.Install(bubble, order, face, report);
 
             // The customer's own field, so Initialize can open the bubble
             SerializedObject customerSo = new SerializedObject(customer);
@@ -886,5 +942,260 @@ public static class OrderBubbleSetup
 
         importer.SetTextureSettings(settings);
         importer.SaveAndReimport();
+    }
+}
+
+public static class Emoji45Setup
+{
+    private const string customersFolder =
+        "Assets/Tiny Coffee Shop/Prefabs/Characters/Customers";
+    private const string holderName = "Emoji 45 Animated";
+
+    private const string happyPath =
+        "Assets/Emojis 45/Prefabs/Stroked emojis in World Space Canvas/" +
+        "Canvas Emoji happy 2 Stroke.prefab";
+    private const string neutralPath =
+        "Assets/Emojis 45/Prefabs/Basic emojis in World Space Canvas/" +
+        "Canvas Emoji beg.prefab";
+    private const string angryPath =
+        "Assets/Emojis 45/Prefabs/Stroked emojis in World Space Canvas/" +
+        "Canvas Emoji angry Stroke.prefab";
+
+    [MenuItem("Cooked Fast/Musteri/Emoji 45 Paketini Entegre Et", priority = 601)]
+    public static void Setup()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            EditorUtility.DisplayDialog("Emoji 45",
+                "Once Play'i kapat. Musteri prefablarini guvenli sekilde " +
+                "duzenlemek icin oyun calismiyor olmali.", "Tamam");
+            return;
+        }
+
+        if (!Assets(out GameObject happy, out GameObject neutral,
+                out GameObject angry, out string problem))
+        {
+            EditorUtility.DisplayDialog("Emoji 45", problem, "Tamam");
+            return;
+        }
+
+        string[] guids = AssetDatabase.FindAssets("t:Prefab",
+            new[] { customersFolder });
+        StringBuilder report = new StringBuilder();
+        int changed = 0;
+
+        for (int i = 0; i < guids.Length; i++)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+            GameObject root = PrefabUtility.LoadPrefabContents(path);
+
+            try
+            {
+                CustomerOrder order = root.GetComponent<CustomerOrder>();
+
+                if (order == null)
+                    continue;
+
+                SerializedObject so = new SerializedObject(order);
+                GameObject bubble = so.FindProperty("bubbleRoot")
+                    .objectReferenceValue as GameObject;
+
+                if (bubble == null)
+                {
+                    report.AppendLine(root.name + ": Order Bubble yok, atlandi");
+                    continue;
+                }
+
+                float face = ExistingFaceSize(so);
+
+                if (Install(bubble, order, face, report,
+                        happy, neutral, angry))
+                {
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                    changed++;
+                }
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        AssetDatabase.SaveAssets();
+
+        report.Insert(0,
+            "Emoji 45 entegrasyonu\n\n" +
+            "Mutlu  -> happy 2\n" +
+            "Idare  -> beg (Basic/Emoji beg.psd)\n" +
+            "Kizgin -> angry\n\n");
+        report.AppendLine();
+        report.AppendLine(changed + " musteri prefabi guncellendi.");
+        report.AppendLine("Eski statik emojiler silinmedi; kapali yedek olarak duruyor.");
+
+        EditorUtility.DisplayDialog("Emoji 45", report.ToString(), "Tamam");
+    }
+
+    // Called by OrderBubbleSetup too, so rebuilding the whole card later keeps
+    // the purchased animated faces instead of quietly reverting to pixel art.
+    public static bool Install(GameObject bubble, CustomerOrder order,
+        float faceHeight, StringBuilder report)
+    {
+        if (!Assets(out GameObject happy, out GameObject neutral,
+                out GameObject angry, out string problem))
+        {
+            report?.AppendLine("  Emoji 45: " + problem);
+            return false;
+        }
+
+        return Install(bubble, order, faceHeight, report,
+            happy, neutral, angry);
+    }
+
+    private static bool Install(GameObject bubble, CustomerOrder order,
+        float faceHeight, StringBuilder report, GameObject happyPrefab,
+        GameObject neutralPrefab, GameObject angryPrefab)
+    {
+        if (bubble == null || order == null)
+            return false;
+
+        SerializedObject so = new SerializedObject(order);
+        SpriteRenderer old = so.FindProperty("emoji").objectReferenceValue
+            as SpriteRenderer;
+
+        Transform previous = bubble.transform.Find(holderName);
+        Vector3 position = old != null
+            ? old.transform.localPosition
+            : previous != null ? previous.localPosition : Vector3.zero;
+        Quaternion rotation = old != null
+            ? old.transform.localRotation
+            : previous != null ? previous.localRotation : Quaternion.identity;
+
+        if (previous != null)
+            Object.DestroyImmediate(previous.gameObject);
+
+        faceHeight = faceHeight > .01f ? faceHeight : .7f;
+
+        GameObject holder = new GameObject(holderName);
+        holder.transform.SetParent(bubble.transform, false);
+        holder.transform.localPosition = position;
+        holder.transform.localRotation = rotation;
+        holder.transform.localScale = Vector3.one;
+
+        int sortingLayer = old != null ? old.sortingLayerID : 0;
+
+        GameObject happy = Add(happyPrefab, holder.transform, "Happy",
+            faceHeight, sortingLayer);
+        GameObject neutral = Add(neutralPrefab, holder.transform, "Neutral",
+            faceHeight, sortingLayer);
+        GameObject angry = Add(angryPrefab, holder.transform, "Angry",
+            faceHeight, sortingLayer);
+
+        if (happy == null || neutral == null || angry == null)
+        {
+            Object.DestroyImmediate(holder);
+            report?.AppendLine("  Emoji 45 prefab ornegi olusturulamadi");
+            return false;
+        }
+
+        happy.SetActive(true);
+        neutral.SetActive(false);
+        angry.SetActive(false);
+
+        // Preserve the old, hand-positioned object as a recoverable backup.
+        // CustomerOrder no longer references it, so it cannot draw on top of
+        // the animated canvas or keep receiving sprite swaps.
+        if (old != null)
+        {
+            old.gameObject.SetActive(false);
+
+            if (!old.gameObject.name.Contains("ESKI"))
+                old.gameObject.name += " (ESKI - kapali)";
+        }
+
+        so.Update();
+        so.FindProperty("emoji").objectReferenceValue = null;
+        so.FindProperty("animatedEmojiRoot").objectReferenceValue =
+            holder.transform;
+        so.FindProperty("animatedHappyEmoji").objectReferenceValue = happy;
+        so.FindProperty("animatedNeutralEmoji").objectReferenceValue = neutral;
+        so.FindProperty("animatedAngryEmoji").objectReferenceValue = angry;
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        report?.AppendLine("  " + order.name + ": Emoji 45 hazir");
+        return true;
+    }
+
+    private static GameObject Add(GameObject source, Transform parent,
+        string label, float faceHeight, int sortingLayer)
+    {
+        GameObject instance = PrefabUtility.InstantiatePrefab(source, parent)
+            as GameObject;
+
+        if (instance == null)
+            return null;
+
+        instance.name = label;
+
+        RectTransform rect = instance.transform as RectTransform;
+        float authored = rect != null
+            ? Mathf.Max(rect.rect.width, rect.rect.height)
+            : 512f;
+
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = Quaternion.identity;
+        instance.transform.localScale = Vector3.one *
+            (faceHeight / Mathf.Max(1f, authored));
+
+        Canvas[] canvases = instance.GetComponentsInChildren<Canvas>(true);
+
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            canvases[i].overrideSorting = true;
+            canvases[i].sortingLayerID = sortingLayer;
+            canvases[i].sortingOrder = 120;
+        }
+
+        UnityEngine.UI.Graphic[] graphics =
+            instance.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+
+        for (int i = 0; i < graphics.Length; i++)
+            graphics[i].raycastTarget = false;
+
+        return instance;
+    }
+
+    private static float ExistingFaceSize(SerializedObject so)
+    {
+        SpriteRenderer old = so.FindProperty("emoji").objectReferenceValue
+            as SpriteRenderer;
+
+        if (old == null || old.sprite == null)
+            return .7f;
+
+        Vector3 own = old.sprite.bounds.size;
+        Vector3 scale = old.transform.localScale;
+
+        return Mathf.Max(Mathf.Abs(own.x * scale.x),
+                         Mathf.Abs(own.y * scale.y));
+    }
+
+    private static bool Assets(out GameObject happy, out GameObject neutral,
+        out GameObject angry, out string problem)
+    {
+        happy = AssetDatabase.LoadAssetAtPath<GameObject>(happyPath);
+        neutral = AssetDatabase.LoadAssetAtPath<GameObject>(neutralPath);
+        angry = AssetDatabase.LoadAssetAtPath<GameObject>(angryPath);
+
+        if (happy != null && neutral != null && angry != null)
+        {
+            problem = null;
+            return true;
+        }
+
+        problem = "Paket prefablarindan biri bulunamadi:\n" +
+                  (happy == null ? happyPath + "\n" : "") +
+                  (neutral == null ? neutralPath + "\n" : "") +
+                  (angry == null ? angryPath : "");
+        return false;
     }
 }

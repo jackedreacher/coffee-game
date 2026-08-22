@@ -12,20 +12,21 @@ using UnityEngine;
 public static class RoundSetup
 {
     private const string folder = "Assets/Tiny Coffee Shop/Data/Rounds";
+    private const int concurrentCustomers = 4;
 
     // Musteri sayisi, gelis araligi. Raund 1'den 50'ye
     private static readonly (int customers, float interval)[] table =
     {
-        (3, 15.0f), (4, 14.0f), (4, 13.0f), (5, 12.5f), (5, 12.0f),
-        (6, 11.5f), (6, 11.0f), (7, 10.5f), (7, 10.0f), (8, 9.5f),
-        (8, 9.2f), (9, 9.0f), (9, 8.8f), (10, 8.5f), (10, 8.2f),
-        (11, 8.0f), (11, 7.8f), (12, 7.6f), (12, 7.4f), (13, 7.2f),
-        (13, 7.0f), (14, 6.9f), (14, 6.8f), (15, 6.7f), (15, 6.6f),
-        (16, 6.5f), (17, 6.2f), (17, 6.0f), (18, 5.8f), (19, 5.5f),
-        (20, 5.3f), (20, 5.0f), (21, 4.8f), (22, 4.6f), (23, 4.4f),
-        (24, 4.2f), (25, 4.0f), (26, 3.9f), (27, 3.8f), (28, 3.7f),
-        (30, 3.6f), (32, 3.5f), (34, 3.4f), (35, 3.3f), (38, 3.2f),
-        (40, 3.1f), (42, 3.0f), (45, 2.9f), (48, 2.8f), (50, 2.5f)
+        (4, 12.0f), (4, 11.5f), (5, 11.0f), (5, 10.5f), (6, 10.0f),
+        (6, 9.7f), (7, 9.4f), (7, 9.1f), (8, 8.8f), (8, 8.5f),
+        (9, 8.2f), (9, 8.0f), (10, 7.8f), (10, 7.6f), (11, 7.4f),
+        (11, 7.2f), (12, 7.0f), (12, 6.8f), (13, 6.6f), (13, 6.4f),
+        (14, 6.2f), (14, 6.0f), (15, 5.9f), (15, 5.8f), (16, 5.7f),
+        (16, 5.6f), (17, 5.5f), (17, 5.4f), (18, 5.3f), (18, 5.2f),
+        (19, 5.1f), (19, 5.0f), (20, 4.9f), (20, 4.8f), (21, 4.7f),
+        (21, 4.6f), (22, 4.5f), (22, 4.4f), (23, 4.3f), (23, 4.2f),
+        (24, 4.1f), (24, 4.0f), (25, 3.9f), (25, 3.8f), (26, 3.7f),
+        (26, 3.6f), (27, 3.5f), (28, 3.4f), (29, 3.3f), (30, 3.2f)
     };
 
     // How many DIFFERENT things one customer may ask for.
@@ -49,7 +50,7 @@ public static class RoundSetup
         return "Usta: saniyeler kritik";
     }
 
-    [MenuItem("Cooked Fast/Oyun/Raund: 50 Raundu Uret", priority = 230)]
+    [MenuItem("Cooked Fast/Oyun/Raund: 4 Musterilik 50 Raundu Kur", priority = 230)]
     public static void Generate()
     {
         if (EditorApplication.isPlaying)
@@ -101,11 +102,17 @@ public static class RoundSetup
 
         AssetDatabase.SaveAssets();
 
-        string report = "- " + made + " raund olusturuldu, " + updated + " raund guncellendi\n" +
+        string report = "- 4 ayni-anlik musteriye gore dengelendi\n" +
+                        "- " + made + " raund olusturuldu, " + updated + " raund guncellendi\n" +
                         "- " + folder + "\n" +
-                        "- Raund 1-10: tek cesit siparis.  Raund 11-50: iki cesit\n";
+                        "- Raund 1-10: tek cesit siparis.  Raund 11-50: iki cesit\n" +
+                        "- Ilk raund 4, final raund 30 toplam musteri\n";
 
         Wire(rounds, ref report);
+
+        report += SoundSetup.InstallRoundIntro(false)
+            ? "- Mellow Hint 2 raund giris sesine baglandi\n"
+            : "- UYARI: raund giris sesi baglanamadi\n";
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 
@@ -165,6 +172,93 @@ public static class RoundSetup
         EditorUtility.DisplayDialog("Raundlar", report, "Tamam");
     }
 
+    // Four customers in one burst for checking the four-slot layout. They are
+    // separated by two tenths rather than instantiated on the exact same frame:
+    // four agents born on one point push each other before any of them has a
+    // path, which tests NavMesh overlap instead of the queue the designer wants
+    // to see. Re-running Generate restores the real 12-second first round.
+    [MenuItem("Cooked Fast/Oyun/Raund: TEST - Ilk Raunda 4 Musteri Birden", priority = 234)]
+    public static void TestFourAtOnce()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            EditorUtility.DisplayDialog("Raundlar",
+                "Play modundayken calismaz. Once durdur.", "Tamam");
+            return;
+        }
+
+        string path = folder + "/Round 01.asset";
+        RoundData first = AssetDatabase.LoadAssetAtPath<RoundData>(path);
+
+        if (first == null)
+        {
+            EditorUtility.DisplayDialog("Raundlar",
+                "Round 01 bulunamadi. Once su komutu calistir:\n" +
+                "Cooked Fast > Oyun > Raund: 4 Musterilik 50 Raundu Kur",
+                "Tamam");
+            return;
+        }
+
+        SerializedObject so = new SerializedObject(first);
+        so.FindProperty("totalCustomers").intValue = 4;
+        so.FindProperty("spawnInterval").floatValue = .2f;
+        so.FindProperty("maxOrderTypes").intValue = 1;
+        so.FindProperty("note").stringValue =
+            "TEST -- ilk raundda 4 musteri 0.2 saniye arayla";
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        // The round says how many people are owed; the counter's own slot
+        // array says how many may exist at once. Changing only the asset leaves
+        // an old one-slot scene physically unable to spawn customer two, so
+        // this test must set both halves of the rule.
+        FoodServingCustomerManager[] counters =
+            Object.FindObjectsByType<FoodServingCustomerManager>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        int countersSet = 0;
+
+        for (int i = 0; i < counters.Length; i++)
+        {
+            if (counters[i] == null)
+                continue;
+
+            SerializedObject counter = new SerializedObject(counters[i]);
+            counter.FindProperty("maxCustomers").intValue = 4;
+            counter.FindProperty("customersPerRow").intValue = 4;
+            SetFourWideSpacing(counter);
+            counter.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(counters[i]);
+            countersSet++;
+        }
+
+        RoundManager manager = Object.FindFirstObjectByType<RoundManager>(
+            FindObjectsInactive.Include);
+
+        if (manager != null)
+        {
+            SerializedObject roundManager = new SerializedObject(manager);
+            roundManager.FindProperty("startRound").intValue = 1;
+            roundManager.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(manager);
+        }
+
+        AssetDatabase.SaveAssets();
+        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+
+        string report =
+            "Round 01 test moduna alindi.\n\n" +
+            "- Toplam 4 musteri\n" +
+            "- 0.2 saniye aralik\n" +
+            "- " + countersSet + " kasanin kapasitesi 4, satiri 4 yapildi\n" +
+            "- Baslangic raundu 1 yapildi\n" +
+            "- 4 slot hizlica dolacak\n\n" +
+            "Normale donmek icin:\n" +
+            "Cooked Fast > Oyun > Raund: 4 Musterilik 50 Raundu Kur";
+
+        Debug.Log("Raundlar\n" + report, first);
+        EditorUtility.DisplayDialog("Raundlar", report, "Tamam");
+    }
+
     private static void Wire(RoundData[] rounds, ref string report)
     {
         RoundManager manager = Object.FindFirstObjectByType<RoundManager>(FindObjectsInactive.Include);
@@ -196,15 +290,24 @@ public static class RoundSetup
             Object.FindObjectsByType<FoodServingCustomerManager>(
                 FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        SerializedProperty wired = so.FindProperty("counters");
+            SerializedProperty wired = so.FindProperty("counters");
         wired.arraySize = counters.Length;
 
         for (int i = 0; i < counters.Length; i++)
+        {
             wired.GetArrayElementAtIndex(i).objectReferenceValue = counters[i];
+
+            SerializedObject counter = new SerializedObject(counters[i]);
+            counter.FindProperty("maxCustomers").intValue = concurrentCustomers;
+            counter.FindProperty("customersPerRow").intValue = concurrentCustomers;
+            SetFourWideSpacing(counter);
+            counter.ApplyModifiedProperties();
+        }
 
         so.ApplyModifiedProperties();
 
-        report += "- " + counters.Length + " tezgah baglandi";
+        report += "- " + counters.Length + " tezgah baglandi; her biri yan yana " +
+                  concurrentCustomers + " musteri";
 
         if (counters.Length <= 0)
             report += "  UYARI: tezgah yok, hic musteri gelmez";
@@ -212,6 +315,32 @@ public static class RoundSetup
         report += "\n\nTezgahlarin kendi Customer Interval degeri artik kullanilmiyor:\n" +
                   "raund suresini RoundManager veriyor. Maks slot sayisi hala\n" +
                   "tezgahta -- wave 20 kisi olsa da ayni anda o kadari durur.";
+    }
+
+    private static void SetFourWideSpacing(SerializedObject counter)
+    {
+        SerializedProperty spacing = counter.FindProperty("sideSpacing");
+        Vector3 direction = spacing.vector3Value;
+
+        if (direction.sqrMagnitude < .0001f)
+            direction = Vector3.forward;
+
+        // Four positions span three gaps. Capsule bodies need substantially
+        // more than one unit to leave visible air between their outlines; 1.5
+        // is wide enough to read as four separate service spots. The centre
+        // offset below keeps the block aligned with the useful counter area.
+        spacing.vector3Value = direction.normalized * 1.50f;
+
+        SerializedProperty centre = counter.FindProperty("sideCentreOffset");
+
+        if (centre != null)
+            centre.floatValue = -.30f;
+
+        SerializedProperty bubbleScale =
+            counter.FindProperty("fourWideBubbleScale");
+
+        if (bubbleScale != null)
+            bubbleScale.floatValue = .68f;
     }
 }
 #endif

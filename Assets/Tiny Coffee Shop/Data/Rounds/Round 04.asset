@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Round 04
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
   totalCustomers: 5
-  spawnInterval: 12.5
-  maxOrderTypes: 2
+  spawnInterval: 10.5
+  maxOrderTypes: 1
   note: 'Raund 4 -- Erken: temel mekanikleri ogrenme'

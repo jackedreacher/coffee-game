@@ -52,6 +52,52 @@ public class Interactable : MonoBehaviour
     private float PopScale => popScale > 1.001f ? popScale : 1.08f;
     private float PopDuration => Mathf.Abs(popDuration) < .001f ? .18f : popDuration;
 
+    // Whether somebody is standing IN this station rather than across the
+    // kitchen from it.
+    //
+    // Asked by the revolver, which fires at any range and therefore needed
+    // something to tell it when NOT to: a cowboy who shoots the fryer he is
+    // leaning on looks like a bug, and the hand is right there.
+    //
+    // Flattened to the floor plan on purpose. The player's feet are on the
+    // ground and a counter's trigger box usually is not, so a test that
+    // included height would answer "outside" for somebody leaning on the
+    // thing. NoWalkZone is skipped for the opposite reason -- those are large
+    // by design, and one draped over a station would switch the gun off from
+    // halfway across the room.
+    public bool Contains(Vector3 point)
+    {
+        // The number that already means "close enough to use by hand", so a
+        // station with no collider at all still answers sensibly.
+        Vector3 flat = point - StandPosition;
+
+        flat.y = 0f;
+
+        if (flat.sqrMagnitude <= reach * reach)
+            return true;
+
+        Collider[] boxes = GetComponentsInChildren<Collider>(true);
+
+        for (int i = 0; i < boxes.Length; i++)
+        {
+            Collider box = boxes[i];
+
+            if (box == null || !box.enabled || !box.gameObject.activeInHierarchy)
+                continue;
+
+            if (box.GetComponent<NoWalkZone>() != null)
+                continue;
+
+            Bounds bounds = box.bounds;
+
+            if (point.x >= bounds.min.x && point.x <= bounds.max.x &&
+                point.z >= bounds.min.z && point.z <= bounds.max.z)
+                return true;
+        }
+
+        return false;
+    }
+
     public Transform StandPoint => standPoint;
     public Vector3 StandPosition => standPoint == null ? transform.position : standPoint.position;
     public float Reach => reach;
@@ -60,8 +106,20 @@ public class Interactable : MonoBehaviour
     private Vector3 popBaseScale = Vector3.one;
     private Coroutine popRoutine;
 
+    // Fridge and fryer are made of several sibling meshes. A single popTarget
+    // can only ever move one of them -- the fridge body without its door, or
+    // the fryer's basket without the machine. These stations use a visual-only
+    // group evaluated at runtime. No hierarchy is rewritten and no collider or
+    // NavMeshObstacle is scaled.
+    private Transform[] popGroup;
+    private Vector3[] popGroupBasePositions;
+    private Vector3[] popGroupBaseScales;
+    private Vector3 popGroupCenter;
+
     private void Awake()
     {
+        popGroup = WholeStationVisuals();
+
         // Not "is it empty" but "is it any good". A target saved into the scene
         // by an older run of the setup command outlives the rule that picked it,
         // and the two ways it can be wrong -- invisible, or carving the navmesh
@@ -87,7 +145,7 @@ public class Interactable : MonoBehaviour
             popTarget = found;
         }
 
-        if (popTarget == null)
+        if (popTarget == null && !HasPopGroup)
         {
             Debug.LogWarning(name + ": zipllayacak gorunur bir sey bulunamadi -- " +
                              "tiklayinca tepki vermez.\n" +
@@ -97,7 +155,54 @@ public class Interactable : MonoBehaviour
 
         // Read once, before anything has stretched it. Reading it at pop time
         // instead would compound: tap twice quickly and the plate grows
-        popBaseScale = popTarget.localScale;
+        if (popTarget != null)
+            popBaseScale = popTarget.localScale;
+    }
+
+    private bool HasPopGroup => popGroup != null && popGroup.Length > 0;
+
+    // The two stations whose meaning is their whole appliance, not what is
+    // sitting inside it. Mesh renderers only: SpriteRenderer indicators,
+    // particle effects, timer canvases, click boxes and blockers stay still.
+    private Transform[] WholeStationVisuals()
+    {
+        if (GetComponent<FridgeDoor>() == null && GetComponent<FryerStation>() == null)
+            return null;
+
+        List<Transform> visuals = new List<Transform>();
+
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
+        {
+            if (renderer == null || renderer is ParticleSystemRenderer ||
+                renderer is SpriteRenderer || renderer.transform is RectTransform)
+                continue;
+
+            Transform candidate = renderer.transform;
+
+            // Never animate a carving visual. Even a .18 second scale makes a
+            // carving obstacle rebuild NavMesh around every customer in line.
+            if (candidate.GetComponentInChildren<UnityEngine.AI.NavMeshObstacle>(true) != null)
+                continue;
+
+            if (!visuals.Contains(candidate))
+                visuals.Add(candidate);
+        }
+
+        // A renderer can sit below another renderer. Keeping both would scale
+        // the child twice. The highest visual transform owns that branch.
+        for (int i = visuals.Count - 1; i >= 0; i--)
+        {
+            for (int j = 0; j < visuals.Count; j++)
+            {
+                if (i == j || !visuals[i].IsChildOf(visuals[j]))
+                    continue;
+
+                visuals.RemoveAt(i);
+                break;
+            }
+        }
+
+        return visuals.ToArray();
     }
 
     // What the food sits on, most specific first.
@@ -286,19 +391,23 @@ public class Interactable : MonoBehaviour
 
     public void Pop()
     {
-        if (PopDuration <= 0f || popTarget == null || !isActiveAndEnabled)
+        if (PopDuration <= 0f || (!HasPopGroup && popTarget == null) || !isActiveAndEnabled)
             return;
 
         if (popRoutine != null)
+        {
             StopCoroutine(popRoutine);
+            RestorePop();
+        }
+
+        if (HasPopGroup)
+            CapturePopGroup();
 
         popRoutine = StartCoroutine(PopRoutine());
     }
 
     private IEnumerator PopRoutine()
     {
-        Transform target = popTarget;
-
         float duration = PopDuration;
         float amount = PopScale - 1f;
         float time = 0f;
@@ -312,13 +421,100 @@ public class Interactable : MonoBehaviour
             // hand over -- and no tuning to hide one
             float bump = Mathf.Sin(Mathf.Clamp01(time / duration) * Mathf.PI);
 
-            target.localScale = popBaseScale * (1f + amount * bump);
+            ApplyPop(1f + amount * bump);
 
             yield return null;
         }
 
-        target.localScale = popBaseScale;
+        RestorePop();
         popRoutine = null;
+    }
+
+    private void CapturePopGroup()
+    {
+        popGroupBasePositions = new Vector3[popGroup.Length];
+        popGroupBaseScales = new Vector3[popGroup.Length];
+
+        Bounds bounds = default;
+        bool found = false;
+
+        for (int i = 0; i < popGroup.Length; i++)
+        {
+            Transform visual = popGroup[i];
+
+            if (visual == null)
+                continue;
+
+            popGroupBasePositions[i] = visual.position;
+            popGroupBaseScales[i] = visual.localScale;
+
+            foreach (Renderer renderer in visual.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null || renderer is ParticleSystemRenderer ||
+                    renderer is SpriteRenderer || renderer.transform is RectTransform)
+                    continue;
+
+                if (!found)
+                {
+                    bounds = renderer.bounds;
+                    found = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(renderer.bounds);
+                }
+            }
+        }
+
+        popGroupCenter = found ? bounds.center : transform.position;
+    }
+
+    private void ApplyPop(float factor)
+    {
+        if (!HasPopGroup)
+        {
+            if (popTarget != null)
+                popTarget.localScale = popBaseScale * factor;
+
+            return;
+        }
+
+        for (int i = 0; i < popGroup.Length; i++)
+        {
+            Transform visual = popGroup[i];
+
+            if (visual == null)
+                continue;
+
+            visual.localScale = popGroupBaseScales[i] * factor;
+            visual.position = popGroupCenter +
+                              (popGroupBasePositions[i] - popGroupCenter) * factor;
+        }
+    }
+
+    private void RestorePop()
+    {
+        if (!HasPopGroup)
+        {
+            if (popTarget != null)
+                popTarget.localScale = popBaseScale;
+
+            return;
+        }
+
+        if (popGroupBasePositions == null || popGroupBaseScales == null)
+            return;
+
+        for (int i = 0; i < popGroup.Length; i++)
+        {
+            Transform visual = popGroup[i];
+
+            if (visual == null)
+                continue;
+
+            visual.position = popGroupBasePositions[i];
+            visual.localScale = popGroupBaseScales[i];
+        }
     }
 
     // Right click the Interactable header in the inspector. Says what this
@@ -335,6 +531,7 @@ public class Interactable : MonoBehaviour
                   "\n  kayitli: " + (popTarget == null ? "bos" : popTarget.name) +
                   (popTarget != null && found != popTarget ? "  (ise yaramaz, degistirilecek)" : "") +
                   "\n  hedef : " + (found == null ? "YOK -- tiklayinca tepki vermez" : found.name) +
+                  (HasPopGroup ? "\n  butun istasyon grubu: " + popGroup.Length + " mesh" : "") +
                   "\n  secim : " + (picked == null ? "YOK" : picked.name) + " -- " + why +
                   "\n  sure  : " + PopDuration.ToString("0.000") + " sn" +
                   (PopDuration < 0f ? "  (kapali)" : "") +

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67cab3140e47564dbe88acbc7602ba7, type: 3}
   m_Name: Round 48
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
-  totalCustomers: 45
-  spawnInterval: 2.9
+  totalCustomers: 28
+  spawnInterval: 3.4
   maxOrderTypes: 2
   note: 'Raund 48 -- Usta: saniyeler kritik'

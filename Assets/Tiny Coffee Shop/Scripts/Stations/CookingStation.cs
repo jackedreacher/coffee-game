@@ -97,6 +97,25 @@ public class CookingStation : MonoBehaviour
 
     public bool HasRoom => slots.Count < capacity;
 
+    // Cooked and NOT burnt. HasCooked deliberately answers yes to cinders --
+    // HoldFoodAbility needs that, because taking the burnt piece out is the
+    // only way to get the pan back. This is the narrower question, and it is
+    // the one anybody celebrating a result should be asking
+    public bool HasGoodCooked => AnyGood();
+
+    // ---- not a target ---------------------------------------------------
+    //
+    // The revolver used to clear a burnt piece out of the pan from across the
+    // kitchen. That was wrong for the same reason a gun that shoots food is
+    // always wrong: "burnt" is one second past "ready", and a weapon fired at
+    // a moving deadline destroys the player's own work as often as it saves
+    // them a walk. Cinders come out by hand, which is where the decision is
+    // being made anyway.
+    //
+    // So this station is not IShootable at all, rather than IShootable that
+    // always declines -- a tap on it falls through to the ordinary walk-up-and
+    // -use path with nothing in between to explain.
+
     public bool HasCooked
     {
         get
@@ -125,6 +144,14 @@ public class CookingStation : MonoBehaviour
     {
         ApplyTimerLook();
         ShowTimer();
+
+        // Both added here rather than baked in by the editor command that builds
+        // the tick, so every station already sitting in a saved scene gains them
+        // without anybody rebuilding it. ShowReady switches readyRoot on and
+        // PopIn hangs off that, so there is nothing else to call
+        SpriteOutline.Ensure(readyRoot);
+
+        PopIn.Ensure(readyRoot);
     }
 
     // In edit mode too, so the number in the inspector and the ring in the scene
@@ -169,6 +196,41 @@ public class CookingStation : MonoBehaviour
         ShowTimer();
         ShowWarning();
         ShowReady();
+        Sizzle();
+    }
+
+    // Whether this station is contributing to the frying loop.
+    //
+    // Held as a state and only reported on the EDGE, rather than counted up on
+    // PutIn and down on Swap. Balanced by construction that way: a station
+    // switched off mid-cook, a scene unloaded, a slot that never finishes
+    // because the prefab was never wired -- none of them can leave the sizzle
+    // stuck on, which a pair of matched calls absolutely can
+    private bool sizzling;
+
+    private void Sizzle()
+    {
+        bool raw = false;
+
+        for (int i = 0; i < slots.Count && !raw; i++)
+            raw = !slots[i].cooked;
+
+        if (raw == sizzling)
+            return;
+
+        sizzling = raw;
+
+        SoundManager.Cooking(raw);
+    }
+
+    private void OnDisable()
+    {
+        if (!sizzling)
+            return;
+
+        sizzling = false;
+
+        SoundManager.Cooking(false);
     }
 
     private void Cook()
@@ -350,6 +412,11 @@ public class CookingStation : MonoBehaviour
         // Read before the pan size is applied: the cooked prefab has its own
         // scale and it is that one, not the raw one, that goes out on the tray
         slot.scale = slot.item.transform.localScale;
+
+        // Only on the path where something actually turned into cooked food.
+        // The early return above also marks the slot cooked, but that is a
+        // station nobody finished wiring giving up, not a meal
+        SoundManager.Play(SoundManager.Sound.FoodReady);
 
         Place(slot, index);
     }

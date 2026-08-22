@@ -132,7 +132,13 @@ public class RoundManager : MonoBehaviour
 
         for (int i = 0; i < counters.Length; i++)
         {
-            if (counters[i] != null)
+            // Closed counters still exist in the serialized array so they can
+            // be opened by progression later, but they must not receive a
+            // share of today's wave. Dividing four among one open and three
+            // closed counters produced 1/1/1/1, then the closed three silently
+            // discarded theirs -- exactly why the four-customer test showed
+            // only one person.
+            if (counters[i] != null && !counters[i].Closed)
                 live++;
         }
 
@@ -146,6 +152,15 @@ public class RoundManager : MonoBehaviour
         {
             if (counters[i] == null)
                 continue;
+
+            if (counters[i].Closed)
+            {
+                // Also clear any old round state on a counter that was closed
+                // between waves. No allocation is consumed by this call.
+                counters[i].BeginRound(0, data.SpawnInterval,
+                    data.MaxOrderTypes);
+                continue;
+            }
 
             // The remainder goes to the first counter rather than being lost to
             // integer division. Three counters and a wave of ten is 4/3/3
